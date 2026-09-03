@@ -1,0 +1,282 @@
+/* Overrides MapLibre pour DSFR */
+
+[data-theme="dsfr"] .maplibregl-ctrl {
+  font-family: 'Marianne', Arial, sans-serif; /* A remplacer par la variable dsfr !!! */
+}
+.cartefacile-ctrl-zoom-level {
+  padding: 4px 8px;
+  font-weight: 700;
+  color: #333;
+}
+/* Classes CSS réutilisables pour les boutons */
+
+.cartefacile-btn {
+    border-radius: 4px;
+}
+
+.cartefacile-btn-icon::before {
+  content: '';
+  mask-position: 50%;
+  -webkit-mask-position: 50%;
+  mask-size: 20px;
+  -webkit-mask-size: 20px;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: #333333;
+}
+
+/* Icônes avec ::before */
+.cartefacile-btn-icon--stack::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M20.0833 10.4999L21.2854 11.2212C21.5221 11.3633 21.5989 11.6704 21.4569 11.9072C21.4146 11.9776 21.3557 12.0365 21.2854 12.0787L11.9999 17.6499L2.71451 12.0787C2.47772 11.9366 2.40093 11.6295 2.54301 11.3927C2.58523 11.3223 2.64413 11.2634 2.71451 11.2212L3.9166 10.4999L11.9999 15.3499L20.0833 10.4999ZM20.0833 15.1999L21.2854 15.9212C21.5221 16.0633 21.5989 16.3704 21.4569 16.6072C21.4146 16.6776 21.3557 16.7365 21.2854 16.7787L12.5144 22.0412C12.1977 22.2313 11.8021 22.2313 11.4854 22.0412L2.71451 16.7787C2.47772 16.6366 2.40093 16.3295 2.54301 16.0927C2.58523 16.0223 2.64413 15.9634 2.71451 15.9212L3.9166 15.1999L11.9999 20.0499L20.0833 15.1999ZM12.5144 1.30864L21.2854 6.5712C21.5221 6.71327 21.5989 7.0204 21.4569 7.25719C21.4146 7.32757 21.3557 7.38647 21.2854 7.42869L11.9999 12.9999L2.71451 7.42869C2.47772 7.28662 2.40093 6.97949 2.54301 6.7427C2.58523 6.67232 2.64413 6.61343 2.71451 6.5712L11.4854 1.30864C11.8021 1.11864 12.1977 1.11864 12.5144 1.30864Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M20.0833 10.4999L21.2854 11.2212C21.5221 11.3633 21.5989 11.6704 21.4569 11.9072C21.4146 11.9776 21.3557 12.0365 21.2854 12.0787L11.9999 17.6499L2.71451 12.0787C2.47772 11.9366 2.40093 11.6295 2.54301 11.3927C2.58523 11.3223 2.64413 11.2634 2.71451 11.2212L3.9166 10.4999L11.9999 15.3499L20.0833 10.4999ZM20.0833 15.1999L21.2854 15.9212C21.5221 16.0633 21.5989 16.3704 21.4569 16.6072C21.4146 16.6776 21.3557 16.7365 21.2854 16.7787L12.5144 22.0412C12.1977 22.2313 11.8021 22.2313 11.4854 22.0412L2.71451 16.7787C2.47772 16.6366 2.40093 16.3295 2.54301 16.0927C2.58523 16.0223 2.64413 15.9634 2.71451 15.9212L3.9166 15.1999L11.9999 20.0499L20.0833 15.1999ZM12.5144 1.30864L21.2854 6.5712C21.5221 6.71327 21.5989 7.0204 21.4569 7.25719C21.4146 7.32757 21.3557 7.38647 21.2854 7.42869L11.9999 12.9999L2.71451 7.42869C2.47772 7.28662 2.40093 6.97949 2.54301 6.7427C2.58523 6.67232 2.64413 6.61343 2.71451 6.5712L11.4854 1.30864C11.8021 1.11864 12.1977 1.11864 12.5144 1.30864Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+
+.cartefacile-btn-icon--close-circle::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+
+.cartefacile-btn-icon--close::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+
+.cartefacile-btn-icon--search::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+}
+.cartefacile-ctrl-map-selector-panel {
+  padding: 12px;
+  padding-bottom: 16px;
+  width: 240px;
+  box-sizing: border-box;
+  max-width: calc(100% - 20px);
+  overflow-y: auto;
+  position: absolute;
+  z-index: 1000;
+  max-height: calc(100% - 20px);
+}
+
+.cartefacile-ctrl-map-selector-panel .cartefacile-btn--close {
+  margin-left: auto;
+}
+
+.cartefacile-ctrl-map-selector-panel h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.cartefacile-ctrl-map-selector-panel .cartefacile-ctrl-map-selector-card-list {
+  margin-bottom: 16px;
+}
+
+.cartefacile-ctrl-map-selector-panel .cartefacile-ctrl-map-selector-card-list:last-child {
+  margin-bottom: 0;
+}
+
+.cartefacile-ctrl-map-selector-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cartefacile-ctrl-map-selector-card {
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.cartefacile-ctrl-map-selector-card:hover {
+  background-color: rgb(0 0 0/5%);
+}
+
+.cartefacile-ctrl-map-selector-card.active {
+  background-color: #3ea0eb60;
+}
+
+.cartefacile-ctrl-map-selector-card img {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+}
+
+/* Position top-right (par défaut) */
+.cartefacile-ctrl-top-right {
+    top: 10px;
+    right: 10px;
+}
+
+/* Position top-left */
+.cartefacile-ctrl-top-left {
+    top: 10px;
+    left: 10px;
+}
+
+/* Position bottom-right */
+.cartefacile-ctrl-bottom-right {
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Position bottom-left */
+.cartefacile-ctrl-bottom-left {
+    bottom: 10px;
+    left: 10px;
+}
+.cartefacile-ctrl-search {
+    display: flex;
+    width: 280px;
+    /* Shrinks on small screens to avoid overlapping controls on the opposite side */
+    max-width: calc(100vw - 112px);
+}
+
+/* Visually hidden but readable by screen readers */
+.cartefacile-ctrl-search__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+/* Field: groups input + clear button as one visual unit */
+.cartefacile-ctrl-search__field {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.cartefacile-ctrl-search__input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    /* padding-right leaves room for the clear button (~28px) */
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    background: none;
+    border-radius: 4px 0 0 4px;
+}
+
+/* Results list */
+.cartefacile-ctrl-search__results {
+    display: none;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px rgba(0,0,0,.1);
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.cartefacile-ctrl-search__results--visible {
+    display: block;
+}
+
+.cartefacile-ctrl-search__result {
+    padding: 12px 16px;
+    cursor: pointer;
+    line-height: 1.4;
+    border-bottom: 1px solid #eee;
+}
+
+.cartefacile-ctrl-search__result:last-child {
+    border-bottom: none;
+}
+
+.cartefacile-ctrl-search__result:hover,
+.cartefacile-ctrl-search__result--selected {
+    background: rgb(0 0 0 / 5%);
+}
+
+.cartefacile-ctrl-search__result-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cartefacile-ctrl-search__result-label,
+.cartefacile-ctrl-search__result-desc {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cartefacile-ctrl-search__result-label {
+    font-size: 14px;
+}
+
+/* Secondary info below the label: location suffix and description */
+.cartefacile-ctrl-search__result-desc {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Pin icon for point results (POI, addresses) */
+.cartefacile-ctrl-search__result--has-pin {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cartefacile-ctrl-search__result--has-pin::before {
+    content: '';
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: #888;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M12 20.8995L16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995ZM12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM12 13C13.1046 13 14 12.1046 14 11C14 9.89543 13.1046 9 12 9C10.8954 9 10 9.89543 10 11C10 12.1046 10.8954 13 12 13ZM12 15C9.79086 15 8 13.2091 8 11C8 8.79086 9.79086 7 12 7C14.2091 7 16 8.79086 16 11C16 13.2091 14.2091 15 12 15Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 24 24%22 fill%3D%22currentColor%22%3E%3Cpath d%3D%22M12 20.8995L16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995ZM12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM12 13C13.1046 13 14 12.1046 14 11C14 9.89543 13.1046 9 12 9C10.8954 9 10 9.89543 10 11C10 12.1046 10.8954 13 12 13ZM12 15C9.79086 15 8 13.2091 8 11C8 8.79086 9.79086 7 12 7C14.2091 7 16 8.79086 16 11C16 13.2091 14.2091 15 12 15Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+}
+
+/* Search button stretches to match the field height and is square */
+/* Double selector intentional: overrides MapLibre's .maplibregl-ctrl-group button (0,1,1) */
+.cartefacile-ctrl-search .cartefacile-ctrl-search__btn-search {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Clear button: inside the field, visible only when field has content */
+/* Double selector intentional: overrides MapLibre's .maplibregl-ctrl-group button (0,1,1) */
+.cartefacile-ctrl-search .cartefacile-ctrl-search__btn-clear {
+    display: none;
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    opacity: 0.4;
+    line-height: 1;
+}
+
+.cartefacile-ctrl-search--has-value .cartefacile-ctrl-search__btn-clear {
+    display: block;
+}

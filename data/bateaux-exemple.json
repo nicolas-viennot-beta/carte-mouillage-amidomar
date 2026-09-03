@@ -1,0 +1,13 @@
+{
+  "_commentaire": "Exemple de structure attendue. Le fichier reel doit provenir de Grist et ne contenir QUE des positions : aucun nom, immatriculation, ni identifiant de proprietaire. Ces 8 positions fictives figurent un mouillage realiste (espacement minimal 55 m) permettant de voir fonctionner la detection de recoupement.",
+  "records": [
+    { "fields": { "latitude": 43.051200, "longitude": 6.147800 } },
+    { "fields": { "latitude": 43.051362, "longitude": 6.148562 } },
+    { "fields": { "latitude": 43.051559, "longitude": 6.147210 } },
+    { "fields": { "latitude": 43.050706, "longitude": 6.148107 } },
+    { "fields": { "latitude": 43.050975, "longitude": 6.146939 } },
+    { "fields": { "latitude": 43.051110, "longitude": 6.149152 } },
+    { "fields": { "latitude": 43.051964, "longitude": 6.148353 } },
+    { "fields": { "latitude": 43.052053, "longitude": 6.147431 } }
+  ]
+}

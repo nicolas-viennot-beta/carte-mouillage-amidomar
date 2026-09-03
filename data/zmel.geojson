@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "_commentaire": "Zones de Mouillages et d'Equipements Legers. Aucune couche nationale consolidee n'a ete identifiee : les ZMEL sont creees par arrete prefectoral. Ce fichier est a completer territoire par territoire avec les DDTM. L'exemple ci-dessous est fictif et doit etre supprime.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nom": "EXEMPLE FICTIF - ZMEL a remplacer",
+        "commune": "",
+        "arrete": "",
+        "nb_postes": null,
+        "gestionnaire": ""
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [6.130, 43.043],
+          [6.146, 43.043],
+          [6.146, 43.052],
+          [6.130, 43.052],
+          [6.130, 43.043]
+        ]]
+      }
+    }
+  ]
+}

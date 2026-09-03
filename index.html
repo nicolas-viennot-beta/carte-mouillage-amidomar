@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carte AMIDOMAR — aide au choix d'un mouillage</title>
+
+    <!-- Mode embed : ajouter ?embed a l'URL pour masquer le bandeau -->
+    <script>
+      if (new URLSearchParams(location.search).has('embed')) {
+        document.documentElement.classList.add('embed');
+      }
+    </script>
+
+    <!-- Politique de sécurité : aucun script extérieur ne peut être chargé ni
+         injecté dans la page. Les images restent autorisées en https pour les
+         serveurs de tuiles (IGN, SHOM, OFB, IFREMER). -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      worker-src blob:;
+      child-src blob:;
+      img-src 'self' data: blob: https:;
+      connect-src 'self' https:;
+      font-src 'self' data:;
+      object-src 'none';
+      base-uri 'none';
+      form-action 'none';">
+
+    <!-- Bibliothèques embarquées dans le dépôt (voir vendor/VERSIONS.txt).
+         Volontairement pas de CDN : le code exécuté par les visiteurs ne doit
+         dépendre d'aucun tiers, et ne doit pas pouvoir changer tout seul. -->
+    <link href="vendor/maplibre-gl.css" rel="stylesheet" />
+    <script src="vendor/maplibre-gl.js"></script>
+    <link href="vendor/carte-facile.css" rel="stylesheet" />
+    <script src="vendor/carte-facile.js"></script>
+
+    <style>
+      /* Mise en page en colonne : la carte occupe la place restante, quel que
+         soit le nombre de bandeaux au-dessus. Évite tout calcul de hauteur
+         en pixels, qui casse dès qu'on ajoute une ligne. */
+      html, body { height:100%; width:100%; margin:0; font-family: Marianne, arial, sans-serif; }
+      body { display:flex; flex-direction:column; }
+      #map-wrap { position:relative; flex:1; min-height:0; }
+
+      /* ---------- Bandeau, modèle DSFR compact (cf. doctorat.gouv.fr) ----------
+         Le bloc institutionnel se limite à « RÉPUBLIQUE FRANÇAISE » ; le nom du
+         service prend la vedette. On passe de 110 px à environ 62 px, soit
+         48 px rendus à la carte. */
+      #bandeau { background:#fff; border-bottom:2px solid #003189; display:flex; align-items:center;
+                 padding:9px 20px; gap:14px; box-sizing:border-box; flex-shrink:0; }
+      .rf-bloc { display:flex; align-items:center; gap:9px; flex-shrink:0; }
+      .rf-bloc p { margin:0; font-size:11px; font-weight:700; color:#161616;
+                   text-transform:uppercase; letter-spacing:.02em; line-height:1.15; white-space:nowrap; }
+      .bandeau-separator { width:1px; align-self:stretch; background:#ddd; flex-shrink:0; }
+      .service-bloc { min-width:0; }
+      .service-bloc .nom { margin:0; font-size:17px; font-weight:700; color:#003189; line-height:1.2; }
+      .service-bloc .base { margin:1px 0 0; font-size:12px; color:#666; line-height:1.3;
+                            overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      @media (max-width:700px) { .service-bloc .base { display:none; } }
+
+      /* Mention de prototype : reste visible y compris en mode embed, car c'est
+         là que la carte est vue hors de son contexte institutionnel. */
+      #proto { background:#fff4e5; border-bottom:2px solid #b34000; color:#6b2800;
+               padding:6px 24px; font-size:13px; font-weight:700; box-sizing:border-box;
+               width:100%; text-align:center; }
+      #proto span { font-weight:400; }
+
+      /* La marge droite réserve la place de la colonne de panneaux (272 px + 20). */
+      #notice { background:#dfe6fb; border-left:4px solid #003189; padding:10px 24px; font-size:14px;
+                color:#1e1e1e; line-height:1.6; box-sizing:border-box; width:100%; padding-right:300px; }
+      @media (max-width:900px) { #notice { padding-right:24px; } }
+      #notice strong { color:#c9191e; }
+
+      #map { position:absolute; inset:0; background:#000120; }
+
+      html.embed #bandeau, html.embed #notice { display:none; }
+
+      /* ---------- Popup de coordonnées ---------- */
+      #coords-popup { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#fff;
+                      border-radius:8px; padding:10px 16px; box-shadow:0 2px 12px rgba(0,0,0,.25); display:flex;
+                      align-items:center; gap:10px; font-family:monospace; font-size:14px; z-index:1000;
+                      opacity:0; transition:opacity .2s; pointer-events:none; }
+      #coords-popup.visible { opacity:1; pointer-events:auto; }
+      #copy-btn { background:#1a73e8; color:#fff; border:none; border-radius:5px; padding:5px 10px;
+                  cursor:pointer; font-size:13px; }
+      #copy-btn:hover { background:#1558b0; }
+      #copy-btn.copied { background:#2e7d32; }
+
+      /* ---------- Panneaux latéraux ---------- */
+      #panels { position:absolute; top:10px; right:10px; width:272px; z-index:500;
+                display:flex; flex-direction:column; gap:8px;
+                max-height:calc(100% - 20px); overflow-y:auto; }
+      .side-panel { background:#fff; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,.2);
+                    font-size:13px; overflow:hidden; flex-shrink:0; }
+      .panel-header { background:#003189; color:#fff; padding:8px 14px; font-weight:700; font-size:13px;
+                      cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+                      user-select:none; }
+      .panel-body { padding:10px 14px; }
+
+      .layer-group-title { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em;
+                           color:#666; margin:10px 0 4px; }
+      .layer-group-title:first-child { margin-top:0; }
+      .layer-item { display:flex; align-items:center; gap:8px; padding:4px 0; cursor:pointer; }
+      .layer-item input[type=checkbox] { cursor:pointer; width:16px; height:16px; flex-shrink:0; }
+      .layer-item input[type=checkbox]:disabled { cursor:wait; }
+      .layer-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+      .layer-label { color:#1a1a1a; flex:1; line-height:1.3; }
+      .layer-status { font-size:11px; flex-shrink:0; width:16px; text-align:center; }
+      .st-wait { color:#999; }
+      .st-ok   { color:#18753c; font-weight:700; }
+      .st-ko   { color:#c9191e; font-weight:700; }
+      .layer-note { font-size:11px; color:#666; margin:0 0 4px 24px; line-height:1.35; font-style:italic; }
+
+      /* ---------- Panneau bateau ---------- */
+      .field { margin-bottom:9px; }
+      .field label { display:block; font-size:11px; font-weight:700; color:#333; margin-bottom:3px; }
+      .field input, .field select { width:100%; box-sizing:border-box; padding:5px 7px; font-size:13px;
+                                    border:1px solid #ccc; border-radius:4px; font-family:inherit; }
+      .result-box { background:#f0f4ff; border-left:3px solid #003189; padding:8px 10px; margin-top:10px;
+                    font-size:13px; line-height:1.5; }
+      .result-box .big { font-size:20px; font-weight:700; color:#003189; }
+      .warn-box { background:#ffe9e9; border-left:3px solid #c9191e; padding:8px 10px; margin-top:8px;
+                  font-size:12px; line-height:1.45; }
+      .ok-box   { background:#e8f5ec; border-left:3px solid #18753c; padding:8px 10px; margin-top:8px;
+                  font-size:12px; line-height:1.45; }
+      .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
+                    border-top:1px solid #eee; padding-top:7px; }
+    </style>
+  </head>
+
+  <body>
+    <header id="bandeau" role="banner">
+      <div class="rf-bloc">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 30" width="36" height="24" aria-hidden="true">
+          <rect x="0"  y="0" width="15" height="30" fill="#003189"/>
+          <rect x="15" y="0" width="15" height="30" fill="#FFFFFF"/>
+          <rect x="30" y="0" width="15" height="30" fill="#E1000F"/>
+        </svg>
+        <p>République<br>Française</p>
+      </div>
+      <div class="bandeau-separator"></div>
+      <div class="service-bloc">
+        <h1 class="nom">Carte AMIDOMAR</h1>
+        <p class="base">Aide au choix d'un mouillage individuel — DGALN</p>
+      </div>
+    </header>
+
+    <div id="proto" role="note">
+      Prototype de travail — sans valeur officielle.
+      <span>Les informations présentées n'engagent pas l'administration et ne valent pas autorisation.</span>
+    </div>
+
+    <div id="notice" role="note">
+      Cliquez sur la zone de mouillage envisagée, renseignez la longueur de votre navire, puis copiez les coordonnées GPS dans le formulaire de votre démarche.<br>
+      <strong>Le rayon d'évitage affiché est une estimation indicative, il ne remplace pas une vérification sur place.</strong>
+    </div>
+
+    <div id="map-wrap">
+      <div id="map"></div>
+    </div>
+
+    <div id="coords-popup">
+      <span id="coords-text"></span>
+      <button id="copy-btn">Copier</button>
+    </div>
+
+    <script>
+    /* ==========================================================================
+       CARTE AMIDOMAR — V1
+       --------------------------------------------------------------------------
+       Zones à modifier sans toucher au reste du code :
+         1. CONFIG        → profondeur par défaut, longueur de bateau par défaut
+         2. GRIST         → adresse du fichier Grist des positions
+         3. COUCHES       → sources cartographiques affichées
+       ========================================================================== */
+
+    /* --- 1. CONFIG ---------------------------------------------------------- */
+    const CONFIG = {
+      profondeurDefaut: 5,      // mètres — "profondeur classique" retenue pour la V1
+      ratioMouillage:   5,      // longueur de chaîne filée = ratio × profondeur
+      longueurDefaut:   9,      // mètres — longueur de navire par défaut
+      longueurAutres:   9,      // mètres — longueur supposée des AUTRES bateaux
+                                //   (le fichier Grist ne contient que des positions,
+                                //    aucune caractéristique de navire)
+      centre: [6.1478, 43.0512],  // vue initiale : rade d'Hyères
+      zoom:   14.5
+    };
+
+    /* --- 2. GRIST ----------------------------------------------------------- */
+    // Le fichier ne doit contenir QUE des positions (latitude / longitude),
+    // sans nom, immatriculation ni identifiant de propriétaire.
+    const GRIST = {
+      url: 'data/bateaux-exemple.json',   // ← remplacer par l'URL de l'API Grist
+      champLat: 'latitude',
+      champLon: 'longitude'
+    };
+
+    /* --- 2 bis. DONNÉES DE SECOURS ------------------------------------------
+       Ouvrir index.html par double-clic empêche le navigateur de lire les
+       fichiers du dossier data/ (restriction de sécurité "file://").
+       Ces données de secours permettent alors à la carte de fonctionner quand
+       même. Une fois le site en ligne, les vrais fichiers reprennent la main.
+       ------------------------------------------------------------------------ */
+    const SECOURS = {
+      bateaux: { records: [
+        { fields:{ latitude:43.051200, longitude:6.147800 } },
+        { fields:{ latitude:43.051362, longitude:6.148562 } },
+        { fields:{ latitude:43.051559, longitude:6.147210 } },
+        { fields:{ latitude:43.050706, longitude:6.148107 } },
+        { fields:{ latitude:43.050975, longitude:6.146939 } },
+        { fields:{ latitude:43.051110, longitude:6.149152 } },
+        { fields:{ latitude:43.051964, longitude:6.148353 } },
+        { fields:{ latitude:43.052053, longitude:6.147431 } }
+      ]},
+      'data/zmel.geojson': { type:'FeatureCollection', features:[{
+        type:'Feature', properties:{ nom:'EXEMPLE FICTIF — ZMEL à remplacer' },
+        geometry:{ type:'Polygon', coordinates:[[[6.130,43.043],[6.146,43.043],
+                   [6.146,43.052],[6.130,43.052],[6.130,43.043]]] } }]},
+      'data/cultures-marines.geojson': { type:'FeatureCollection', features:[{
+        type:'Feature', properties:{ nom:'EXEMPLE FICTIF — zone à remplacer' },
+        geometry:{ type:'Polygon', coordinates:[[[6.163,43.058],[6.178,43.058],
+                   [6.178,43.066],[6.163,43.066],[6.163,43.058]]] } }]}
+    };
+
+    /* --- 3. COUCHES --------------------------------------------------------- */
+    // statut : 'verifie'   = source testée et fonctionnelle
+    //          'a_tester'  = source plausible, à confirmer par le bandeau de test
+    //          'local'     = fichier GeoJSON du dépôt, à compléter par les DDTM
+    const WMTS = (couche, format) =>
+      `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0` +
+      `&LAYER=${couche}&STYLE=normal&TILEMATRIXSET=PM&FORMAT=${format}` +
+      `&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}`;
+
+    const WMS = (base, couches) =>
+      `${base}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=${couches}` +
+      `&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:3857` +
+      `&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256`;
+
+    const COUCHES = [
+      { groupe:'Protection de la nature',
+        id:'natura_sic', label:'Natura 2000 — habitats (SIC/ZSC)', couleur:'#e65100', statut:'verifie',
+        tiles: WMTS('Patrinat_SIC','image/png'), visible:true,
+        attribution:'© IGN / INPN' },
+
+      { groupe:'Protection de la nature',
+        id:'natura_zps', label:'Natura 2000 — oiseaux (ZPS)', couleur:'#ef6c00', statut:'verifie',
+        tiles: WMTS('Patrinat_ZPS','image/png'), visible:false,
+        attribution:'© IGN / INPN' },
+
+      { groupe:'Protection de la nature',
+        id:'pnm', label:'Parcs naturels marins', couleur:'#00695c', statut:'verifie',
+        tiles: WMTS('Patrinat_PNM','image/png'), visible:true,
+        attribution:'© IGN / INPN' },
+
+      { groupe:'Protection de la nature',
+        id:'znieff_mer', label:'ZNIEFF marines (type 1)', couleur:'#2e7d32', statut:'verifie',
+        tiles: WMTS('Patrinat_ZNIEFF1_MER','image/png'), visible:false,
+        attribution:'© IGN / INPN' },
+
+      { groupe:'Protection de la nature',
+        id:'rnn', label:'Réserves naturelles nationales', couleur:'#1b5e20', statut:'verifie',
+        tiles: WMTS('Patrinat_RNN','image/png'), visible:false,
+        attribution:'© IGN / INPN' },
+
+      { groupe:'Protection de la nature',
+        id:'amp', label:'Aires marines protégées', couleur:'#c62828', statut:'verifie',
+        tiles: WMS('https://wxs.ofb.fr/geoserver/gestion/ows','ges_omon_amp_ofb_pol_3857_vue'),
+        visible:false, attribution:'© OFB' },
+
+      { groupe:'Habitats sensibles',
+        id:'posidonie', label:'Herbiers de posidonie', couleur:'#6a1b9a', statut:'a_tester',
+        tiles: WMS('https://sextant.ifremer.fr/services/wms/biologie','BIOMED_POSI_PALAVAS_P,BIOMED_POSI_ALBERES_P'),
+        visible:false, attribution:'© IFREMER',
+        note:"Couverture partielle (Palavas, Albères). N'affiche rien sur le Var et la Corse." },
+
+      { groupe:'Usages de la mer',
+        id:'ports', label:'Informations portuaires', couleur:'#01579b', statut:'verifie',
+        tiles: WMS('https://services.data.shom.fr/INSPIRE/wms/r','INFORMATIONS_PORTUAIRES_PYR_PNG_3857_WMSR'),
+        visible:true, attribution:'© SHOM' },
+
+      { groupe:'Usages de la mer',
+        id:'zmel', label:'ZMEL', couleur:'#f9a825', statut:'local',
+        geojson:'data/zmel.geojson', visible:true,
+        note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
+
+      { groupe:'Usages de la mer',
+        id:'cultures', label:'Cultures marines', couleur:'#00838f', statut:'local',
+        geojson:'data/cultures-marines.geojson', visible:true,
+        note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
+
+      { groupe:'Autres usagers',
+        id:'mouillages', label:'Autres mouillages et leur évitage', couleur:'#455a64',
+        statut:'local', bateaux:true, visible:true,
+        note:"Positions simulées pour la démonstration. Seront fournies par un fichier Grist." }
+    ];
+
+    /* ========================================================================
+       À partir d'ici, il n'est normalement pas nécessaire de modifier le code.
+       ======================================================================== */
+
+    const map = new maplibregl.Map({
+      container:'map',
+      style: CarteFacile.mapStyles.simple,
+      center: CONFIG.centre,
+      zoom: CONFIG.zoom,
+      maxZoom: 18.9
+    });
+    map.addControl(new CarteFacile.SearchControl);
+    map.addControl(new maplibregl.NavigationControl);
+    map.addControl(new maplibregl.ScaleControl);
+    map.addControl(new maplibregl.GeolocateControl);
+    map.addControl(new CarteFacile.MapSelectorControl);
+
+    /* ---------- Construction des panneaux ---------- */
+    const colonne = document.createElement('div');
+    colonne.id = 'panels';
+    document.getElementById('map-wrap').appendChild(colonne);
+
+    const groupes = [...new Set(COUCHES.map(c => c.groupe))];
+    const layerPanel = document.createElement('div');
+    layerPanel.className = 'side-panel';
+    layerPanel.id = 'layer-panel';
+    layerPanel.innerHTML = `
+      <div class="panel-header" data-panel="layer">Couches affichées <span>▾</span></div>
+      <div class="panel-body">
+        ${groupes.map(g => `
+          <div class="layer-group-title">${g}</div>
+          ${COUCHES.filter(c => c.groupe === g).map(c => `
+            <label class="layer-item">
+              <input type="checkbox" id="tg-${c.id}" ${c.visible ? 'checked' : ''} disabled>
+              <span class="layer-dot" style="background:${c.couleur}"></span>
+              <span class="layer-label">${c.label}</span>
+              <span class="layer-status st-wait" id="st-${c.id}">…</span>
+            </label>
+            ${c.note ? `<p class="layer-note">${c.note}</p>` : ''}
+          `).join('')}
+        `).join('')}
+        <p class="disclaimer">✓ = source testée et joignable depuis votre navigateur.
+        ✗ = source injoignable : la couche existe dans la configuration mais n'affiche rien.</p>
+      </div>`;
+    const boatPanel = document.createElement('div');
+    boatPanel.className = 'side-panel';
+    boatPanel.id = 'boat-panel';
+    boatPanel.innerHTML = `
+      <div class="panel-header" data-panel="boat">Mon mouillage <span>▾</span></div>
+      <div class="panel-body">
+        <div class="field">
+          <label for="in-loa">Longueur de mon navire (m)</label>
+          <input type="number" id="in-loa" min="2" max="60" step="0.5" value="${CONFIG.longueurDefaut}">
+        </div>
+        <div class="field">
+          <label for="in-depth">Profondeur retenue (m)</label>
+          <input type="number" id="in-depth" min="1" max="40" step="0.5" value="${CONFIG.profondeurDefaut}">
+        </div>
+        <div class="field">
+          <label for="in-scope">Longueur de chaîne filée</label>
+          <select id="in-scope">
+            <option value="3">3 × la profondeur — temps calme</option>
+            <option value="5" selected>5 × la profondeur — usage courant</option>
+            <option value="7">7 × la profondeur — temps établi</option>
+          </select>
+        </div>
+        <div class="result-box">
+          Rayon d'évitage estimé<br>
+          <span class="big" id="out-radius">—</span> m
+        </div>
+        <div id="out-conflict"></div>
+        <p class="disclaimer">
+          Profondeur saisie, non mesurée. Autres navires figurés avec une longueur
+          supposée de ${CONFIG.longueurAutres} m.
+          <strong>Aide à la réflexion, pas une garantie de non-collision.</strong>
+        </p>
+      </div>`;
+    // Le mouillage est la tâche principale : son panneau vient en premier.
+    colonne.appendChild(boatPanel);
+    colonne.appendChild(layerPanel);
+
+    document.querySelectorAll('.panel-header').forEach(h => {
+      h.addEventListener('click', () => {
+        const body = h.nextElementSibling;
+        const open = body.style.display !== 'none';
+        body.style.display = open ? 'none' : 'block';
+        h.querySelector('span').textContent = open ? '▸' : '▾';
+      });
+    });
+
+    /* ---------- Géométrie : cercle en mètres ---------- */
+    function cercle(lon, lat, rayonM, pts = 72) {
+      const coords = [];
+      const dLat = rayonM / 111320;
+      const dLon = rayonM / (111320 * Math.cos(lat * Math.PI / 180));
+      for (let i = 0; i <= pts; i++) {
+        const a = (i / pts) * 2 * Math.PI;
+        coords.push([lon + dLon * Math.cos(a), lat + dLat * Math.sin(a)]);
+      }
+      return { type:'Feature', geometry:{ type:'Polygon', coordinates:[coords] }, properties:{} };
+    }
+    function distanceM(a, b) {
+      const R = 6371000, t = Math.PI / 180;
+      const dLat = (b[1]-a[1])*t, dLon = (b[0]-a[0])*t;
+      const s = Math.sin(dLat/2)**2 +
+                Math.cos(a[1]*t)*Math.cos(b[1]*t)*Math.sin(dLon/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s));
+    }
+    // Rayon d'évitage : portée horizontale de la chaîne + longueur du navire
+    function rayonEvitage(loa, profondeur, ratio) {
+      const chaine = ratio * profondeur;
+      const portee = Math.sqrt(Math.max(chaine*chaine - profondeur*profondeur, 0));
+      return portee + loa;
+    }
+
+    /* ---------- Chargement des couches ---------- */
+    function testerSource(url) {
+      return new Promise(res => {
+        const u = url
+          .replace('{bbox-epsg-3857}', '300000,5250000,800000,5500000')
+          .replace('{z}','12').replace('{x}','2118').replace('{y}','1505');
+        const img = new Image(); let fini = false;
+        const t = setTimeout(() => { if(!fini){fini=true; res(false);} }, 15000);
+        img.onload  = () => { if(!fini){fini=true; clearTimeout(t); res(true);} };
+        img.onerror = () => { if(!fini){fini=true; clearTimeout(t); res(false);} };
+        img.src = u;
+      });
+    }
+
+    /* Démarrage : ne pas dépendre de l'évènement 'load'.
+       MapLibre n'émet 'load' qu'une fois les premières tuiles rendues : si le
+       fond de carte est injoignable (proxy d'administration, panne du service),
+       'load' ne survient jamais et l'application resterait entièrement inerte.
+       On s'accroche donc au chargement du style, qui ne dépend pas du réseau
+       de tuiles, avec une garantie d'exécution unique. */
+    let demarre = false;
+    function demarrer() {
+      if (demarre) return;
+      demarre = true;
+      initialiser();
+    }
+    if (map.isStyleLoaded()) demarrer();
+    else {
+      map.on('styledata', () => { if (map.isStyleLoaded()) demarrer(); });
+      map.once('load', demarrer);
+      setTimeout(demarrer, 8000);   // filet de sécurité
+    }
+
+    /* Signaler visiblement un fond de carte indisponible plutôt que
+       de laisser l'usager devant un rectangle noir sans explication. */
+    let tuilesKo = 0;
+    map.on('error', e => {
+      if (!e || !e.error || !/AJAX|Failed to fetch/i.test(String(e.error))) return;
+      if (++tuilesKo !== 6) return;
+      const d = document.createElement('div');
+      d.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+        'background:#fff;border-left:4px solid #c9191e;padding:14px 18px;border-radius:6px;' +
+        'box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:2000;max-width:340px;font-size:13px;line-height:1.5';
+      d.innerHTML = "<strong>Fond de carte indisponible</strong><br>Le service cartographique de " +
+        "l'IGN ne répond pas depuis ce poste. Les outils de saisie et de calcul restent utilisables, " +
+        "mais le fond de plan ne s'affichera pas.";
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 12000);
+    });
+
+    async function initialiser() {
+      /* Les couches de travail sont créées AVANT la boucle, afin que la case
+         à cocher « autres mouillages » puisse être câblée comme les autres. */
+      const vide = { type:'FeatureCollection', features:[] };
+      map.addSource('autres-cercles', { type:'geojson', data:vide });
+      map.addLayer({ id:'autres-cercles-fill', type:'fill', source:'autres-cercles',
+        paint:{ 'fill-color':'#607d8b', 'fill-opacity':0.20 } });
+      map.addLayer({ id:'autres-cercles-line', type:'line', source:'autres-cercles',
+        paint:{ 'line-color':'#455a64', 'line-width':1 } });
+
+      map.addSource('autres-points', { type:'geojson', data:vide });
+      map.addLayer({ id:'autres-points-c', type:'circle', source:'autres-points',
+        paint:{ 'circle-radius':4, 'circle-color':'#455a64',
+                'circle-stroke-width':1.5, 'circle-stroke-color':'#fff' } });
+
+      map.addSource('mon-cercle', { type:'geojson', data:vide });
+      map.addLayer({ id:'mon-cercle-fill', type:'fill', source:'mon-cercle',
+        paint:{ 'fill-color':['get','couleur'], 'fill-opacity':0.28 } });
+      map.addLayer({ id:'mon-cercle-line', type:'line', source:'mon-cercle',
+        paint:{ 'line-color':['get','couleur'], 'line-width':2.5 } });
+
+      for (const c of COUCHES) {
+        const cb = document.getElementById('tg-' + c.id);
+        const st = document.getElementById('st-' + c.id);
+
+        if (c.bateaux) {
+          // Couche pilotée par le fichier de positions : rien à créer ici,
+          // le statut est renseigné par chargerBateaux().
+        } else if (c.geojson) {
+          try {
+            let gj, secours = false;
+            try {
+              const r = await fetch(c.geojson);
+              if (!r.ok) throw new Error('introuvable');
+              gj = await r.json();
+            } catch (err) {
+              if (!SECOURS[c.geojson]) throw err;
+              gj = SECOURS[c.geojson]; secours = true;
+            }
+            const vide = !gj.features || gj.features.length === 0;
+            map.addSource(c.id, { type:'geojson', data:gj });
+            map.addLayer({ id:c.id+'-fill', type:'fill', source:c.id,
+              layout:{ visibility: c.visible ? 'visible':'none' },
+              paint:{ 'fill-color':c.couleur, 'fill-opacity':0.35 } });
+            map.addLayer({ id:c.id+'-line', type:'line', source:c.id,
+              layout:{ visibility: c.visible ? 'visible':'none' },
+              paint:{ 'line-color':c.couleur, 'line-width':1.5 } });
+            st.textContent = vide ? '○' : (secours ? '≈' : '✓');
+            st.className = 'layer-status ' + (vide ? 'st-wait' : 'st-ok');
+            st.title = vide ? 'Fichier présent mais vide — à compléter'
+                     : (secours ? 'Données de secours (page ouverte en local)' : 'Fichier chargé');
+          } catch (e) {
+            st.textContent = '✗'; st.className = 'layer-status st-ko';
+            st.title = 'Fichier absent : ' + c.geojson;
+            continue;
+          }
+        } else {
+          map.addSource(c.id, { type:'raster', tiles:[c.tiles], tileSize:256, attribution:c.attribution });
+          map.addLayer({ id:c.id+'-layer', type:'raster', source:c.id,
+            layout:{ visibility: c.visible ? 'visible':'none' },
+            paint:{ 'raster-opacity':0.7 } });
+          testerSource(c.tiles).then(ok => {
+            st.textContent = ok ? '✓' : '✗';
+            st.className = 'layer-status ' + (ok ? 'st-ok' : 'st-ko');
+            st.title = ok ? 'Source joignable' : 'Source injoignable depuis ce navigateur';
+          });
+        }
+
+        cb.disabled = false;
+        cb.addEventListener('change', e => {
+          const v = e.target.checked ? 'visible' : 'none';
+          const ids = c.bateaux ? ['autres-cercles-fill','autres-cercles-line','autres-points-c']
+                    : c.geojson ? [c.id+'-fill', c.id+'-line']
+                    : [c.id+'-layer'];
+          ids.forEach(i => { if (map.getLayer(i)) map.setLayoutProperty(i,'visibility',v); });
+          // Masquer les autres mouillages retire aussi l'analyse de recoupement,
+          // pour ne pas signaler un conflit avec des navires invisibles.
+          if (c.bateaux) { mouillagesVisibles = e.target.checked; recalculer(); }
+        });
+      }
+
+      await chargerBateaux();
+      recalculer();
+    }
+
+    /* ---------- Positions des autres navires ---------- */
+    let autres = [];
+    let mouillagesVisibles = true;   // suit la case « Autres mouillages »
+    async function chargerBateaux() {
+      try {
+        let j;
+        try {
+          const r = await fetch(GRIST.url);
+          if (!r.ok) throw new Error(r.status);
+          j = await r.json();
+        } catch (err) {
+          j = SECOURS.bateaux;   // page ouverte en local : jeu d'exemple
+        }
+        const lignes = Array.isArray(j) ? j : (j.records || []);
+        autres = lignes.map(l => {
+          const f = l.fields || l;
+          const lat = parseFloat(f[GRIST.champLat]), lon = parseFloat(f[GRIST.champLon]);
+          return (isFinite(lat) && isFinite(lon)) ? [lon, lat] : null;
+        }).filter(Boolean);
+      } catch (e) {
+        autres = [];
+        console.warn('Positions indisponibles :', GRIST.url, e.message);
+      }
+      const r = rayonEvitage(CONFIG.longueurAutres, CONFIG.profondeurDefaut, CONFIG.ratioMouillage);
+      map.getSource('autres-cercles').setData({
+        type:'FeatureCollection', features: autres.map(p => cercle(p[0], p[1], r)) });
+      map.getSource('autres-points').setData({
+        type:'FeatureCollection',
+        features: autres.map(p => ({ type:'Feature', geometry:{type:'Point',coordinates:p}, properties:{} })) });
+
+      const st = document.getElementById('st-mouillages');
+      if (st) {
+        st.textContent = autres.length ? '✓' : '○';
+        st.className = 'layer-status ' + (autres.length ? 'st-ok' : 'st-wait');
+        st.title = autres.length ? autres.length + ' position(s) chargée(s)' : 'Aucune position';
+      }
+    }
+
+    /* ---------- Marqueur, calcul, conflits ---------- */
+    let marker = null, position = null;
+    const popup = document.getElementById('coords-popup');
+    const coordsText = document.getElementById('coords-text');
+    const copyBtn = document.getElementById('copy-btn');
+
+    map.on('click', e => {
+      const { lng, lat } = e.lngLat;
+      position = [lng, lat];
+      if (marker) marker.setLngLat(position);
+      else marker = new maplibregl.Marker({ color:'#e53935' }).setLngLat(position).addTo(map);
+      coordsText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      popup.classList.add('visible');
+      copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
+      recalculer();
+    });
+
+    function recalculer() {
+      const loa   = parseFloat(document.getElementById('in-loa').value)   || CONFIG.longueurDefaut;
+      const prof  = parseFloat(document.getElementById('in-depth').value) || CONFIG.profondeurDefaut;
+      const ratio = parseFloat(document.getElementById('in-scope').value) || CONFIG.ratioMouillage;
+      const r = rayonEvitage(loa, prof, ratio);
+      document.getElementById('out-radius').textContent = Math.round(r);
+
+      const zone = document.getElementById('out-conflict');
+      const src  = map.getSource('mon-cercle');   // absente tant que l'init n'a pas eu lieu
+      if (!position) {
+        zone.innerHTML = `<div class="ok-box">Cliquez sur la carte pour positionner votre mouillage.</div>`;
+        if (src) src.setData({ type:'FeatureCollection', features:[] });
+        return;
+      }
+      const rAutres = rayonEvitage(CONFIG.longueurAutres, CONFIG.profondeurDefaut, CONFIG.ratioMouillage);
+      const conflits = mouillagesVisibles
+        ? autres.filter(p => distanceM(position, p) < (r + rAutres))
+        : [];
+
+      const f = cercle(position[0], position[1], r);
+      f.properties.couleur = conflits.length ? '#c9191e' : '#18753c';
+      if (src) src.setData({ type:'FeatureCollection', features:[f] });
+
+      if (!mouillagesVisibles) {
+        zone.innerHTML = `<div class="ok-box">Les autres mouillages sont masqués :
+          aucune recherche de recoupement n'est effectuée.</div>`;
+        return;
+      }
+
+      zone.innerHTML = conflits.length
+        ? `<div class="warn-box"><strong>${conflits.length} navire${conflits.length>1?'s':''}</strong>
+             dont la zone d'évitage pourrait recouper la vôtre. Envisagez un autre emplacement, ou
+             rapprochez-vous du gestionnaire du plan d'eau.</div>`
+        : `<div class="ok-box">Aucun recoupement détecté avec les positions connues
+             (${autres.length} navire${autres.length>1?'s':''} au fichier).</div>`;
+    }
+
+    ['in-loa','in-depth','in-scope'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input',  recalculer);
+      el.addEventListener('change', recalculer);
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(coordsText.textContent).then(() => {
+        copyBtn.textContent = 'Copié !'; copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent='Copier'; copyBtn.classList.remove('copied'); }, 2000);
+      });
+    });
+    </script>
+  </body>
+</html>

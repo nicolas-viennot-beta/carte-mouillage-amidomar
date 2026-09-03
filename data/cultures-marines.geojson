@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "_commentaire": "Zones de cultures marines (conchyliculture, ostreiculture, mytiliculture, pisciculture). Aucune couche nationale diffusee n'a ete identifiee a ce stade : ces zones relevent du cadastre conchylicole gere par les DDTM/DML. A completer territoire par territoire. L'exemple ci-dessous est fictif et doit etre supprime.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nom": "EXEMPLE FICTIF - zone de culture marine a remplacer",
+        "type_culture": "",
+        "commune": "",
+        "concession": ""
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [6.163, 43.058],
+          [6.178, 43.058],
+          [6.178, 43.066],
+          [6.163, 43.066],
+          [6.163, 43.058]
+        ]]
+      }
+    }
+  ]
+}

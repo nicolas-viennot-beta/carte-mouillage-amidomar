@@ -1,0 +1,6 @@
+maplibre-gl 5.24.0 | carte-facile 0.9.0
+
+Bibliotheques embarquees volontairement plutot que chargees depuis un CDN :
+un service public ne doit pas dependre d'un tiers pour executer son code.
+Pour mettre a jour :  npm install maplibre-gl carte-facile
+puis recopier les 4 fichiers dist/ dans ce dossier et actualiser ce fichier.
