@@ -12,6 +12,70 @@ exécuter son code, ni voir ce code changer sans que personne n'ait touché au
 dépôt. Les versions figées sont notées dans `vendor/VERSIONS.txt` ; leur mise à
 jour est un geste délibéré, à faire en connaissance de cause.
 
+## Disposition de l'écran
+
+- **À gauche, les contrôles de carte** : recherche, zoom, orientation,
+  géolocalisation, puis le bouton `?` qui rouvre la marche à suivre. Le
+  sélecteur de fond de plan est en bas à gauche.
+- **À droite, les panneaux** : « Mon mouillage » et « Couches affichées »,
+  remontés jusque sous l'en-tête puisque le haut-droite est libre.
+
+Il n'y a pas de bandeau de consigne au-dessus de la carte : la modale d'ouverture
+dit la même chose, mieux, et rend ensuite l'écran à l'usager.
+
+## Accompagnement de l'usager
+
+Une modale **« Fonctionnement de la carte pour un choix d'emplacement de mouillage
+responsable »** s'ouvre au chargement, puis se ferme par la croix, par Échap ou en
+cliquant à côté. Le bouton `?`, sous les contrôles de carte, la rouvre à tout
+moment — sans lui, la marche à suivre serait perdue dès la première fermeture.
+
+Les étapes restent dans le document même modale fermée : **leur état continue de
+se mettre à jour**, et rouvrir la modale en cours de route montre où l'on en est.
+
+Elle distingue délibérément deux choses de nature différente :
+
+- **Une bifurcation**, en tête, dans un encart d'information : *un port ou une
+  ZMEL est-il possible ?* Ce n'est pas une étape du parcours mais une **sortie**
+  — si l'usager la prend, il ne fera jamais les suivantes. La présenter comme
+  « étape 1 sur 4 » laisserait croire qu'il faut la franchir pour continuer,
+  alors que c'est précisément l'issue la plus souhaitable. Elle n'appelle donc
+  pas à l'action par un bouton, mais invite à cliquer les ports et ZMEL
+  directement sur la carte.
+- **Trois étapes** qui suivent l'état réel du parcours : choisir un emplacement,
+  renseigner le navire, copier les coordonnées. L'étape en cours est en bleu,
+  les précédentes portent une coche verte. Elles guident, elles ne décorent pas.
+
+Les pictogrammes **port** et **ZMEL** de la légende sont cliquables, comme les
+ports et les zones sur la carte : ils ouvrent une modale qui oriente vers ces
+solutions. La couche portuaire du SHOM étant une image, elle n'expose aucun objet
+interrogeable — des points locaux servent donc de cibles cliquables, et portent
+les informations de places.
+
+> **Les places et contacts de ports sont fictifs.** Aucune source publique ne
+> diffuse la disponibilité des ports de plaisance. Ces valeurs montrent le
+> parcours ; elles devront être obtenues auprès des gestionnaires.
+
+## Parcours de l'usager
+
+1. La carte s'ouvre sur la France entière, panneau des couches déplié et panneau
+   du mouillage replié.
+2. L'usager clique sur l'emplacement envisagé. Le panneau du mouillage s'ouvre,
+   les coordonnées GPS s'affichent, et un message l'invite à renseigner la
+   longueur de son navire.
+3. Dès la saisie de cette longueur, le cercle d'évitage se dessine autour de
+   l'emplacement — vert s'il est libre, rouge s'il recoupe un autre mouillage.
+
+**Clic à terre.** La carte vérifie que le point choisi est sur une étendue d'eau.
+Si ce n'est pas le cas, elle n'affiche aucune coordonnée et avertit l'usager.
+Dans le style Plan IGN, la mer n'est pas une couche mais le fond de la carte : le
+contrôle cherche donc la présence de **terre** au point cliqué — relief,
+occupation du sol, bâti, voirie, voies ferrées. Les toponymes et les limites
+administratives sont ignorés, car ils débordent en mer. Si les tuiles du fond de
+carte ne sont pas chargées, le contrôle est déclaré indéterminé et **ne bloque
+pas** l'usager : mieux vaut laisser passer un clic douteux que refuser un clic
+légitime.
+
 ## Ce que fait la carte
 
 - affiche les zonages de protection et les usages de la mer autour du point visé
@@ -68,6 +132,28 @@ Le bandeau « Couches affichées » teste chaque source au chargement et affiche
 | ✗ | source injoignable depuis ce navigateur |
 | ○ | fichier local présent mais vide, à compléter |
 | ≈ | données de secours (page ouverte en local) |
+
+**Couleurs de la légende.** Les zonages en tuiles sont coloriés par le serveur
+qui les produit, pas par cette carte. Les pastilles de légende reprennent donc
+des couleurs **relevées sur les tuiles réelles** (couleur dominante échantillonnée
+sur trois emprises : Morbihan, rade de Brest, rade d'Hyères). Si l'INPN change un
+style, la légende décrochera : il faudra ré-échantillonner. Chaque pictogramme
+reprend par ailleurs le rendu de la couche — aplat translucide pour les zonages,
+polygone bordé pour les fichiers locaux, point cerclé pour les mouillages.
+
+**AOT existantes.** 249 autorisations **simulées**, réparties sur six sites de
+Bretagne et de Méditerranée pour figurer la pression sur le plan d'eau. Chaque
+position de référence a été vérifiée une par une, par lecture du pixel
+correspondant sur les tuiles : couleur de mer sur le fond Plan IGN, et absence de
+réserve naturelle nationale.
+
+**Natura 2000 n'est pas un critère d'exclusion** : une AOT peut y être autorisée.
+Ces zones sont donc peuplées comme les autres, et chaque AOT porte une propriété
+`natura2000` indiquant si elle s'y trouve — 35 % d'entre elles. C'est cohérent
+avec l'objet du produit : la question posée à l'usager n'est pas « avez-vous le
+droit ? » mais « mesurez-vous ce que cela implique ? ».
+
+Aucune de ces AOT n'existe réellement.
 
 La couche **« Autres mouillages et leur évitage »** se décoche comme les autres.
 La masquer suspend aussi la recherche de recoupement : la carte ne signale pas un

@@ -1,0 +1,3990 @@
+{
+ "type": "FeatureCollection",
+ "_commentaire": "AOT de mouillage individuel SIMULEES. Derivees de 84 positions de reference verifiees une par une par lecture du pixel : couleur de mer sur le fond Plan IGN, et hors reserve naturelle nationale. Natura 2000 est autorise pour une AOT : ces zones ne sont donc pas ecartees, et la propriete natura2000 indique si la position sy trouve. Aucune de ces AOT nexiste reellement.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-001",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12991,
+     47.44856
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-002",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12994,
+     47.44837
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-003",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13094,
+     47.44858
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-004",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10892,
+     47.49373
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-005",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.11103,
+     47.49376
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-006",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08932,
+     47.44817
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-007",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08974,
+     47.44777
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-008",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08914,
+     47.44709
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-009",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09078,
+     47.44702
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-010",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0892,
+     47.54162
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-011",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08947,
+     47.54037
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-012",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09077,
+     47.54136
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-013",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09044,
+     47.54157
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-014",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.06987,
+     47.49396
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-015",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.06984,
+     47.4943
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-016",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.04978,
+     47.44755
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-017",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.04981,
+     47.44762
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-018",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.05091,
+     47.52571
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-019",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0501,
+     47.52523
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-020",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.05092,
+     47.52599
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-021",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02923,
+     47.47906
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-022",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02905,
+     47.47849
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-023",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02971,
+     47.55696
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-024",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.03068,
+     47.55686
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-025",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.03048,
+     47.55711
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-026",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.01029,
+     47.51001
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-027",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.01046,
+     47.51055
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-028",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.00979,
+     47.50929
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-029",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.00959,
+     47.50992
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-030",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.99047,
+     47.46288
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-031",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9894,
+     47.46311
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-032",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.99086,
+     47.54189
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-033",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.98983,
+     47.54126
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-034",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96896,
+     47.50961
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-035",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.97001,
+     47.50983
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-036",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96999,
+     47.51071
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-037",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96999,
+     47.51066
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-038",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.94914,
+     47.47883
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-039",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.94946,
+     47.47953
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Quiberon",
+    "ref": "AOT-040",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.9507,
+     47.47848
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-041",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46262,
+     48.10526
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-042",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4624,
+     48.10508
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-043",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46251,
+     48.10516
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-044",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46091,
+     48.14459
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-045",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46266,
+     48.14552
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-046",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46223,
+     48.14531
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-047",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44577,
+     48.12464
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-048",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44551,
+     48.12509
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-049",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42803,
+     48.11432
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-050",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42876,
+     48.11446
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-051",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4285,
+     48.11514
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-052",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42822,
+     48.11496
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-053",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42853,
+     48.15445
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-054",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42948,
+     48.15436
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-055",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.43005,
+     48.15542
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-056",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4138,
+     48.14485
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-057",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41285,
+     48.14449
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-058",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41348,
+     48.14516
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-059",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41314,
+     48.14525
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-060",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39722,
+     48.12578
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-061",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39689,
+     48.12434
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-062",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37961,
+     48.11425
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-063",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3811,
+     48.11439
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-064",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.38096,
+     48.11578
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-065",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.38076,
+     48.11454
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-066",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37997,
+     48.15577
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-067",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37979,
+     48.15445
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-068",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36309,
+     48.145
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-069",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36314,
+     48.14539
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-070",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.34767,
+     48.12455
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-071",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.34697,
+     48.12509
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-072",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33012,
+     48.11501
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-073",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33059,
+     48.11502
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-074",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3303,
+     48.11578
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-075",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33049,
+     48.11561
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-076",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33091,
+     48.1556
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-077",
+    "longueur_navire": 18,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.32995,
+     48.15559
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-078",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3141,
+     48.12433
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-079",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.31557,
+     48.12573
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Douarnenez",
+    "ref": "AOT-080",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.31378,
+     48.12555
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-081",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4936,
+     48.28503
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-082",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.49308,
+     48.28454
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-083",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.49212,
+     48.33568
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-084",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.49202,
+     48.33507
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-085",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.49355,
+     48.33512
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-086",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47869,
+     48.29422
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-087",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47858,
+     48.29469
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-088",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47711,
+     48.29505
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-089",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47723,
+     48.34569
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-090",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47765,
+     48.34434
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-091",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.47824,
+     48.34569
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-092",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46432,
+     48.3054
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-093",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46314,
+     48.30547
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-094",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46465,
+     48.30455
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-095",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46376,
+     48.34519
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-096",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4641,
+     48.34422
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-097",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46267,
+     48.34436
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-098",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.46401,
+     48.34543
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-099",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44973,
+     48.30438
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-100",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44949,
+     48.30501
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-101",
+    "longueur_navire": 18,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44965,
+     48.30529
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-102",
+    "longueur_navire": 18,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44807,
+     48.30524
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-103",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44835,
+     48.35523
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-104",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44845,
+     48.35502
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-105",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44957,
+     48.35579
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-106",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.448,
+     48.35525
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-107",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.43505,
+     48.32579
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-108",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.43521,
+     48.32572
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-109",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41944,
+     48.31426
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-110",
+    "longueur_navire": 7,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42031,
+     48.3153
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-111",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42082,
+     48.31513
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-112",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4062,
+     48.30499
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-113",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.40621,
+     48.30526
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-114",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.40624,
+     48.30437
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-115",
+    "longueur_navire": 12,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39015,
+     48.3056
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-116",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39158,
+     48.30574
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-117",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.391,
+     48.30468
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-118",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39179,
+     48.30434
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-119",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37536,
+     48.30525
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-120",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37733,
+     48.30516
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-121",
+    "longueur_navire": 12,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37704,
+     48.30441
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-122",
+    "longueur_navire": 7,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36159,
+     48.29557
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-123",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36168,
+     48.29441
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade de Brest",
+    "ref": "AOT-124",
+    "longueur_navire": 9,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36269,
+     48.29437
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-125",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.03197,
+     42.95716
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-126",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.0308,
+     42.95843
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-127",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.03096,
+     43.03635
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-128",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.03074,
+     43.03547
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-129",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.05479,
+     42.98957
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-130",
+    "longueur_navire": 18,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.05541,
+     42.9893
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-131",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.05618,
+     42.98916
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-132",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.05514,
+     42.98936
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-133",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.08015,
+     42.95847
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-134",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.07835,
+     42.95749
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-135",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.07883,
+     43.03584
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-136",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.07932,
+     43.03616
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-137",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.07903,
+     43.03498
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-138",
+    "longueur_navire": 11,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10233,
+     42.97273
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-139",
+    "longueur_navire": 9,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.1033,
+     42.97397
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-140",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10305,
+     42.97378
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-141",
+    "longueur_navire": 9,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10358,
+     42.97341
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-142",
+    "longueur_navire": 6,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10217,
+     43.06668
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-143",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10312,
+     43.06738
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-144",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10167,
+     43.0665
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-145",
+    "longueur_navire": 9,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.12539,
+     43.00388
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-146",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.12561,
+     43.00389
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-147",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15028,
+     42.98966
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-148",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15051,
+     42.98868
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-149",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15043,
+     42.98915
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-150",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.1726,
+     42.97261
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-151",
+    "longueur_navire": 6,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17339,
+     42.97295
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-152",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17317,
+     42.974
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-153",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17335,
+     42.97359
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-154",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17455,
+     43.06703
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-155",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17391,
+     43.0667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-156",
+    "longueur_navire": 9,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.19694,
+     43.03635
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-157",
+    "longueur_navire": 6,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.19707,
+     43.03598
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-158",
+    "longueur_navire": 6,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.19821,
+     43.03593
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-159",
+    "longueur_navire": 11,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.21997,
+     42.97351
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-160",
+    "longueur_navire": 11,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.22009,
+     42.97331
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-161",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.22039,
+     42.97387
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-162",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.22047,
+     42.97279
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-163",
+    "longueur_navire": 7,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.22138,
+     43.06681
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Rade d'Hyeres",
+    "ref": "AOT-164",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.22055,
+     43.06675
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-165",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5474,
+     43.26476
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-166",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.54778,
+     43.26485
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-167",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.57636,
+     43.29583
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-168",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.576,
+     43.2959
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-169",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.59128,
+     43.2727
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-170",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.59187,
+     43.27216
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-171",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.59149,
+     43.27286
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-172",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.58983,
+     43.27235
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-173",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60606,
+     43.26518
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-174",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60489,
+     43.26502
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-175",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60637,
+     43.26549
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-176",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60641,
+     43.26479
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-177",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60448,
+     43.28002
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-178",
+    "longueur_navire": 6,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60525,
+     43.28094
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-179",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.60503,
+     43.28125
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-180",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.61946,
+     43.27259
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-181",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62029,
+     43.27198
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-182",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.61982,
+     43.27242
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-183",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.61955,
+     43.27218
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-184",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.61983,
+     43.28814
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-185",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.61913,
+     43.28831
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-186",
+    "longueur_navire": 10,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.63432,
+     43.29592
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-187",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.63497,
+     43.29597
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-188",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6501,
+     43.28099
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-189",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64919,
+     43.28041
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-190",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64976,
+     43.29536
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-191",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64814,
+     43.29548
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-192",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6494,
+     43.29657
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-193",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64882,
+     43.29612
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-194",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66266,
+     43.27229
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-195",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66287,
+     43.27319
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-196",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6643,
+     43.27306
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-197",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66265,
+     43.28875
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-198",
+    "longueur_navire": 9,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66331,
+     43.28786
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-199",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66339,
+     43.28859
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-200",
+    "longueur_navire": 11,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.67713,
+     43.23311
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-201",
+    "longueur_navire": 11,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6775,
+     43.23396
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-202",
+    "longueur_navire": 12,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.67797,
+     43.23422
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-203",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.67888,
+     43.28056
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-204",
+    "longueur_navire": 8,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.67838,
+     43.28016
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Golfe de Saint-Tropez",
+    "ref": "AOT-205",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.67909,
+     43.28061
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-206",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.47614,
+     43.12429
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-207",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.47615,
+     43.12386
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-208",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.4749,
+     43.12503
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-209",
+    "longueur_navire": 11,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.4882,
+     43.1251
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-210",
+    "longueur_navire": 12,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.48745,
+     43.12364
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-211",
+    "longueur_navire": 7,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.48758,
+     43.12498
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-212",
+    "longueur_navire": 14,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.48862,
+     43.12512
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-213",
+    "longueur_navire": 13,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.50055,
+     43.13286
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-214",
+    "longueur_navire": 17,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.49873,
+     43.13383
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-215",
+    "longueur_navire": 16,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.4997,
+     43.13389
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-216",
+    "longueur_navire": 15,
+    "natura2000": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.49892,
+     43.13314
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-217",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.51111,
+     43.14293
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-218",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.51057,
+     43.1417
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-219",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.51127,
+     43.14172
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-220",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.51092,
+     43.14159
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-221",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5223,
+     43.14196
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-222",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.52405,
+     43.14182
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-223",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.52228,
+     43.14158
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-224",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.52356,
+     43.14258
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-225",
+    "longueur_navire": 13,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5358,
+     43.13331
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-226",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.53423,
+     43.13262
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-227",
+    "longueur_navire": 7,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.53461,
+     43.1326
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-228",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.54617,
+     43.13293
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-229",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.54746,
+     43.13395
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-230",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.54591,
+     43.13319
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-231",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5469,
+     43.13286
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-232",
+    "longueur_navire": 17,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5475,
+     43.17836
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-233",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.54772,
+     43.17723
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-234",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.55833,
+     43.15035
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-235",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.55927,
+     43.15129
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-236",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.55908,
+     43.18721
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-237",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.55808,
+     43.186
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-238",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.55912,
+     43.18734
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-239",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.57131,
+     43.1511
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-240",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.57068,
+     43.15113
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-241",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.56999,
+     43.15099
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-242",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.56935,
+     43.18711
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-243",
+    "longueur_navire": 14,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.56952,
+     43.18636
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-244",
+    "longueur_navire": 6,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.57016,
+     43.18612
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-245",
+    "longueur_navire": 15,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.58166,
+     43.15181
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-246",
+    "longueur_navire": 8,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.58277,
+     43.15089
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-247",
+    "longueur_navire": 16,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.59426,
+     43.12413
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-248",
+    "longueur_navire": 10,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.5947,
+     43.12506
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "site": "Baie de Cavalaire",
+    "ref": "AOT-249",
+    "longueur_navire": 7,
+    "natura2000": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.59511,
+     43.12382
+    ]
+   }
+  }
+ ]
+}

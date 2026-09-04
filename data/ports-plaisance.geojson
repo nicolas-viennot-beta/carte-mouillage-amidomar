@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "_commentaire": "Ports de plaisance des six sites de demonstration. Les positions sont approximatives. LES CAPACITES ET LES CONTACTS SONT ENTIEREMENT FICTIFS : aucune source publique ne diffuse le nombre de places disponibles en temps reel. Ces valeurs servent uniquement a montrer le parcours ; elles devront etre remplacees par une donnee reelle, a obtenir aupres des gestionnaires de ports.",
+  "features": [
+    { "type": "Feature",
+      "properties": { "nom": "Port-Haliguen", "commune": "Quiberon", "places_disponibles": 12,
+                      "contact": "la capitainerie de Port-Haliguen" },
+      "geometry": { "type": "Point", "coordinates": [-3.0997, 47.4869] } },
+    { "type": "Feature",
+      "properties": { "nom": "Tréboul", "commune": "Douarnenez", "places_disponibles": 27,
+                      "contact": "la capitainerie de Douarnenez" },
+      "geometry": { "type": "Point", "coordinates": [-4.3389, 48.0958] } },
+    { "type": "Feature",
+      "properties": { "nom": "Moulin Blanc", "commune": "Brest", "places_disponibles": 43,
+                      "contact": "la capitainerie du Moulin Blanc" },
+      "geometry": { "type": "Point", "coordinates": [-4.4297, 48.3897] } },
+    { "type": "Feature",
+      "properties": { "nom": "Port Saint-Pierre", "commune": "Hyères", "places_disponibles": 8,
+                      "contact": "la capitainerie de Port Saint-Pierre" },
+      "geometry": { "type": "Point", "coordinates": [6.1522, 43.1108] } },
+    { "type": "Feature",
+      "properties": { "nom": "Port de Saint-Tropez", "commune": "Saint-Tropez", "places_disponibles": 3,
+                      "contact": "la capitainerie de Saint-Tropez" },
+      "geometry": { "type": "Point", "coordinates": [6.6389, 43.2725] } },
+    { "type": "Feature",
+      "properties": { "nom": "Port de Cavalaire", "commune": "Cavalaire-sur-Mer", "places_disponibles": 19,
+                      "contact": "la capitainerie de Cavalaire" },
+      "geometry": { "type": "Point", "coordinates": [6.5333, 43.1725] } }
+  ]
+}
