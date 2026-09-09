@@ -898,16 +898,49 @@
          au lieu de poser un mouillage. */
       // Le clic général est déjà neutralisé sur ces couches par queryRenderedFeatures :
       // inutile d'appeler preventDefault, qui n'existe pas sur tous les évènements.
-      map.on('click', 'ports-pts-c', e => modalePort(e.features[0].properties));
-      ['zmel-fill','zmel-line'].forEach(l => {
-        if (!map.getLayer(l)) return;
-        map.on('click', l, e => modaleZmel(e.features[0].properties));
-      });
-      ['ports-pts-c','zmel-fill'].forEach(l => {
-        if (!map.getLayer(l)) return;
-        map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', l, () => { map.getCanvas().style.cursor = ''; });
-      });
+
+      // Attacher les gestionnaires d'événements pour les ports
+      try {
+        if (map.getLayer('ports-pts-c')) {
+          map.on('click', 'ports-pts-c', e => {
+            try {
+              if (e.features && e.features.length > 0) {
+                modalePort(e.features[0].properties);
+              }
+            } catch (err) {
+              console.error('Erreur lors de l\'ouverture de la modale port:', err);
+            }
+          });
+          map.on('mouseenter', 'ports-pts-c', () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', 'ports-pts-c', () => { map.getCanvas().style.cursor = ''; });
+        }
+      } catch (err) {
+        console.error('Erreur lors de l\'attachement des gestionnaires ports:', err);
+      }
+
+      // Attacher les gestionnaires d'événements pour les ZMEL
+      try {
+        ['zmel-fill','zmel-line'].forEach(l => {
+          if (map.getLayer(l)) {
+            map.on('click', l, e => {
+              try {
+                if (e.features && e.features.length > 0) {
+                  modaleZmel(e.features[0].properties);
+                }
+              } catch (err) {
+                console.error('Erreur lors de l\'ouverture de la modale ZMEL:', err);
+              }
+            });
+            // Uniquement sur zmel-fill pour éviter les doublons
+            if (l === 'zmel-fill') {
+              map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
+              map.on('mouseleave', l, () => { map.getCanvas().style.cursor = ''; });
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Erreur lors de l\'attachement des gestionnaires ZMEL:', err);
+      }
 
       recalculer();
     }
