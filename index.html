@@ -75,8 +75,22 @@
       #coords-popup { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#fff;
                       border-radius:8px; padding:10px 16px; box-shadow:0 2px 12px rgba(0,0,0,.25);
                       font-size:14px; z-index:1000; max-width:min(460px, calc(100% - 40px));
+                      max-height:calc(100% - 80px); overflow-y:auto;
                       opacity:0; transition:opacity .2s; pointer-events:none; box-sizing:border-box; }
       #coords-popup.visible { opacity:1; pointer-events:auto; }
+      /* ---------- Bloc « environnement » (contraintes de zone au clic) ---------- */
+      #env-block { display:none; text-align:left; font-size:12.5px; line-height:1.45;
+                   padding:8px 10px; border-radius:4px; margin-bottom:8px; }
+      #env-block:not(:empty) { display:block; }
+      #env-block p { margin:0 0 6px; }
+      #env-block p:last-child { margin-bottom:0; }
+      #env-block.env-neutre { background:#f0f4ff; border-left:3px solid #003189; color:#1e1e1e; }
+      #env-block.env-vert   { background:#e8f5ec; border-left:3px solid #18753c; color:#1e1e1e; }
+      #env-block.env-rouge  { background:#ffe9e9; border-left:3px solid #c9191e; color:#8a1215; }
+      #env-block .env-caveat { font-size:11px; font-style:italic; opacity:.8; }
+      /* ---------- Bloc « navire », affiché seulement à proximité d'une AOT ---------- */
+      #boat-block { display:none; text-align:left; margin-bottom:8px; }
+      #boat-block .boat-intro { font-size:12px; color:#3a3a3a; font-style:italic; margin:0 0 8px; }
       #coords-row { display:flex; align-items:center; gap:10px; justify-content:center;
                     font-family:monospace; }
       #coords-hint { margin:0 0 8px; font-size:13px; line-height:1.4; color:#6b2800;
@@ -126,6 +140,10 @@
       .st-ok   { color:#18753c; font-weight:700; }
       .st-ko   { color:#c9191e; font-weight:700; }
       .layer-note { font-size:11px; color:#666; margin:0 0 4px 24px; line-height:1.35; font-style:italic; }
+      .layer-item--a-venir { opacity:.5; }
+      .layer-item--a-venir .layer-label, .layer-item--a-venir input { cursor:not-allowed; }
+      .layer-note--a-venir { font-weight:700; font-style:normal; text-transform:uppercase;
+                              font-size:10px; letter-spacing:.04em; color:#8a8a8a; }
 
       /* ---------- Panneau bateau ---------- */
       .field { margin-bottom:9px; }
@@ -272,6 +290,7 @@
     </div>
 
     <div id="coords-popup">
+      <!-- #env-block et #boat-block sont injectés en tête de ce conteneur par le script -->
       <p id="coords-hint"></p>
       <div id="coords-row">
         <span id="coords-text"></span>
@@ -368,7 +387,9 @@
         {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.58277,43.15089]}}
       ]},
       'data/zmel.geojson': { type:'FeatureCollection', features:[{
-        type:'Feature', properties:{ nom:'EXEMPLE FICTIF — ZMEL à remplacer' },
+        type:'Feature', properties:{ nom:'EXEMPLE FICTIF — ZMEL à remplacer',
+          nb_postes:24, gestionnaire:'Association des usagers de la ZMEL (fictif)',
+          mailto:'contact@zmel-exemple.fr' },
         geometry:{ type:'Polygon', coordinates:[[[6.130,43.043],[6.146,43.043],
                    [6.146,43.052],[6.130,43.052],[6.130,43.043]]] } }]},
       'data/cultures-marines.geojson': { type:'FeatureCollection', features:[{
@@ -421,19 +442,13 @@
         attribution:'© IGN / INPN' },
 
       { groupe:'Protection de la nature',
-        id:'rnn', label:'Réserves naturelles nationales', couleur:'#6c2d5e',
-        picto:'aplat', statut:'verifie',
-        tiles: WMTS('Patrinat_RNN','image/png'), visible:false,
-        attribution:'© IGN / INPN' },
-
-      { groupe:'Protection de la nature',
         id:'amp', label:'Aires marines protégées', couleur:'#ffaa00',
         picto:'aplat', statut:'verifie',
         tiles: WMS('https://wxs.ofb.fr/geoserver/gestion/ows','ges_omon_amp_ofb_pol_3857_vue'),
         visible:false, attribution:'© OFB' },
 
       { groupe:'Habitats sensibles',
-        id:'posidonie', label:'Herbiers de posidonie', couleur:'#6a1b9a',
+        id:'posidonie', label:'Herbiers de posidonie et de zostère', couleur:'#6a1b9a',
         picto:'aplat', statut:'a_tester',
         tiles: WMS('https://sextant.ifremer.fr/services/wms/biologie','BIOMED_POSI_PALAVAS_P,BIOMED_POSI_ALBERES_P'),
         visible:false, attribution:'© IFREMER',
@@ -459,6 +474,12 @@
         note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
 
       { groupe:'Usages de la mer',
+        id:'restrictions_diverses', label:'APB / zone de baignade / zone réglementaire',
+        couleur:'#999999', picto:'aplat', statut:'a_tester', aVenir:true,
+        visible:false,
+        note:"À venir : aucune source ne permet aujourd'hui de représenter ni d'identifier ces zones au clic." },
+
+      { groupe:'Usages de la mer',
         id:'aot', label:'AOT existantes et leur évitage', couleur:'#c2185b',
         picto:'aot', statut:'local', aot:true,
         geojson:'data/aot-existantes.geojson', visible:true,
@@ -482,8 +503,42 @@
     map.addControl(new CarteFacile.SearchControl, 'top-left');
     map.addControl(new maplibregl.NavigationControl, 'top-left');
     map.addControl(new maplibregl.GeolocateControl, 'top-left');
-    map.addControl(new CarteFacile.MapSelectorControl, 'bottom-left');
+    map.addControl(new CarteFacile.MapSelectorControl({ styles: ['simple', 'aerial'], overlays: [] }), 'bottom-left');
     map.addControl(new maplibregl.ScaleControl, 'bottom-right');
+
+    /* ---------- Carte fantôme, pour la détection terre / mer ----------
+       Le fond « Aérien » (photo) ne comporte, en vecteur, que les routes et
+       voies ferrées : ni occupation du sol, ni bâti, ni relief. Un clic sur
+       un champ, une plage ou une maison isolée n'y déclencherait donc jamais
+       l'avertissement « vous êtes à terre ». Cette carte, jamais affichée,
+       reste en permanence sur le fond « simple » (Plan IGN vectoriel), seul à
+       porter ces informations, et sert uniquement de référence pour
+       estSurLEau — quel que soit le fond choisi par l'usager. */
+    const terrainDiv = document.createElement('div');
+    terrainDiv.setAttribute('aria-hidden', 'true');
+    terrainDiv.style.cssText = 'position:absolute; top:0; left:-99999px; width:' +
+      wrap.clientWidth + 'px; height:' + wrap.clientHeight + 'px; pointer-events:none;';
+    document.body.appendChild(terrainDiv);
+    const mapTerrain = new maplibregl.Map({
+      container: terrainDiv,
+      style: CarteFacile.mapStyles.simple,
+      center: CONFIG.centre,
+      zoom: CONFIG.zoom,
+      maxZoom: 18.9,
+      interactive: false,
+      attributionControl: false,
+      preserveDrawingBuffer: true   // nécessaire pour pouvoir lire la couleur des pixels rendus
+    });
+    // Synchronisée en permanence sur la vue de la carte visible.
+    map.on('move', () => mapTerrain.jumpTo({
+      center: map.getCenter(), zoom: map.getZoom(),
+      bearing: map.getBearing(), pitch: map.getPitch()
+    }));
+    function redimensionnerTerrain() {
+      terrainDiv.style.width  = wrap.clientWidth + 'px';
+      terrainDiv.style.height = wrap.clientHeight + 'px';
+      mapTerrain.resize();
+    }
 
     /* ---------- Pictogrammes de légende ----------
        Chaque picto reprend le rendu réel de la couche sur la carte : aplat
@@ -526,7 +581,14 @@
       <div class="panel-body">
         ${groupes.map(g => `
           <div class="layer-group-title">${g}</div>
-          ${COUCHES.filter(c => c.groupe === g).map(c => `
+          ${COUCHES.filter(c => c.groupe === g).map(c => c.aVenir ? `
+            <label class="layer-item layer-item--a-venir">
+              <input type="checkbox" id="tg-${c.id}" disabled>
+              ${picto(c)}
+              <span class="layer-label">${c.label}</span>
+            </label>
+            <p class="layer-note layer-note--a-venir">À venir</p>
+          ` : `
             <label class="layer-item">
               <input type="checkbox" id="tg-${c.id}" ${c.visible ? 'checked' : ''} disabled>
               ${picto(c)}
@@ -539,39 +601,49 @@
         <p class="disclaimer">✓ = source testée et joignable depuis votre navigateur.
         ✗ = source injoignable : la couche existe dans la configuration mais n'affiche rien.</p>
       </div>`;
-    const boatPanel = document.createElement('div');
-    boatPanel.className = 'side-panel';
-    boatPanel.id = 'boat-panel';
-    boatPanel.innerHTML = `
-      <div class="panel-header" data-panel="boat">Mon mouillage <span>▾</span></div>
-      <div class="panel-body">
-        <div class="field">
-          <label for="in-loa">Longueur de mon navire (m)</label>
-          <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
-        </div>
-        <div class="field">
-          <label for="in-depth">Profondeur retenue (m)</label>
-          <input type="number" id="in-depth" min="1" max="40" step="0.5" value="${CONFIG.profondeurDefaut}">
-        </div>
-        <div class="field">
-          <label for="in-scope">Longueur de chaîne filée</label>
-          <select id="in-scope">
-            <option value="3">3 × la profondeur — temps calme</option>
-            <option value="5" selected>5 × la profondeur — usage courant</option>
-            <option value="7">7 × la profondeur — temps établi</option>
-          </select>
-        </div>
-        <div class="result-box">
-          Rayon d'évitage estimé<br>
-          <span class="big" id="out-radius">—</span> m
-        </div>
-        <div id="out-conflict"></div>
-        <p class="disclaimer">
-          Profondeur saisie, non mesurée. Autres navires figurés avec une longueur
-          supposée de ${CONFIG.longueurAutres} m.
-          <strong>Aide à la réflexion, pas une garantie de non-collision.</strong>
-        </p>
-      </div>`;
+    // Bloc « navire » : injecté dans le popup de coordonnées (#coords-popup),
+    // affiché seulement si l'emplacement cliqué est à moins de 100 m d'une AOT
+    // existante. Au-delà, le risque de chevauchement est jugé négligeable et
+    // ce formulaire n'a pas lieu d'être proposé (voir estSurLEau / le clic
+    // principal, plus bas). Il n'y a donc plus de panneau « Mon mouillage »
+    // permanent dans la colonne de droite.
+    const envBlock = document.createElement('div');
+    envBlock.id = 'env-block';
+    const boatBlock = document.createElement('div');
+    boatBlock.id = 'boat-block';
+    boatBlock.innerHTML = `
+      <p class="boat-intro">Un mouillage existant est à proximité : précisez
+        votre navire pour vérifier le chevauchement.</p>
+      <div class="field">
+        <label for="in-loa">Longueur de mon navire (m)</label>
+        <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
+      </div>
+      <div class="field">
+        <label for="in-depth">Colonne d'eau à marée haute (m)</label>
+        <input type="number" id="in-depth" min="1" max="40" step="0.5" value="${CONFIG.profondeurDefaut}">
+      </div>
+      <div class="field">
+        <label for="in-scope">Longueur de la ligne de mouillage</label>
+        <select id="in-scope">
+          <option value="3">3 × la profondeur — temps calme</option>
+          <option value="5" selected>5 × la profondeur — usage courant</option>
+          <option value="7">7 × la profondeur — temps établi</option>
+        </select>
+      </div>
+      <div class="result-box">
+        Rayon d'évitage estimé<br>
+        <span class="big" id="out-radius">—</span> m
+      </div>
+      <div id="out-conflict"></div>
+      <p class="disclaimer">
+        Profondeur saisie, non mesurée. Autres navires figurés avec une longueur
+        supposée de ${CONFIG.longueurAutres} m.
+        <strong>Aide à la réflexion, pas une garantie de non-collision.</strong>
+      </p>`;
+    const popupEl = document.getElementById('coords-popup');
+    popupEl.insertBefore(boatBlock, popupEl.firstChild);
+    popupEl.insertBefore(envBlock, boatBlock);
+
     const ETAPES = [
       { titre:"Choisir un emplacement",
         detail:"Cliquez sur la carte, à l'écart des zones sensibles affichées." },
@@ -586,7 +658,7 @@
        en cours de route montre où l'on en est. */
     document.getElementById('guide-corps').innerHTML = `
       <div class="bifurcation">
-        <p class="bif-titre">D'abord : un port ou une ZMEL est-il possible ?</p>
+        <p class="bif-titre">Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?</p>
         <p class="bif-txt">Dans un port ou une zone de mouillages et d'équipements
           légers, le navire est amarré à un corps-mort. Aucune ancre ne laboure le
           fond : c'est de loin l'option la moins dommageable pour les herbiers.</p>
@@ -610,7 +682,6 @@
           </li>`).join('')}
       </ol>`;
 
-    colonneD.appendChild(boatPanel);
     colonneD.appendChild(layerPanel);
 
 
@@ -622,7 +693,8 @@
     let copieFaite = false;
     function majEtapes() {
       const loa = document.getElementById('in-loa').value;
-      const etats = [ !!position, !!position && loa !== '' && parseFloat(loa) > 0, copieFaite ];
+      const etape2Faite = !formNavireRequis || (loa !== '' && parseFloat(loa) > 0);
+      const etats = [ !!position, !!position && etape2Faite, copieFaite ];
       const encours = etats.indexOf(false);
       etats.forEach((fait, i) => {
         const li = document.getElementById('et-' + i);
@@ -643,9 +715,7 @@
         replier(p, p.querySelector('.panel-body').style.display === 'none');
       });
     });
-    // État initial : couches dépliées, mouillage replié tant qu'aucun
-    // emplacement n'est choisi.
-    replier(boatPanel, false);
+    // État initial : couches dépliées.
     replier(layerPanel, true);
 
     /* ---------- Ouverture et réouverture de la marche à suivre ---------- */
@@ -670,8 +740,9 @@
       const haut = wrap.getBoundingClientRect().top;
       rouvrir.style.top = (ctl ? ctl.getBoundingClientRect().bottom - haut + 8 : 10) + 'px';
     }
-    window.addEventListener('resize', placerRouvrir);
-    setTimeout(placerRouvrir, 400); setTimeout(placerRouvrir, 1500);
+    window.addEventListener('resize', () => { placerRouvrir(); redimensionnerTerrain(); });
+    setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 400);
+    setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 1500);
 
     ouvrirGuide();   // la carte s'ouvre sur ses explications
 
@@ -796,6 +867,8 @@
         paint:{ 'line-color':['get','couleur'], 'line-width':2.5 } });
 
       for (const c of COUCHES) {
+        if (c.aVenir) continue;   // ni source, ni couche, ni écouteur : la case reste grisée
+
         const cb = document.getElementById('tg-' + c.id);
         const st = document.getElementById('st-' + c.id);
 
@@ -982,8 +1055,10 @@
 
     function modalePort(p) {
       ouvrirModale(`Port de plaisance — ${p.nom}`,
-        `Un mouillage en port est une excellente option pour préserver les écosystèmes marins :
-         le navire est amarré à un équipement fixe, sans ancre qui laboure le fond.<br><br>
+        `Pas d'AOT individuel sur cette zone : vous êtes dans un bassin portuaire qui
+         dépend de la capitainerie du port concerné. Un mouillage en port est une
+         excellente option pour préserver les écosystèmes marins : le navire est amarré
+         à un équipement fixe, sans ancre qui laboure le fond.<br><br>
          Il reste <strong>${p.places_disponibles} place${p.places_disponibles>1?'s':''}
          disponible${p.places_disponibles>1?'s':''}</strong>
          à ${p.nom}${p.commune ? ' (' + p.commune + ')' : ''}.<br><br>
@@ -992,55 +1067,165 @@
     }
     function modaleZmel(z) {
       const nom = (z && z.nom) ? z.nom : 'cette zone';
+      const capacite = z && z.nb_postes != null
+        ? `<br><br>Capacité : <strong>${z.nb_postes} poste${z.nb_postes>1?'s':''}</strong>.` : '';
+      const contact = z && z.mailto
+        ? `<br><br>Contactez la ZMEL à cette adresse pour faire une demande d'emplacement :
+           <a href="mailto:${z.mailto}">${z.mailto}</a>.`
+        : `<br><br>Renseignez-vous sur les places disponibles auprès de son gestionnaire
+           ou de la DDTM de votre département.`;
       ouvrirModale('Zone de mouillages et d’équipements légers',
-        `Une ZMEL est un mouillage organisé et suivi : les corps-morts y sont installés et
-         entretenus, ce qui évite le labourage du fond par les ancres.<br><br>
+        `Pas d'AOT individuel sur cette zone : une ZMEL dépend de la commune ou du
+         gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui
+         évite le labourage du fond par les ancres.<br><br>
          S'y installer est <strong>nettement moins dommageable</strong> qu'un mouillage
          individuel sur ancre.<br><br>
-         Renseignez-vous sur les places disponibles dans ${nom} auprès de son gestionnaire
-         ou de la DDTM de votre département.`,
-        "Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire.");
+         ZMEL : <strong>${nom}</strong>.${capacite}${contact}`,
+        "Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. "
+        + "Capacité et contact sont des données fictives, à remplacer par les données réelles.");
     }
 
     /* ---------- Marqueur, calcul, conflits ---------- */
     let marker = null, position = null;
     let aotPositions = [];          // mouillages existants, pour le recoupement
     let aotVisibles = true;         // suit la case « AOT existantes »
+    let formNavireRequis = false;   // le bloc « navire » n'est montré qu'à moins de 100 m d'une AOT
     const popup = document.getElementById('coords-popup');
     const coordsText = document.getElementById('coords-text');
+    const coordsRow = document.getElementById('coords-row');
     const copyBtn = document.getElementById('copy-btn');
     const hint = document.getElementById('coords-hint');
+
+    // Affiche (ou efface, avec html='') le bloc « environnement » du popup.
+    function afficherEnvironnement(html, teinte) {
+      envBlock.className = teinte ? 'env-' + teinte : '';
+      envBlock.innerHTML = html;
+    }
+
+    /* Interroge l'API Carto de l'IGN (module « nature ») pour identifier les
+       zones Natura 2000 (habitats + oiseaux) et ZNIEFF au point cliqué.
+       Requêtes en parallèle, avec un délai court : en cas de lenteur ou
+       d'indisponibilité du service, on ne bloque jamais l'accès aux
+       coordonnées GPS, qui restent la fonction essentielle de la carte. */
+    async function interrogerZonesProtegees(lngLat) {
+      const geom = JSON.stringify({ type:'Point', coordinates:[lngLat.lng, lngLat.lat] });
+      const requetes = [
+        { url:`https://apicarto.ign.fr/api/nature/natura-habitat?geom=${encodeURIComponent(geom)}`, champ:'sitename' },
+        { url:`https://apicarto.ign.fr/api/nature/natura-oiseaux?geom=${encodeURIComponent(geom)}`, champ:'sitename' },
+        { url:`https://apicarto.ign.fr/api/nature/znieff1?geom=${encodeURIComponent(geom)}`, champ:'nom' }
+      ];
+      const zones = [];
+      let echec = false;
+      await Promise.all(requetes.map(async r => {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 4000);
+          let rep;
+          try { rep = await fetch(r.url, { signal: ctrl.signal }); }
+          finally { clearTimeout(t); }
+          if (!rep.ok) throw new Error('http ' + rep.status);
+          const j = await rep.json();
+          (j.features || []).forEach(f => {
+            const nom = f.properties && f.properties[r.champ];
+            if (nom && !zones.includes(nom)) zones.push(nom);
+          });
+        } catch (e) { echec = true; }
+      }));
+      return { zones, echec };
+    }
+
+    const MENTION_NON_DETECTABLES = `<p class="env-caveat">D'autres zonages (Herbiers de
+      posidonie et de zostère, Parcs naturels marins, Aires marines protégées, APB,
+      zones de baignade ou réglementaires) sont visibles dans la légende mais ne
+      peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les
+      visuellement.</p>`;
 
     /* Terre ou eau ?
        Dans le style Plan IGN, la mer n'est pas une couche : c'est le fond de la
        carte, et la terre est dessinée par-dessus. Le test est donc inversé — on
-       cherche de la terre au point cliqué. Les toponymes et les limites
-       administratives sont ignorés : ils débordent en mer.
+       cherche de la terre au point cliqué, sur la carte fantôme (toujours au
+       fond « simple », voir plus haut) plutôt que sur la carte visible : le
+       fond « Aérien » ne porte pas ces informations. Les toponymes et les
+       limites administratives sont ignorés : ils débordent en mer.
        Renvoie true (eau), false (terre) ou null (indéterminable). */
     const TERRE = /^(oro_relief|ocs_|bati_|routier_|ferre)/;
-    function estSurLEau(point) {
+    // Couleur exacte de la mer sur le fond « simple » (relevée sur les tuiles) :
+    // sert de confirmation positive quand aucune caractéristique vectorielle
+    // de terre n'a pu être testée (p. ex. tuiles pas encore chargées).
+    const EAU_SIMPLE = { r:183, g:225, b:214 };
+    function couleursProches(a, b, tolerance) {
+      return !!a && Math.abs(a.r-b.r) <= tolerance
+                 && Math.abs(a.g-b.g) <= tolerance
+                 && Math.abs(a.b-b.b) <= tolerance;
+    }
+    // Lit la couleur du pixel rendu à l'écran (nécessite preserveDrawingBuffer).
+    function couleurPixel(mapObj, point) {
+      try {
+        const canvas = mapObj.getCanvas();
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        if (!gl) return null;
+        const ratio = window.devicePixelRatio || 1;
+        const x = Math.round(point.x * ratio);
+        const y = gl.drawingBufferHeight - Math.round(point.y * ratio) - 1;
+        if (x < 0 || y < 0 || x >= gl.drawingBufferWidth || y >= gl.drawingBufferHeight) return null;
+        const pixel = new Uint8Array(4);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        return { r:pixel[0], g:pixel[1], b:pixel[2] };
+      } catch (e) { return null; }
+    }
+    function estSurLEau(lngLat) {
+      const point = mapTerrain.project(lngLat);
       let f;
-      try { f = map.queryRenderedFeatures(point); } catch (e) { return null; }
+      try { f = mapTerrain.queryRenderedFeatures(point); } catch (e) { return null; }
       if (!f) return null;
       if (f.some(x => TERRE.test(x.sourceLayer || ''))) return false;
+      if (couleursProches(couleurPixel(mapTerrain, point), EAU_SIMPLE, 6)) return true;
       // Aucune trace de terre : soit on est en mer, soit les tuiles du fond de
       // carte ne sont pas chargées. Dans le doute, on n'empêche pas l'usager.
-      return map.areTilesLoaded() ? true : null;
+      return mapTerrain.areTilesLoaded() ? true : null;
     }
 
-    map.on('click', e => {
+    map.on('click', async e => {
       const { lng, lat } = e.lngLat;
 
-      // Un clic sur un port ou une ZMEL ouvre la modale : il ne pose pas de mouillage.
-      const cibles = ['ports-pts-c','zmel-fill'].filter(l => map.getLayer(l));
-      if (cibles.length && map.queryRenderedFeatures(e.point, { layers:cibles }).length) return;
+      // Un clic sur un port ou une ZMEL ouvre leur modale dédiée (gérée par les
+      // écouteurs attachés à ces couches, plus haut) : ni AOT individuel, ni
+      // marqueur, ni popup de coordonnées n'ont de sens sur ces zones.
+      const ciblesOrientation = ['ports-pts-c','zmel-fill'].filter(l => map.getLayer(l));
+      if (ciblesOrientation.length && map.queryRenderedFeatures(e.point, { layers:ciblesOrientation }).length) return;
 
-      if (estSurLEau(e.point) === false) {
+      if (estSurLEau(e.lngLat) === false) {
+        afficherEnvironnement('', '');
+        boatBlock.style.display = 'none';
         popup.classList.add('visible', 'terre');
         hint.textContent = "Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau.";
         return;
       }
       popup.classList.remove('terre');
+
+      // Interdiction stricte : seules les Cultures marines sont interrogeables
+      // aujourd'hui (APB / zone de baignade / zone réglementaire : à venir,
+      // voir la légende). Comme pour ports/ZMEL, aucun AOT individuel n'y est
+      // possible : pas de marqueur, pas de coordonnées.
+      const cibleInterdite = map.getLayer('cultures-fill')
+        ? map.queryRenderedFeatures(e.point, { layers:['cultures-fill'] }) : [];
+      if (cibleInterdite.length) {
+        const nomZone = cibleInterdite[0].properties.nom || 'cette zone';
+        afficherEnvironnement(
+          `<p><strong>Pas d'AOT individuel sur cette zone.</strong></p>
+           <p>Vous êtes dans une zone de cultures marines — ${nomZone}.</p>
+           <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
+          'rouge');
+        boatBlock.style.display = 'none';
+        if (marker) { marker.remove(); marker = null; }
+        position = null;
+        coordsRow.style.display = 'none';
+        hint.textContent = '';
+        popup.classList.remove('info', 'alerte');
+        popup.classList.add('visible');
+        return;
+      }
+      coordsRow.style.display = '';
 
       position = [lng, lat];
       if (marker) marker.setLngLat(position);
@@ -1049,20 +1234,36 @@
       popup.classList.add('visible');
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
 
-      replier(boatPanel, true);          // le choix est fait : on ouvre le panneau
+      // Rayon d'évitage : proposé uniquement si un mouillage existant est à
+      // moins de 100 m — au-delà, le risque de chevauchement est négligeable
+      // et demander la longueur du navire n'aurait pas d'intérêt.
+      formNavireRequis = aotVisibles && aotPositions.some(a => distanceM(position, a.p) < 100);
+      boatBlock.style.display = formNavireRequis ? 'block' : 'none';
+
+      afficherEnvironnement('<p><em>Vérification des zonages environnementaux…</em></p>', 'neutre');
+      const { zones, echec } = await interrogerZonesProtegees(e.lngLat);
+      if (zones.length) {
+        afficherEnvironnement(
+          `<p>Vous êtes dans une zone <strong>${zones.join(', ')}</strong>.</p>
+           <p>Cette zone est sensible et soumise à évaluation environnementale.</p>
+           ${MENTION_NON_DETECTABLES}`,
+          'neutre');
+      } else if (echec) {
+        afficherEnvironnement(
+          `<p>Informations environnementales momentanément indisponibles (service
+           distant injoignable). Vos coordonnées restent accessibles ci-dessous.</p>`,
+          'neutre');
+      } else {
+        afficherEnvironnement(
+          `<p>Pas de contre-indication détectée automatiquement sur cette zone.</p>
+           ${MENTION_NON_DETECTABLES}`,
+          'vert');
+      }
+
       recalculer();
     });
 
     function recalculer() {
-      const brut  = document.getElementById('in-loa').value;
-      const loa   = parseFloat(brut);
-      const prof  = parseFloat(document.getElementById('in-depth').value) || CONFIG.profondeurDefaut;
-      const ratio = parseFloat(document.getElementById('in-scope').value) || CONFIG.ratioMouillage;
-      const saisi = brut !== '' && isFinite(loa) && loa > 0;
-      const r     = saisi ? rayonEvitage(loa, prof, ratio) : null;
-
-      document.getElementById('out-radius').textContent = saisi ? Math.round(r) : '—';
-
       const zone = document.getElementById('out-conflict');
       const src  = map.getSource('mon-cercle');   // absente tant que l'init n'a pas eu lieu
       const vider = () => { if (src) src.setData({ type:'FeatureCollection', features:[] }); };
@@ -1077,13 +1278,31 @@
       majEtapes();
 
       if (!position) {
-        zone.innerHTML = `<div class="ok-box">Cliquez sur la carte pour positionner votre mouillage.</div>`;
+        zone.innerHTML = '';
         messagePopup('', null);
         vider();
         return;
       }
+      // Aucun mouillage connu à moins de 100 m : le bloc navire n'est pas
+      // affiché, donc pas de calcul de rayon d'évitage à faire non plus.
+      if (!formNavireRequis) {
+        zone.innerHTML = '';
+        messagePopup('', null);
+        vider();
+        return;
+      }
+
+      const brut  = document.getElementById('in-loa').value;
+      const loa   = parseFloat(brut);
+      const prof  = parseFloat(document.getElementById('in-depth').value) || CONFIG.profondeurDefaut;
+      const ratio = parseFloat(document.getElementById('in-scope').value) || CONFIG.ratioMouillage;
+      const saisi = brut !== '' && isFinite(loa) && loa > 0;
+      const r     = saisi ? rayonEvitage(loa, prof, ratio) : null;
+
+      document.getElementById('out-radius').textContent = saisi ? Math.round(r) : '—';
+
       // Emplacement choisi mais longueur non saisie : pas de cercle, on invite
-      // à compléter — dans le panneau et au-dessus des coordonnées.
+      // à compléter — dans le bloc navire et au-dessus des coordonnées.
       if (!saisi) {
         zone.innerHTML = `<div class="warn-box">Renseignez la longueur de votre navire
           pour afficher votre rayon d'évitage.</div>`;

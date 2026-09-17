@@ -8,18 +8,36 @@
         "nom": "EXEMPLE FICTIF - ZMEL a remplacer",
         "commune": "",
         "arrete": "",
-        "nb_postes": null,
-        "gestionnaire": ""
+        "nb_postes": 24,
+        "gestionnaire": "Association des usagers de la ZMEL (fictif)",
+        "mailto": "contact@zmel-exemple.fr"
       },
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[
-          [6.130, 43.043],
-          [6.146, 43.043],
-          [6.146, 43.052],
-          [6.130, 43.052],
-          [6.130, 43.043]
-        ]]
+        "coordinates": [
+          [
+            [
+              6.13,
+              43.043
+            ],
+            [
+              6.146,
+              43.043
+            ],
+            [
+              6.146,
+              43.052
+            ],
+            [
+              6.13,
+              43.052
+            ],
+            [
+              6.13,
+              43.043
+            ]
+          ]
+        ]
       }
     }
   ]
