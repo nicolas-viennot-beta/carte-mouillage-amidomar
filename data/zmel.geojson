@@ -5,8 +5,8 @@
     {
       "type": "Feature",
       "properties": {
-        "nom": "EXEMPLE FICTIF - ZMEL a remplacer",
-        "commune": "",
+        "nom_zmel": "EXEMPLE FICTIF - ZMEL a remplacer",
+        "nom_commune": "",
         "arrete": "",
         "nb_postes": 24,
         "gestionnaire": "Association des usagers de la ZMEL (fictif)",
