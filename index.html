@@ -506,6 +506,8 @@
     map.addControl(new CarteFacile.MapSelectorControl({ styles: ['simple', 'aerial'], overlays: [] }), 'bottom-left');
     map.addControl(new maplibregl.ScaleControl, 'bottom-right');
 
+    const wrap = document.getElementById('map-wrap');
+
     /* ---------- Carte fantôme, pour la détection terre / mer ----------
        Le fond « Aérien » (photo) ne comporte, en vecteur, que les routes et
        voies ferrées : ni occupation du sol, ni bâti, ni relief. Un clic sur
@@ -567,7 +569,6 @@
     }
 
     /* ---------- Construction des panneaux ---------- */
-    const wrap = document.getElementById('map-wrap');
     const colonneD = document.createElement('div');
     colonneD.id = 'panels-droite'; colonneD.className = 'colonne';
     wrap.appendChild(colonneD);
