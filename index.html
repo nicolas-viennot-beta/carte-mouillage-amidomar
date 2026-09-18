@@ -1163,14 +1163,31 @@
        fond « simple », voir plus haut) plutôt que sur la carte visible : le
        fond « Aérien » ne porte pas ces informations. Les toponymes et les
        limites administratives sont ignorés : ils débordent en mer.
+
+       Le style « simple » combine deux jeux de couches vectorielles : les
+       couches IGN proprement dites (bati_, ocs_, routier_, ferre, oro_relief)
+       et un socle générique OpenMapTiles (landcover, landuse, building,
+       aeroway) qui porte notamment les marais, plages, dunes, prés et bois —
+       des zones de terre qui n'ont ni bâti ni route à proximité. Ce second
+       jeu manquait à l'origine : un point de marais ou de plage, non couvert
+       par la première liste, n'était alors identifié comme terre par aucun
+       des deux tests et retombait, à tort, sur la confirmation « eau ».
+
        Renvoie true (eau), false (terre) ou null (indéterminable). */
-    const TERRE = /^(oro_relief|ocs_|bati_|routier_|ferre)/;
-    // Couleurs exactes de la mer sur le fond « simple » (relevées sur le style
-    // réel — deux teintes distinctes, probablement mer ouverte / zone
-    // littorale peu profonde) : servent de confirmation positive quand aucune
-    // caractéristique vectorielle de terre n'a pu être testée (p. ex. tuiles
-    // pas encore chargées).
-    const EAU_SIMPLE = [{ r:162, g:203, b:212 }, { r:199, g:228, b:219 }];
+    const TERRE = /^(oro_relief|ocs_|bati_|routier_|ferre|landcover|landuse|building|aeroway)/;
+    // Couleur exacte de la mer sur le fond « simple » (la seule couche « water »
+    // du style, cf. vendor/carte-facile.js — rgba(151,205,213,1)), plus une
+    // légère marge observée à l'écran pour les variations de rendu. Sert de
+    // confirmation positive quand aucune caractéristique vectorielle de terre
+    // n'a pu être testée (p. ex. tuiles pas encore chargées).
+    // ATTENTION : une ancienne deuxième teinte ({199,228,219}, prétendument
+    // « zone littorale peu profonde ») a été retirée — elle était à 7 près de
+    // rgb(192,229,219), la couleur exacte des marais (landcover_wetland) ET
+    // des plages/dunes (landcover_sand) sur ce même style. Un marais ou une
+    // plage pouvait donc être confirmé comme « eau » par la couleur, en plus
+    // de ne pas être détecté comme terre. Ne pas réintroduire de teinte sans
+    // l'avoir vérifiée contre les valeurs `fill-color` réelles du style.
+    const EAU_SIMPLE = [{ r:151, g:205, b:213 }];
     function couleursProches(a, b, tolerance) {
       return !!a && Math.abs(a.r-b.r) <= tolerance
                  && Math.abs(a.g-b.g) <= tolerance
@@ -1198,9 +1215,13 @@
       if (!f) return null;
       if (f.some(x => TERRE.test(x.sourceLayer || ''))) return false;
       if (EAU_SIMPLE.some(c => couleursProches(couleurPixel(mapTerrain, point), c, 6))) return true;
-      // Aucune trace de terre : soit on est en mer, soit les tuiles du fond de
-      // carte ne sont pas chargées. Dans le doute, on n'empêche pas l'usager.
-      return mapTerrain.areTilesLoaded() ? true : null;
+      // Aucune trace de terre, et la couleur ne confirme pas la mer : soit on
+      // est bien en mer sous une teinte non répertoriée, soit les tuiles du
+      // fond de carte ne sont pas chargées. Dans les deux cas, indéterminable :
+      // on n'empêche pas l'usager (voir le traitement du clic, qui ne bloque
+      // que sur `=== false`), mais on ne le fait plus, comme avant, sous
+      // couvert d'une confirmation « eau » qui n'en était pas une.
+      return mapTerrain.areTilesLoaded() ? null : null;
     }
 
     map.on('click', async e => {
