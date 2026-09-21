@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 1.8 (septembre 2026)  
+**Version:** 1.9 (septembre 2026)  
 **Dernière mise à jour:** 21 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -131,7 +131,10 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 - **Messages:** un bloc Natura 2000 (habitats et oiseaux réunis) et un bloc ZNIEFF (générique, sans nom ni type de zone) s'affichent indépendamment l'un de l'autre selon le résultat — voir §4.1.d
 - **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les Herbiers de posidonie et de zostère, les APB, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d)
 - **Délai d'attente (constaté le 21 septembre 2026):** les réponses Natura 2000 sont volumineuses (200 à 360 ko, géométrie complète du site) et mettent parfois 3 à 4,5 secondes : avec l'ancien délai de 4 secondes, une des deux requêtes Natura 2000 pouvait être coupée sur certains points (Golfe du Morbihan, Lavezzi) et `echec` passait à `true` alors que l'autre avait répondu. Le délai a été porté à 8 secondes en v1.7 (décision de Nicolas). Piste d'amélioration non retenue : alléger la requête
-- **Point partiellement vérifié:** `znieff1`/`znieff2` répondent bien (ex. Salins de Beauduc, Île de Port-Cros et de Bagaud), mais aucun résultat en mer n'a été observé : leur couverture des ZNIEFF marines reste à confirmer
+- **Repli sur le WFS de la Géoplateforme (v1.9):** si l'API Carto **échoue** (erreur ou délai de 8 s dépassé), la même question est posée au WFS de la Géoplateforme (`https://data.geopf.fr/wfs/ows`, `GetFeature`, filtre `INTERSECTS(geom,SRID=4326;POINT(lon lat))`, nom lu dans `nom_site`) sur les couches `patrinat_sic:sic`, `patrinat_zps:zps`, `patrinat_znieff1:znieff1` + `patrinat_znieff1_mer:znieff1_mer`, `patrinat_znieff2:znieff2` + `patrinat_znieff2_mer:znieff2_mer`, avec un délai de 6 s. Si l'API Carto **répond mais ne renvoie rien**, seules les couches ZNIEFF **marines** sont interrogées en WFS (délai 4 s) : l'API Carto ne les renvoie pas en mer, alors que les couches terrestres et Natura 2000 y sont bien couvertes, et redemander celles-ci au WFS ferait attendre l'usager pour rien (une réponse à 10 s a été observée sur `znieff2`). Le WFS n'est jamais interrogé en premier. `echec` ne passe à `true` que si l'API Carto **et** tout le repli ont échoué ; un résultat partiel du repli (terre ou mer seule) est conservé
+- **CORS vérifié le 21 septembre 2026 :** le WFS répond aux requêtes émises depuis `https://nicolas-viennot-beta.github.io` (la réponse est lisible par la page). La CSP `connect-src 'self' https:` l'autorise déjà
+- **Testé en réel (21 septembre 2026, depuis le site publié, avec le code de `interrogerZonesProtegees`) :** l'API Carto a dépassé les 8 s sur 3 points sur 4 (habitats et oiseaux à Port-Cros, ZNIEFF 1 à l'Île Riou) ; le repli a rendu « Rade d'Hyères », « Iles d'Hyères » et « ILE RIOU, ILOTS CONGLUÉ ET IMPÉRIAUX ». Au large de Quiberon, aucun résultat et `echec` à `false`. Durée totale du clic : 2 à 8 s, dominée par le délai de l'API Carto
+- **Limite connue du repli :** le délai de 8 s de l'API Carto reste le principal temps d'attente ; le réduire (par exemple à 4-5 s) est possible maintenant qu'un repli existe, mais n'a pas été fait. Les ZNIEFF marines n'ont été confirmées que sur un point (Île Riou) ; aucun des autres points marins testés n'était dans une ZNIEFF marine
 
 ### 4.4 Détection terre/eau
 
@@ -167,7 +170,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 - 🟦 **Parcs naturels marins** — couche WMTS, affichable/masquable normalement — non identifiable au clic (aucune API disponible)
 - 🔵 **ZNIEFF marines (type 1)** — couche WMTS visible sur la carte ; l'identification au clic interroge en réalité les couches nationales `znieff1` **et** `znieff2` de l'API Carto IGN (pas seulement le type 1, et couverture mer/terre exacte non confirmée — voir §4.3)
 - 🟢 **Aires marines protégées** — couche WMTS (masquée par défaut), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
-- ⬜ **Arrêtés de protection de biotope (APB)** *(v1.8)* — couche WMTS `Patrinat_APB` (IGN / INPN), **cochée par défaut**, statut `verifie` : nom de couche et tuiles confirmés le 21 septembre 2026 (voir §11, v1.8). Affichage seul, non identifiable au clic
+- ⬜ **Arrêtés de protection de biotope (APB)** *(v1.8)* — couche WMTS `Patrinat_APB` (IGN / INPN), **cochée par défaut**, statut `verifie` : nom de couche et tuiles confirmés le 21 septembre 2026 (voir §11, v1.8). Affichage seul, non identifiable au clic. Le serveur dessine les APB en orange vif (rvb 255, 128, 0), en fins contours et petits aplats : peu visibles quand on est dézoomé, et couleur proche de celle des aires marines protégées (légende : `#ff8000`, relevée sur les tuiles le 21/09/2026)
 
 ### Usages de la mer
 - 🟢 **Informations portuaires** — couche SHOM (image de symboles : sans nom de port, gestionnaire ni limites)
@@ -338,7 +341,9 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur l'eau dans un grand site Natura 2000 (Golfe du Morbihan, Lavezzi) → les noms s'affichent malgré une réponse lente (jusqu'à 4,5 s)
 - [ ] Cliquer sur l'eau hors de toute zone connue → le popup affiche « pas de contre-indication identifiée » (teinte verte)
 - [ ] Dans les deux cas, une mention rappelle que certaines couches (PNM, AMP, herbiers, APB, baignade, zones réglementaires) ne sont pas vérifiées automatiquement
-- [ ] Simuler une coupure/latence réseau (ou couper temporairement l'accès à `apicarto.ign.fr`) → au bout de 8 secondes, le popup bascule sur un état de secours sans bloquer l'affichage des coordonnées GPS
+- [ ] Simuler une coupure/latence réseau (ou couper temporairement l'accès à `apicarto.ign.fr`) → le repli WFS prend le relais (v1.9) : les zones s'affichent après environ 8 s + quelques secondes ; l'état de secours n'apparaît que si `data.geopf.fr` est lui aussi coupé, sans bloquer l'affichage des coordonnées GPS
+- [ ] Cliquer sur l'eau dans une ZNIEFF marine connue (par exemple autour de l'Île Riou, Marseille, 43,171 N / 5,380 E) → le message ZNIEFF s'affiche, même si l'API Carto ne renvoie rien
+- [ ] Au large de Quiberon (environ 47,2 N / -3,9 E) → « pas de contre-indication », en quelques secondes
 - [ ] Pas d'erreur bloquante en console
 
 ### ✅ 11. Formulaire navire conditionnel (proximité AOT à 100 m)
@@ -428,10 +433,10 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### Le popup d'environnement reste bloqué sur « interrogation en cours »
 **Diagnostic:**
-- L'appel à l'API Carto IGN (voir §4.3) met plus de 8 secondes à répondre ou échoue silencieusement
+- L'appel à l'API Carto IGN (voir §4.3) met plus de 8 secondes à répondre ou échoue silencieusement, puis le repli WFS (6 s maximum) est lui aussi attendu
 
 **Solutions:**
-- Comportement attendu : au bout de 8 secondes, l'affichage bascule automatiquement sur un état de secours — aucune action requise, les coordonnées GPS restent accessibles dans tous les cas
+- Comportement attendu : au bout de 8 secondes (puis du délai du repli WFS, 6 s maximum), l'affichage bascule automatiquement sur un état de secours — aucune action requise, les coordonnées GPS restent accessibles dans tous les cas
 - Vérifier la connexion réseau si le blocage semble anormalement long
 
 ### Le popup n'identifie aucune zone Natura 2000 alors que le point est dans un site
@@ -464,9 +469,18 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ## 11. Historique des corrections
 
+### v1.9 — 21 septembre 2026
+**Repli sur le WFS de la Géoplateforme pour l'identification Natura 2000 / ZNIEFF au clic**
+- `interrogerZonesProtegees` interroge désormais le WFS de la Géoplateforme (nouvelle fonction `interrogerWFS`) quand l'API Carto échoue, et pour les seules ZNIEFF marines quand elle ne renvoie rien (détail en §4.3). Le message affiché à l'usager et le déroulé du clic ne changent pas
+- Motifs, constatés le 21 septembre 2026 : l'API Carto ne renvoie pas les ZNIEFF marines ; elle a dépassé 8 s sur 3 points de test sur 4 alors que le WFS a répondu ; le WFS renvoie quelques ko contre 200 à 360 ko
+- CORS vérifié depuis le site publié. Test d'exécution avec réseau simulé (6 scénarios : API Carto seule, API Carto en panne, API Carto vide, tout en panne, API Carto vide + WFS en panne, repli partiel) et test réseau réel sur 4 points marins : voir `TESTS_FONCTIONNELS.md`, 5sexies
+- **Écart avec l'intention de départ :** il était prévu de retenter le WFS dès que l'API Carto ne renvoie « rien ». Le test réel a montré qu'une couche terrestre du WFS peut mettre 10 s à répondre : le repli sur réponse vide est donc limité aux ZNIEFF marines. Natura 2000, dont l'API Carto couvre bien la mer, n'est retenté qu'en cas d'échec
+- Non fait : réduire le délai de l'API Carto (8 s) ; à décider après quelques semaines d'observation
+
 ### v1.8 — 21 septembre 2026
 **Couche APB séparée, légende scindée, notes de couverture corrigées**
 - Remplacement de l'entrée « APB / zone de baignade / zone réglementaire » (« à venir ») par deux entrées : une couche **« Arrêtés de protection de biotope (APB) »** (WMTS `Patrinat_APB`, IGN / INPN, cochée par défaut, statut `verifie` après test du service le jour même, non identifiable au clic) et l'entrée « Zone de baignade / zone réglementaire », toujours « à venir »
+- Couleur de légende de l'APB alignée sur celle des tuiles réelles (orange `#ff8000`) ; aucune note sous la ligne APB (la limite « non identifiable au clic » figure déjà dans la mention du popup)
 - Notes de légende corrigées : herbiers (couverture réelle : presque uniquement l'Occitanie, zostère absente), informations portuaires (sans nom, gestionnaire ni limites), AOT (positions simulées, fictives)
 - **Testé en réel le 21 septembre 2026** dans le navigateur intégré : `Patrinat_APB` figure dans le document de capacités WMTS de la Géoplateforme et renvoie des tuiles PNG au gabarit utilisé par la carte, avec contenu sur 6 des 7 sites essayés (Ajaccio, Arcachon, Brest, Camargue, Morbihan, Quiberon ; tuile vide à Hyères). Le rendu dans la carte elle-même n'a pas été vérifié à l'œil
 - Le même contrôle confirme les noms WFS `patrinat_apb`, `patrinat_rnr`, `patrinat_znieff1_mer` et `patrinat_znieff2_mer`, ainsi que `Patrinat_ZNIEFF2_MER` en WMTS (aucune requête de données testée)

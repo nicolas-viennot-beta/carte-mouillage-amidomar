@@ -270,6 +270,36 @@ fonctionnalité correspondante a réellement disparu.
      (Golfe du Morbihan, Lavezzi) si une réponse dépasse 8 secondes (le délai était de 4 secondes avant la v1.7 et coupait ces réponses).
    - Vérification : exécution réelle.
 
+5sexies. **Repli WFS de la Géoplateforme (v1.9)**
+   - Action : lire `interrogerWFS` et `interrogerZonesProtegees`.
+   - Attendu : chaque requête porte `repli` (toutes les couches WFS) et
+     `repliMer` (couches marines seulement : vide pour Natura 2000,
+     `patrinat_znieff1_mer:znieff1_mer` / `patrinat_znieff2_mer:znieff2_mer`
+     pour les ZNIEFF). Le WFS n'est appelé qu'après l'API Carto : avec
+     `repli` et un délai de 6 s si l'API Carto a échoué, avec `repliMer` et
+     4 s si elle a répondu sans rien. Filtre `INTERSECTS(geom,SRID=4326;
+     POINT(lng lat))` (longitude d'abord), nom lu dans `nom_site`.
+     `echec` n'est vrai que si l'API Carto ET tout le repli ont échoué ; un
+     repli partiel est conservé (`Promise.allSettled`).
+   - Vérification : lecture du code, puis **test d'exécution avec `fetch`
+     simulé**, 6 scénarios (extraire le texte de `interrogerWFS` et
+     `interrogerZonesProtegees`) :
+     A. API Carto répond partout → 0 appel WFS ;
+     B. API Carto en 404 partout, WFS répond → 6 appels WFS, noms Natura 2000
+        + ZNIEFF, `echec:false` ;
+     C. API Carto vide (Natura répond, ZNIEFF vide), WFS marin trouve →
+        2 appels WFS, ZNIEFF renvoyée ;
+     D. tout en panne → `echec:true` ;
+     E. API Carto vide + WFS en panne → `echec:false`, 2 appels WFS ;
+     F. API Carto en panne, WFS partiel (terre KO, mer OK) → résultat marin
+        conservé, `echec:false`.
+     Résultats du 21/09/2026 : 6 scénarios sur 6 conformes.
+   - Test réseau réel (depuis le site publié, navigateur) : Port-Cros,
+     Île Riou (43,1709 N / 5,3799 E), rade de Brest, large de Quiberon.
+     Attendu : mêmes noms qu'en test 5quater ; Île Riou → ZNIEFF
+     « ILE RIOU, ILOTS CONGLUÉ ET IMPÉRIAUX » ; Quiberon → rien, `echec`
+     à `false`. Le 21/09/2026 : conforme sur les 4 points, en 2 à 8 s.
+
 5ter. **Messages distincts Natura 2000 / ZNIEFF (17 sept. 2026)**
    - Action : lire le bloc `blocsZones` dans le gestionnaire de clic.
    - Attendu : un message Natura 2000 (mention de l'évaluation
@@ -306,8 +336,9 @@ fonctionnalité correspondante a réellement disparu.
    - Action : couper ou simuler l'indisponibilité de `apicarto.ign.fr`
      (ex. via le mode hors-ligne des outils de développement), puis
      cliquer sur l'eau.
-   - Attendu : au bout de 8 secondes maximum, le popup affiche un état de
-     secours (interrogation indisponible) sans bloquer l'affichage des
+   - Attendu : le repli WFS prend le relais (v1.9), les zones s'affichent ;
+     l'état de secours (interrogation indisponible) n'apparaît que si
+     `data.geopf.fr` est aussi coupé, sans bloquer l'affichage des
      coordonnées GPS.
    - Vérification : visuelle.
 
@@ -424,7 +455,7 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 21 sept. 2026 (v1.8) — phase synchrone OK, événement
+   - *Dernière exécution : 21 sept. 2026 (v1.9) — phase synchrone OK, événement
      `load` déclenché sans erreur, avec `fetch` local lisant `data/`.*
    - Action : exécuter le script extrait dans Node.js avec des objets
      globaux simulés (`document`, `window`, `navigator`, `fetch`,

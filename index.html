@@ -451,11 +451,10 @@
         visible:false, attribution:'© OFB' },
 
       { groupe:'Protection de la nature',
-        id:'apb', label:'Arrêtés de protection de biotope (APB)', couleur:'#999999',
+        id:'apb', label:'Arrêtés de protection de biotope (APB)', couleur:'#ff8000',
         picto:'aplat', statut:'verifie',
         tiles: WMTS('Patrinat_APB','image/png'), visible:true,
-        attribution:'© IGN / INPN',
-        note:"Affichage seul : la zone n'est pas identifiée au clic." },
+        attribution:'© IGN / INPN' },
 
       { groupe:'Habitats sensibles',
         id:'posidonie', label:'Herbiers de posidonie et de zostère', couleur:'#6a1b9a',
@@ -1122,7 +1121,37 @@
        zones Natura 2000 (habitats + oiseaux) et ZNIEFF au point cliqué.
        Requêtes en parallèle, avec un délai court : en cas de lenteur ou
        d'indisponibilité du service, on ne bloque jamais l'accès aux
-       coordonnées GPS, qui restent la fonction essentielle de la carte. */
+       coordonnées GPS, qui restent la fonction essentielle de la carte.
+
+       REPLI (v1.9) : la même question est posée au WFS de la Géoplateforme
+       (couches patrinat_*, filtre sur le point cliqué) dans deux cas :
+         - l'API Carto échoue (erreur ou délai dépassé) : toutes les couches WFS
+           correspondantes sont interrogées, délai 6 s ;
+         - l'API Carto répond mais ne renvoie aucune zone : seules les couches
+           ZNIEFF MARINES sont interrogées (l'API Carto ne les renvoie pas en
+           mer), délai 4 s. Les couches terrestres ne sont pas redemandées : le
+           WFS y est parfois lent (une réponse à 10 s le 21/09/2026) et ferait
+           attendre l'usager pour rien.
+       Le WFS n'est jamais interrogé en premier. */
+    const WFS_GEOPF = 'https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature' +
+                      '&OUTPUTFORMAT=application/json&PROPERTYNAME=nom_site&TYPENAMES=';
+
+    // Interroge une couche WFS de la Géoplateforme au point donné ; renvoie les noms de site.
+    // Le nom est dans `nom_site` pour toutes les couches utilisées ici (testé le 21/09/2026).
+    // Attention : dans le filtre CQL, l'ordre est bien « longitude latitude ».
+    async function interrogerWFS(couche, lngLat, delaiMs) {
+      const filtre = `INTERSECTS(geom,SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), delaiMs);
+      try {
+        const rep = await fetch(WFS_GEOPF + couche + '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                { signal: ctrl.signal });
+        if (!rep.ok) throw new Error('http ' + rep.status);
+        const j = await rep.json();
+        return (j.features || []).map(f => f.properties && f.properties.nom_site).filter(Boolean);
+      } finally { clearTimeout(t); }
+    }
+
     async function interrogerZonesProtegees(lngLat) {
       /* Codes de couche de l'API Carto IGN, module « nature », TESTÉS EN RÉEL
          le 21 septembre 2026 depuis un navigateur :
@@ -1137,14 +1166,20 @@
          « Iles d'Hyères » (oiseaux). */
       const geom = JSON.stringify({ type:'Point', coordinates:[lngLat.lng, lngLat.lat] });
       const requetes = [
-        { categorie:'natura', champ:'sitename', url:`https://apicarto.ign.fr/api/nature/natura-habitat?geom=${encodeURIComponent(geom)}` },
-        { categorie:'natura', champ:'sitename', url:`https://apicarto.ign.fr/api/nature/natura-oiseaux?geom=${encodeURIComponent(geom)}` },
-        { categorie:'znieff', champ:'nom',      url:`https://apicarto.ign.fr/api/nature/znieff1?geom=${encodeURIComponent(geom)}` },
-        { categorie:'znieff', champ:'nom',      url:`https://apicarto.ign.fr/api/nature/znieff2?geom=${encodeURIComponent(geom)}` }
+        { categorie:'natura', champ:'sitename', repli:['patrinat_sic:sic'], repliMer:[],
+          url:`https://apicarto.ign.fr/api/nature/natura-habitat?geom=${encodeURIComponent(geom)}` },
+        { categorie:'natura', champ:'sitename', repli:['patrinat_zps:zps'], repliMer:[],
+          url:`https://apicarto.ign.fr/api/nature/natura-oiseaux?geom=${encodeURIComponent(geom)}` },
+        { categorie:'znieff', champ:'nom',      repli:['patrinat_znieff1:znieff1','patrinat_znieff1_mer:znieff1_mer'], repliMer:['patrinat_znieff1_mer:znieff1_mer'],
+          url:`https://apicarto.ign.fr/api/nature/znieff1?geom=${encodeURIComponent(geom)}` },
+        { categorie:'znieff', champ:'nom',      repli:['patrinat_znieff2:znieff2','patrinat_znieff2_mer:znieff2_mer'], repliMer:['patrinat_znieff2_mer:znieff2_mer'],
+          url:`https://apicarto.ign.fr/api/nature/znieff2?geom=${encodeURIComponent(geom)}` }
       ];
       const noms = { natura:[], znieff:[] };
+      const ajouter = (cat, liste) => liste.forEach(n => { if (n && !noms[cat].includes(n)) noms[cat].push(n); });
       let echec = false;
       await Promise.all(requetes.map(async r => {
+        let trouves = [], primaireOk = false;
         try {
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 8000);   // 8 s : les réponses Natura 2000 (200-360 ko) prennent jusqu'à 4,5 s
@@ -1153,11 +1188,23 @@
           finally { clearTimeout(t); }
           if (!rep.ok) throw new Error('http ' + rep.status);
           const j = await rep.json();
-          (j.features || []).forEach(f => {
-            const nom = f.properties && f.properties[r.champ];
-            if (nom && !noms[r.categorie].includes(nom)) noms[r.categorie].push(nom);
-          });
-        } catch (e) { echec = true; }
+          trouves = (j.features || []).map(f => f.properties && f.properties[r.champ]).filter(Boolean);
+          primaireOk = true;
+        } catch (e) { /* l'API Carto a échoué : on tentera le repli */ }
+
+        const couchesRepli = primaireOk ? r.repliMer : r.repli;
+        if (trouves.length === 0 && couchesRepli.length) {
+          // Repli WFS : 6 s si l'API Carto a échoué, 4 s si elle a seulement répondu « rien ».
+          const delai = primaireOk ? 4000 : 6000;
+          try {
+            const reps = await Promise.allSettled(couchesRepli.map(c => interrogerWFS(c, lngLat, delai)));
+            reps.forEach(x => { if (x.status === 'fulfilled') trouves = trouves.concat(x.value); });
+            // Un résultat partiel (terre OK, mer en échec, ou l'inverse) est conservé.
+            // L'échec ne compte que si tout le repli échoue ET que l'API Carto avait échoué aussi.
+            if (!primaireOk && reps.every(x => x.status === 'rejected')) echec = true;
+          } catch (e) { if (!primaireOk) echec = true; }
+        }
+        ajouter(r.categorie, trouves);
       }));
       return { natura:noms.natura, znieff:noms.znieff, echec };
     }
