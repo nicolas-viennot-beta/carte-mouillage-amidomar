@@ -79,6 +79,21 @@ Le SHOM reste donc la meilleure source pour cet usage, sauf besoin d'une
 information réglementaire précise (limites administratives portuaires) qui
 demanderait un travail spécifique.
 
+Limite constatée : la couche est faite de symboles et d'annotations. Elle
+n'indique ni le nom du port, ni son gestionnaire, ni ses limites. Le jeu Shom
+« Informations portuaires » existe aussi en WFS avec les zones portuaires ; le
+nom et le gestionnaire n'y sont pas confirmés.
+
+---
+
+## Arrêtés de protection de biotope (APB)
+
+Depuis le 21 septembre 2026, la carte affiche une couche APB (`Patrinat_APB`,
+WMTS de la Géoplateforme, IGN / INPN), cochée par défaut. Son nom et ses
+tuiles ont été vérifiés le 21 septembre 2026 dans un navigateur. Les contours en
+données seraient disponibles via la couche WFS `patrinat_apb`, dont le nom est
+confirmé mais dont les données n'ont pas été interrogées.
+
 ---
 
 ## Cultures marines

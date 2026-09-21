@@ -450,19 +450,26 @@
         tiles: WMS('https://wxs.ofb.fr/geoserver/gestion/ows','ges_omon_amp_ofb_pol_3857_vue'),
         visible:false, attribution:'© OFB' },
 
+      { groupe:'Protection de la nature',
+        id:'apb', label:'Arrêtés de protection de biotope (APB)', couleur:'#999999',
+        picto:'aplat', statut:'verifie',
+        tiles: WMTS('Patrinat_APB','image/png'), visible:true,
+        attribution:'© IGN / INPN',
+        note:"Affichage seul : la zone n'est pas identifiée au clic." },
+
       { groupe:'Habitats sensibles',
         id:'posidonie', label:'Herbiers de posidonie et de zostère', couleur:'#6a1b9a',
         picto:'aplat', statut:'a_tester',
         tiles: WMS('https://sextant.ifremer.fr/services/wms/biologie','BIOMED_POSI_PALAVAS_P,BIOMED_POSI_ALBERES_P'),
         visible:false, attribution:'© IFREMER',
-        note:"Couverture partielle (Palavas, Albères). N'affiche rien sur le Var et la Corse." },
+        note:"Couverture partielle : presque uniquement l'Occitanie (Palavas, Albères). Rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon. La zostère est annoncée mais absente." },
 
       { groupe:'Usages de la mer',
         id:'ports', label:'Informations portuaires', couleur:'#006700',
         picto:'symbole', statut:'verifie',
         tiles: WMS('https://services.data.shom.fr/INSPIRE/wms/r','INFORMATIONS_PORTUAIRES_PYR_PNG_3857_WMSR'),
         visible:true, attribution:'© SHOM',
-        note:"Couche de symboles et d'annotations, sans aplat de couleur." },
+        note:"Couche de symboles et d'annotations, sans aplat de couleur. Elle n'indique ni le nom du port, ni son gestionnaire, ni ses limites." },
 
       { groupe:'Usages de la mer',
         id:'zmel', label:'ZMEL', couleur:'#f9a825',
@@ -477,7 +484,7 @@
         note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
 
       { groupe:'Usages de la mer',
-        id:'restrictions_diverses', label:'APB / zone de baignade / zone réglementaire',
+        id:'restrictions_diverses', label:'Zone de baignade / zone réglementaire',
         couleur:'#999999', picto:'aplat', statut:'a_tester', aVenir:true,
         visible:false,
         note:"À venir : aucune source ne permet aujourd'hui de représenter ni d'identifier ces zones au clic." },
@@ -486,7 +493,7 @@
         id:'aot', label:'AOT existantes et leur évitage', couleur:'#c2185b',
         picto:'aot', statut:'local', aot:true,
         geojson:'data/aot-existantes.geojson', visible:true,
-        note:"249 AOT simulées sur 6 sites de Bretagne et de Méditerranée, pour figurer la pression sur le plan d'eau. Natura 2000 n'est pas exclu : une AOT peut y être autorisée." }
+        note:"Données simulées : 249 positions fictives sur 6 sites de Bretagne et de Méditerranée, pour figurer la pression sur le plan d'eau. Natura 2000 n'est pas exclu : une AOT peut y être autorisée." }
     ];
 
     /* ========================================================================

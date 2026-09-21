@@ -113,12 +113,13 @@ fonctionnalité correspondante a réellement disparu.
 
 ---
 
-## 3. Couche « à venir » (APB / zone de baignade / zone réglementaire)
+## 3. Couche « à venir » (zone de baignade / zone réglementaire) et couche APB
 
 1. **Marquage en configuration**
    - Action : lire l'entrée `restrictions_diverses` dans `COUCHES`.
-   - Attendu : `aVenir: true`, `label` = « APB / zone de baignade / zone
-     réglementaire », avec une note commençant par « À venir : ».
+   - Attendu : `aVenir: true`, `label` = « Zone de baignade / zone
+     réglementaire » (sans « APB » depuis la v1.8), avec une note commençant
+     par « À venir : ».
    - Vérification : lecture du code.
 
 2. **Aucun chargement pour cette couche**
@@ -138,11 +139,27 @@ fonctionnalité correspondante a réellement disparu.
 
 4. **Test visuel : légende**
    - Action : ouvrir le panneau « Couches affichées ».
-   - Attendu : une seule ligne « APB / zone de baignade / zone
+   - Attendu : une seule ligne « Zone de baignade / zone
      réglementaire » apparaît grisée, case décochée et désactivée, avec la
      mention « À VENIR » en dessous ; aucun ✓/✗/○/≈ n'apparaît pour cette
      ligne.
    - Vérification : visuelle.
+
+4bis. **Couche APB (v1.8)**
+   - Action : lire l'entrée `apb` dans `COUCHES` et le panneau « Couches
+     affichées ».
+   - Attendu : `groupe:'Protection de la nature'`, `tiles: WMTS('Patrinat_APB',
+     'image/png')`, `visible:true`, `statut:'verifie'`, **pas** de `aVenir`.
+     Dans la légende, la ligne « Arrêtés de protection de biotope (APB) »
+     figure sous « Protection de la nature », case **cochée** par défaut et
+     activable ; la décocher masque la couche (`apb-layer`), la recocher la
+     réaffiche. Son statut ✓/✗ vient de `testerSource`.
+   - Vérification : lecture du code, puis visuelle. Contrôle du service
+     fait le 21/09/2026 dans un navigateur (`Patrinat_APB` dans le
+     GetCapabilities WMTS, tuiles avec contenu au Morbihan, à Brest,
+     Ajaccio, en Camargue). Reste à vérifier à l'œil dans la carte publiée :
+     un statut ✗ ou une carte vide sur ces sites signale un problème de
+     service.
 
 5. **Parcs naturels marins, Aires marines protégées, Herbiers de posidonie
    et de zostère : affichage normal rétabli (non-régression v1.2)**
@@ -407,7 +424,7 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 21 sept. 2026 (v1.7) — phase synchrone OK, événement
+   - *Dernière exécution : 21 sept. 2026 (v1.8) — phase synchrone OK, événement
      `load` déclenché sans erreur, avec `fetch` local lisant `data/`.*
    - Action : exécuter le script extrait dans Node.js avec des objets
      globaux simulés (`document`, `window`, `navigator`, `fetch`,
