@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 1.6 (septembre 2026)  
-**Dernière mise à jour:** 18 septembre 2026  
+**Version:** 1.7 (septembre 2026)  
+**Dernière mise à jour:** 21 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -91,7 +91,7 @@ Un clic dans une zone de cultures marines (`data/cultures-marines.geojson`) affi
 
 #### d. Tous les autres clics sur l'eau
 1. Un marqueur est posé et les coordonnées GPS calculées
-2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `sic`, `zps`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF — voir §4.3 pour le détail technique
+2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF — voir §4.3 pour le détail technique
 3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, précisant qu'une AOT y reste possible sous réserve d'évaluation environnementale et que le nom de la zone est à reporter dans le formulaire de demande) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, APB, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
 4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le message de détection et le court formulaire navire/évitage s'affichent en complément dans le même popup (voir §4.2 et la spec C6)
 
@@ -124,13 +124,14 @@ Le formulaire ne comporte donc plus que **deux champs** : « Longueur de mon nav
 
 Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué, la carte interroge l'**API Carto de l'IGN**, module *nature* : `https://apicarto.ign.fr/api/nature/...`.
 
-- **Endpoints utilisés:** `sic` (Natura 2000 habitats), `zps` (Natura 2000 oiseaux), `znieff1`, `znieff2` (recherche par géométrie ponctuelle passée en paramètre `geom`) — codes officiels de l'API Carto IGN (source : `docUser_moduleNature.pdf`) ; corrigés le 17 septembre 2026, les codes précédents `natura-habitat`/`natura-oiseaux` n'existant pas côté serveur (voir historique v1.3)
-- **Propriétés lues:** `nom`, pour les quatre couches
+- **Endpoints utilisés:** `natura-habitat` (Natura 2000 habitats), `natura-oiseaux` (Natura 2000 oiseaux), `znieff1`, `znieff2` (recherche par géométrie ponctuelle passée en paramètre `geom`) — **testés en réel le 21 septembre 2026** depuis un navigateur. Les codes `sic` et `zps`, introduits en v1.3 d'après la documentation sans test réel, renvoient une erreur 404 et ne doivent pas être réintroduits (voir historique v1.7)
+- **Propriétés lues:** `sitename` pour `natura-habitat` et `natura-oiseaux` ; `nom` pour `znieff1` et `znieff2`. Le champ à lire est porté par chaque requête (propriété `champ`)
 - **Accès:** API publique, sans clé
-- **Robustesse:** chaque appel est borné par un délai de **4 secondes** (`AbortController`) ; en cas de dépassement ou d'échec réseau, l'affichage bascule sur un état de secours (« interrogation indisponible ») sans jamais bloquer l'affichage des coordonnées GPS — la vérification des zones protégées est une information complémentaire, jamais un préalable au parcours principal
+- **Robustesse:** chaque appel est borné par un délai de **8 secondes** (`AbortController`, porté de 4 à 8 secondes en v1.7) ; en cas de dépassement ou d'échec réseau, l'affichage bascule sur un état de secours (« interrogation indisponible ») sans jamais bloquer l'affichage des coordonnées GPS — la vérification des zones protégées est une information complémentaire, jamais un préalable au parcours principal
 - **Messages:** un bloc Natura 2000 (habitats et oiseaux réunis) et un bloc ZNIEFF (générique, sans nom ni type de zone) s'affichent indépendamment l'un de l'autre selon le résultat — voir §4.1.d
 - **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les Herbiers de posidonie et de zostère, les APB, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d)
-- **Point non vérifié:** la couverture mer/terre exacte des couches `znieff1`/`znieff2` (incluent-elles les ZNIEFF marines, distinctes sur d'autres services INPN ?) n'a pas été confirmée par un test réel — voir historique v1.3
+- **Délai d'attente (constaté le 21 septembre 2026):** les réponses Natura 2000 sont volumineuses (200 à 360 ko, géométrie complète du site) et mettent parfois 3 à 4,5 secondes : avec l'ancien délai de 4 secondes, une des deux requêtes Natura 2000 pouvait être coupée sur certains points (Golfe du Morbihan, Lavezzi) et `echec` passait à `true` alors que l'autre avait répondu. Le délai a été porté à 8 secondes en v1.7 (décision de Nicolas). Piste d'amélioration non retenue : alléger la requête
+- **Point partiellement vérifié:** `znieff1`/`znieff2` répondent bien (ex. Salins de Beauduc, Île de Port-Cros et de Bagaud), mais aucun résultat en mer n'a été observé : leur couverture des ZNIEFF marines reste à confirmer
 
 ### 4.4 Détection terre/eau
 
@@ -183,7 +184,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 
 ### État des sources problématiques
 - **Herbiers de posidonie et de zostère:** Couverture insuffisante — manque Var, Bouches-du-Rhône, Corse ; reste affichable mais non identifiable au clic
-- **Parcs naturels marins, Aires marines protégées:** Aucune API d'identification de zone au clic identifiée à ce jour (contrairement à Natura 2000 et ZNIEFF, couverts par l'API Carto IGN — module *nature*, endpoints `sic`, `zps`, `znieff1`, `znieff2`) — restent affichées/masquables normalement, simplement absentes de la vérification automatique au clic
+- **Parcs naturels marins, Aires marines protégées:** Aucune API d'identification de zone au clic identifiée à ce jour (contrairement à Natura 2000 et ZNIEFF, couverts par l'API Carto IGN — module *nature*, endpoints `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) — restent affichées/masquables normalement, simplement absentes de la vérification automatique au clic
 - **APB, zones de baignade, zones réglementaires:** Aucune source publique interrogeable identifiée — regroupées dans l'entrée unique « À venir » du panneau (voir ci-dessus)
 - **ZMEL:** Aucune couche nationale consolidée — créées par arrêté préfectoral, diffusées par DDTM ; données de capacité/contact actuellement fictives
 - **Cultures marines:** Relèvent du cadastre conchylicole — à demander aux DDTM/délégations à la mer
@@ -331,9 +332,11 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### ✅ 10. Interrogation Natura 2000 / ZNIEFF (API Carto)
 - [ ] Cliquer sur l'eau dans une zone couverte par Natura 2000 ou une ZNIEFF connue → le popup affiche le(s) nom(s) de zone après un court délai
+- [ ] Cliquer sur l'eau à Port-Cros (environ 43,00 N / 6,40 E, rade d'Hyères) → le popup affiche « Rade d'Hyères » et « Iles d'Hyères » (Natura 2000) : cas de référence de la v1.7, qui ne fonctionnait pas avec `sic`/`zps`
+- [ ] Cliquer sur l'eau dans un grand site Natura 2000 (Golfe du Morbihan, Lavezzi) → les noms s'affichent malgré une réponse lente (jusqu'à 4,5 s)
 - [ ] Cliquer sur l'eau hors de toute zone connue → le popup affiche « pas de contre-indication identifiée » (teinte verte)
 - [ ] Dans les deux cas, une mention rappelle que certaines couches (PNM, AMP, herbiers, APB, baignade, zones réglementaires) ne sont pas vérifiées automatiquement
-- [ ] Simuler une coupure/latence réseau (ou couper temporairement l'accès à `apicarto.ign.fr`) → au bout de 4 secondes, le popup bascule sur un état de secours sans bloquer l'affichage des coordonnées GPS
+- [ ] Simuler une coupure/latence réseau (ou couper temporairement l'accès à `apicarto.ign.fr`) → au bout de 8 secondes, le popup bascule sur un état de secours sans bloquer l'affichage des coordonnées GPS
 - [ ] Pas d'erreur bloquante en console
 
 ### ✅ 11. Formulaire navire conditionnel (proximité AOT à 100 m)
@@ -421,11 +424,20 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### Le popup d'environnement reste bloqué sur « interrogation en cours »
 **Diagnostic:**
-- L'appel à l'API Carto IGN (voir §4.3) met plus de 4 secondes à répondre ou échoue silencieusement
+- L'appel à l'API Carto IGN (voir §4.3) met plus de 8 secondes à répondre ou échoue silencieusement
 
 **Solutions:**
-- Comportement attendu : au bout de 4 secondes, l'affichage bascule automatiquement sur un état de secours — aucune action requise, les coordonnées GPS restent accessibles dans tous les cas
+- Comportement attendu : au bout de 8 secondes, l'affichage bascule automatiquement sur un état de secours — aucune action requise, les coordonnées GPS restent accessibles dans tous les cas
 - Vérifier la connexion réseau si le blocage semble anormalement long
+
+### Le popup n'identifie aucune zone Natura 2000 alors que le point est dans un site
+**Diagnostic:**
+- Ouvrir la console réseau et vérifier que les appels vont bien vers `apicarto.ign.fr/api/nature/natura-habitat` et `natura-oiseaux` (et non `sic`/`zps`, qui renvoient une 404)
+- Vérifier que le nom est lu sur `properties.sitename` pour Natura 2000 et `properties.nom` pour les ZNIEFF
+- Sur un très grand site, une réponse de plus de 8 secondes est coupée : le popup affiche alors l'état de secours
+
+**Solutions:**
+- Rétablir les codes et les champs ci-dessus dans `interrogerZonesProtegees` ; ne pas se fier à la documentation seule, tester l'appel en réel (voir `TESTS_FONCTIONNELS.md`, test 5quater)
 
 ### Clic à terre ne fonctionne pas (sur l'un ou l'autre fond)
 **Diagnostic:**
@@ -447,6 +459,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v1.7 — 21 septembre 2026
+**Rétablissement des codes API Carto `natura-habitat` / `natura-oiseaux` et du champ `sitename`**
+- **Bug corrigé :** en v1.3, les endpoints `natura-habitat` et `natura-oiseaux` avaient été remplacés par `sic` et `zps` d'après une documentation (`docUser_moduleNature.pdf`), sans test réel. Testés le 21 septembre 2026 depuis un navigateur, `sic` et `zps` renvoient une erreur 404 sur tous les points essayés, alors que `natura-habitat` et `natura-oiseaux` répondent. Depuis v1.3, aucune zone Natura 2000 n'était donc identifiée au clic
+- Le nom du site Natura 2000 est dans `properties.sitename` (et non `nom`) ; `znieff1` et `znieff2` restent en `nom`. Le champ lu est désormais porté par chaque requête (`champ`)
+- **Vérifié en réel** avec la fonction modifiée : Port-Cros (6,40 / 43,00) → « Rade d'Hyères » et « Iles d'Hyères » (Natura 2000), « ÎLE DE PORT-CROS ET DE BAGAUD » (ZNIEFF) ; Lavezzi → « Iles Lavezzi, Bouches de Bonifacio » ; Golfe du Morbihan → deux sites ; Beauduc → « Camargue » et deux ZNIEFF ; pleine mer au large de Quiberon → aucun résultat, sans erreur
+- **Délai d'attente porté de 4 à 8 secondes** (`AbortController`) : les réponses Natura 2000 volumineuses (200 à 360 ko) mettent jusqu'à 4,5 secondes et étaient parfois coupées à 4 secondes (Golfe du Morbihan, Lavezzi), ce qui faisait passer `echec` à `true`. Décision de Nicolas ; les coordonnées GPS restent affichées pendant l'attente
+- Enseignement : ne plus corriger un identifiant de couche d'après une documentation seule ; le tester en réel avant de modifier le code
 
 ### v1.6 — 18 septembre 2026
 **Correction de bug : faux négatif de la détection terre/eau sur marais et plages**

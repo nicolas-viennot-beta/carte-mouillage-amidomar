@@ -1117,32 +1117,37 @@
        d'indisponibilité du service, on ne bloque jamais l'accès aux
        coordonnées GPS, qui restent la fonction essentielle de la carte. */
     async function interrogerZonesProtegees(lngLat) {
-      /* Codes de couche officiels de l'API Carto IGN, module « nature »
-         (source : docUser_moduleNature.pdf, IGN). « natura-habitat » et
-         « natura-oiseaux » n'existaient pas côté serveur : ces deux requêtes
-         échouaient silencieusement à chaque clic, rattrapées par le catch
-         comme un simple aléa réseau. Le champ du nom de site est `nom`
-         (et non `sitename`) dans les deux cas. */
+      /* Codes de couche de l'API Carto IGN, module « nature », TESTÉS EN RÉEL
+         le 21 septembre 2026 depuis un navigateur :
+           - Natura 2000 : `natura-habitat` et `natura-oiseaux` répondent ;
+             `sic` et `zps` renvoient une erreur 404 (ne pas les réintroduire,
+             même si une documentation les cite). Le nom du site est dans le
+             champ `sitename`.
+           - ZNIEFF : `znieff1` et `znieff2` répondent ; le nom est dans `nom`.
+         Le champ à lire n'est donc pas le même selon la couche : il est porté
+         par chaque requête (`champ`). Test de référence : au point
+         6,40 / 43,00 (Port-Cros), on attend « Rade d'Hyères » (habitats) et
+         « Iles d'Hyères » (oiseaux). */
       const geom = JSON.stringify({ type:'Point', coordinates:[lngLat.lng, lngLat.lat] });
       const requetes = [
-        { categorie:'natura', url:`https://apicarto.ign.fr/api/nature/sic?geom=${encodeURIComponent(geom)}` },
-        { categorie:'natura', url:`https://apicarto.ign.fr/api/nature/zps?geom=${encodeURIComponent(geom)}` },
-        { categorie:'znieff', url:`https://apicarto.ign.fr/api/nature/znieff1?geom=${encodeURIComponent(geom)}` },
-        { categorie:'znieff', url:`https://apicarto.ign.fr/api/nature/znieff2?geom=${encodeURIComponent(geom)}` }
+        { categorie:'natura', champ:'sitename', url:`https://apicarto.ign.fr/api/nature/natura-habitat?geom=${encodeURIComponent(geom)}` },
+        { categorie:'natura', champ:'sitename', url:`https://apicarto.ign.fr/api/nature/natura-oiseaux?geom=${encodeURIComponent(geom)}` },
+        { categorie:'znieff', champ:'nom',      url:`https://apicarto.ign.fr/api/nature/znieff1?geom=${encodeURIComponent(geom)}` },
+        { categorie:'znieff', champ:'nom',      url:`https://apicarto.ign.fr/api/nature/znieff2?geom=${encodeURIComponent(geom)}` }
       ];
       const noms = { natura:[], znieff:[] };
       let echec = false;
       await Promise.all(requetes.map(async r => {
         try {
           const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 4000);
+          const t = setTimeout(() => ctrl.abort(), 8000);   // 8 s : les réponses Natura 2000 (200-360 ko) prennent jusqu'à 4,5 s
           let rep;
           try { rep = await fetch(r.url, { signal: ctrl.signal }); }
           finally { clearTimeout(t); }
           if (!rep.ok) throw new Error('http ' + rep.status);
           const j = await rep.json();
           (j.features || []).forEach(f => {
-            const nom = f.properties && f.properties.nom;
+            const nom = f.properties && f.properties[r.champ];
             if (nom && !noms[r.categorie].includes(nom)) noms[r.categorie].push(nom);
           });
         } catch (e) { echec = true; }

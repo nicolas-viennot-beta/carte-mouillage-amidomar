@@ -223,23 +223,35 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu : popup rouge d'interdiction, aucune coordonnée GPS affichée.
    - Vérification : visuelle.
 
-5. **API Carto IGN : requête et timeout — codes de couche corrigés (17 sept. 2026)**
+5. **API Carto IGN : requête et timeout — codes de couche rétablis (21 sept. 2026)**
    - Action : lire `interrogerZonesProtegees(lngLat)`.
-   - Attendu : appels parallèles vers `apicarto.ign.fr/api/nature/{sic,zps,
-     znieff1,znieff2}` (codes officiels de l'API Carto — les codes
-     précédents `natura-habitat`/`natura-oiseaux` n'existaient pas côté
-     serveur et échouaient silencieusement à chaque clic) avec géométrie du
+   - Attendu : appels parallèles vers `apicarto.ign.fr/api/nature/
+     {natura-habitat,natura-oiseaux,znieff1,znieff2}` (codes testés en réel
+     le 21 sept. 2026 ; `sic` et `zps` renvoient une 404 et ne doivent pas
+     être utilisés) avec géométrie du
      point en paramètre `geom` ; chaque appel utilise `AbortController` avec
-     un délai de 4000ms ; un échec ou timeout sur un endpoint n'empêche pas
+     un délai de 8000ms ; un échec ou timeout sur un endpoint n'empêche pas
      l'affichage du résultat des autres, ni l'affichage des coordonnées.
    - Vérification : lecture du code.
 
-5bis. **Champ du nom de site — corrigé (17 sept. 2026)**
+5bis. **Champ du nom de site — corrigé (21 sept. 2026)**
    - Action : lire la lecture de `f.properties` dans `interrogerZonesProtegees`.
-   - Attendu : le nom est lu sur `properties.nom` pour les quatre couches
-     (le champ `sitename`, utilisé précédemment pour `sic`/`zps`, n'est pas
-     le bon champ documenté par l'IGN).
-   - Vérification : lecture du code.
+   - Attendu : le champ lu est propre à chaque requête (`r.champ`) :
+     `properties.sitename` pour `natura-habitat` et `natura-oiseaux`,
+     `properties.nom` pour `znieff1` et `znieff2`.
+   - Vérification : lecture du code, puis test d'exécution (voir 5quater).
+
+5quater. **Test d'exécution de `interrogerZonesProtegees` sur le réseau réel (21 sept. 2026)**
+   - Action : exécuter la fonction, avec le vrai service, depuis un navigateur
+     (console ou navigateur Claude) aux points 6,40 / 43,00 ; 9,25 / 41,33 ;
+     4,60 / 43,45 ; -3,10 / 47,50.
+   - Attendu : Port-Cros → Natura 2000 « Rade d'Hyères » + « Iles d'Hyères »
+     et ZNIEFF « ÎLE DE PORT-CROS ET DE BAGAUD » ; Lavezzi → « Iles Lavezzi,
+     Bouches de Bonifacio » ; Beauduc → « Camargue » + deux ZNIEFF ;
+     large de Quiberon → aucun résultat, `echec` à `false`.
+   - À noter : `echec` peut passer à `true` sur les sites très étendus
+     (Golfe du Morbihan, Lavezzi) si une réponse dépasse 8 secondes (le délai était de 4 secondes avant la v1.7 et coupait ces réponses).
+   - Vérification : exécution réelle.
 
 5ter. **Messages distincts Natura 2000 / ZNIEFF (17 sept. 2026)**
    - Action : lire le bloc `blocsZones` dans le gestionnaire de clic.
@@ -255,8 +267,8 @@ fonctionnalité correspondante a réellement disparu.
 6. **Test visuel : zone Natura 2000/ZNIEFF détectée**
    - Action : cliquer sur l'eau à un endroit couvert par une zone Natura
      2000 ou ZNIEFF connue.
-   - Attendu : popup affichant le(s) nom(s) de zone (`properties.nom`)
-     après un court délai, teinte neutre/orange ; message ZNIEFF sans nom
+   - Attendu : popup affichant le(s) nom(s) de zone Natura 2000
+     après un court délai (`sitename` pour Natura 2000), teinte neutre/orange ; message ZNIEFF sans nom
      ni type si la zone est une ZNIEFF plutôt qu'un site Natura 2000.
    - Vérification : visuelle (nécessite un accès réseau à apicarto.ign.fr,
      via le navigateur Claude ou le navigateur de l'utilisateur — bloqué
@@ -277,7 +289,7 @@ fonctionnalité correspondante a réellement disparu.
    - Action : couper ou simuler l'indisponibilité de `apicarto.ign.fr`
      (ex. via le mode hors-ligne des outils de développement), puis
      cliquer sur l'eau.
-   - Attendu : au bout de 4 secondes maximum, le popup affiche un état de
+   - Attendu : au bout de 8 secondes maximum, le popup affiche un état de
      secours (interrogation indisponible) sans bloquer l'affichage des
      coordonnées GPS.
    - Vérification : visuelle.
@@ -395,6 +407,8 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
+   - *Dernière exécution : 21 sept. 2026 (v1.7) — phase synchrone OK, événement
+     `load` déclenché sans erreur, avec `fetch` local lisant `data/`.*
    - Action : exécuter le script extrait dans Node.js avec des objets
      globaux simulés (`document`, `window`, `navigator`, `fetch`,
      `maplibregl.Map`/`Marker`/`NavigationControl`/`GeolocateControl`/
