@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.0 (septembre 2026)  
-**Dernière mise à jour:** 21 septembre 2026  
+**Version:** 2.2 (septembre 2026)  
+**Dernière mise à jour:** 22 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -64,6 +64,7 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
      - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN, avec repli sur le WFS de la Géoplateforme, voir §4.3) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
    - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT existantes » —, un message de détection puis un court formulaire (longueur du navire, colonne d'eau à marée haute) apparaissent dans le même popup pour vérifier un éventuel chevauchement de rayon d'évitage (voir §4.2 et la spec C6). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
 5. Bouton « Copier » dans le popup pour copier les coordonnées
+6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage, longueur de navire saisie) — voir §4.2
 
 ### Étape 2 — Copier les coordonnées
 1. Bouton « Copier » dans le popup de coordonnées
@@ -108,7 +109,7 @@ Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégée
 
 La détection de proximité est **silencieuse** : elle s'effectue dès qu'un point est posé sur l'eau, que la couche « AOT existantes » soit cochée ou non dans la légende (v1.5). Le formulaire de saisie du navire est affiché **dans le popup de coordonnées** lorsque le point cliqué est à **moins de 100 m** d'une AOT existante — seule situation où un chevauchement de rayon d'évitage est réellement possible. Au-delà de 100 m, rien ne s'affiche et l'usager obtient directement ses coordonnées.
 
-La cascade d'affichage comporte trois temps (détaillés en C6) : un message de détection sur fond orange, le formulaire, puis le résultat du calcul sur fond rouge (chevauchement) ou vert (pas de chevauchement).
+La cascade d'affichage comporte, depuis v2.2, deux temps visuels (au lieu de trois avant cette version) : un chapeau en texte simple annonçant le formulaire (**plus d'encadré orange** — écart assumé avec la description d'origine en C6, décision de Nicolas pour alléger le popup, voir plus bas), puis un unique bloc de résultat fusionné, rouge (chevauchement) ou vert (pas de chevauchement).
 
 Calcul basé sur la formule (v1.5) :
 ```
@@ -120,10 +121,15 @@ Le formulaire ne comporte donc plus que **deux champs** : « Longueur de mon nav
 - `CONFIG.profondeurDefaut` — colonne d'eau à marée haute retenue par défaut (5 m)
 - `CONFIG.longueurAutres` — longueur supposée des autres navires (9 m)
 
-**Limites affichées à l'usager:**
-1. La profondeur est saisie, pas mesurée
-2. Les autres navires sont figurés avec une longueur supposée
-3. Vent, courant, nature du fond ne sont pas pris en compte
+**Sous-titre affiché à l'usager** *(v2.2, remplace les trois limites détaillées des versions précédentes)* : « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » Les limites détaillées auparavant (profondeur saisie non mesurée, longueur des autres navires supposée, vent/courant/nature du fond non pris en compte) restent vraies **techniquement** mais ne sont plus énumérées à l'usager dans le popup — décision de Nicolas (22/09/2026) pour raccourcir un popup jugé trop chargé ; ces limites restent documentées ici et dans le code (commentaires `CONFIG`).
+
+**Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), réinitialise le champ « Longueur de mon navire », et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant.
+
+**Bloc de résultat fusionné** *(v2.2)* : le rayon d'évitage estimé et le résultat du recoupement, auparavant deux blocs séparés (`.result-box` puis `.warn-box`/`.ok-box`), tiennent désormais dans un seul message, injecté dans `#out-conflict` par `recalculer()` :
+- Chevauchement détecté (rouge, classe `.evitage-resultat.chevauche`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche le rayon d'évitage estimé d'autres navires. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
+- Pas de chevauchement (vert, classe `.evitage-resultat.libre`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas chevaucher d'autres rayons d'évitage. »
+
+Le message au-dessus des coordonnées (`#coords-hint`) qui répétait cette information (« Votre zone d'évitage en recoupe N déjà autorisées… » / « Estimation indicative… ») a été retiré de ce cas : `recalculer()` appelle désormais `messagePopup('', null)` une fois le bloc fusionné affiché, pour éviter la redite avec le sous-titre disclaimer, lui aussi permanent. Le hint reste utilisé pour les autres messages sans lien avec l'évitage (invitation à saisir la longueur du navire, avertissements terre/interdiction, etc.).
 
 ### 4.3 Intégration API Carto IGN (module *nature*)
 
@@ -370,8 +376,11 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Pas d'erreur bloquante en console
 
 ### ✅ 11. Formulaire navire conditionnel (proximité AOT à 100 m)
-- [ ] Cliquer sur l'eau à moins de 100 m d'une AOT existante → le popup affiche en plus le message de détection sur fond orange, puis le formulaire longueur du navire / colonne d'eau à marée haute (deux champs seulement)
+- [ ] Cliquer sur l'eau à moins de 100 m d'une AOT existante → le popup affiche en plus le chapeau en texte simple *(v2.2 : plus d'encadré orange)*, puis le formulaire longueur du navire / colonne d'eau à marée haute (deux champs seulement)
 - [ ] Saisir les valeurs → le cercle d'évitage se dessine sur la carte (vert si pas de conflit, rouge si chevauchement)
+- [ ] Le bloc de résultat *(v2.2)* affiche une seule phrase : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche… » (rouge) ou « … ne semble pas chevaucher… » (vert) — plus de bloc séparé « Rayon d'évitage estimé »
+- [ ] Le sous-titre sous le formulaire affiche « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » — plus de mention de la profondeur saisie ou de la longueur supposée des autres navires à cet endroit
+- [ ] Aucun message ne réapparaît au-dessus des coordonnées GPS pour ce cas (plus de redite du type « Votre zone d'évitage en recoupe… »)
 - [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → le formulaire n'apparaît pas, seules les coordonnées sont affichées
 - [ ] Pas d'erreur console
 
@@ -380,6 +389,16 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Coordonnées copiées dans le presse-papiers
 - [ ] Peut être collées dans le formulaire Démarches Simplifiées
 - [ ] Message de confirmation affiché (« Copié »)
+
+### ✅ 12bis. Fermeture du popup de coordonnées *(v2.1)*
+- [ ] Cliquer sur l'eau pour faire apparaître le popup → un bouton « Fermer ✕ » est visible en haut à droite
+- [ ] Cliquer sur « Fermer » → le popup disparaît, le marqueur est retiré de la carte, le point n'est plus sélectionné
+- [ ] Si un cercle d'évitage était affiché → il disparaît également à la fermeture
+- [ ] Si une longueur de navire avait été saisie → le champ est vide au clic suivant
+- [ ] Appuyer sur Échap pendant que le popup est visible → même effet que le bouton « Fermer »
+- [ ] Appuyer sur Échap quand le popup n'est pas visible → aucun effet, pas d'erreur console
+- [ ] Cliquer ailleurs sur l'eau (hors du popup) → **ne ferme pas** le popup : un nouveau point est sélectionné normalement (comportement volontairement différent de la modale ports/ZMEL)
+- [ ] Pas d'erreur console
 
 ### ✅ 13. Visibilité des couches
 - [ ] Décocher une couche dans la légende → disparaît de la carte
@@ -496,6 +515,24 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.2 — 22 septembre 2026
+**Allègement du contenu du formulaire d'évitage, dans le popup de coordonnées**
+- Chapeau « D'autres mouillages sont enregistrés à proximité… » : n'est plus encadré (suppression de la classe `.jaune-box` à cet endroit, remplacée par `.chapeau-evitage`, texte simple)
+- Rayon estimé et résultat du recoupement fusionnés en un seul bloc (`.evitage-resultat`, classes `.chevauche`/`.libre`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche… » (rouge) / « … ne semble pas chevaucher… » (vert) — remplace les deux blocs séparés `.result-box` et `.warn-box`/`.ok-box`
+- Sous-titre disclaimer raccourci : « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. », à la place de l'énumération détaillée des trois limites (profondeur saisie, longueur supposée des autres navires, vent/courant/fond)
+- Message au-dessus des coordonnées (`#coords-hint`) vidé pour ce cas (`messagePopup('', null)`) : il répétait le contenu désormais dans le bloc fusionné et le sous-titre
+- Décision de Nicolas (22/09/2026) : simplification assumée du popup, jugé trop chargé (recouvrait la carte) — écart avec la description d'origine en trois temps de la spec `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md` (cas C6), non mise à jour dans cette session
+- **Correctif en cours de route :** la fusion a d'abord laissé une référence orpheline à `#out-radius` (élément supprimé du template), qui aurait provoqué une erreur JavaScript bloquante à l'exécution — détecté avant livraison par relecture du diff, pas par le test d'exécution générique (§6/1bis), qui ne déclenche pas `recalculer()` via un clic simulé. Corrigé avant tout commit.
+- Testé : syntaxe + exécution réelle du script en Node.js (chargement complet, sans erreur) ; le rendu exact du bloc fusionné a été vérifié en isolant le gabarit du message (valeurs de test : r=38, chevauchement) plutôt que par un clic simulé de bout en bout. **Non vérifié en conditions réelles** (clic effectif sur la carte publiée), aucun navigateur disponible dans cette session
+
+### v2.1 — 22 septembre 2026
+**Fermeture explicite du popup de coordonnées, avec désélection complète du point**
+- Nouveau bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite de `#coords-popup`, jusqu'ici sans moyen de fermeture explicite
+- Nouvelle fonction `fermerPopupCoordonnees()` : retire le marqueur, vide `position`, efface le cercle d'évitage (délégué à `recalculer()`), réinitialise le champ « Longueur de mon navire » et l'état du bouton « Copier »
+- Fermeture également possible par la touche Échap (actif seulement quand le popup est visible)
+- Décision de Nicolas (22/09/2026), après examen des pratiques UX usuelles (WAI-ARIA APG, NN/g) : **pas** de fermeture au clic en dehors du popup, à la différence de la modale ports/ZMEL — cette dernière a un overlay qui neutralise tout le reste de l'écran, alors que le popup de coordonnées n'en a pas ; un clic ailleurs sur la carte a déjà un sens (sélectionner un nouveau point), et le faire aussi fermer le popup créerait une ambiguïté
+- Testé : exécution réelle du script en Node.js, sans erreur (voir `TESTS_FONCTIONNELS.md` §6/1bis et §5/14) ; **non vérifié en conditions réelles** (clic effectif sur la carte publiée), aucun navigateur disponible dans cette session
 
 ### v2.0 — 22 septembre 2026
 **Vérification des arrêtés de protection de biotope (APB) au clic, traitée comme une interdiction bloquante**

@@ -469,6 +469,62 @@ fonctionnalité correspondante a réellement disparu.
       valeurs sont affichées dans la modale.
     - Vérification : lecture du code.
 
+14. **Fermeture explicite du popup de coordonnées (v2.1)**
+    - Action : lire le bouton `#coords-fermer` (HTML), son style CSS, et la
+      fonction `fermerPopupCoordonnees()` ainsi que ses deux appelants
+      (écouteur `click` sur `#coords-fermer`, écouteur `keydown` document
+      filtré sur `Escape` et `popup.classList.contains('visible')`).
+    - Attendu : `fermerPopupCoordonnees()` retire le marqueur
+      (`marker.remove(); marker = null;`), vide `position`, vide
+      `document.getElementById('in-loa').value`, remet `copieFaite` à
+      `false` et le bouton « Copier » à son état initial, masque
+      `coordsRow`/`coordsLabel`/`boatBlock`, vide le bloc environnement
+      (`afficherEnvironnement('', '')`), retire la classe `visible` (et
+      `info`/`alerte`/`terre`) de `#coords-popup`, puis appelle
+      `recalculer()` — qui, avec `position` à `null`, vide à son tour le
+      cercle d'évitage (`mon-cercle`). L'écouteur Échap ne doit agir que si
+      le popup est visible (pas d'effet, pas d'erreur, si on appuie sur
+      Échap hors contexte). Aucun écouteur de clic en dehors du popup n'est
+      attendu ici (décision assumée — voir §4.2 de
+      `DOCUMENTATION_FONCTIONNELLE.md` : un clic ailleurs sur l'eau
+      sélectionne un nouveau point via le gestionnaire `map.on('click', ...)`
+      existant, il ne doit pas être réinterprété comme une fermeture).
+    - Vérification : lecture du code, puis test d'exécution réelle du script
+      en Node.js (voir §6.2) pour confirmer l'absence d'erreur d'ordre
+      d'initialisation introduite par ce bloc.
+    - **Non vérifié en conditions réelles** (clic sur le bouton, Échap, sur
+      la carte publiée dans un vrai navigateur) : aucun navigateur
+      disponible dans cette session.
+
+15. **Allègement du contenu du formulaire d'évitage (v2.2)**
+    - Action : lire le gabarit `boatBlock.innerHTML` (chapeau, champs, disclaimer)
+      et la fin de `recalculer()` (construction de `zone.innerHTML` et l'appel
+      `messagePopup('', null)` qui suit).
+    - Attendu :
+      - le chapeau « D'autres mouillages sont enregistrés à proximité… » est un
+        `<p class="chapeau-evitage">`, sans classe `jaune-box` ni style encadré ;
+      - `#out-radius` et la classe `.result-box` n'existent plus nulle part dans
+        le fichier (recherche `grep` de ces deux chaînes : aucune occurrence hors
+        commentaires d'historique) ;
+      - avec un rayon calculé de 38 m et au moins un conflit détecté, `zone.innerHTML`
+        vaut exactement (aux espaces/retours à la ligne près) : « Le rayon d'évitage
+        de votre navire, estimé à **38 m**, chevauche le rayon d'évitage estimé
+        d'autres navires. Veuillez vérifier sur site ou modifier l'emplacement par
+        précaution. », dans une `<div class="evitage-resultat chevauche">` ;
+      - sans conflit, même gabarit avec « … ne semble pas chevaucher d'autres rayons
+        d'évitage. » et la classe `.libre` ;
+      - le paragraphe `.disclaimer` du formulaire vaut « Estimation indicative : le
+        rayon d'évitage ne remplace pas une vérification sur place. » ;
+      - `messagePopup('', null)` est appelé juste après la construction du bloc
+        fusionné, dans les deux branches (`saisi` faux et vrai) — le hint
+        (`#coords-hint`) ne doit plus contenir de texte lié à l'évitage.
+    - Vérification : lecture du code ; test d'exécution isolé du gabarit du bloc
+      fusionné avec `rArrondi = 38` (Node.js, comparaison de chaîne normalisée) ;
+      test de non-régression : recherche `grep -n "out-radius\|result-box"` dans
+      `index.html`, ne doit renvoyer que des commentaires (pas de code actif).
+    - **Non vérifié en conditions réelles** : aucun navigateur disponible dans
+      cette session pour confirmer visuellement le rendu (couleurs, alignement).
+
 ---
 
 ## 6. Intégrité générale
@@ -506,8 +562,17 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 22 sept. 2026 (v2.0) — phase synchrone OK, événement
-     `load` déclenché sans erreur, avec `fetch` local lisant `data/`.*
+   - *Dernière exécution : 22 sept. 2026 (v2.2) — phase synchrone OK, événement
+     `load` déclenché sans erreur (harnais complété : `parentElement`,
+     `createElementNS`, `Image` génériques ajoutés au stub), avec `fetch`
+     local lisant `data/`. Confirme notamment que `fermerPopupCoordonnees()`
+     et ses deux écouteurs (`click` sur `#coords-fermer`, `keydown` document)
+     s'initialisent sans erreur de zone morte temporelle. Ce harnais ne simule
+     pas de clic sur la carte : il ne déclenche donc pas `recalculer()` — voir
+     §5/15 pour la vérification (isolée) du gabarit du bloc fusionné v2.2, et
+     la note dans `DOCUMENTATION_FONCTIONNELLE.md` v2.2 sur la référence
+     orpheline `#out-radius` trouvée et corrigée par relecture du diff avant
+     ce commit, pas par ce test d'exécution générique.*
    - Action : exécuter le script extrait dans Node.js avec des objets
      globaux simulés (`document`, `window`, `navigator`, `fetch`,
      `maplibregl.Map`/`Marker`/`NavigationControl`/`GeolocateControl`/

@@ -73,11 +73,18 @@
 
       /* ---------- Popup de coordonnées ---------- */
       #coords-popup { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#fff;
-                      border-radius:8px; padding:10px 16px; box-shadow:0 2px 12px rgba(0,0,0,.25);
+                      border-radius:8px; padding:30px 16px 10px; box-shadow:0 2px 12px rgba(0,0,0,.25);
                       font-size:14px; z-index:1000; max-width:min(460px, calc(100% - 40px));
                       max-height:calc(100% - 80px); overflow-y:auto;
                       opacity:0; transition:opacity .2s; pointer-events:none; box-sizing:border-box; }
       #coords-popup.visible { opacity:1; pointer-events:auto; }
+      /* Fermeture explicite du popup par l'usager : désélectionne le point. */
+      #coords-fermer { position:absolute; top:8px; right:8px; display:flex; align-items:center;
+                        gap:3px; background:none; border:none; color:#3a3a3a; font-size:12px;
+                        font-weight:500; line-height:1; cursor:pointer; padding:5px 7px;
+                        border-radius:4px; }
+      #coords-fermer:hover { background:#f0f0f0; color:#000; }
+      #coords-fermer .coords-fermer-croix { font-size:17px; line-height:1; }
       /* ---------- Bloc « environnement » (contraintes de zone au clic) ---------- */
       #env-block { display:none; text-align:left; font-size:12.5px; line-height:1.45;
                    padding:8px 10px; border-radius:4px; margin-bottom:8px; }
@@ -150,9 +157,6 @@
       .field label { display:block; font-size:11px; font-weight:700; color:#333; margin-bottom:3px; }
       .field input, .field select { width:100%; box-sizing:border-box; padding:5px 7px; font-size:13px;
                                     border:1px solid #ccc; border-radius:4px; font-family:inherit; }
-      .result-box { background:#f0f4ff; border-left:3px solid #003189; padding:8px 10px; margin-top:10px;
-                    font-size:13px; line-height:1.5; }
-      .result-box .big { font-size:20px; font-weight:700; color:#003189; }
       .warn-box { background:#ffe9e9; border-left:3px solid #c9191e; padding:8px 10px; margin-top:8px;
                   font-size:12px; line-height:1.45; }
       .ok-box   { background:#e8f5ec; border-left:3px solid #18753c; padding:8px 10px; margin-top:8px;
@@ -160,6 +164,16 @@
       /* Détection d'AOT à proximité (spec Réactions au clic, C6) : orange DSFR. */
       .jaune-box { background:#fff4ed; border-left:3px solid #b34000; padding:8px 10px; margin-bottom:8px;
                    font-size:12px; line-height:1.45; color:#6b2600; }
+      /* Chapeau du formulaire d'évitage : texte simple, non encadré (v2.2) — annonce le
+         formulaire sans ajouter une boîte colorée de plus dans un popup déjà chargé. */
+      .chapeau-evitage { font-size:12px; line-height:1.45; color:#3a3a3a; margin:0 0 9px; }
+      /* Bloc fusionné rayon d'évitage + résultat de chevauchement (v2.2) : remplace les
+         anciens .result-box + .warn-box/.ok-box séparés par un seul message, rouge ou vert. */
+      .evitage-resultat { padding:8px 10px; margin-top:8px; font-size:13px; line-height:1.5;
+                           border-radius:2px; }
+      .evitage-resultat.chevauche { background:#ffe9e9; border-left:3px solid #c9191e; color:#8a1215; }
+      .evitage-resultat.libre     { background:#e8f5ec; border-left:3px solid #18753c; color:#0d3d20; }
+      .evitage-resultat strong { font-size:14px; }
       .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
                     border-top:1px solid #eee; padding-top:7px; }
 
@@ -293,6 +307,7 @@
     </div>
 
     <div id="coords-popup">
+      <button id="coords-fermer" aria-label="Fermer">Fermer <span class="coords-fermer-croix" aria-hidden="true">&times;</span></button>
       <!-- #env-block et #boat-block sont injectés en tête de ce conteneur par le script -->
       <p id="coords-hint"></p>
       <p id="coords-label">Coordonnées GPS en degrés décimaux (DD) :</p>
@@ -622,10 +637,10 @@
     const boatBlock = document.createElement('div');
     boatBlock.id = 'boat-block';
     boatBlock.innerHTML = `
-      <div class="jaune-box">D'autres mouillages sont enregistrés à proximité,
+      <p class="chapeau-evitage">D'autres mouillages sont enregistrés à proximité,
         vérifier ci-dessous si les rayons d'évitage des navires ne se chevauchent pas.<br><br>
         <span id="rappel-filtre-aot">Activez le filtre AOT pour les voir et évaluer
-        votre cercle d'évitage.</span></div>
+        votre cercle d'évitage.</span></p>
       <div class="field">
         <label for="in-loa">Longueur de mon navire (m)</label>
         <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
@@ -634,15 +649,9 @@
         <label for="in-depth">Colonne d'eau à marée haute (m)</label>
         <input type="number" id="in-depth" min="1" max="40" step="0.5" value="${CONFIG.profondeurDefaut}">
       </div>
-      <div class="result-box">
-        Rayon d'évitage estimé<br>
-        <span class="big" id="out-radius">—</span> m
-      </div>
       <div id="out-conflict"></div>
       <p class="disclaimer">
-        Profondeur saisie, non mesurée. Autres navires figurés avec une longueur
-        supposée de ${CONFIG.longueurAutres} m.
-        <strong>Aide à la réflexion, pas une garantie de non-collision.</strong>
+        Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place.
       </p>`;
     const popupEl = document.getElementById('coords-popup');
     popupEl.insertBefore(boatBlock, popupEl.firstChild);
@@ -1421,6 +1430,31 @@
       recalculer();
     });
 
+    /* ---------- Fermeture du popup de coordonnées ----------
+       Fermer ne fait pas que masquer le panneau : ça désélectionne le point
+       choisi (marqueur, position, cercle d'évitage, longueur de navire
+       saisie), pour repartir d'un état propre — spec « 2 évolutions carte »,
+       point 1. Pas de fermeture au clic en dehors : contrairement à la modale
+       ports/ZMEL (avec overlay), la carte reste cliquable derrière ce popup
+       et un clic ailleurs a déjà son propre sens (choisir un autre point). */
+    function fermerPopupCoordonnees() {
+      if (marker) { marker.remove(); marker = null; }
+      position = null;
+      document.getElementById('in-loa').value = '';
+      copieFaite = false;
+      copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
+      coordsRow.style.display = 'none';
+      coordsLabel.style.display = 'none';
+      boatBlock.style.display = 'none';
+      afficherEnvironnement('', '');
+      popup.classList.remove('visible', 'info', 'alerte', 'terre');
+      recalculer();
+    }
+    document.getElementById('coords-fermer').addEventListener('click', fermerPopupCoordonnees);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && popup.classList.contains('visible')) fermerPopupCoordonnees();
+    });
+
     function recalculer() {
       const zone = document.getElementById('out-conflict');
       const src  = map.getSource('mon-cercle');   // absente tant que l'init n'a pas eu lieu
@@ -1461,14 +1495,12 @@
       const saisi = brut !== '' && isFinite(loa) && loa > 0;
       const r     = saisi ? rayonEvitage(loa, prof) : null;
 
-      document.getElementById('out-radius').textContent = saisi ? Math.round(r) : '—';
-
       // Emplacement choisi mais longueur non saisie : pas de cercle, on invite
       // à compléter — dans le bloc navire et au-dessus des coordonnées.
       if (!saisi) {
         zone.innerHTML = `<div class="warn-box">Renseignez la longueur de votre navire
           pour afficher votre rayon d'évitage.</div>`;
-        messagePopup("Vérifiez votre rayon d'évitage en renseignant la longueur de votre navire.", null);
+        messagePopup('', null);
         vider();
         return;
       }
@@ -1483,20 +1515,22 @@
       f.properties.couleur = conflits.length ? '#c9191e' : '#18753c';
       if (src) src.setData({ type:'FeatureCollection', features:[f] });
 
+      // Bloc fusionné (v2.2) : le rayon estimé et le résultat du recoupement ne font
+      // plus qu'un seul message, rouge (chevauchement) ou vert (pas de chevauchement) —
+      // remplace les anciens .result-box + .warn-box/.ok-box séparés.
       const n = conflits.length;
+      const rArrondi = Math.round(r);
       zone.innerHTML = n
-        ? `<div class="warn-box">L'estimation montre un risque de chevauchement.
-             Il est peut-être préférable de déplacer votre navire. Il vous faudra
-             effectuer un contrôle en situation réelle sur place.</div>`
-        : `<div class="ok-box">Nous n'avons pas identifié de chevauchement.
-             Ce n'est qu'une estimation qu'il vous faudra contrôler en situation
-             réelle sur place.</div>`;
+        ? `<div class="evitage-resultat chevauche">Le rayon d'évitage de votre navire, estimé à
+             <strong>${rArrondi} m</strong>, chevauche le rayon d'évitage estimé d'autres navires.
+             Veuillez vérifier sur site ou modifier l'emplacement par précaution.</div>`
+        : `<div class="evitage-resultat libre">Le rayon d'évitage de votre navire, estimé à
+             <strong>${rArrondi} m</strong>, ne semble pas chevaucher d'autres rayons d'évitage.</div>`;
 
-      messagePopup(n
-        ? `<strong>Votre zone d'évitage en recoupe ${n} déjà autorisée${n>1?'s':''}.</strong>
-           Ce calcul est indicatif : déplacez votre point, ou vérifiez sur place avant de déposer.`
-        : "Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place.",
-        n ? 'alerte' : 'info');
+      // Le hint au-dessus des coordonnées ne sert plus à ce stade : le résultat est
+      // maintenant dans le bloc ci-dessus, et le sous-titre disclaimer porte la mention
+      // « estimation indicative » en permanence — éviter la redite (v2.2).
+      messagePopup('', null);
     }
 
     ['in-loa','in-depth'].forEach(id => {
