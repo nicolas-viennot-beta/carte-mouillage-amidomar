@@ -1152,6 +1152,27 @@
       } finally { clearTimeout(t); }
     }
 
+    /* Arrêtés de protection de biotope (APB) : zones interdites au mouillage.
+       Aucun endpoint de l'API Carto IGN ne les couvre (module « nature » limité
+       à Natura 2000 et ZNIEFF) : la seule source est le WFS de la Géoplateforme,
+       couche patrinat_apb:apb, champ nom_site (mécanisme confirmé le 22/09/2026,
+       même méthode que le repli ZNIEFF).
+       Décision de Nicolas (22/09/2026) : l'APB étant une interdiction, elle est
+       vérifiée AVANT d'afficher marqueur et coordonnées (contrairement à
+       Natura 2000/ZNIEFF, vérifiées après coup, en tâche de fond). Le clic
+       attend donc cette réponse — délai borné à 4 s, cohérent avec la rapidité
+       observée sur ce service (quelques dizaines à quelques centaines de ms) ;
+       en cas d'échec ou de dépassement, on ne bloque pas l'usager : la carte se
+       comporte comme si aucun APB n'était détecté (défaut non bloquant, comme
+       pour Natura 2000/ZNIEFF). */
+    async function interrogerAPB(lngLat) {
+      try {
+        return await interrogerWFS('patrinat_apb:apb', lngLat, 4000);
+      } catch (e) {
+        return [];
+      }
+    }
+
     async function interrogerZonesProtegees(lngLat) {
       /* Codes de couche de l'API Carto IGN, module « nature », TESTÉS EN RÉEL
          le 21 septembre 2026 depuis un navigateur :
@@ -1210,7 +1231,7 @@
     }
 
     const MENTION_NON_DETECTABLES = `<p class="env-caveat">D'autres zonages (Herbiers de
-      posidonie et de zostère, Parcs naturels marins, Aires marines protégées, APB,
+      posidonie et de zostère, Parcs naturels marins, Aires marines protégées,
       zones de baignade ou réglementaires) sont visibles dans la légende mais ne
       peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les
       visuellement.</p>`;
@@ -1301,10 +1322,12 @@
       }
       popup.classList.remove('terre');
 
-      // Interdiction stricte : seules les Cultures marines sont interrogeables
-      // aujourd'hui (APB / zone de baignade / zone réglementaire : à venir,
-      // voir la légende). Comme pour ports/ZMEL, aucun AOT individuel n'y est
-      // possible : pas de marqueur, pas de coordonnées.
+      // Interdiction stricte, vérifiée localement (données déjà chargées, pas
+      // d'attente réseau) : Cultures marines. L'APB, interdiction elle aussi,
+      // est vérifiée juste après, en réseau (voir plus bas). Zone de baignade /
+      // zone réglementaire : à venir, voir la légende. Comme pour ports/ZMEL,
+      // aucun AOT individuel n'y est possible : pas de marqueur, pas de
+      // coordonnées.
       const cibleInterdite = map.getLayer('cultures-fill')
         ? map.queryRenderedFeatures(e.point, { layers:['cultures-fill'] }) : [];
       if (cibleInterdite.length) {
@@ -1323,6 +1346,29 @@
         popup.classList.add('visible');
         return;
       }
+      // Vérification APB : interdiction, donc contrôlée AVANT d'afficher quoi
+      // que ce soit (contrairement à Natura 2000/ZNIEFF, vérifiées après coup).
+      // Le marqueur précédent est retiré pendant l'attente pour ne pas laisser
+      // de coordonnées d'un point différent affichées pendant la vérification.
+      if (marker) { marker.remove(); marker = null; }
+      position = null;
+      coordsRow.style.display = 'none';
+      coordsLabel.style.display = 'none';
+      boatBlock.style.display = 'none';
+      hint.textContent = '';
+      popup.classList.remove('info', 'alerte');
+      popup.classList.add('visible');
+      afficherEnvironnement('<p><em>Vérification de la zone…</em></p>', 'neutre');
+
+      const apb = await interrogerAPB(e.lngLat);
+      if (apb.length) {
+        afficherEnvironnement(
+          `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.join(', ')}.</strong></p>
+           <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
+          'rouge');
+        return;
+      }
+
       coordsRow.style.display = '';
       coordsLabel.style.display = '';
 

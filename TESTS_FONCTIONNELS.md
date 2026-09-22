@@ -240,6 +240,49 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu : popup rouge d'interdiction, aucune coordonnée GPS affichée.
    - Vérification : visuelle.
 
+4bis. **APB : vérification bloquante avant tout affichage (v2.0)**
+   - Action : lire le gestionnaire de clic entre le test cultures marines et
+     la pose du marqueur, et `interrogerAPB`.
+   - Attendu : dès la sortie du test cultures marines (négatif), le marqueur
+     précédent est retiré, `position` remis à `null`, les coordonnées
+     masquées, et un message « Vérification de la zone… » s'affiche AVANT
+     tout appel à `interrogerZonesProtegees`. `interrogerAPB` interroge
+     `patrinat_apb:apb` (WFS Géoplateforme) avec le même filtre
+     `INTERSECTS(geom,SRID=4326;POINT(lng lat))` que les autres couches
+     (longitude d'abord), nom lu dans `nom_site`, délai 4000 ms ; en cas
+     d'erreur ou de timeout, la fonction renvoie `[]` (pas d'exception
+     propagée), donc le clic n'est jamais bloqué.
+   - Vérification : lecture du code, puis test d'exécution avec `fetch`
+     simulé (5 scénarios, en isolant `interrogerAPB` de `interrogerWFS`) :
+     zone trouvée, aucune zone, panne HTTP, panne réseau, timeout à 4 s
+     (vérifier que la durée mesurée est proche de 4000 ms et que le
+     résultat est `[]`, pas une exception). Résultats du 22/09/2026 :
+     5 scénarios sur 5 conformes.
+
+4ter. **APB trouvé : popup d'interdiction, pas de marqueur (v2.0)**
+   - Action : lire la branche `if (apb.length)` du gestionnaire de clic.
+   - Attendu : popup rouge nommant l'arrêté (« Vous êtes dans un arrêté de
+     protection de biotope — *nom*. »), la fonction retourne avant
+     `coordsRow.style.display = ''` : ni marqueur, ni coordonnées, ni appel
+     à `interrogerZonesProtegees`.
+   - Vérification : lecture du code.
+
+4quater. **Test réel : requête WFS sur un APB connu (22/09/2026, hors clic sur la carte)**
+   - Action : interroger directement `patrinat_apb:apb` (même filtre que
+     `interrogerAPB`) sur le point -2,6214 / 47,4112 (centre approximatif
+     de l'APB « Ile Dumet et ses abords », Loire-Atlantique), depuis un
+     navigateur, à l'origine du site publié (test CORS inclus).
+   - Attendu : le nom « Ile Dumet et ses abords » est renvoyé.
+   - À noter : un point pris exactement sur un sommet du contour de ce même
+     APB n'a rien renvoyé lors du test — comportement déjà rencontré sur
+     `znieff2_mer` en v1.9 ; ne pas utiliser un sommet comme point de test.
+   - Résultat du 22/09/2026 : conforme (nom renvoyé, ~480 ms).
+   - **Reste à faire :** reproduire ce test en cliquant réellement sur la
+     carte publiée, une fois cette version déployée (ce test-ci interroge
+     directement le service, pas le gestionnaire de clic complet).
+   - Vérification : exécution réelle (partielle : service confirmé, clic
+     réel sur la carte non encore testé).
+
 5. **API Carto IGN : requête et timeout — codes de couche rétablis (21 sept. 2026)**
    - Action : lire `interrogerZonesProtegees(lngLat)`.
    - Attendu : appels parallèles vers `apicarto.ign.fr/api/nature/
@@ -309,6 +352,14 @@ fonctionnalité correspondante a réellement disparu.
      affiché, recommandation de pratiques de mouillage durables) apparaît
      uniquement si `znieff.length` ; les deux peuvent s'afficher ensemble
      si le point relève des deux à la fois.
+   - Vérification : lecture du code.
+
+5septies. **Repli — mention retirée pour l'APB (v2.0)**
+   - Action : lire `MENTION_NON_DETECTABLES`.
+   - Attendu : la liste ne cite plus l'APB (seulement parcs naturels
+     marins, aires marines protégées, herbiers, zones de baignade, zones
+     réglementaires) : l'APB a désormais sa propre vérification (voir
+     4bis-4quater), ce n'est plus une couche « non détectable ».
    - Vérification : lecture du code.
 
 6. **Test visuel : zone Natura 2000/ZNIEFF détectée**
@@ -455,7 +506,7 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 21 sept. 2026 (v1.9) — phase synchrone OK, événement
+   - *Dernière exécution : 22 sept. 2026 (v2.0) — phase synchrone OK, événement
      `load` déclenché sans erreur, avec `fetch` local lisant `data/`.*
    - Action : exécuter le script extrait dans Node.js avec des objets
      globaux simulés (`document`, `window`, `navigator`, `fetch`,

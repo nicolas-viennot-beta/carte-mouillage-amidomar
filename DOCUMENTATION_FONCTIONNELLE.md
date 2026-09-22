@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 1.9 (septembre 2026)  
+**Version:** 2.0 (septembre 2026)  
 **Dernière mise à jour:** 21 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -58,8 +58,10 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
 1. **Clic sur un port ou une ZMEL** → la modale dédiée s'ouvre directement (comportement inchangé, voir §4.1.a). Pas de coordonnées, pas de popup d'environnement.
 2. **Clic à terre** → popup rouge « Vous êtes à terre », pas de coordonnées (inchangé, voir §4.4).
 3. **Clic sur une zone de cultures marines** → popup rouge d'interdiction, pas de marqueur ni de coordonnées : un mouillage individuel n'y est pas envisageable.
-4. **Clic sur l'eau, hors des cas ci-dessus** → un marqueur est posé, les coordonnées GPS s'affichent, et un popup contextualisé s'ouvre au-dessus des coordonnées (voir §4.2) :
-   - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, APB, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
+4. **Clic ailleurs sur l'eau** → un bref message « Vérification de la zone… » s'affiche d'abord, le temps d'interroger le WFS de la Géoplateforme sur les **arrêtés de protection de biotope (APB)** (voir §4.3bis) :
+   - **Si le point est dans un APB** → popup rouge d'interdiction (même traitement que les cultures marines), nommant l'arrêté : pas de marqueur, pas de coordonnées.
+   - **Sinon** (aucun APB, ou service indisponible/trop lent : défaut non bloquant) → un marqueur est posé, les coordonnées GPS s'affichent, et un popup contextualisé s'ouvre au-dessus des coordonnées (voir §4.2) :
+     - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN, avec repli sur le WFS de la Géoplateforme, voir §4.3) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
    - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT existantes » —, un message de détection puis un court formulaire (longueur du navire, colonne d'eau à marée haute) apparaissent dans le même popup pour vérifier un éventuel chevauchement de rayon d'évitage (voir §4.2 et la spec C6). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
 5. Bouton « Copier » dans le popup pour copier les coordonnées
 
@@ -86,13 +88,16 @@ Les **ports de plaisance** et les **ZMEL** (Zones de Mouillages et d'Équipement
 #### b. Clic à terre
 Voir §4.4 — popup rouge, aucune coordonnée. Comportement inchangé par rapport à v1.1.
 
-#### c. Cultures marines (interdiction)
-Un clic dans une zone de cultures marines (`data/cultures-marines.geojson`) affiche un popup rouge d'interdiction (pas de marqueur, pas de coordonnées) : un mouillage individuel n'est pas envisageable dans une zone de concession conchylicole.
+#### c. Cultures marines (interdiction, vérification locale)
+Un clic dans une zone de cultures marines (`data/cultures-marines.geojson`) affiche un popup rouge d'interdiction (pas de marqueur, pas de coordonnées) : un mouillage individuel n'est pas envisageable dans une zone de concession conchylicole. Cette vérification est instantanée (donnée déjà chargée sur la carte, pas d'appel réseau).
 
-#### d. Tous les autres clics sur l'eau
+#### c bis. Arrêtés de protection de biotope — APB (interdiction, vérification réseau) *(v2.0)*
+Contrairement aux cultures marines, aucune couche APB n'est chargée localement : la vérification interroge le WFS de la Géoplateforme (voir §4.3bis). **Décision de Nicolas (22/09/2026) :** l'APB étant lui aussi une interdiction, il est traité comme les cultures marines dans son résultat (popup rouge, pas de marqueur, pas de coordonnées), mais avec une différence de méthode assumée : la vérification étant réseau, elle est **attendue avant tout affichage** plutôt que faite après coup comme Natura 2000/ZNIEFF. Sur **chaque** clic en mer (hors ports/ZMEL/terre/cultures marines), un message « Vérification de la zone… » s'affiche donc d'abord, sans marqueur ni coordonnées, pendant l'appel au WFS (délai borné à 4 s). Si le service échoue ou dépasse ce délai, la vérification est considérée négative par défaut (non bloquant, comme pour Natura 2000/ZNIEFF) et le clic se poursuit normalement.
+
+#### d. Tous les autres clics sur l'eau (hors APB)
 1. Un marqueur est posé et les coordonnées GPS calculées
-2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF — voir §4.3 pour le détail technique
-3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, précisant qu'une AOT y reste possible sous réserve d'évaluation environnementale et que le nom de la zone est à reporter dans le formulaire de demande) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, APB, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
+2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF, avec repli sur le WFS de la Géoplateforme en cas d'échec ou de réponse vide en mer (ZNIEFF) — voir §4.3 pour le détail technique
+3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, précisant qu'une AOT y reste possible sous réserve d'évaluation environnementale et que le nom de la zone est à reporter dans le formulaire de demande) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
 4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le message de détection et le court formulaire navire/évitage s'affichent en complément dans le même popup (voir §4.2 et la spec C6)
 
 Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte.
@@ -129,12 +134,23 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 - **Accès:** API publique, sans clé
 - **Robustesse:** chaque appel est borné par un délai de **8 secondes** (`AbortController`, porté de 4 à 8 secondes en v1.7) ; en cas de dépassement ou d'échec réseau, l'affichage bascule sur un état de secours (« interrogation indisponible ») sans jamais bloquer l'affichage des coordonnées GPS — la vérification des zones protégées est une information complémentaire, jamais un préalable au parcours principal
 - **Messages:** un bloc Natura 2000 (habitats et oiseaux réunis) et un bloc ZNIEFF (générique, sans nom ni type de zone) s'affichent indépendamment l'un de l'autre selon le résultat — voir §4.1.d
-- **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les Herbiers de posidonie et de zostère, les APB, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d)
+- **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les Herbiers de posidonie et de zostère, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d). L'APB, elle, est vérifiée (voir §4.3bis)
 - **Délai d'attente (constaté le 21 septembre 2026):** les réponses Natura 2000 sont volumineuses (200 à 360 ko, géométrie complète du site) et mettent parfois 3 à 4,5 secondes : avec l'ancien délai de 4 secondes, une des deux requêtes Natura 2000 pouvait être coupée sur certains points (Golfe du Morbihan, Lavezzi) et `echec` passait à `true` alors que l'autre avait répondu. Le délai a été porté à 8 secondes en v1.7 (décision de Nicolas). Piste d'amélioration non retenue : alléger la requête
 - **Repli sur le WFS de la Géoplateforme (v1.9):** si l'API Carto **échoue** (erreur ou délai de 8 s dépassé), la même question est posée au WFS de la Géoplateforme (`https://data.geopf.fr/wfs/ows`, `GetFeature`, filtre `INTERSECTS(geom,SRID=4326;POINT(lon lat))`, nom lu dans `nom_site`) sur les couches `patrinat_sic:sic`, `patrinat_zps:zps`, `patrinat_znieff1:znieff1` + `patrinat_znieff1_mer:znieff1_mer`, `patrinat_znieff2:znieff2` + `patrinat_znieff2_mer:znieff2_mer`, avec un délai de 6 s. Si l'API Carto **répond mais ne renvoie rien**, seules les couches ZNIEFF **marines** sont interrogées en WFS (délai 4 s) : l'API Carto ne les renvoie pas en mer, alors que les couches terrestres et Natura 2000 y sont bien couvertes, et redemander celles-ci au WFS ferait attendre l'usager pour rien (une réponse à 10 s a été observée sur `znieff2`). Le WFS n'est jamais interrogé en premier. `echec` ne passe à `true` que si l'API Carto **et** tout le repli ont échoué ; un résultat partiel du repli (terre ou mer seule) est conservé
 - **CORS vérifié le 21 septembre 2026 :** le WFS répond aux requêtes émises depuis `https://nicolas-viennot-beta.github.io` (la réponse est lisible par la page). La CSP `connect-src 'self' https:` l'autorise déjà
 - **Testé en réel (21 septembre 2026, depuis le site publié, avec le code de `interrogerZonesProtegees`) :** l'API Carto a dépassé les 8 s sur 3 points sur 4 (habitats et oiseaux à Port-Cros, ZNIEFF 1 à l'Île Riou) ; le repli a rendu « Rade d'Hyères », « Iles d'Hyères » et « ILE RIOU, ILOTS CONGLUÉ ET IMPÉRIAUX ». Au large de Quiberon, aucun résultat et `echec` à `false`. Durée totale du clic : 2 à 8 s, dominée par le délai de l'API Carto
 - **Limite connue du repli :** le délai de 8 s de l'API Carto reste le principal temps d'attente ; le réduire (par exemple à 4-5 s) est possible maintenant qu'un repli existe, mais n'a pas été fait. Les ZNIEFF marines n'ont été confirmées que sur un point (Île Riou) ; aucun des autres points marins testés n'était dans une ZNIEFF marine
+
+### 4.3bis Arrêtés de protection de biotope (APB) — vérification bloquante *(v2.0)*
+
+- **Aucun endpoint API Carto :** le module *nature* de l'API Carto IGN (§4.3) ne couvre que Natura 2000 et ZNIEFF. Seul le WFS de la Géoplateforme expose les APB
+- **Couche et champ :** `patrinat_apb:apb`, nom lu dans `nom_site` (confirmé le 22 septembre 2026, même mécanisme que le repli ZNIEFF)
+- **Piège constaté (22/09/2026) :** un filtre `BBOX` sur cette couche attend l'ordre **latitude puis longitude**, à l'inverse du filtre `INTERSECTS`/`POINT` utilisé au clic (longitude puis latitude, comme pour les autres couches Patrinat). Sans conséquence sur le code (seul `INTERSECTS` est utilisé), mais à garder en tête pour toute requête `BBOX` future sur cette couche
+- **Bloquant, contrairement à Natura 2000/ZNIEFF :** l'APB interdit le mouillage, alors que Natura 2000/ZNIEFF ne font que signaler une sensibilité. La vérification est donc faite **avant** tout affichage (marqueur, coordonnées), pas après coup — voir §4.1.c bis. Délai borné à 4 secondes (plus court que les 6-8 s des autres appels : ce service a répondu en quelques dizaines à quelques centaines de ms lors des tests, et il conditionne l'affichage de chaque clic, contrairement aux vérifications faites après coup)
+- **Défaut non bloquant :** en cas d'échec ou de dépassement du délai, la vérification est considérée négative (comme si aucun APB n'était détecté) et le clic se poursuit normalement — la carte ne doit jamais empêcher l'accès aux coordonnées GPS pour une raison technique
+- **Testé en réel le 22 septembre 2026** (requête directe, hors clic sur la carte publiée — voir `TESTS_FONCTIONNELS.md`, 5septies) : au centre approximatif de l'APB « Ile Dumet et ses abords » (-2,6214 / 47,4112, Loire-Atlantique), le WFS renvoie bien ce nom. Un point pris exactement sur un sommet du contour peut en revanche ne rien renvoyer (comportement du service, déjà rencontré sur `znieff2_mer` en v1.9) : ce n'est pas un point de test fiable, préférer un point net à l'intérieur du polygone
+- **Message affiché :** popup rouge (même traitement que les cultures marines), nommant l'arrêté : « Vous êtes dans un arrêté de protection de biotope — *nom*. Cette zone est interdite au mouillage. »
+- **Non vérifié :** aucun clic réel sur la carte publiée n'a encore été fait dans un véritable APB (le test ci-dessus interroge directement le service, pas la carte) ; à confirmer après déploiement
 
 ### 4.4 Détection terre/eau
 
@@ -340,10 +356,17 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur l'eau à Port-Cros (environ 43,00 N / 6,40 E, rade d'Hyères) → le popup affiche « Rade d'Hyères » et « Iles d'Hyères » (Natura 2000) : cas de référence de la v1.7, qui ne fonctionnait pas avec `sic`/`zps`
 - [ ] Cliquer sur l'eau dans un grand site Natura 2000 (Golfe du Morbihan, Lavezzi) → les noms s'affichent malgré une réponse lente (jusqu'à 4,5 s)
 - [ ] Cliquer sur l'eau hors de toute zone connue → le popup affiche « pas de contre-indication identifiée » (teinte verte)
-- [ ] Dans les deux cas, une mention rappelle que certaines couches (PNM, AMP, herbiers, APB, baignade, zones réglementaires) ne sont pas vérifiées automatiquement
+- [ ] Dans les deux cas, une mention rappelle que certaines couches (PNM, AMP, herbiers, baignade, zones réglementaires) ne sont pas vérifiées automatiquement
 - [ ] Simuler une coupure/latence réseau (ou couper temporairement l'accès à `apicarto.ign.fr`) → le repli WFS prend le relais (v1.9) : les zones s'affichent après environ 8 s + quelques secondes ; l'état de secours n'apparaît que si `data.geopf.fr` est lui aussi coupé, sans bloquer l'affichage des coordonnées GPS
 - [ ] Cliquer sur l'eau dans une ZNIEFF marine connue (par exemple autour de l'Île Riou, Marseille, 43,171 N / 5,380 E) → le message ZNIEFF s'affiche, même si l'API Carto ne renvoie rien
 - [ ] Au large de Quiberon (environ 47,2 N / -3,9 E) → « pas de contre-indication », en quelques secondes
+- [ ] Pas d'erreur bloquante en console
+
+### ✅ 10bis. Arrêtés de protection de biotope — APB (v2.0)
+- [ ] Cliquer n'importe où sur l'eau (hors ports/ZMEL/terre/cultures marines) → un bref message « Vérification de la zone… » s'affiche d'abord, sans marqueur ni coordonnées
+- [ ] Cliquer dans un APB connu (par exemple au centre approximatif de « Ile Dumet et ses abords », -2,6214 N / 47,4112 E — un point pris exactement sur le contour peut ne rien renvoyer) → popup rouge nommant l'arrêté, pas de marqueur, pas de coordonnées, pas de vérification Natura 2000/ZNIEFF
+- [ ] Cliquer hors de tout APB → après le message de vérification, le marqueur et les coordonnées apparaissent normalement, puis la vérification Natura 2000/ZNIEFF se lance comme avant
+- [ ] Simuler une coupure ou une lenteur du service (`data.geopf.fr`) → au bout de 4 secondes, le clic se poursuit normalement (défaut non bloquant), sans jamais empêcher l'affichage des coordonnées
 - [ ] Pas d'erreur bloquante en console
 
 ### ✅ 11. Formulaire navire conditionnel (proximité AOT à 100 m)
@@ -445,6 +468,11 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - Vérifier que le nom est lu sur `properties.sitename` pour Natura 2000 et `properties.nom` pour les ZNIEFF
 - Sur un très grand site, une réponse de plus de 8 secondes est coupée : le popup affiche alors l'état de secours
 
+### Un clic sur l'eau met du temps à afficher le marqueur et les coordonnées
+**Diagnostic:**
+- Comportement attendu depuis la v2.0 : chaque clic sur l'eau attend d'abord la réponse du WFS APB (§4.3bis), jusqu'à 4 secondes, avant d'afficher marqueur et coordonnées — ce n'est pas un bug
+- Si l'attente dépasse nettement 4 secondes, vérifier que le délai de `interrogerAPB` n'a pas été modifié, et que `data.geopf.fr` répond (voir §4.3bis)
+
 **Solutions:**
 - Rétablir les codes et les champs ci-dessus dans `interrogerZonesProtegees` ; ne pas se fier à la documentation seule, tester l'appel en réel (voir `TESTS_FONCTIONNELS.md`, test 5quater)
 
@@ -468,6 +496,16 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.0 — 22 septembre 2026
+**Vérification des arrêtés de protection de biotope (APB) au clic, traitée comme une interdiction bloquante**
+- Nouvelle fonction `interrogerAPB` (WFS Géoplateforme, couche `patrinat_apb:apb`, délai 4 s, défaut non bloquant) — détail en §4.3bis
+- Décision de Nicolas : l'APB étant une zone interdite au mouillage, elle prime sur Natura 2000/ZNIEFF, et son traitement s'aligne sur celui des cultures marines (popup rouge, pas de marqueur, pas de coordonnées) — plutôt qu'un message parmi d'autres dans le popup habituel
+- Écart assumé avec Natura 2000/ZNIEFF : la vérification APB est **bloquante** (attendue avant tout affichage), alors que Natura 2000/ZNIEFF s'affichent après coup, en tâche de fond. Décision explicite de Nicolas après qu'une alternative non bloquante (afficher tout de suite, corriger ensuite) lui a été présentée
+- Conséquence pour l'usager : chaque clic sur l'eau (hors ports/ZMEL/terre/cultures marines) affiche désormais un bref message « Vérification de la zone… » avant le marqueur et les coordonnées
+- Testé le 22/09/2026 : 6 scénarios réseau simulés (zone trouvée, rien trouvé, panne HTTP, panne réseau, timeout à 4 s) tous conformes ; test réel (requête directe, hors clic sur la carte publiée) au centre de l'APB « Ile Dumet et ses abords » (Loire-Atlantique) : nom renvoyé correctement
+- **Non vérifié :** aucun clic réel dans un APB sur la carte publiée (nécessite le déploiement de cette version)
+- Retiré de `MENTION_NON_DETECTABLES` et des autres mentions génériques : l'APB n'est plus une couche « non détectable », elle a sa propre vérification
 
 ### v1.9 — 21 septembre 2026
 **Repli sur le WFS de la Géoplateforme pour l'identification Natura 2000 / ZNIEFF au clic**
