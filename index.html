@@ -161,12 +161,9 @@
                   font-size:12px; line-height:1.45; }
       .ok-box   { background:#e8f5ec; border-left:3px solid #18753c; padding:8px 10px; margin-top:8px;
                   font-size:12px; line-height:1.45; }
-      /* Détection d'AOT à proximité (spec Réactions au clic, C6) : orange DSFR. */
+      /* Détection d'AOT à proximité (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6) : orange DSFR. */
       .jaune-box { background:#fff4ed; border-left:3px solid #b34000; padding:8px 10px; margin-bottom:8px;
                    font-size:12px; line-height:1.45; color:#6b2600; }
-      /* Chapeau du formulaire d'évitage : texte simple, non encadré (v2.2) — annonce le
-         formulaire sans ajouter une boîte colorée de plus dans un popup déjà chargé. */
-      .chapeau-evitage { font-size:12px; line-height:1.45; color:#3a3a3a; margin:0 0 9px; }
       /* Bloc fusionné rayon d'évitage + résultat de chevauchement (v2.2) : remplace les
          anciens .result-box + .warn-box/.ok-box séparés par un seul message, rouge ou vert. */
       .evitage-resultat { padding:8px 10px; margin-top:8px; font-size:13px; line-height:1.5;
@@ -174,6 +171,12 @@
       .evitage-resultat.chevauche { background:#ffe9e9; border-left:3px solid #c9191e; color:#8a1215; }
       .evitage-resultat.libre     { background:#e8f5ec; border-left:3px solid #18753c; color:#0d3d20; }
       .evitage-resultat strong { font-size:14px; }
+      /* v2.3 : message de proximité dans la modale centrale, découplé du formulaire. */
+      #boat-block .jaune-box, #boat-block .evitage-resultat { margin:0; font-size:13px; }
+      .evitage-sous-titre { display:block; margin-top:5px; font-size:11px; font-style:italic; opacity:.85; }
+      /* Bloc « Calcul rayon d'évitage » (colonne de droite, v2.3). */
+      #out-rayon { margin:4px 0 0; font-size:13px; font-weight:700; color:#003189; }
+      #out-rayon:empty { display:none; }
       .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
                     border-top:1px solid #eee; padding-top:7px; }
 
@@ -329,7 +332,7 @@
 
     /* --- 1. CONFIG ---------------------------------------------------------- */
     const CONFIG = {
-      profondeurDefaut: 5,      // mètres — "profondeur classique" retenue pour la V1
+      profondeurDefaut: 5,      // mètres — colonne d'eau supposée pour les AOT existantes (le champ usager n'a plus de valeur par défaut, v2.3)
       longueurAutres:   9,      // mètres — longueur supposée des AUTRES bateaux
                                 //   (le fichier Grist ne contient que des positions,
                                 //    aucune caractéristique de navire)
@@ -636,23 +639,26 @@
     envBlock.id = 'env-block';
     const boatBlock = document.createElement('div');
     boatBlock.id = 'boat-block';
-    boatBlock.innerHTML = `
-      <p class="chapeau-evitage">D'autres mouillages sont enregistrés à proximité,
-        vérifier ci-dessous si les rayons d'évitage des navires ne se chevauchent pas.<br><br>
-        <span id="rappel-filtre-aot">Activez le filtre AOT pour les voir et évaluer
-        votre cercle d'évitage.</span></p>
-      <div class="field">
-        <label for="in-loa">Longueur de mon navire (m)</label>
-        <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
-      </div>
-      <div class="field">
-        <label for="in-depth">Colonne d'eau à marée haute (m)</label>
-        <input type="number" id="in-depth" min="1" max="40" step="0.5" value="${CONFIG.profondeurDefaut}">
-      </div>
-      <div id="out-conflict"></div>
-      <p class="disclaimer">
-        Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place.
-      </p>`;
+    // v2.3 : la modale centrale ne porte plus que le MESSAGE de proximité
+    // (jaune tant que le calcul n'est pas fait, puis vert/rouge). Le formulaire
+    // de calcul vit dans la colonne de droite (bloc « Calcul rayon d'évitage »).
+    boatBlock.innerHTML = `<div id="out-conflict"></div>`;
+    const evitagePanel = document.createElement('div');
+    evitagePanel.className = 'side-panel';
+    evitagePanel.id = 'evitage-panel';
+    evitagePanel.innerHTML = `
+      <div class="panel-header" data-panel="evitage">Calcul rayon d'évitage <span>▸</span></div>
+      <div class="panel-body">
+        <div class="field">
+          <label for="in-loa">Longueur de mon navire (m)</label>
+          <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
+        </div>
+        <div class="field">
+          <label for="in-depth">Colonne d'eau à marée haute (m)</label>
+          <input type="number" id="in-depth" min="1" max="40" step="0.5" placeholder="à renseigner">
+        </div>
+        <p id="out-rayon"></p>
+      </div>`;
     const popupEl = document.getElementById('coords-popup');
     popupEl.insertBefore(boatBlock, popupEl.firstChild);
     popupEl.insertBefore(envBlock, boatBlock);
@@ -661,7 +667,7 @@
       { titre:"Choisir un emplacement",
         detail:"Cliquez sur la carte, à l'écart des zones sensibles affichées." },
       { titre:"Renseigner votre navire",
-        detail:"Sa longueur détermine le rayon d'évitage, comparé aux mouillages voisins." },
+        detail:"Sa longueur et la colonne d'eau à marée haute déterminent le rayon d'évitage, comparé aux mouillages voisins." },
       { titre:"Récupérer les coordonnées",
         detail:"Copiez-les, puis collez-les dans le formulaire de votre démarche." }
     ];
@@ -696,6 +702,7 @@
       </ol>`;
 
     colonneD.appendChild(layerPanel);
+    colonneD.appendChild(evitagePanel);
 
 
     // Plus de bouton ici : l'usager clique directement les ports et ZMEL sur la
@@ -705,8 +712,7 @@
        décorent pas. */
     let copieFaite = false;
     function majEtapes() {
-      const loa = document.getElementById('in-loa').value;
-      const etape2Faite = !formNavireRequis || (loa !== '' && parseFloat(loa) > 0);
+      const etape2Faite = !formNavireRequis || lireSaisieEvitage() !== null;
       const etats = [ !!position, !!position && etape2Faite, copieFaite ];
       const encours = etats.indexOf(false);
       etats.forEach((fait, i) => {
@@ -728,8 +734,19 @@
         replier(p, p.querySelector('.panel-body').style.display === 'none');
       });
     });
-    // État initial : couches dépliées.
+    // État initial : couches dépliées, calcul d'évitage replié.
     replier(layerPanel, true);
+    replier(evitagePanel, false);
+
+    /* Saisie du bloc « Calcul rayon d'évitage » (v2.3). Le calcul est « fait »
+       quand les DEUX champs sont renseignés (plus de colonne d'eau par défaut
+       côté usager). Renvoie { loa, prof, r } ou null. */
+    function lireSaisieEvitage() {
+      const loa  = parseFloat(document.getElementById('in-loa').value);
+      const prof = parseFloat(document.getElementById('in-depth').value);
+      if (!(isFinite(loa) && loa > 0 && isFinite(prof) && prof > 0)) return null;
+      return { loa, prof, r: rayonEvitage(loa, prof) };
+    }
 
     /* ---------- Ouverture et réouverture de la marche à suivre ---------- */
     const guide = document.getElementById('guide');
@@ -777,7 +794,7 @@
                 Math.cos(a[1]*t)*Math.cos(b[1]*t)*Math.sin(dLon/2)**2;
       return 2*R*Math.asin(Math.sqrt(s));
     }
-    // Rayon d'évitage (spec Réactions au clic, C6) :
+    // Rayon d'évitage (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6) :
     //   colonne d'eau à marée haute × 1,5 + longueur du navire.
     // La longueur de la ligne de mouillage n'entre pas dans ce calcul ; le champ
     // correspondant a été retiré du formulaire.
@@ -1068,7 +1085,7 @@
       + "la disponibilité des ports. À remplacer par une donnée obtenue auprès des gestionnaires.";
 
     function modalePort(p) {
-      // Noms de champs de la spec « Réactions au clic » (C1) ; repli sur les
+      // Noms de champs de DOCUMENTATION_FONCTIONNELLE.md §4.0 (C1) ; repli sur les
       // anciens noms pour les fichiers territoriaux pas encore renommés.
       const nomPort = p.nom_port_de_plaisance || p.nom || '—';
       const commune = p.nom_commune || p.commune || '';
@@ -1084,7 +1101,7 @@
         NOTE_FICTIVE);
     }
     function modaleZmel(z) {
-      // Noms de champs de la spec « Réactions au clic » (C2) ; repli sur les
+      // Noms de champs de DOCUMENTATION_FONCTIONNELLE.md §4.0 (C2) ; repli sur les
       // anciens noms pour les fichiers territoriaux pas encore renommés.
       const nom = (z && (z.nom_zmel || z.nom)) ? (z.nom_zmel || z.nom) : 'cette zone';
       const commune = (z && (z.nom_commune || z.commune)) ? (z.nom_commune || z.commune) : '';
@@ -1109,9 +1126,8 @@
     /* ---------- Marqueur, calcul, conflits ---------- */
     let marker = null, position = null;
     let aotPositions = [];          // mouillages existants, pour le recoupement
-    let aotVisibles = true;         // suit la case « AOT existantes » — ne sert plus
-                                    // qu'à l'affichage du rappel « Activez le filtre AOT » :
-                                    // la vérification de proximité est silencieuse (C6).
+    let aotVisibles = true;         // suit la case « AOT existantes » — n'influence plus
+                                    // rien : la vérification de proximité est silencieuse (C6).
     let formNavireRequis = false;   // le bloc « navire » n'est montré qu'à moins de 100 m d'une AOT
     const popup = document.getElementById('coords-popup');
     const coordsText = document.getElementById('coords-text');
@@ -1392,10 +1408,18 @@
       // moins de 100 m — au-delà, le risque de chevauchement est négligeable
       // et demander la longueur du navire n'aurait pas d'intérêt.
       // La vérification est SILENCIEUSE : elle ne dépend pas de la case
-      // « AOT existantes » de la légende (spec Réactions au clic, C6), au même
+      // « AOT existantes » de la légende (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6), au même
       // titre que la vérification Natura 2000 / ZNIEFF.
       formNavireRequis = aotPositions.some(a => distanceM(position, a.p) < 100);
       boatBlock.style.display = formNavireRequis ? 'block' : 'none';
+      // Cas d'origine (calcul pas encore fait) : on replie « Couches affichées »
+      // et on ouvre le bloc « Calcul rayon d'évitage ». Cas secondaire (calcul
+      // déjà fait) : aucune action sur la colonne de droite (v2.3).
+      if (formNavireRequis && !lireSaisieEvitage()) {
+        replier(layerPanel, false);
+        replier(evitagePanel, true);
+      }
+      recalculer();   // message de proximité affiché sans attendre les zonages
 
       afficherEnvironnement('<p><em>Vérification des zonages environnementaux…</em></p>', 'neutre');
       const { natura, znieff, echec } = await interrogerZonesProtegees(e.lngLat);
@@ -1440,7 +1464,7 @@
     function fermerPopupCoordonnees() {
       if (marker) { marker.remove(); marker = null; }
       position = null;
-      document.getElementById('in-loa').value = '';
+      // v2.3 : les valeurs du calcul d'évitage sont conservées à la fermeture.
       copieFaite = false;
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
       coordsRow.style.display = 'none';
@@ -1469,10 +1493,10 @@
       };
       majEtapes();
 
-      // Le rappel « Activez le filtre AOT » n'a de sens que si la couche est
-      // effectivement masquée : la vérification, elle, tourne dans tous les cas.
-      const rappelFiltre = document.getElementById('rappel-filtre-aot');
-      if (rappelFiltre) rappelFiltre.style.display = aotVisibles ? 'none' : '';
+      // Résultat du calcul dans le bloc de droite, indépendamment du point choisi.
+      const saisie = lireSaisieEvitage();
+      document.getElementById('out-rayon').textContent =
+        saisie ? `Rayon d'évitage = ${Math.round(saisie.r)} m` : '';
 
       if (!position) {
         zone.innerHTML = '';
@@ -1489,24 +1513,19 @@
         return;
       }
 
-      const brut  = document.getElementById('in-loa').value;
-      const loa   = parseFloat(brut);
-      const prof  = parseFloat(document.getElementById('in-depth').value) || CONFIG.profondeurDefaut;
-      const saisi = brut !== '' && isFinite(loa) && loa > 0;
-      const r     = saisi ? rayonEvitage(loa, prof) : null;
-
-      // Emplacement choisi mais longueur non saisie : pas de cercle, on invite
-      // à compléter — dans le bloc navire et au-dessus des coordonnées.
-      if (!saisi) {
-        zone.innerHTML = `<div class="warn-box">Renseignez la longueur de votre navire
-          pour afficher votre rayon d'évitage.</div>`;
+      // Calcul pas encore fait : message jaune, pas de cercle (v2.3).
+      if (!saisie) {
+        zone.innerHTML = `<div class="jaune-box">D'autres mouillages sont enregistrés à
+          proximité, vérifier en remplissant les champs du formulaire « Calcul rayon
+          d'évitage » si les rayons d'évitage des navires ne se chevauchent pas.</div>`;
         messagePopup('', null);
         vider();
         return;
       }
+      const r = saisie.r;
       // Chaque AOT a sa propre longueur de navire, donc son propre rayon.
       // Recherche toujours effectuée, que la couche AOT soit affichée ou non
-      // (vérification silencieuse — spec Réactions au clic, C6).
+      // (vérification silencieuse — DOCUMENTATION_FONCTIONNELLE.md §4.0, C6).
       const conflits = aotPositions.filter(a =>
         distanceM(position, a.p) <
         (r + rayonEvitage(a.loa, CONFIG.profondeurDefaut)));
@@ -1520,12 +1539,16 @@
       // remplace les anciens .result-box + .warn-box/.ok-box séparés.
       const n = conflits.length;
       const rArrondi = Math.round(r);
+      const sousTitre = `<span class="evitage-sous-titre">Estimation indicative qui ne
+        remplace pas une vérification sur place.</span>`;
       zone.innerHTML = n
         ? `<div class="evitage-resultat chevauche">Le rayon d'évitage de votre navire, estimé à
-             <strong>${rArrondi} m</strong>, chevauche le rayon d'évitage estimé d'autres navires.
-             Veuillez vérifier sur site ou modifier l'emplacement par précaution.</div>`
+             <strong>${rArrondi} m</strong>, risque une collision avec le rayon d'évitage des
+             navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par
+             précaution.${sousTitre}</div>`
         : `<div class="evitage-resultat libre">Le rayon d'évitage de votre navire, estimé à
-             <strong>${rArrondi} m</strong>, ne semble pas chevaucher d'autres rayons d'évitage.</div>`;
+             <strong>${rArrondi} m</strong>, ne semble pas être en collision avec les rayons
+             d'évitage des navires à proximité.${sousTitre}</div>`;
 
       // Le hint au-dessus des coordonnées ne sert plus à ce stade : le résultat est
       // maintenant dans le bloc ci-dessus, et le sous-titre disclaimer porte la mention

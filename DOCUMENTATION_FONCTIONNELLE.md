@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.2 (septembre 2026)  
-**Dernière mise à jour:** 22 septembre 2026  
+**Version:** 2.3 (septembre 2026)  
+**Dernière mise à jour:** 23 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -35,8 +35,9 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 
 ### Droite — Panneau latéral
 - **« Couches affichées »** — légende avec état des sources (déplié au démarrage)
+- **« Calcul rayon d'évitage »** *(v2.3)* — deux champs (« Longueur de mon navire (m) », « Colonne d'eau à marée haute (m) ») et le résultat « Rayon d'évitage = {r} m ». Présent dès le chargement, **replié** ; s'ouvre automatiquement (et replie « Couches affichées ») au premier clic détecté à proximité d'autres mouillages tant que le calcul n'a pas été fait. Modifiable à tout moment : toute saisie met à jour le message de la modale centrale.
 
-Le panneau « Mon mouillage », qui affichait en permanence un formulaire de saisie du navire, a été **supprimé** (v1.2). La saisie du navire, quand elle est pertinente, est désormais intégrée directement dans le popup de coordonnées (voir §3 et §4.2).
+Le panneau « Mon mouillage » (supprimé en v1.2), puis le formulaire intégré au popup de coordonnées (v1.2 à v2.2), sont remplacés en v2.3 par ce bloc de droite : le popup central ne porte plus que le **message** de proximité (voir §3 et §4.2).
 
 ### Centre
 - **Carte interactive** — affichage des couches, clics pour saisir un emplacement
@@ -62,9 +63,9 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
    - **Si le point est dans un APB** → popup rouge d'interdiction (même traitement que les cultures marines), nommant l'arrêté : pas de marqueur, pas de coordonnées.
    - **Sinon** (aucun APB, ou service indisponible/trop lent : défaut non bloquant) → un marqueur est posé, les coordonnées GPS s'affichent, et un popup contextualisé s'ouvre au-dessus des coordonnées (voir §4.2) :
      - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN, avec repli sur le WFS de la Géoplateforme, voir §4.3) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
-   - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT existantes » —, un message de détection puis un court formulaire (longueur du navire, colonne d'eau à marée haute) apparaissent dans le même popup pour vérifier un éventuel chevauchement de rayon d'évitage (voir §4.2 et la spec C6). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
+   - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT existantes » —, un message de proximité s'affiche dans le même popup : jaune tant que le calcul du rayon d'évitage n'a pas été fait (le bloc « Calcul rayon d'évitage » s'ouvre alors à droite), puis directement vert ou rouge une fois le calcul fait (voir §4.0 C6 et §4.2). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
 5. Bouton « Copier » dans le popup pour copier les coordonnées
-6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage, longueur de navire saisie) — voir §4.2
+6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage) ; les valeurs du calcul d'évitage sont **conservées** *(v2.3)* — voir §4.2
 
 ### Étape 2 — Copier les coordonnées
 1. Bouton « Copier » dans le popup de coordonnées
@@ -75,6 +76,65 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
 
 ## 4. Fonctionnalités clés
 
+### 4.0 Réactions au clic — référence des contenus affichés (cas C1 à C6)
+
+**Cette section est la seule référence** pour ce que la carte affiche après un clic : zone déclenchante, contenu, textes exacts et variables. Elle remplace le document séparé `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md` (produit le 17/09/2026, jamais versionné dans ce dossier), abandonné en v2.3 : un seul document de spécification, celui-ci. Les sections 4.1 à 4.4 décrivent le mécanisme (ordre de la cascade, API interrogées, robustesse). Les commentaires du code renvoient aux numéros C1 à C6 ci-dessous.
+
+Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés (retours à la ligne du code non significatifs).
+
+| Cas | Zone déclenchante | Affichage |
+|---|---|---|
+| C1 | Port de plaisance (point sur la carte ou pictogramme de la légende) | Modale centrale avec fond grisé |
+| C2 | ZMEL (surface sur la carte ou pictogramme de la légende) | Modale centrale avec fond grisé |
+| C3 | Terre | Popup rouge, sans coordonnées |
+| C4 | Cultures marines | Popup rouge, sans marqueur ni coordonnées |
+| C4 bis | Arrêté de protection de biotope (APB) | Popup rouge, sans marqueur ni coordonnées |
+| C5 | Tout autre point sur l'eau | Marqueur, popup environnement + coordonnées |
+| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Message de proximité dans le popup + bloc « Calcul rayon d'évitage » à droite |
+
+#### C1 — Port de plaisance
+- Titre : « Port de plaisance : {nom_port_de_plaisance} — Commune :{nom_commune} » (la partie « — Commune : » est omise si la commune est vide).
+- Corps : « Vous êtes dans un bassin portuaire qui dépend de la capitainerie du port concerné. Un mouillage en port est une excellente option pour préserver les écosystèmes marins : le navire est amarré à un équipement fixe, sans ancre qui laboure le fond. » puis « Il reste **{places_disponibles} place(s) disponible(s)** à {nom_port_de_plaisance}. » puis « Faites votre demande auprès de {contact}. »
+- Note : « Nombre de places et contact fictifs : aucune source publique ne diffuse la disponibilité des ports. À remplacer par une donnée obtenue auprès des gestionnaires. »
+- Variables (`data/ports-plaisance.geojson`) : `nom_port_de_plaisance` (repli `nom`), `nom_commune` (repli `commune`), `places_disponibles`, `contact`. Accord singulier/pluriel automatique.
+
+#### C2 — ZMEL
+- Titre : « Zone de mouillages et d'équipements légers : {nom_zmel} — Commune :{nom_commune} » (« cette zone » si le nom manque, par exemple au clic depuis la légende).
+- Corps : « Vous êtes sur une ZMEL qui dépend de la commune ou du gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui évite le labourage du fond par les ancres. S'y installer est **nettement moins dommageable** qu'un mouillage individuel sur ancre. »
+  - si `nb_postes` est renseigné : « Il reste {nb_postes} place(s) disponible(s) à {nom_zmel}. »
+  - si `mailto` est renseigné : « Faites votre demande auprès de {mailto} » (lien) ; sinon : « Renseignez-vous sur les places disponibles auprès de son gestionnaire ou de la DDTM de votre département. »
+- Note : « Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. Capacité et contact sont des données fictives, à remplacer par les données réelles. »
+- Variables (`data/zmel.geojson`) : `nom_zmel` (repli `nom`), `nom_commune` (repli `commune`), `nb_postes`, `mailto`.
+
+#### C3 — Clic à terre
+- Popup rouge : « Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau. » Pas de coordonnées, pas de marqueur. Détection : voir §4.4.
+
+#### C4 — Cultures marines
+- Popup rouge : « **Vous êtes dans une zone de cultures marines — {nom}.** » puis « Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement. » (`{nom}` : propriété `nom` de `data/cultures-marines.geojson`, « cette zone » à défaut).
+
+#### C4 bis — Arrêté de protection de biotope (APB)
+- Pendant la vérification réseau : « *Vérification de la zone…* » (teinte neutre).
+- Si le point est dans un APB, popup rouge : « **Vous êtes dans un arrêté de protection de biotope — {noms des arrêtés}.** » puis « Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement. » Mécanisme : §4.3bis.
+
+#### C5 — Autre point sur l'eau : environnement et coordonnées
+- Marqueur rouge posé ; bouton « Fermer ✕ » en haut à droite du popup.
+- Pendant l'interrogation : « *Vérification des zonages environnementaux…* »
+- C5.1 — Natura 2000 (teinte neutre) : « Cet emplacement se situe dans un site Natura 2000. Une AOT peut être autorisée sur une zone Natura 2000, mais elle sera soumise à évaluation environnementale. Le nom de la zone : **{noms des sites}** est à reporter dans le formulaire de demande. »
+- C5.2 — ZNIEFF (teinte neutre) : « Cet emplacement se situe sur une Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique (ZNIEFF). Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. »
+- C5.1 et C5.2 peuvent s'afficher ensemble. Aucune zone trouvée (teinte verte) : « Pas de contre-indication détectée automatiquement sur cette zone. »
+- Mention ajoutée dans ces trois cas : « D'autres zonages (Herbiers de posidonie et de zostère, Parcs naturels marins, Aires marines protégées, zones de baignade ou réglementaires) sont visibles dans la légende mais ne peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les visuellement. »
+- Service injoignable (teinte neutre) : « Informations environnementales momentanément indisponibles (service distant injoignable). Vos coordonnées restent accessibles ci-dessous. »
+- Coordonnées : libellé « Coordonnées GPS en degrés décimaux (DD) : », valeur `{lat}, {lng}` à 6 décimales, bouton « Copier » (« Copié ! » pendant 2 s). Le libellé est un élément distinct : seul `{lat}, {lng}` est copié.
+
+#### C6 — Proximité d'une AOT existante (< 100 m)
+Détection silencieuse (indépendante de la case « AOT existantes »). Message dans le popup C5, entre le bloc environnement et les coordonnées ; formulaire dans le bloc « Calcul rayon d'évitage » de la colonne de droite. Mécanisme, formule et cas d'origine / cas secondaire : §4.2.
+- Calcul pas encore fait (fond jaune) : « D'autres mouillages sont enregistrés à proximité, vérifier en remplissant les champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage des navires ne se chevauchent pas. »
+- Pas de chevauchement (fond vert) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. »
+- Chevauchement (fond rouge) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, risque une collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
+- Sous-titre des messages vert et rouge : « *Estimation indicative qui ne remplace pas une vérification sur place.* »
+- Bloc « Calcul rayon d'évitage » : champs « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) » (placeholder « à renseigner »), résultat « Rayon d'évitage = {r} m ».
+- Variables : `{r}` = colonne d'eau × 1,5 + longueur, arrondi au mètre.
+
 ### 4.1 Traitement unifié du clic sur la carte
 
 Le clic sur la carte suit une cascade de priorité unique, implémentée dans le gestionnaire `map.on('click', ...)` :
@@ -83,7 +143,7 @@ Le clic sur la carte suit une cascade de priorité unique, implémentée dans le
 Les **ports de plaisance** et les **ZMEL** (Zones de Mouillages et d'Équipements Légers) restent gérés par leurs propres écouteurs dédiés, avec leur **modale existante** (et non un popup) :
 - **Ports de plaisance** — Modale affichant nom du port, places disponibles (fictives), contact
 - **ZMEL** — Modale affichant le nom de la zone, le nombre de postes (`nb_postes`, actuellement une donnée placeholder), le gestionnaire et un contact (`mailto`, placeholder)
-- Les deux modales ont été reformulées pour insister sur le fait qu'**aucun AOT individuel** n'est possible sur ces zones (« Pas d'AOT individuel sur cette zone »)
+- Textes exacts des deux modales : §4.0 (C1, C2). La phrase « Pas d'AOT individuel sur cette zone » a été retirée en v1.5
 - Ce cas court-circuite tout le reste de la cascade : pas de marqueur, pas de coordonnées, pas de popup d'environnement
 
 #### b. Clic à terre
@@ -99,33 +159,46 @@ Contrairement aux cultures marines, aucune couche APB n'est chargée localement 
 1. Un marqueur est posé et les coordonnées GPS calculées
 2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF, avec repli sur le WFS de la Géoplateforme en cas d'échec ou de réponse vide en mer (ZNIEFF) — voir §4.3 pour le détail technique
 3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, précisant qu'une AOT y reste possible sous réserve d'évaluation environnementale et que le nom de la zone est à reporter dans le formulaire de demande) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
-4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le message de détection et le court formulaire navire/évitage s'affichent en complément dans le même popup (voir §4.2 et la spec C6)
+4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le message de proximité (jaune, vert ou rouge) s'affiche en complément dans le même popup, le formulaire de calcul étant dans le bloc « Calcul rayon d'évitage » de la colonne de droite (voir §4.0 C6 et §4.2)
 
 Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte.
 
-### 4.2 Rayon d'évitage (conditionnel, dans le popup de coordonnées)
+### 4.2 Rayon d'évitage (message dans le popup, calcul dans la colonne de droite)
 
-> Le détail du contenu affiché (textes exacts, variables, cascade des messages) fait l'objet d'un document dédié : **`claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`**, cas **C6** — qui fait référence. La présente section n'en décrit que le mécanisme.
+> Textes exacts affichés : §4.0, cas C6. La présente section décrit le mécanisme.
 
-La détection de proximité est **silencieuse** : elle s'effectue dès qu'un point est posé sur l'eau, que la couche « AOT existantes » soit cochée ou non dans la légende (v1.5). Le formulaire de saisie du navire est affiché **dans le popup de coordonnées** lorsque le point cliqué est à **moins de 100 m** d'une AOT existante — seule situation où un chevauchement de rayon d'évitage est réellement possible. Au-delà de 100 m, rien ne s'affiche et l'usager obtient directement ses coordonnées.
+La détection de proximité est **silencieuse** : elle s'effectue dès qu'un point est posé sur l'eau, que la couche « AOT existantes » soit cochée ou non dans la légende (v1.5). Elle se déclenche lorsque le point cliqué est à **moins de 100 m** d'une AOT existante — seule situation où un chevauchement de rayon d'évitage est réellement possible. Au-delà de 100 m, aucun message d'évitage ne s'affiche et l'usager obtient directement ses coordonnées.
 
-La cascade d'affichage comporte, depuis v2.2, deux temps visuels (au lieu de trois avant cette version) : un chapeau en texte simple annonçant le formulaire (**plus d'encadré orange** — écart assumé avec la description d'origine en C6, décision de Nicolas pour alléger le popup, voir plus bas), puis un unique bloc de résultat fusionné, rouge (chevauchement) ou vert (pas de chevauchement).
+**Message et formulaire dissociés** *(v2.3)* : le message de proximité reste dans le popup de coordonnées (`#boat-block` → `#out-conflict`), mais le formulaire est déplacé dans un bloc **« Calcul rayon d'évitage »** de la colonne de droite (`#evitage-panel`, sous « Couches affichées »). Le calcul est considéré comme **fait** quand les **deux** champs sont renseignés (valeurs > 0) — fonction `lireSaisieEvitage()`. Le champ « Colonne d'eau à marée haute » n'a plus de valeur pré-remplie.
+
+- **Cas d'origine — calcul pas encore fait**, clic à moins de 100 m d'une AOT :
+  - popup central : message sur fond jaune (`.jaune-box`) « D'autres mouillages sont enregistrés à proximité, vérifier en remplissant les champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage des navires ne se chevauchent pas. » ;
+  - colonne de droite : « Couches affichées » se replie, « Calcul rayon d'évitage » s'ouvre ;
+  - à la saisie des deux champs : « Rayon d'évitage = {r} m » s'affiche sous les champs, et le message jaune du popup est remplacé par le message vert ou rouge (ci-dessous), avec le cercle d'évitage sur la carte.
+- **Cas secondaire — calcul déjà fait**, clic à moins de 100 m d'une AOT : le popup affiche **directement** le message vert ou rouge ; **aucune action** sur la colonne de droite (les blocs restent dans l'état laissé par l'usager).
+- **À tout moment**, l'usager peut modifier les champs du bloc « Calcul rayon d'évitage » : le résultat du bloc, le message du popup (si un point proche d'une AOT est sélectionné) et le cercle sont recalculés à chaque saisie.
+
+Messages de résultat (`.evitage-resultat`, avec sous-titre `.evitage-sous-titre` « Estimation indicative qui ne remplace pas une vérification sur place. ») :
+- Pas de chevauchement (vert, `.libre`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. »
+- Chevauchement (rouge, `.chevauche`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, risque une collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
+
+Retirés en v2.3 : le rappel « Activez le filtre AOT pour les voir… » (`#rappel-filtre-aot`), l'invitation « Renseignez la longueur de votre navire… » (`.warn-box`), le chapeau `.chapeau-evitage` et le paragraphe disclaimer sous le formulaire (remplacé par le sous-titre des messages vert/rouge).
 
 Calcul basé sur la formule (v1.5) :
 ```
 rayon d'évitage = colonne d'eau à marée haute × 1,5 + longueur du navire
 ```
-Le formulaire ne comporte donc plus que **deux champs** : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) ». Le champ « Longueur de la ligne de mouillage » (menu 3× / 5× / 7×) a été retiré, la nouvelle formule ne s'en servant pas.
+Le formulaire ne comporte que **deux champs** : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) ». Le champ « Longueur de la ligne de mouillage » (menu 3× / 5× / 7×) a été retiré en v1.5. Le rayon affiché est arrondi au mètre. Pour les AOT existantes, la même formule est appliquée avec `CONFIG.profondeurDefaut` comme colonne d'eau.
 
 **Paramètres configurables** (dans `index.html`):
-- `CONFIG.profondeurDefaut` — colonne d'eau à marée haute retenue par défaut (5 m)
+- `CONFIG.profondeurDefaut` — colonne d'eau à marée haute supposée pour les **AOT existantes** (5 m) ; depuis v2.3, elle ne pré-remplit plus le champ de l'usager
 - `CONFIG.longueurAutres` — longueur supposée des autres navires (9 m)
 
-**Sous-titre affiché à l'usager** *(v2.2, remplace les trois limites détaillées des versions précédentes)* : « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » Les limites détaillées auparavant (profondeur saisie non mesurée, longueur des autres navires supposée, vent/courant/nature du fond non pris en compte) restent vraies **techniquement** mais ne sont plus énumérées à l'usager dans le popup — décision de Nicolas (22/09/2026) pour raccourcir un popup jugé trop chargé ; ces limites restent documentées ici et dans le code (commentaires `CONFIG`).
+**Sous-titre affiché à l'usager** *(v2.2 ; libellé v2.3 : « Estimation indicative qui ne remplace pas une vérification sur place. », intégré aux messages vert/rouge)* : auparavant « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » Les limites détaillées auparavant (profondeur saisie non mesurée, longueur des autres navires supposée, vent/courant/nature du fond non pris en compte) restent vraies **techniquement** mais ne sont plus énumérées à l'usager dans le popup — décision de Nicolas (22/09/2026) pour raccourcir un popup jugé trop chargé ; ces limites restent documentées ici et dans le code (commentaires `CONFIG`).
 
-**Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), réinitialise le champ « Longueur de mon navire », et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant.
+**Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant. *(v2.3)* Les valeurs du bloc « Calcul rayon d'évitage » ne sont **plus effacées** à la fermeture : elles restent en place pour la session, de sorte qu'un clic suivant près d'une AOT relève directement du cas secondaire.
 
-**Bloc de résultat fusionné** *(v2.2)* : le rayon d'évitage estimé et le résultat du recoupement, auparavant deux blocs séparés (`.result-box` puis `.warn-box`/`.ok-box`), tiennent désormais dans un seul message, injecté dans `#out-conflict` par `recalculer()` :
+**Bloc de résultat fusionné** *(v2.2 — textes remplacés en v2.3, voir plus haut)* : le rayon d'évitage estimé et le résultat du recoupement, auparavant deux blocs séparés (`.result-box` puis `.warn-box`/`.ok-box`), tiennent désormais dans un seul message, injecté dans `#out-conflict` par `recalculer()` :
 - Chevauchement détecté (rouge, classe `.evitage-resultat.chevauche`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche le rayon d'évitage estimé d'autres navires. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
 - Pas de chevauchement (vert, classe `.evitage-resultat.libre`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas chevaucher d'autres rayons d'évitage. »
 
@@ -226,7 +299,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 #### `CONFIG`
 ```javascript
 const CONFIG = {
-  profondeurDefaut: 5,      // colonne d'eau à marée haute retenue par défaut (m)
+  profondeurDefaut: 5,      // colonne d'eau supposée pour les AOT existantes (m) — ne pré-remplit plus le champ usager (v2.3)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
 };
@@ -375,13 +448,15 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Simuler une coupure ou une lenteur du service (`data.geopf.fr`) → au bout de 4 secondes, le clic se poursuit normalement (défaut non bloquant), sans jamais empêcher l'affichage des coordonnées
 - [ ] Pas d'erreur bloquante en console
 
-### ✅ 11. Formulaire navire conditionnel (proximité AOT à 100 m)
-- [ ] Cliquer sur l'eau à moins de 100 m d'une AOT existante → le popup affiche en plus le chapeau en texte simple *(v2.2 : plus d'encadré orange)*, puis le formulaire longueur du navire / colonne d'eau à marée haute (deux champs seulement)
-- [ ] Saisir les valeurs → le cercle d'évitage se dessine sur la carte (vert si pas de conflit, rouge si chevauchement)
-- [ ] Le bloc de résultat *(v2.2)* affiche une seule phrase : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche… » (rouge) ou « … ne semble pas chevaucher… » (vert) — plus de bloc séparé « Rayon d'évitage estimé »
-- [ ] Le sous-titre sous le formulaire affiche « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » — plus de mention de la profondeur saisie ou de la longueur supposée des autres navires à cet endroit
-- [ ] Aucun message ne réapparaît au-dessus des coordonnées GPS pour ce cas (plus de redite du type « Votre zone d'évitage en recoupe… »)
-- [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → le formulaire n'apparaît pas, seules les coordonnées sont affichées
+### ✅ 11. Proximité AOT et calcul du rayon d'évitage *(v2.3)*
+- [ ] Au chargement → un bloc « Calcul rayon d'évitage » est présent sous « Couches affichées », **replié** ; ses deux champs sont vides
+- [ ] Calcul pas fait : cliquer sur l'eau à moins de 100 m d'une AOT → message **jaune** « D'autres mouillages sont enregistrés à proximité… » dans le popup ; « Couches affichées » se replie et « Calcul rayon d'évitage » s'ouvre
+- [ ] Saisir seulement la longueur → rien ne change (message jaune, pas de résultat)
+- [ ] Saisir aussi la colonne d'eau → « Rayon d'évitage = {r} m » sous les champs (ex. 10 m et 4 m → 16 m) ; le message jaune devient vert (« … ne semble pas être en collision… ») ou rouge (« … risque une collision… Veuillez vérifier sur site… »), avec le sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. » ; le cercle se dessine
+- [ ] Modifier un champ → le rayon, le message et le cercle se mettent à jour immédiatement
+- [ ] Calcul fait : fermer le popup, replier/déplier les blocs à droite à sa guise, cliquer à nouveau près d'une AOT → message vert/rouge **directement**, colonne de droite **inchangée**
+- [ ] Le rappel « Activez le filtre AOT » et l'invitation « Renseignez la longueur… » n'apparaissent plus
+- [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → aucun message d'évitage, seules les coordonnées (et le bloc environnement)
 - [ ] Pas d'erreur console
 
 ### ✅ 12. Copie des coordonnées
@@ -394,7 +469,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur l'eau pour faire apparaître le popup → un bouton « Fermer ✕ » est visible en haut à droite
 - [ ] Cliquer sur « Fermer » → le popup disparaît, le marqueur est retiré de la carte, le point n'est plus sélectionné
 - [ ] Si un cercle d'évitage était affiché → il disparaît également à la fermeture
-- [ ] Si une longueur de navire avait été saisie → le champ est vide au clic suivant
+- [ ] *(v2.3)* Si des valeurs avaient été saisies dans « Calcul rayon d'évitage » → elles sont **conservées** après fermeture
 - [ ] Appuyer sur Échap pendant que le popup est visible → même effet que le bouton « Fermer »
 - [ ] Appuyer sur Échap quand le popup n'est pas visible → aucun effet, pas d'erreur console
 - [ ] Cliquer ailleurs sur l'eau (hors du popup) → **ne ferme pas** le popup : un nouveau point est sélectionné normalement (comportement volontairement différent de la modale ports/ZMEL)
@@ -464,7 +539,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### Cercle d'évitage ne s'affiche pas
 **Diagnostic:**
-- Le point cliqué est à plus de 100 m de toute AOT existante → comportement normal (v1.2), le formulaire n'est affiché que dans ce cas (voir §4.2 et §9.11)
+- Le point cliqué est à plus de 100 m de toute AOT existante → comportement normal (v1.2), le calcul ne s'applique qu'à moins de 100 m (voir §4.2 et §9.11)
+- *(v2.3)* Un des deux champs du bloc « Calcul rayon d'évitage » est vide → le calcul n'est pas considéré comme fait (plus de colonne d'eau par défaut)
 - Vérifier que des AOT existent dans `data/aot-existantes.geojson`
 - Vérifier que la couche « Autres mouillages » est cochée
 
@@ -515,6 +591,19 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.3 — 23 septembre 2026
+**Dissociation du message de proximité et du formulaire de calcul du rayon d'évitage**
+- Nouveau bloc « Calcul rayon d'évitage » dans la colonne de droite (`#evitage-panel`), replié au chargement, avec les deux champs et le résultat « Rayon d'évitage = {r} m » (`#out-rayon`)
+- Le popup central ne porte plus que le message : jaune (calcul pas fait), puis vert/rouge avec nouveaux libellés (« … ne semble pas être en collision… » / « … risque une collision… ») et sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. »
+- Cas d'origine (calcul pas fait) : au clic proche d'une AOT, « Couches affichées » se replie et « Calcul rayon d'évitage » s'ouvre ; cas secondaire (calcul fait) : aucune action sur la colonne de droite
+- Calcul « fait » = les deux champs renseignés (`lireSaisieEvitage()`) ; plus de valeur pré-remplie pour la colonne d'eau (`CONFIG.profondeurDefaut` ne sert plus qu'aux AOT existantes)
+- Valeurs conservées à la fermeture du popup (auparavant, la longueur était effacée)
+- Message jaune reformulé pour renvoyer au bloc de droite : « D'autres mouillages sont enregistrés à proximité, vérifier en remplissant les champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage des navires ne se chevauchent pas. »
+- **Documentation unique** : le document séparé `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md` est abandonné ; les textes exacts de toutes les réactions au clic (C1 à C6) sont désormais dans le §4.0 de ce document, seule référence. Les renvois du code et de `TESTS_FONCTIONNELS.md` pointent vers ce §4.0
+- Retirés : rappel « Activez le filtre AOT », invitation « Renseignez la longueur… », chapeau `.chapeau-evitage`, disclaimer sous le formulaire
+- Formule inchangée (déjà `colonne d'eau × 1,5 + longueur` depuis v1.5) ; libellé de l'étape 2 de la marche à suivre ajusté (longueur **et** colonne d'eau)
+- Testé : suite complète de `TESTS_FONCTIONNELS.md` (lecture du code automatisée, exécution Node.js, scénarios de clic dans Chromium headless avec services distants simulés, dont le scénario v2.3 complet) ; aucune erreur JavaScript. Sources cartographiques distantes injoignables depuis l'environnement de test (sans incidence sur ces scénarios). **Non vérifié sur la version publiée**
 
 ### v2.2 — 22 septembre 2026
 **Allègement du contenu du formulaire d'évitage, dans le popup de coordonnées**
@@ -604,7 +693,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ### v1.5 — 17 septembre 2026
 **Mise en conformité avec la spécification « Réactions au clic » (C1 à C6)**
 
-Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désormais cas par cas ce que produit un clic sur la carte (zone déclenchante, contenu affiché, variables). **Il fait référence** pour le contenu ; la présente documentation reste la référence pour le mécanisme, la robustesse et l'historique. Changements appliqués :
+Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désormais cas par cas ce que produit un clic sur la carte (zone déclenchante, contenu affiché, variables). *(Ce document séparé a été abandonné en v2.3 : son contenu, mis à jour, est intégré au §4.0.)* Changements appliqués :
 
 - **C1 (port) :** titre devient « Port de plaisance : {nom} — Commune :{commune} » ; la phrase d'ouverture « Pas d'AOT individuel sur cette zone : » est supprimée ; la commune ne figure plus en doublon dans le corps du message
 - **C2 (ZMEL) :** titre devient « Zone de mouillages et d'équipements légers : {nom} — Commune :{commune} » ; ouverture « Vous êtes sur une ZMEL qui… » ; le corps adopte la formulation des ports (« Il reste N place(s) disponible(s) à… » / « Faites votre demande auprès de… ») au lieu de « Capacité : N postes » / « Contactez la ZMEL à cette adresse »
@@ -677,4 +766,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 21 septembre 2026
+**Dernière mise à jour:** 23 septembre 2026

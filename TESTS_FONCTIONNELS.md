@@ -13,6 +13,24 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
+**Dernière exécution complète : 23 sept. 2026 (v2.3), avant commit.**
+- Lecture du code (script de vérification automatisé) : §1.1-1.4, §2.1-2.2,
+  §3.1-3.3, §3.4bis, §3.5, §4.1-4.4, §5.1-5.3, §5.4bis-ter, §5.5, §5.5bis,
+  §5.5ter, §5.5sexies, §5.5septies, §5.9 à §5.9quater, §5.14, §5.15,
+  §6.1quater, §6.3 — conformes.
+- Exécution dans Chromium headless (serveur local, `fetch` simulé pour les
+  services distants) : §6.1ter (4 cas), §5.4bis (5 scénarios, timeout mesuré
+  ≈ 4 s), §5.5sexies (6 scénarios), légende §3.3/§3.4/§3.4bis, clic cultures
+  marines §5.4, clic APB §5.4ter, clic Natura/ZNIEFF §5.6, aucune zone §5.7,
+  tout hors ligne §5.8, copie §5.12, fermeture/Échap §5.14, scénario v2.3
+  §5.16 — conformes, aucune `pageerror`.
+- Node.js (§6.1, §6.1bis) : syntaxe OK, phase synchrone OK, événement `load`
+  exécuté sans erreur.
+- **Non exécutables avant publication** (fond de carte et services réels
+  inaccessibles depuis l'environnement de test) : §1.5-1.8 (terre/eau sur
+  tuiles réelles), §2.3, §3.6, §4quater et §5quater en réseau réel — à
+  vérifier sur le site publié.
+
 ---
 
 ## 1. Détection terre/eau (`estSurLEau`, carte fantôme)
@@ -193,7 +211,7 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu : « Herbiers de posidonie et de zostère ».
    - Vérification : lecture du code.
 
-3. **Libellés du formulaire navire (dans le popup de coordonnées) — v1.5**
+3. **Libellés du formulaire navire (bloc « Calcul rayon d'évitage » de la colonne de droite depuis v2.3 ; popup de coordonnées de v1.5 à v2.2)**
    - Action : rechercher les `<label>` du formulaire navire.
    - Attendu : **deux champs seulement** — « Longueur de mon navire (m) »
      (`in-loa`) et « Colonne d'eau à marée haute (m) » (`in-depth`). Le champ
@@ -215,9 +233,10 @@ fonctionnalité correspondante a réellement disparu.
 1. **Panneau « Mon mouillage » supprimé**
    - Action : rechercher toute trace d'un panneau latéral dédié « Mon
      mouillage » distinct du popup de coordonnées.
-   - Attendu : aucune occurrence — le formulaire navire (`boatBlock`) est
-     injecté à l'intérieur de `#coords-popup`, pas dans un panneau latéral
-     séparé.
+   - Attendu : aucune occurrence. Depuis v2.3, `boatBlock` (injecté dans
+     `#coords-popup`) ne porte que le message de proximité ; le formulaire est
+     dans le bloc « Calcul rayon d'évitage » de la colonne de droite (voir
+     §5.9ter), ce qui est voulu.
    - Vérification : lecture du code (`grep`).
 
 2. **Ordre de priorité de la cascade de clic**
@@ -401,7 +420,7 @@ fonctionnalité correspondante a réellement disparu.
      `boatBlock` reste masqué et `recalculer()` retourne un état vide sans
      erreur. **La condition ne fait plus intervenir `aotVisibles`** : la
      vérification est silencieuse, indépendante de la case « AOT existantes »
-     (spec Réactions au clic, C6).
+     (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6).
    - Vérification : lecture du code.
 
 9bis. **Recherche de chevauchement toujours effectuée (v1.5)**
@@ -412,39 +431,37 @@ fonctionnalité correspondante a réellement disparu.
      nulle part dans le fichier.
    - Vérification : lecture du code.
 
-9ter. **Cascade d'affichage C6 en trois temps (v1.5)**
-   - Action : lire `boatBlock.innerHTML` et la fin de `recalculer()`.
-   - Attendu : (1) un message de détection dans un `div.jaune-box`
-     (« D'autres mouillages sont enregistrés à proximité… ») en tête du bloc
-     navire, contenant un `span#rappel-filtre-aot` (« Activez le filtre AOT
-     pour les voir… ») ; (2) le formulaire ; (3) le résultat, `div.warn-box`
-     en cas de chevauchement (« L'estimation montre un risque de
-     chevauchement… ») ou `div.ok-box` sinon (« Nous n'avons pas identifié de
-     chevauchement… »). Le décompte d'AOT au fichier ne figure plus dans le
-     message vert.
-   - Vérification : lecture du code.
+9ter. **Message de proximité dissocié du formulaire (v2.3, remplace la cascade C6 v1.5)**
+   - Action : lire `boatBlock.innerHTML`, `evitagePanel.innerHTML` et
+     `recalculer()`.
+   - Attendu : `boatBlock` ne contient plus que `<div id="out-conflict">` ;
+     les champs `in-loa` et `in-depth` (ce dernier **sans** attribut `value`,
+     placeholder « à renseigner ») et `p#out-rayon` sont dans
+     `#evitage-panel`, ajouté à `colonneD` après `layerPanel`. Aucune
+     occurrence de `rappel-filtre-aot`, `chapeau-evitage`, « Renseignez la
+     longueur » dans le fichier.
+   - Vérification : lecture du code (`grep`).
 
-9quater. **Rappel du filtre AOT conditionnel (v1.5)**
-   - Action : lire le traitement de `rappel-filtre-aot` dans `recalculer()`.
-   - Attendu : `style.display` vaut `'none'` quand `aotVisibles` est vrai, et
-     `''` sinon — inviter à activer un filtre déjà actif n'aurait pas de sens.
-     Le reste de la cascade s'affiche dans les deux cas.
-   - Vérification : lecture du code.
+9quater. **Calcul « fait » = deux champs renseignés (v2.3)**
+   - Action : lire `lireSaisieEvitage()`.
+   - Attendu : renvoie `null` si l'un des deux champs est vide, non numérique
+     ou ≤ 0 ; sinon `{loa, prof, r}` avec `r = rayonEvitage(loa, prof)`. Aucun
+     repli sur `CONFIG.profondeurDefaut` pour la saisie usager.
+   - Vérification : lecture du code + exécution en navigateur (§16).
 
-10. **Test visuel : clic à moins de 100 m d'une AOT**
+10. **Test visuel : clic à moins de 100 m d'une AOT (v2.3)**
     - Action : cliquer sur l'eau à proximité immédiate (< 100 m) d'une AOT
-      existante (`data/aot-existantes.geojson`).
-    - Attendu : le message de détection sur fond orange apparaît, suivi du
-      formulaire à **deux champs** (longueur du navire, colonne d'eau à marée
-      haute) ; la saisie déclenche le tracé du cercle d'évitage (vert/rouge
-      selon chevauchement) et le message de résultat correspondant. À refaire
-      **couche AOT décochée** : tout doit se comporter à l'identique, avec en
-      plus le rappel « Activez le filtre AOT ».
-    - Vérification : visuelle.
+      existante (`data/aot-existantes.geojson`), champs vides.
+    - Attendu : message **jaune** dans le popup ; « Couches affichées » se
+      replie, « Calcul rayon d'évitage » s'ouvre. À la saisie des deux champs :
+      « Rayon d'évitage = {r} m », message vert/rouge, cercle tracé. Même
+      comportement **couche AOT décochée** (vérification silencieuse).
+    - Vérification : visuelle ou navigateur headless (§16).
 
 11. **Test visuel : clic à plus de 100 m de toute AOT**
     - Action : cliquer sur l'eau loin (> 100 m) de toute AOT existante.
-    - Attendu : le formulaire navire n'apparaît pas ; seules les
+    - Attendu : aucun message d'évitage (`boatBlock` masqué), colonne de
+      droite inchangée ; seules les
       coordonnées (et le bloc environnement) sont affichées.
     - Vérification : visuelle.
 
@@ -476,7 +493,8 @@ fonctionnalité correspondante a réellement disparu.
       filtré sur `Escape` et `popup.classList.contains('visible')`).
     - Attendu : `fermerPopupCoordonnees()` retire le marqueur
       (`marker.remove(); marker = null;`), vide `position`, vide
-      `document.getElementById('in-loa').value`, remet `copieFaite` à
+      ~~`in-loa`~~ (**v2.3 : ne vide plus les champs du calcul
+      d'évitage**, qui sont conservés), remet `copieFaite` à
       `false` et le bouton « Copier » à son état initial, masque
       `coordsRow`/`coordsLabel`/`boatBlock`, vide le bloc environnement
       (`afficherEnvironnement('', '')`), retire la classe `visible` (et
@@ -496,7 +514,11 @@ fonctionnalité correspondante a réellement disparu.
       la carte publiée dans un vrai navigateur) : aucun navigateur
       disponible dans cette session.
 
-15. **Allègement du contenu du formulaire d'évitage (v2.2)**
+15. **Allègement du contenu du formulaire d'évitage (v2.2) — textes remplacés en v2.3 (voir §16)**
+    - *v2.3 : le chapeau, le disclaimer et les libellés « chevauche… » /
+      « ne semble pas chevaucher… » ont disparu ; les sous-points ci-dessous
+      ne valent plus que pour `#out-radius`/`.result-box` (toujours absents) et
+      pour `messagePopup('', null)` (toujours appelé).*
     - Action : lire le gabarit `boatBlock.innerHTML` (chapeau, champs, disclaimer)
       et la fin de `recalculer()` (construction de `zone.innerHTML` et l'appel
       `messagePopup('', null)` qui suit).
@@ -525,6 +547,43 @@ fonctionnalité correspondante a réellement disparu.
     - **Non vérifié en conditions réelles** : aucun navigateur disponible dans
       cette session pour confirmer visuellement le rendu (couleurs, alignement).
 
+16. **Dissociation message / calcul du rayon d'évitage — scénario complet (v2.3)**
+    - Action : servir le dossier en local (`python3 -m http.server`), ouvrir
+      `index.html` dans Chromium headless (Playwright), fermer le guide, puis
+      simuler les clics avec `map.fire('click', {lngLat, point:
+      map.project(...)})` (les variables globales du script — `map`,
+      `aotPositions`, `distanceM`, `fermerPopupCoordonnees`, `replier` — sont
+      accessibles via `page.evaluate`). Le bloc « Calcul rayon d'évitage »
+      doit être déplié avant de remplir ses champs.
+    - Attendu, dans l'ordre :
+      1. au chargement : `#layer-panel` ouvert, `#evitage-panel` replié,
+         `in-depth` vide, `#out-rayon` vide ;
+      2. clic à ~30 m d'une AOT, champs vides : `.jaune-box` « D'autres
+         mouillages sont enregistrés à proximité, vérifier en remplissant les
+         champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage
+         des navires ne se chevauchent pas. » (plus de « ci-dessous ») ;
+         `#layer-panel` replié, `#evitage-panel` ouvert ; étape 2 « en cours » ;
+      3. longueur seule (10) : toujours jaune, `#out-rayon` vide ;
+      4. colonne d'eau 4 : `#out-rayon` = « Rayon d'évitage = 16 m », message
+         `.evitage-resultat.chevauche` « … estimé à 16 m, risque une collision
+         avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur
+         site ou modifier l'emplacement par précaution. » + `.evitage-sous-titre`
+         « Estimation indicative qui ne remplace pas une vérification sur
+         place. » ; étape 2 faite ;
+      5. longueur 40 : mise à jour immédiate à 46 m ;
+      6. `fermerPopupCoordonnees()` : valeurs conservées (4 / 40) ;
+      7. replier le calcul, déplier les couches, re-cliquer au même endroit :
+         message rouge direct, **colonne de droite inchangée** ;
+      8. point à 60–100 m d'une AOT, longueur 3 / colonne 2 (r = 6 m) :
+         `.evitage-resultat.libre` « … ne semble pas être en collision avec les
+         rayons d'évitage des navires à proximité. » + sous-titre ;
+      9. clic à > 300 m de toute AOT : `boatBlock` masqué, message vide ;
+      10. aucune `pageerror` pendant tout le scénario.
+    - Vérification : exécution (Playwright). Les erreurs réseau vers les
+      services cartographiques distants (proxy de l'environnement de test)
+      ne sont pas bloquantes.
+    - *Dernière exécution : 23 sept. 2026 (v2.3) — OK sur les 10 points.*
+
 ---
 
 ## 6. Intégrité générale
@@ -539,7 +598,7 @@ fonctionnalité correspondante a réellement disparu.
 1ter. **Test d'exécution des modales Port et ZMEL (v1.5)**
    - Action : extraire `modalePort` et `modaleZmel` du script, les exécuter
      dans Node.js avec un `ouvrirModale` simulé qui capture ses arguments.
-   - Attendu, pour chacune : titre au format de la spec (C1/C2) ; absence de
+   - Attendu, pour chacune : titre au format du §4.0 de DOCUMENTATION_FONCTIONNELLE.md (C1/C2) ; absence de
      « Pas d'AOT individuel » ; nouvelle phrase d'ouverture ; accord
      singulier/pluriel correct sur le nombre de places ; **repli sur les
      anciens noms de champs** (`nom`, `commune`) quand les nouveaux
@@ -562,7 +621,10 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 22 sept. 2026 (v2.2) — phase synchrone OK, événement
+   - *Dernière exécution : 23 sept. 2026 (v2.3) — chargement complet dans
+     Chromium headless (au-delà du harnais Node.js), sans `pageerror`, et
+     `recalculer()` déclenché par des clics simulés (voir §5/16).*
+   - *Exécution précédente : 22 sept. 2026 (v2.2) — phase synchrone OK, événement
      `load` déclenché sans erreur (harnais complété : `parentElement`,
      `createElementNS`, `Image` génériques ajoutés au stub), avec `fetch`
      local lisant `data/`. Confirme notamment que `fermerPopupCoordonnees()`
