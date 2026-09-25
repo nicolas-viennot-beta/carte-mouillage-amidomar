@@ -461,19 +461,23 @@ fonctionnalité correspondante a réellement disparu.
      `rappel-filtre-aot`, `chapeau-evitage`, « Renseignez la longueur ».
    - Vérification : lecture du code (`grep`).
 
-9ter-bis. **Repli différé au blur, jamais pendant la frappe (v2.7)**
-   - Action : lire `proximiteComplete`, `replierAuBlur`, la fin de
-     `recalculer()` (branche « calcul fait »), l'écouteur `click` de
-     `#proximite-toggle` et l'écouteur `focusout` de `#proximite-detail`.
-   - Attendu : quand le calcul vient de se compléter (`!proximiteComplete`) et
-     que `document.activeElement` est dans `#proximite-detail`,
-     `replierAuBlur` passe à `true` et le détail **reste visible** (pas de
-     repli) ; sinon il se replie immédiatement. L'écouteur `focusout` (avec un
-     `setTimeout(…, 0)` pour laisser le focus se déplacer avant de tester)
-     replie le détail seulement si `replierAuBlur` est vrai et qu'aucun champ
-     n'a plus le focus, puis remet `replierAuBlur` à `false`. Le clic sur
-     `#proximite-toggle` remet aussi `replierAuBlur` à `false` (ouverture ou
-     fermeture volontaire, plus de repli différé en attente).
+9ter-bis. **Repli automatique différé par minuteur, réarmé à chaque frappe (v2.8, remplace le mécanisme au blur v2.7)**
+   - Action : lire `proximiteComplete`, `repliTimer`, `replierAuto`, la fin de
+     `recalculer()` (branche « calcul fait »), et l'écouteur `click` de
+     `#proximite-toggle`. Vérifier qu'aucune occurrence de `replierAuBlur` ni
+     d'écouteur `focusout` sur `#proximite-detail` ne subsiste.
+   - Attendu : dès que le calcul se complète, `toggle.hidden` passe à `false`
+     et, si `replierAuto` est vrai, un `setTimeout` de 700 ms
+     (`repliTimer`) est armé pour replier `#proximite-detail` — annulé et
+     réarmé (`clearTimeout` puis nouveau `setTimeout`) à **chaque** appel de
+     `recalculer()` suivant (donc à chaque frappe dans `in-loa`/`in-depth`),
+     si bien qu'il ne se déclenche jamais en pleine saisie, seulement après
+     une pause. Le clic sur `#proximite-toggle` annule le minuteur en cours
+     (`clearTimeout`) et, s'il **ouvre** le détail, passe `replierAuto` à
+     `false` (plus de repli automatique tant que le point n'a pas changé).
+     Un nouveau clic sur la carte (nouvelle position) ou la fermeture du
+     popup réinitialisent `replierAuto` à `true` et annulent tout minuteur en
+     cours.
    - Vérification : lecture du code + navigateur headless (§20).
 
 9ter-bis. **Bloc environnement réduit à une ligne si mouillage proche (v2.5)**
@@ -706,30 +710,39 @@ fonctionnalité correspondante a réellement disparu.
     - Vérification : exécution (Playwright).
     - *Dernière exécution : 25 sept. 2026 (v2.6) — OK sur les 5 points.*
 
-20. **Repli du bloc de proximité — scénario complet (v2.7)**
+20. **Repli du bloc de proximité — scénario complet (v2.7, mécanisme de repli revu v2.8)**
     - Action : même montage que §18. Cliquer près de `aotPositions[5]`
       (`avg` −12,35, colonne pré-remplie 17,7). Taper `20` caractère par
       caractère dans `#in-loa` (`page.type`, avec un léger délai entre
-      touches) sans cliquer ailleurs, puis lire l'état.
+      touches) sans cliquer ailleurs, puis lire l'état à différents instants.
     - Attendu, dans l'ordre :
       1. avant saisie : `.jaune-box`, `#proximite-toggle` caché, champs
          visibles, aucun résultat ;
-      2. en cours de frappe dans `#in-loa` (focus toujours dans le champ) :
-         dès que les deux champs sont valides, le bloc passe déjà en
-         `.evitage-resultat` (vert ou rouge) et `#proximite-toggle` affiche
-         « Masquer ▴ », **mais `#in-loa` reste visible et garde la totalité
+      2. juste après la frappe complète (focus toujours dans `#in-loa`) : le
+         bloc est déjà passé en `.evitage-resultat` (vert ou rouge) et
+         `#proximite-toggle` affiche « Masquer ▴ », le message de résultat
+         est affiché (nouveau texte de collision v2.8 : « Le rayon d'évitage
+         de votre navire est estimé à … m avec un risque de collision.
+         Modifier l'emplacement ou vérifier sur place. »), **mais
+         `#proximite-detail` reste visible et `#in-loa` garde la totalité
          de la valeur tapée** (`"20"`, pas `"2"`) — c'est le point qui
-         régresserait si le repli se faisait sur l'événement `input` sans
-         attendre le blur ;
-      3. clic en dehors du formulaire (ex. `#coords-label`) : le détail se
-         replie, `#proximite-toggle` repasse à « Détails ▾ » ;
+         régresserait si le repli se faisait immédiatement sur l'événement
+         `input` sans minuteur ;
+      3. ~1,1 s après la dernière frappe, **sans aucun clic ni tabulation** :
+         `#proximite-detail.hidden` est vrai et `#proximite-toggle` affiche
+         « Détails ▾ » (repli automatique déclenché par le minuteur de
+         700 ms, pas par un `focusout`) ;
       4. clic sur `#proximite-toggle` : les champs réapparaissent avec leurs
          valeurs, « Masquer ▴ » ;
-      5. clic en dehors du formulaire après cette réouverture manuelle : les
-         champs **restent visibles** (pas de repli automatique cette fois) ;
+      5. modifier `#in-loa` puis attendre ~1,1 s sans cliquer : le détail
+         **reste visible** (pas de repli automatique après une réouverture
+         manuelle, même après une nouvelle frappe) ;
       6. aucune `pageerror` sur l'ensemble du scénario.
     - Vérification : exécution (Playwright).
-    - *Dernière exécution : 25 sept. 2026 (v2.7) — OK sur les 6 points.*
+    - *Dernière exécution : 25 sept. 2026 (v2.8) — OK sur les 6 points
+      (script Playwright reconstruit ce jour, l'environnement d'exécution
+      ayant été réinitialisé entre les deux sessions ; scénario vert/rouge et
+      texte de collision revérifiés également).
 
 19. **API EMODnet réelle (v2.6)**
     - Action : depuis le site publié (ou une page https), exécuter

@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.7 (septembre 2026)   (septembre 2026)  
+**Version:** 2.8 (septembre 2026)  
 **Dernière mise à jour:** 25 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -89,7 +89,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 | C4 | Cultures marines | Popup rouge, sans marqueur ni coordonnées |
 | C4 bis | Arrêté de protection de biotope (APB) | Popup rouge, sans marqueur ni coordonnées |
 | C5 | Tout autre point sur l'eau | Marqueur, popup environnement + coordonnées |
-| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Bloc environnement réduit à une ligne + bloc de proximité, qui se réduit lui aussi au résultat une fois le calcul fait (v2.7) |
+| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Bloc environnement réduit à une ligne + bloc de proximité, qui se réduit lui aussi au résultat une fois le calcul fait (v2.7), avec repli différé automatique après une pause de frappe (v2.8) |
 
 #### C1 — Port de plaisance
 - Titre : « Port de plaisance : {nom_port_de_plaisance} — Commune :{nom_commune} » (la partie « — Commune : » est omise si la commune est vide).
@@ -134,8 +134,8 @@ Détection silencieuse (indépendante de la case « AOT de mouillage existantes 
   - les deux : « **Emplacement situé en site Natura 2000 et en ZNIEFF.** » ;
   - service injoignable : message inchangé, non réduit.
 - **Bloc de proximité, calcul pas encore fait** (fond orange, `.jaune-box`) : « **D'autres mouillages sont enregistrés à proximité.** » (gras), à la ligne « Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire. », puis une ligne par champ : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) » (placeholder « à saisir »). Pas de bouton « Détails » à ce stade — les champs sont visibles directement.
-- **Bloc de proximité, calcul fait** *(v2.7)* : le message ci-dessus est **remplacé** par le résultat, et le bloc change de couleur — vert (pas de chevauchement) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. » ; rouge (chevauchement) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, risque une collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par précaution. » — dans les deux cas suivi du sous-titre « *Estimation indicative qui ne remplace pas une vérification sur place.* ». Un bouton « Détails ▾ » apparaît à droite du message et **replie les deux champs par défaut** (« Masquer ▴ » une fois déplié) ; l'usager peut rouvrir pour consulter ou corriger les valeurs, qui recalculent le résultat en direct.
-- **Ne se replie pas pendant la frappe** : si le calcul se complète alors que l'usager est encore en train de taper dans l'un des deux champs (par exemple la colonne d'eau était déjà pré-remplie et il tape la longueur), le bloc bascule bien en vert/rouge mais les champs **restent visibles** tant que le focus n'a pas quitté le formulaire — pour ne pas lui faire perdre sa saisie en cours. Le repli n'a lieu qu'au moment où il sort du champ (clic ou tabulation ailleurs). Une réouverture manuelle des « Détails » ne se referme pas toute seule ensuite.
+- **Bloc de proximité, calcul fait** *(v2.7, texte de collision revu v2.8)* : le message ci-dessus est **remplacé** par le résultat, et le bloc change de couleur — vert (pas de chevauchement) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. » ; rouge (chevauchement) *(v2.8)* : « Le rayon d'évitage de votre navire est estimé à **{r} m** avec un risque de collision. Modifier l'emplacement ou vérifier sur place. » — dans les deux cas suivi du sous-titre « *Estimation indicative qui ne remplace pas une vérification sur place.* ». Un bouton « Détails ▾ » apparaît à droite du message ; l'usager peut rouvrir pour consulter ou corriger les valeurs, qui recalculent le résultat en direct.
+- **Repli automatique différé, jamais pendant la frappe** *(v2.8)* : dès que le calcul se complète, le bloc bascule en vert/rouge et un minuteur de repli automatique (700 ms) est armé, puis **réarmé à chaque nouvelle frappe** dans l'un des deux champs — il ne se déclenche donc jamais en pleine saisie, seulement après une courte pause une fois le résultat affiché, pour regagner de la visibilité sur la carte sous la modale sans action supplémentaire de l'usager. Avant v2.8, le repli n'attendait que la sortie du champ (blur) ; désormais il se produit après une pause de frappe, sans nécessiter de clic ailleurs. Une réouverture manuelle des « Détails » désarme ce repli automatique : le bloc ne se referme plus tout seul ensuite, même après une nouvelle modification des champs.
 - Colonne d'eau à marée haute *(v2.6)* : **pré-remplie par une estimation** (profondeur au point + marée haute du port de référence le plus proche), modifiable ; note en italique sous le champ : « Estimation : profondeur ≈ {p} m (EMODnet) + marée haute de vives-eaux ≈ {h} m (port de référence : {port}, Shom). Modifiable. » (« marée haute » sans « de vives-eaux » en Méditerranée ; variante « …, moins un fond découvrant à marée basse ≈ {x} m (EMODnet). Modifiable. » sur l'estran). Pendant le calcul : « Estimation de la colonne d'eau en cours… ». Échec : champ vide, « Estimation indisponible à cet endroit : saisissez la valeur. ». Après correction par l'usager : « Valeur modifiée à la main. ». Détail : §4.2.
 - Variables : `{r}` = colonne d'eau × 1,5 + longueur, arrondi au mètre.
 
@@ -459,7 +459,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Simuler une coupure ou une lenteur du service (`data.geopf.fr`) → au bout de 4 secondes, le clic se poursuit normalement (défaut non bloquant), sans jamais empêcher l'affichage des coordonnées
 - [ ] Pas d'erreur bloquante en console
 
-### ✅ 11. Proximité AOT et calcul du rayon d'évitage *(v2.7)*
+### ✅ 11. Proximité AOT et calcul du rayon d'évitage *(v2.7, v2.8)*
 - [ ] Au chargement → la colonne de droite ne contient que « Couches affichées » (plus de bloc « Calcul rayon d'évitage »)
 - [ ] Calcul pas fait : cliquer sur l'eau à moins de 100 m d'une AOT → le bloc environnement tient sur **une ligne** (« Aucune zone bloquante détectée sur cet emplacement. », ou titre Natura 2000/ZNIEFF) avec un bouton « Détails ▾ » ; dessous, bloc orange : « **D'autres mouillages sont enregistrés à proximité.** », « Vérifier que votre rayon d'évitage… », puis les champs longueur et colonne d'eau, chacun sur sa ligne ; rien sous le bloc orange
 - [ ] Cliquer sur « Détails ▾ » → le détail (mention des zonages non détectables, nom de la zone Natura 2000 le cas échéant) se déplie, le bouton devient « Masquer ▴ » ; recliquer le replie
@@ -467,10 +467,11 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] *(v2.6)* Corriger la valeur → note « Valeur modifiée à la main. », le résultat suit
 - [ ] *(v2.6)* Couper le réseau (ou bloquer `rest.emodnet-bathymetry.eu`) → « Estimation indisponible à cet endroit : saisissez la valeur. », le calcul reste possible à la main
 - [ ] Vider la longueur → rien ne s'affiche sous le bloc orange
-- [ ] Saisir aussi la colonne d'eau → sous le bloc orange, message vert (« … ne semble pas être en collision… ») ou rouge (« … risque une collision… Veuillez vérifier sur site… ») avec le rayon (ex. 10 m et 4 m → 16 m) et le sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. » ; le cercle se dessine
+- [ ] Saisir aussi la colonne d'eau → sous le bloc orange, message vert (« … ne semble pas être en collision… ») ou rouge *(v2.8)* (« Le rayon d'évitage de votre navire est estimé à … m avec un risque de collision. Modifier l'emplacement ou vérifier sur place. ») avec le rayon (ex. 10 m et 4 m → 16 m) et le sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. » ; le cercle se dessine
 - [ ] Modifier un champ → le rayon, le message et le cercle se mettent à jour immédiatement
-- [ ] *(v2.7)* Saisir aussi la colonne d'eau (dernier champ complété) → le bloc orange devient vert/rouge, un bouton « Détails ▾ » apparaît, et les champs se replient automatiquement dès que le focus les quitte (pas avant — pendant la frappe, ils restent visibles)
-- [ ] *(v2.7)* Cliquer sur « Détails ▾ » → les champs réapparaissent avec leurs valeurs, bouton « Masquer ▴ » ; modifier une valeur puis cliquer ailleurs dans le popup (pas sur le bouton) → les champs **restent visibles** (pas de repli automatique après une réouverture manuelle)
+- [ ] *(v2.7/v2.8)* Saisir aussi la colonne d'eau (dernier champ complété) → le bloc orange devient vert/rouge, un bouton « Détails ▾ » apparaît ; les champs restent visibles pendant la frappe, puis se replient **automatiquement après une courte pause (~0,7 s)**, sans avoir besoin de cliquer ailleurs *(v2.8 — avant, le repli n'avait lieu qu'à la sortie du champ)*
+- [ ] *(v2.8)* Taper un nombre à deux chiffres dans « Longueur de mon navire » (ex. « 20 ») caractère par caractère → aucune frappe perdue, le champ garde le focus et affiche bien « 20 » au final, le bloc ne se replie pas avant la fin de la pause
+- [ ] *(v2.7)* Cliquer sur « Détails ▾ » → les champs réapparaissent avec leurs valeurs, bouton « Masquer ▴ » ; modifier une valeur puis attendre → les champs **restent visibles** (pas de repli automatique après une réouverture manuelle, même après une nouvelle saisie)
 - [ ] Calcul fait : fermer le popup, cliquer à nouveau près d'une AOT → champs toujours remplis, message vert/rouge **directement**, bouton « Détails ▾ » présent mais replié
 - [ ] Le rappel « Activez le filtre AOT » et l'invitation « Renseignez la longueur… » n'apparaissent plus
 - [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → aucun bloc de proximité ; bloc environnement **complet** (non réduit, sans bouton « Détails »), texte vert « Pas de contre-indication détectée automatiquement sur cette zone. »
@@ -619,6 +620,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.8 — 25 septembre 2026
+**Repli automatique du bloc de proximité après une pause de frappe, et texte de collision reformulé**
+- Décision de Nicolas (25/09/2026) : une fois le résultat affiché, le bloc « Détails » doit se refermer automatiquement (gagner en visibilité sur la carte dessous), sans attendre que l'usager clique ou tabule ailleurs comme en v2.7
+- Mécanisme : un minuteur de 700 ms est armé dès que le calcul se complète, et **réarmé à chaque frappe** dans l'un des deux champs (`in-loa`/`in-depth`) — le repli ne se déclenche donc jamais en pleine saisie, seulement après une courte pause. Remplace le mécanisme v2.7 basé sur le `focusout` (repli seulement à la sortie du champ), désormais retiré
+- Une réouverture manuelle des « Détails » désarme ce repli automatique pour la suite (comme en v2.7)
+- Texte de collision reformulé : « Le rayon d'évitage de votre navire est estimé à **{r} m** avec un risque de collision. Modifier l'emplacement ou vérifier sur place. » (remplace le texte v2.7 plus long, « … risque une collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »). Le texte du cas sans collision (vert) est inchangé
+- Testé : harnais Node.js (exécution synchrone et asynchrone, sans erreur ni rejet non géré) ; Chromium headless avec frappe caractère par caractère (aucune perte de saisie, bloc resté ouvert pendant la frappe), repli automatique vérifié ~1,1 s après la dernière frappe sans clic ni tabulation, réouverture manuelle stable après ré-édition, nouveau texte de collision vérifié, scénario sans collision (vert) inchangé — aucune `pageerror`. **Non vérifié sur la version publiée**
 
 ### v2.7 — 25 septembre 2026
 **Bloc de proximité replié une fois le calcul du rayon d'évitage fait**

@@ -1231,11 +1231,12 @@
                                     // rien : la vérification de proximité est silencieuse (C6).
     let formNavireRequis = false;   // le bloc « navire » n'est montré qu'à moins de 100 m d'une AOT
     let proximiteComplete = false;  // v2.7 : le calcul était-il déjà fait au dernier recalculer() ?
-                                     //   sert à ne replier « Détails » qu'à l'instant où il se complète.
-    let replierAuBlur = false;      // v2.7 : le calcul vient de se compléter PENDANT que l'usager
-                                     //   tapait dans un des deux champs — on ne le replie qu'à la
-                                     //   sortie du champ, pour ne pas lui faire perdre le focus
-                                     //   (et donc la fin de sa saisie) en pleine frappe.
+                                     //   sert à ne déclencher l'ouverture initiale qu'à l'instant où il se complète.
+    let repliTimer = null;          // v2.8 : minuteur de repli auto, réarmé à chaque frappe — ne se
+                                     //   déclenche donc jamais en pleine saisie, seulement après une
+                                     //   courte pause, une fois le résultat affiché.
+    let replierAuto = true;         // v2.8 : repli automatique encore actif ; désarmé dès que l'usager
+                                     //   rouvre « Détails » volontairement, pour ne plus le lui refermer.
     const popup = document.getElementById('coords-popup');
     const coordsText = document.getElementById('coords-text');
     const coordsRow = document.getElementById('coords-row');
@@ -1539,7 +1540,8 @@
       // v2.5 : plus d'action sur la colonne de droite, le formulaire est dans la modale.
       // v2.6 : estimation de la colonne d'eau, sans attendre (en parallèle des zonages).
       proximiteComplete = false;   // v2.7 : nouveau point → le résultat, s'il est déjà là, se replie
-      replierAuBlur = false;
+      replierAuto = true;
+      clearTimeout(repliTimer);
       if (formNavireRequis) lancerEstimationColonne();
       else jetonEstimation++;
       recalculer();   // message de proximité affiché sans attendre les zonages
@@ -1602,7 +1604,8 @@
       // v2.3 : les valeurs du calcul d'évitage sont conservées à la fermeture.
       jetonEstimation++;   // v2.6 : une estimation en cours ne remplit plus le champ
       proximiteComplete = false;
-      replierAuBlur = false;
+      replierAuto = true;
+      clearTimeout(repliTimer);
       copieFaite = false;
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
       coordsRow.style.display = 'none';
@@ -1640,6 +1643,8 @@
         messagePopup('', null);
         vider();
         proximiteComplete = false;
+        replierAuto = true;
+        clearTimeout(repliTimer);
         return;
       }
 
@@ -1654,6 +1659,8 @@
         messagePopup('', null);
         vider();
         proximiteComplete = false;
+        replierAuto = true;
+        clearTimeout(repliTimer);
         return;
       }
       const r = saisie.r;
@@ -1677,26 +1684,28 @@
         remplace pas une vérification sur place.</span>`;
       bloc.className = n ? 'evitage-resultat chevauche' : 'evitage-resultat libre';
       msgEl.innerHTML = n
-        ? `Le rayon d'évitage de votre navire, estimé à <strong>${rArrondi} m</strong>, risque une
-           collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou
-           modifier l'emplacement par précaution.${sousTitre}`
+        ? `Le rayon d'évitage de votre navire est estimé à <strong>${rArrondi} m</strong> avec un
+           risque de collision. Modifier l'emplacement ou vérifier sur place.${sousTitre}`
         : `Le rayon d'évitage de votre navire, estimé à <strong>${rArrondi} m</strong>, ne semble pas
            être en collision avec les rayons d'évitage des navires à proximité.${sousTitre}`;
       toggle.hidden = false;
-      // Ne replier automatiquement qu'à l'instant où le calcul vient de se compléter —
-      // pas à chaque frappe suivante, pour ne pas fermer un « Détails » rouvert par l'usager.
+      // v2.8 : à l'instant où le calcul vient de se compléter, le bloc « Détails » reste
+      // visible tel quel (déjà ouvert depuis la saisie), puis un minuteur programme son
+      // repli — réarmé à chaque frappe suivante (voir écouteurs plus bas), il ne se
+      // déclenche donc jamais en pleine saisie, seulement après une courte pause une fois
+      // le résultat affiché. Objectif : regagner de la visibilité sur la carte sans action
+      // supplémentaire de l'usager, sans jamais lui faire perdre une frappe en cours.
       if (!proximiteComplete) {
-        if (detail.contains(document.activeElement)) {
-          // L'usager est en train de saisir : on ne replie pas sous ses doigts, on le
-          // fera au blur (voir l'écouteur « focusout » plus bas).
-          replierAuBlur = true;
-          toggle.setAttribute('aria-expanded', 'true');
-          toggle.textContent = 'Masquer ▴';
-        } else {
+        toggle.setAttribute('aria-expanded', String(!detail.hidden));
+        toggle.textContent = detail.hidden ? 'Détails ▾' : 'Masquer ▴';
+      }
+      if (replierAuto) {
+        clearTimeout(repliTimer);
+        repliTimer = setTimeout(() => {
           detail.hidden = true;
           toggle.setAttribute('aria-expanded', 'false');
           toggle.textContent = 'Détails ▾';
-        }
+        }, 700);
       }
       proximiteComplete = true;
 
@@ -1706,7 +1715,8 @@
       messagePopup('', null);
     }
 
-    // v2.7 : bouton « Détails » du bloc de proximité — replié par défaut une fois le calcul fait.
+    // v2.7 : bouton « Détails » du bloc de proximité — replié automatiquement une fois le
+    // calcul fait (v2.8), rouvrable à tout moment.
     document.getElementById('proximite-toggle').addEventListener('click', () => {
       const detail = document.getElementById('proximite-detail');
       const btn = document.getElementById('proximite-toggle');
@@ -1714,21 +1724,10 @@
       detail.hidden = !ouvrir;
       btn.setAttribute('aria-expanded', String(ouvrir));
       btn.textContent = ouvrir ? 'Masquer ▴' : 'Détails ▾';
-      replierAuBlur = false;   // ouverture/fermeture volontaire : plus d'auto-repli en attente
-    });
-    // Replie le bloc, différé pendant la frappe (voir replierAuBlur ci-dessus), dès que le
-    // focus quitte réellement les deux champs (pas juste entre eux : d'où le setTimeout).
-    document.getElementById('proximite-detail').addEventListener('focusout', () => {
-      setTimeout(() => {
-        const detail = document.getElementById('proximite-detail');
-        if (replierAuBlur && !detail.contains(document.activeElement)) {
-          replierAuBlur = false;
-          detail.hidden = true;
-          const btn = document.getElementById('proximite-toggle');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.textContent = 'Détails ▾';
-        }
-      }, 0);
+      clearTimeout(repliTimer);
+      // Réouverture volontaire : on n'referme plus tout seul par la suite (v2.8), pour ne
+      // pas escamoter un détail que l'usager a délibérément rouvert.
+      if (ouvrir) replierAuto = false;
     });
 
     // Une saisie à la main remplace l'estimation (v2.6).
