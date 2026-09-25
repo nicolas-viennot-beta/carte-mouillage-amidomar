@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.3 (septembre 2026)  
-**Dernière mise à jour:** 23 septembre 2026  
+**Version:** 2.6 (septembre 2026)  
+**Dernière mise à jour:** 25 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -35,9 +35,8 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 
 ### Droite — Panneau latéral
 - **« Couches affichées »** — légende avec état des sources (déplié au démarrage)
-- **« Calcul rayon d'évitage »** *(v2.3)* — deux champs (« Longueur de mon navire (m) », « Colonne d'eau à marée haute (m) ») et le résultat « Rayon d'évitage = {r} m ». Présent dès le chargement, **replié** ; s'ouvre automatiquement (et replie « Couches affichées ») au premier clic détecté à proximité d'autres mouillages tant que le calcul n'a pas été fait. Modifiable à tout moment : toute saisie met à jour le message de la modale centrale.
 
-Le panneau « Mon mouillage » (supprimé en v1.2), puis le formulaire intégré au popup de coordonnées (v1.2 à v2.2), sont remplacés en v2.3 par ce bloc de droite : le popup central ne porte plus que le **message** de proximité (voir §3 et §4.2).
+Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au popup (v1.2 à v2.2) puis le bloc de droite « Calcul rayon d'évitage » (v2.3 et v2.4) ont été successivement abandonnés : depuis **v2.5**, le formulaire du rayon d'évitage est dans le bloc de proximité de la modale centrale (voir §4.0 C6 et §4.2). La colonne de droite ne contient plus que « Couches affichées ».
 
 ### Centre
 - **Carte interactive** — affichage des couches, clics pour saisir un emplacement
@@ -48,7 +47,7 @@ Le panneau « Mon mouillage » (supprimé en v1.2), puis le formulaire intégré
 
 ### Étape 0 — Orientation (modale d'accueil)
 - Modale « *Fonctionnement de la carte pour un choix d'emplacement de mouillage responsable* »
-- Présente la bifurcation « *Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?* » : **port ou ZMEL** vs **mouillage individuel**
+- Présente la bifurcation « *Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?* » : **port ou ZMEL** vs **mouillage individuel** — le texte de la branche port/ZMEL se termine par « c'est de loin l'option la moins dommageable pour les écosystèmes marins » (v2.4 ; « pour les herbiers » auparavant)
 - Décrit les étapes suivantes
 - Se ferme par ✕, Échap, ou clic extérieur
 - Réouvrable via le bouton ❓
@@ -63,7 +62,7 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
    - **Si le point est dans un APB** → popup rouge d'interdiction (même traitement que les cultures marines), nommant l'arrêté : pas de marqueur, pas de coordonnées.
    - **Sinon** (aucun APB, ou service indisponible/trop lent : défaut non bloquant) → un marqueur est posé, les coordonnées GPS s'affichent, et un popup contextualisé s'ouvre au-dessus des coordonnées (voir §4.2) :
      - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN, avec repli sur le WFS de la Géoplateforme, voir §4.3) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
-   - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT existantes » —, un message de proximité s'affiche dans le même popup : jaune tant que le calcul du rayon d'évitage n'a pas été fait (le bloc « Calcul rayon d'évitage » s'ouvre alors à droite), puis directement vert ou rouge une fois le calcul fait (voir §4.0 C6 et §4.2). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
+   - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT de mouillage existantes » —, la modale devient plus concise *(v2.5)* : le bloc environnement est réduit à une ligne avec un bouton « Détails » (replié par défaut), et un bloc orange « D'autres mouillages sont enregistrés à proximité » intègre les deux champs du calcul ; le résultat vert ou rouge s'affiche dessous (voir §4.0 C6 et §4.2). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
 5. Bouton « Copier » dans le popup pour copier les coordonnées
 6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage) ; les valeurs du calcul d'évitage sont **conservées** *(v2.3)* — voir §4.2
 
@@ -90,7 +89,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 | C4 | Cultures marines | Popup rouge, sans marqueur ni coordonnées |
 | C4 bis | Arrêté de protection de biotope (APB) | Popup rouge, sans marqueur ni coordonnées |
 | C5 | Tout autre point sur l'eau | Marqueur, popup environnement + coordonnées |
-| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Message de proximité dans le popup + bloc « Calcul rayon d'évitage » à droite |
+| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Bloc environnement réduit à une ligne + bloc de proximité avec formulaire et résultat, dans la modale (v2.5) |
 
 #### C1 — Port de plaisance
 - Titre : « Port de plaisance : {nom_port_de_plaisance} — Commune :{nom_commune} » (la partie « — Commune : » est omise si la commune est vide).
@@ -119,20 +118,26 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 #### C5 — Autre point sur l'eau : environnement et coordonnées
 - Marqueur rouge posé ; bouton « Fermer ✕ » en haut à droite du popup.
 - Pendant l'interrogation : « *Vérification des zonages environnementaux…* »
-- C5.1 — Natura 2000 (teinte neutre) : « Cet emplacement se situe dans un site Natura 2000. Une AOT peut être autorisée sur une zone Natura 2000, mais elle sera soumise à évaluation environnementale. Le nom de la zone : **{noms des sites}** est à reporter dans le formulaire de demande. »
+- C5.1 — Natura 2000 (teinte neutre) : « Cet emplacement se situe dans un site Natura 2000. Une étude d'incidence va être réalisée suite à votre demande. Nom de la zone à reporter dans le formulaire de demande : **{noms des sites}** » (v2.4)
 - C5.2 — ZNIEFF (teinte neutre) : « Cet emplacement se situe sur une Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique (ZNIEFF). Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. »
-- C5.1 et C5.2 peuvent s'afficher ensemble. Aucune zone trouvée (teinte verte) : « Pas de contre-indication détectée automatiquement sur cette zone. »
+- C5.1 et C5.2 peuvent s'afficher ensemble. Aucune zone trouvée (teinte verte) : « Pas de contre-indication détectée automatiquement sur cette zone. » (hors proximité d'une AOT — sinon voir C6)
 - Mention ajoutée dans ces trois cas : « D'autres zonages (Herbiers de posidonie et de zostère, Parcs naturels marins, Aires marines protégées, zones de baignade ou réglementaires) sont visibles dans la légende mais ne peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les visuellement. »
 - Service injoignable (teinte neutre) : « Informations environnementales momentanément indisponibles (service distant injoignable). Vos coordonnées restent accessibles ci-dessous. »
 - Coordonnées : libellé « Coordonnées GPS en degrés décimaux (DD) : », valeur `{lat}, {lng}` à 6 décimales, bouton « Copier » (« Copié ! » pendant 2 s). Le libellé est un élément distinct : seul `{lat}, {lng}` est copié.
 
 #### C6 — Proximité d'une AOT existante (< 100 m)
-Détection silencieuse (indépendante de la case « AOT existantes »). Message dans le popup C5, entre le bloc environnement et les coordonnées ; formulaire dans le bloc « Calcul rayon d'évitage » de la colonne de droite. Mécanisme, formule et cas d'origine / cas secondaire : §4.2.
-- Calcul pas encore fait (fond jaune) : « D'autres mouillages sont enregistrés à proximité, vérifier en remplissant les champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage des navires ne se chevauchent pas. »
-- Pas de chevauchement (fond vert) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. »
+Détection silencieuse (indépendante de la case « AOT de mouillage existantes »). Tout se passe dans la modale centrale depuis v2.5 : bloc environnement réduit, puis le bloc de proximité de la modale (message en gras, consigne, champs « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) », puis résultat dessous). Mécanisme et formule : §4.2.
+- **Bloc environnement réduit à une ligne** *(v2.5)*, avec un bouton « Détails ▾ » à droite (« Masquer ▴ » une fois déplié), replié par défaut ; le détail déplié reprend les textes complets de C5 (y compris le nom de la zone Natura 2000 à reporter et la mention des zonages non détectables). Titres de la ligne :
+  - aucune zone trouvée (teinte verte) : « **Aucune zone bloquante détectée sur cet emplacement.** » — décision de Nicolas (25/09/2026) : formulation préférée à « AOT mouillage autorisée sur cette zone », qui laisserait croire que la demande est déjà acceptée ;
+  - Natura 2000 (teinte neutre) : « **Emplacement situé en site Natura 2000.** » ;
+  - ZNIEFF (teinte neutre) : « **Emplacement situé en ZNIEFF.** » ;
+  - les deux : « **Emplacement situé en site Natura 2000 et en ZNIEFF.** » ;
+  - service injoignable : message inchangé, non réduit.
+- **Bloc de proximité** (fond orange, `.jaune-box`) : « **D'autres mouillages sont enregistrés à proximité.** » (gras), à la ligne « Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire. », puis une ligne par champ : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) » (placeholder « à saisir »). Tant que les deux champs ne sont pas remplis, rien ne s'affiche dessous.
+- Résultat, sous le bloc de proximité — pas de chevauchement (fond vert) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. »
 - Chevauchement (fond rouge) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, risque une collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
 - Sous-titre des messages vert et rouge : « *Estimation indicative qui ne remplace pas une vérification sur place.* »
-- Bloc « Calcul rayon d'évitage » : champs « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) » (placeholder « à renseigner »), résultat « Rayon d'évitage = {r} m ».
+- Colonne d'eau à marée haute *(v2.6)* : **pré-remplie par une estimation** (profondeur au point + marée haute du port de référence le plus proche), modifiable ; note en italique sous le champ : « Estimation : profondeur ≈ {p} m (EMODnet) + marée haute de vives-eaux ≈ {h} m (port de référence : {port}, Shom). Modifiable. » (« marée haute » sans « de vives-eaux » en Méditerranée ; variante « …, moins un fond découvrant à marée basse ≈ {x} m (EMODnet). Modifiable. » sur l'estran). Pendant le calcul : « Estimation de la colonne d'eau en cours… ». Échec : champ vide, « Estimation indisponible à cet endroit : saisissez la valeur. ». Après correction par l'usager : « Valeur modifiée à la main. ». Détail : §4.2.
 - Variables : `{r}` = colonne d'eau × 1,5 + longueur, arrondi au mètre.
 
 ### 4.1 Traitement unifié du clic sur la carte
@@ -158,25 +163,22 @@ Contrairement aux cultures marines, aucune couche APB n'est chargée localement 
 #### d. Tous les autres clics sur l'eau (hors APB)
 1. Un marqueur est posé et les coordonnées GPS calculées
 2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF, avec repli sur le WFS de la Géoplateforme en cas d'échec ou de réponse vide en mer (ZNIEFF) — voir §4.3 pour le détail technique
-3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, précisant qu'une AOT y reste possible sous réserve d'évaluation environnementale et que le nom de la zone est à reporter dans le formulaire de demande) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
-4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le message de proximité (jaune, vert ou rouge) s'affiche en complément dans le même popup, le formulaire de calcul étant dans le bloc « Calcul rayon d'évitage » de la colonne de droite (voir §4.0 C6 et §4.2)
+3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, annonçant qu'une étude d'incidence sera réalisée suite à la demande et que le nom de la zone est à reporter dans le formulaire de demande — texte exact au §4.0, C5.1) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
+4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le bloc environnement est réduit à une ligne et un bloc de proximité avec le formulaire de calcul et le résultat s'affiche dans le même popup (voir §4.0 C6 et §4.2)
 
 Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte.
 
-### 4.2 Rayon d'évitage (message dans le popup, calcul dans la colonne de droite)
+### 4.2 Rayon d'évitage (message, formulaire et résultat dans la modale centrale)
 
 > Textes exacts affichés : §4.0, cas C6. La présente section décrit le mécanisme.
 
-La détection de proximité est **silencieuse** : elle s'effectue dès qu'un point est posé sur l'eau, que la couche « AOT existantes » soit cochée ou non dans la légende (v1.5). Elle se déclenche lorsque le point cliqué est à **moins de 100 m** d'une AOT existante — seule situation où un chevauchement de rayon d'évitage est réellement possible. Au-delà de 100 m, aucun message d'évitage ne s'affiche et l'usager obtient directement ses coordonnées.
+La détection de proximité est **silencieuse** : elle s'effectue dès qu'un point est posé sur l'eau, que la couche « AOT de mouillage existantes » soit cochée ou non dans la légende (v1.5). Elle se déclenche lorsque le point cliqué est à **moins de 100 m** d'une AOT existante — seule situation où un chevauchement de rayon d'évitage est réellement possible. Au-delà de 100 m, aucun message d'évitage ne s'affiche et l'usager obtient directement ses coordonnées.
 
-**Message et formulaire dissociés** *(v2.3)* : le message de proximité reste dans le popup de coordonnées (`#boat-block` → `#out-conflict`), mais le formulaire est déplacé dans un bloc **« Calcul rayon d'évitage »** de la colonne de droite (`#evitage-panel`, sous « Couches affichées »). Le calcul est considéré comme **fait** quand les **deux** champs sont renseignés (valeurs > 0) — fonction `lireSaisieEvitage()`. Le champ « Colonne d'eau à marée haute » n'a plus de valeur pré-remplie.
+**Tout dans la modale** *(v2.5)* : le bloc `#boat-block` du popup de coordonnées contient le message de proximité, les deux champs (`#in-loa`, `#in-depth`) et, dessous, le résultat (`#out-conflict`). Le bloc de droite « Calcul rayon d'évitage » (`#evitage-panel`, v2.3) et son résultat `#out-rayon` sont supprimés, ainsi que le repli automatique de « Couches affichées ». Le calcul est considéré comme **fait** quand les **deux** champs sont renseignés (valeurs > 0) — fonction `lireSaisieEvitage()`. Le champ « Colonne d'eau à marée haute » n'a pas de valeur pré-remplie.
 
-- **Cas d'origine — calcul pas encore fait**, clic à moins de 100 m d'une AOT :
-  - popup central : message sur fond jaune (`.jaune-box`) « D'autres mouillages sont enregistrés à proximité, vérifier en remplissant les champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage des navires ne se chevauchent pas. » ;
-  - colonne de droite : « Couches affichées » se replie, « Calcul rayon d'évitage » s'ouvre ;
-  - à la saisie des deux champs : « Rayon d'évitage = {r} m » s'affiche sous les champs, et le message jaune du popup est remplacé par le message vert ou rouge (ci-dessous), avec le cercle d'évitage sur la carte.
-- **Cas secondaire — calcul déjà fait**, clic à moins de 100 m d'une AOT : le popup affiche **directement** le message vert ou rouge ; **aucune action** sur la colonne de droite (les blocs restent dans l'état laissé par l'usager).
-- **À tout moment**, l'usager peut modifier les champs du bloc « Calcul rayon d'évitage » : le résultat du bloc, le message du popup (si un point proche d'une AOT est sélectionné) et le cercle sont recalculés à chaque saisie.
+- **Calcul pas encore fait**, clic à moins de 100 m d'une AOT : bloc orange avec les deux champs, rien dessous, pas de cercle ; à la saisie des deux champs, le message vert ou rouge apparaît sous le bloc orange, avec le cercle d'évitage sur la carte.
+- **Calcul déjà fait** (valeurs conservées d'un clic précédent), clic à moins de 100 m d'une AOT : les champs sont déjà remplis et le message vert ou rouge s'affiche **directement** sous le bloc orange.
+- **À tout moment**, l'usager peut modifier les champs : le message et le cercle sont recalculés à chaque saisie.
 
 Messages de résultat (`.evitage-resultat`, avec sous-titre `.evitage-sous-titre` « Estimation indicative qui ne remplace pas une vérification sur place. ») :
 - Pas de chevauchement (vert, `.libre`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. »
@@ -190,13 +192,21 @@ rayon d'évitage = colonne d'eau à marée haute × 1,5 + longueur du navire
 ```
 Le formulaire ne comporte que **deux champs** : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) ». Le champ « Longueur de la ligne de mouillage » (menu 3× / 5× / 7×) a été retiré en v1.5. Le rayon affiché est arrondi au mètre. Pour les AOT existantes, la même formule est appliquée avec `CONFIG.profondeurDefaut` comme colonne d'eau.
 
+**Estimation automatique de la colonne d'eau à marée haute** *(v2.6)* — approximation assumée, décision de Nicolas (25/09/2026) : `colonne = profondeur au point + hauteur de marée haute`, arrondie à 0,1 m, pré-remplie dans `#in-depth` (modifiable).
+- **Profondeur** : API EMODnet Bathymetry `https://rest.emodnet-bathymetry.eu/depth_sample?geom=POINT(lon lat)`, champ `avg` (altitude moyenne de la maille d'environ 115 m ; négative sous l'eau ; référence verticale : plus basses mers astronomiques sur les côtes à marée, niveau moyen ailleurs). La grille européenne intègre les levés du Shom. Testée en réel le 25/09/2026 depuis le site publié (CORS accepté, 60 à 370 ms) : Quiberon −12,35 m, Brest −23,6 m, Saint-Malo −1,86 m. Délai max `CONFIG.delaiProfondeur` (5 s).
+- **Pourquoi pas le Shom directement** : les couches « MNT » du WMS INSPIRE du Shom ne sont pas interrogeables au point (`LayerNotQueryable` en GetFeatureInfo, testé le 25/09/2026) et leur export brut `image/x-bil` renvoie des valeurs incohérentes ; les API de prédiction de marée du Shom sont payantes.
+- **Hauteur de marée haute** : table fixe `data/ram-ports.json` (Shom, Références Altimétriques Maritimes, 214 ports de métropole, extraite le 25/09/2026 du WFS `RAM_BDD_WLD_WGS84G_WFS:ram_3857`, Licence Ouverte, citer « Shom, 2025 »). Port retenu : le plus proche à vol d'oiseau (`distanceM`). Valeur `h` = **PMVE − PBMA** (pleine mer de vives-eaux moyenne, coefficient 95, décision de Nicolas : cas courant le plus défavorable) ; en Méditerranée, où la PMVE n'est pas publiée, **PHMA − NM**. Le fichier est chargé au premier besoin (`chargerPortsRAM`).
+- **Cas limites** : si l'altitude EMODnet est positive (estran, fond découvrant), elle est retranchée de `h` ; si le résultat est inférieur à `CONFIG.colonneMin` (0,5 m), si EMODnet ne répond pas ou si la table n'est pas chargée → pas d'estimation, champ vidé s'il contenait une estimation, conservé s'il avait été saisi à la main.
+- **Ordre des événements** : l'estimation est lancée dès que le point est à moins de 100 m d'une AOT, en parallèle de la vérification Natura 2000/ZNIEFF ; un jeton (`jetonEstimation`) ignore la réponse d'un clic précédent ou arrivée après fermeture du popup. Toute saisie dans le champ bascule en « valeur modifiée à la main » ; un nouveau clic près d'une AOT relance l'estimation et remplace la valeur.
+- **Limites connues** : maille de 115 m (fond moyen, peu fidèle près des roches et des chenaux), port de référence choisi à vol d'oiseau (peut être de l'autre côté d'une pointe), marée de vives-eaux moyenne et non la marée du jour.
+
 **Paramètres configurables** (dans `index.html`):
 - `CONFIG.profondeurDefaut` — colonne d'eau à marée haute supposée pour les **AOT existantes** (5 m) ; depuis v2.3, elle ne pré-remplit plus le champ de l'usager
 - `CONFIG.longueurAutres` — longueur supposée des autres navires (9 m)
 
 **Sous-titre affiché à l'usager** *(v2.2 ; libellé v2.3 : « Estimation indicative qui ne remplace pas une vérification sur place. », intégré aux messages vert/rouge)* : auparavant « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » Les limites détaillées auparavant (profondeur saisie non mesurée, longueur des autres navires supposée, vent/courant/nature du fond non pris en compte) restent vraies **techniquement** mais ne sont plus énumérées à l'usager dans le popup — décision de Nicolas (22/09/2026) pour raccourcir un popup jugé trop chargé ; ces limites restent documentées ici et dans le code (commentaires `CONFIG`).
 
-**Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant. *(v2.3)* Les valeurs du bloc « Calcul rayon d'évitage » ne sont **plus effacées** à la fermeture : elles restent en place pour la session, de sorte qu'un clic suivant près d'une AOT relève directement du cas secondaire.
+**Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant. *(v2.3)* Les valeurs du formulaire d'évitage ne sont **plus effacées** à la fermeture : elles restent en place pour la session (champs de la modale depuis v2.5), de sorte qu'un clic suivant près d'une AOT affiche directement le résultat.
 
 **Bloc de résultat fusionné** *(v2.2 — textes remplacés en v2.3, voir plus haut)* : le rayon d'évitage estimé et le résultat du recoupement, auparavant deux blocs séparés (`.result-box` puis `.warn-box`/`.ok-box`), tiennent désormais dans un seul message, injecté dans `#out-conflict` par `recalculer()` :
 - Chevauchement détecté (rouge, classe `.evitage-resultat.chevauche`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche le rayon d'évitage estimé d'autres navires. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
@@ -261,7 +271,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 
 ### Protection de la nature
 - 🟨 **Natura 2000 — habitats (SIC/ZSC)** — couche WMTS, identifiable au clic via l'API Carto IGN (voir §4.3)
-- 🟩 **Natura 2000 — oiseaux (ZPS)** — couche WMTS (masquée par défaut), identifiable au clic via l'API Carto IGN
+- 🟩 **Natura 2000 — oiseaux (ZPS)** — couche WMTS (**cochée par défaut** depuis v2.4, comme la couche habitats), identifiable au clic via l'API Carto IGN
 - 🟦 **Parcs naturels marins** — couche WMTS, affichable/masquable normalement — non identifiable au clic (aucune API disponible)
 - 🔵 **ZNIEFF marines (type 1)** — couche WMTS visible sur la carte ; l'identification au clic interroge en réalité les couches nationales `znieff1` **et** `znieff2` de l'API Carto IGN (pas seulement le type 1, et couverture mer/terre exacte non confirmée — voir §4.3)
 - 🟢 **Aires marines protégées** — couche WMTS (masquée par défaut), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
@@ -279,7 +289,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 - ⬜ **Zone de baignade / zone réglementaire** — entrée unique, grisée et non sélectionnable, mention « À venir » : regroupe deux types de zones pour lesquelles aucune source interrogeable n'a été identifiée à ce jour. Cette entrée matérialise le sujet dans la légende sans (encore) charger de donnée. Les APB, qui y figuraient jusqu'en v1.7, ont désormais leur propre couche (voir « Protection de la nature »).
 
 ### Autres couches
-- 🔴 **AOT existantes** — 249 positions simulées, fictives (Bretagne + Méditerranée)
+- 🔴 **AOT de mouillage existantes** (libellé depuis v2.4 ; « AOT existantes » auparavant) — 249 positions simulées, fictives (Bretagne + Méditerranée)
 
 ### État des sources problématiques
 - **Herbiers de posidonie et de zostère:** Couverture insuffisante — presque uniquement l'Occitanie ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère absente ; reste affichable mais non identifiable au clic
@@ -300,6 +310,8 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 ```javascript
 const CONFIG = {
   profondeurDefaut: 5,      // colonne d'eau supposée pour les AOT existantes (m) — ne pré-remplit plus le champ usager (v2.3)
+  delaiProfondeur: 5000,    // délai max de l'API EMODnet pour l'estimation de la colonne d'eau (ms, v2.6)
+  colonneMin: 0.5,          // en dessous, pas d'estimation proposée (m, v2.6)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
 };
@@ -334,7 +346,7 @@ Si une source ne charge pas:
 ### ✅ Principes appliqués
 - **Aucun secret dans le dépôt** — site statique, tout est visible
 - **Pas de données réelles versionnées** — les positions doivent être récupérées à l'exécution
-- **CSP:** `connect-src 'self' https:;` autorise les appels réseau vers n'importe quelle origine HTTPS (nécessaire pour interroger l'API Carto IGN, voir §4.3) ; aucun script tiers n'est chargé
+- **CSP:** `connect-src 'self' https:;` autorise les appels réseau vers n'importe quelle origine HTTPS (nécessaire pour interroger l'API Carto IGN, voir §4.3, et, depuis v2.6, l'API EMODnet Bathymetry, voir §4.2 — seules les coordonnées du point cliqué lui sont envoyées) ; aucun script tiers n'est chargé
 - **Mention de prototype** — visible en permanence, même en mode embed
 - **Géolocalisation:** Consentement navigateur, position ne quitte pas le poste
 
@@ -448,15 +460,19 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Simuler une coupure ou une lenteur du service (`data.geopf.fr`) → au bout de 4 secondes, le clic se poursuit normalement (défaut non bloquant), sans jamais empêcher l'affichage des coordonnées
 - [ ] Pas d'erreur bloquante en console
 
-### ✅ 11. Proximité AOT et calcul du rayon d'évitage *(v2.3)*
-- [ ] Au chargement → un bloc « Calcul rayon d'évitage » est présent sous « Couches affichées », **replié** ; ses deux champs sont vides
-- [ ] Calcul pas fait : cliquer sur l'eau à moins de 100 m d'une AOT → message **jaune** « D'autres mouillages sont enregistrés à proximité… » dans le popup ; « Couches affichées » se replie et « Calcul rayon d'évitage » s'ouvre
-- [ ] Saisir seulement la longueur → rien ne change (message jaune, pas de résultat)
-- [ ] Saisir aussi la colonne d'eau → « Rayon d'évitage = {r} m » sous les champs (ex. 10 m et 4 m → 16 m) ; le message jaune devient vert (« … ne semble pas être en collision… ») ou rouge (« … risque une collision… Veuillez vérifier sur site… »), avec le sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. » ; le cercle se dessine
+### ✅ 11. Proximité AOT et calcul du rayon d'évitage *(v2.5)*
+- [ ] Au chargement → la colonne de droite ne contient que « Couches affichées » (plus de bloc « Calcul rayon d'évitage »)
+- [ ] Calcul pas fait : cliquer sur l'eau à moins de 100 m d'une AOT → le bloc environnement tient sur **une ligne** (« Aucune zone bloquante détectée sur cet emplacement. », ou titre Natura 2000/ZNIEFF) avec un bouton « Détails ▾ » ; dessous, bloc orange : « **D'autres mouillages sont enregistrés à proximité.** », « Vérifier que votre rayon d'évitage… », puis les champs longueur et colonne d'eau, chacun sur sa ligne ; rien sous le bloc orange
+- [ ] Cliquer sur « Détails ▾ » → le détail (mention des zonages non détectables, nom de la zone Natura 2000 le cas échéant) se déplie, le bouton devient « Masquer ▴ » ; recliquer le replie
+- [ ] *(v2.6)* Au clic, la colonne d'eau se **pré-remplit** en une seconde environ, avec la note « Estimation : profondeur ≈ … (EMODnet) + marée haute de vives-eaux ≈ … (port de référence : …, Shom). Modifiable. » ; le port cité est bien le plus proche ; en Méditerranée, marée haute de 0,2 à 0,3 m environ
+- [ ] *(v2.6)* Corriger la valeur → note « Valeur modifiée à la main. », le résultat suit
+- [ ] *(v2.6)* Couper le réseau (ou bloquer `rest.emodnet-bathymetry.eu`) → « Estimation indisponible à cet endroit : saisissez la valeur. », le calcul reste possible à la main
+- [ ] Vider la longueur → rien ne s'affiche sous le bloc orange
+- [ ] Saisir aussi la colonne d'eau → sous le bloc orange, message vert (« … ne semble pas être en collision… ») ou rouge (« … risque une collision… Veuillez vérifier sur site… ») avec le rayon (ex. 10 m et 4 m → 16 m) et le sous-titre « Estimation indicative qui ne remplace pas une vérification sur place. » ; le cercle se dessine
 - [ ] Modifier un champ → le rayon, le message et le cercle se mettent à jour immédiatement
-- [ ] Calcul fait : fermer le popup, replier/déplier les blocs à droite à sa guise, cliquer à nouveau près d'une AOT → message vert/rouge **directement**, colonne de droite **inchangée**
+- [ ] Calcul fait : fermer le popup, cliquer à nouveau près d'une AOT → champs toujours remplis, message vert/rouge **directement**
 - [ ] Le rappel « Activez le filtre AOT » et l'invitation « Renseignez la longueur… » n'apparaissent plus
-- [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → aucun message d'évitage, seules les coordonnées (et le bloc environnement)
+- [ ] Cliquer sur l'eau à plus de 100 m de toute AOT → aucun bloc de proximité ; bloc environnement **complet** (non réduit, sans bouton « Détails »), texte vert « Pas de contre-indication détectée automatiquement sur cette zone. »
 - [ ] Pas d'erreur console
 
 ### ✅ 12. Copie des coordonnées
@@ -469,7 +485,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur l'eau pour faire apparaître le popup → un bouton « Fermer ✕ » est visible en haut à droite
 - [ ] Cliquer sur « Fermer » → le popup disparaît, le marqueur est retiré de la carte, le point n'est plus sélectionné
 - [ ] Si un cercle d'évitage était affiché → il disparaît également à la fermeture
-- [ ] *(v2.3)* Si des valeurs avaient été saisies dans « Calcul rayon d'évitage » → elles sont **conservées** après fermeture
+- [ ] *(v2.3, v2.5)* Si des valeurs avaient été saisies dans les champs du rayon d'évitage → elles sont **conservées** après fermeture
 - [ ] Appuyer sur Échap pendant que le popup est visible → même effet que le bouton « Fermer »
 - [ ] Appuyer sur Échap quand le popup n'est pas visible → aucun effet, pas d'erreur console
 - [ ] Cliquer ailleurs sur l'eau (hors du popup) → **ne ferme pas** le popup : un nouveau point est sélectionné normalement (comportement volontairement différent de la modale ports/ZMEL)
@@ -483,6 +499,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Les couches Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent **cochables/décochables normalement** (elles ne sont plus grisées, seule leur non-détectabilité au clic est documentée)
 - [ ] L'entrée « Zone de baignade / zone réglementaire » apparaît grisée avec la case décochée et désactivée, et la mention « À VENIR »
 - [ ] La couche « Arrêtés de protection de biotope (APB) » apparaît dans « Protection de la nature », **cochée par défaut** ; la décocher la masque, la recocher la réaffiche
+- [ ] *(v2.4)* Les deux couches « Natura 2000 — habitats (SIC/ZSC) » et « Natura 2000 — oiseaux (ZPS) » restent deux entrées distinctes de la légende, **toutes deux cochées par défaut**
+- [ ] *(v2.4)* La couche AOT s'intitule « AOT de mouillage existantes et leur évitage »
 - [ ] Les tuiles APB s'affichent sur des sites connus (statut ✓, par exemple Morbihan, Brest, Ajaccio, Camargue) ; sinon le statut ✗ signale un problème de service
 
 ### ✅ 14. État des sources (bandeau légende)
@@ -540,7 +558,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ### Cercle d'évitage ne s'affiche pas
 **Diagnostic:**
 - Le point cliqué est à plus de 100 m de toute AOT existante → comportement normal (v1.2), le calcul ne s'applique qu'à moins de 100 m (voir §4.2 et §9.11)
-- *(v2.3)* Un des deux champs du bloc « Calcul rayon d'évitage » est vide → le calcul n'est pas considéré comme fait (plus de colonne d'eau par défaut)
+- *(v2.3)* Un des deux champs du rayon d'évitage (bloc de proximité de la modale depuis v2.5) est vide → le calcul n'est pas considéré comme fait (plus de colonne d'eau par défaut)
 - Vérifier que des AOT existent dans `data/aot-existantes.geojson`
 - Vérifier que la couche « Autres mouillages » est cochée
 
@@ -581,6 +599,15 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - Attendre le chargement des tuiles (y compris en tâche de fond, sur la carte fantôme)
 - Cliquer ailleurs sur la carte
 
+### La colonne d'eau ne se pré-remplit pas *(v2.6)*
+**Diagnostic:**
+- Note « Estimation indisponible à cet endroit » : l'API EMODnet n'a pas répondu en 5 s (`CONFIG.delaiProfondeur`), a répondu sans valeur, ou le point est asséché (colonne < 0,5 m) — vérifier dans l'onglet Réseau l'appel à `rest.emodnet-bathymetry.eu/depth_sample`
+- `data/ram-ports.json` absent ou illisible : aucune estimation possible (la console réseau montre une erreur sur ce fichier)
+
+**Solutions:**
+- L'usager saisit la valeur à la main ; aucune action bloquante
+- Valeur jugée fausse : c'est une approximation (maille de 115 m, port le plus proche à vol d'oiseau, vives-eaux moyennes), l'usager la corrige
+
 ### Une couche affichée ne semble jamais « valider » un clic (PNM, AMP, herbiers)
 **Diagnostic:**
 - Comportement normal (v1.2) : ces couches restent affichables/masquables normalement dans la légende, mais ne sont **pas interrogées** lors du clic (aucune API d'identification de zone disponible pour elles, voir §4.1.d et §5) — la mention générique de non-détection s'affiche dans le popup
@@ -591,6 +618,30 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.6 — 25 septembre 2026
+**Colonne d'eau à marée haute estimée automatiquement (profondeur + marée haute du port le plus proche)**
+- Décisions de Nicolas (25/09/2026) : approche simple et approximative (profondeur + hauteur de marée fixe par port) ; valeur **pré-remplie et modifiable** ; marée haute de **vives-eaux** ; **port de référence le plus proche**
+- Profondeur : API EMODnet Bathymetry (`depth_sample`), testée en réel depuis le site publié. Le Shom a été écarté pour la profondeur : WMS MNT non interrogeable au point, export `x-bil` incohérent (tests du 25/09/2026)
+- Marée : nouveau fichier `data/ram-ports.json` (Shom, RAM, 214 ports, PMVE − PBMA ou PHMA − NM en Méditerranée), extrait du WFS du Shom et contrôlé par sommes de contrôle
+- Note explicative sous le champ ; cas d'échec non bloquant ; saisie manuelle toujours possible ; `CONFIG.delaiProfondeur` et `CONFIG.colonneMin` ajoutés ; champ `in-depth` au pas de 0,1 m
+- Testé : harnais Node.js (exécution synchrone complète, sans erreur) ; Chromium headless avec EMODnet simulé (réponse −12,35 m → 17,7 m avec Port-Haliguen 5,37 m ; échec réseau → message et saisie manuelle ; estran +1,2 m → 4,2 m) ; aucune `pageerror`. **Non vérifié sur la version publiée** (clic réel avec l'API EMODnet réelle)
+
+### v2.5 — 25 septembre 2026
+**Rayon d'évitage : formulaire et résultat ramenés dans la modale centrale, modale plus concise**
+- Suppression du bloc « Calcul rayon d'évitage » de la colonne de droite (`#evitage-panel`, `#out-rayon`) et du repli/dépli automatique des blocs de droite au clic
+- Bloc de proximité (orange) : « **D'autres mouillages sont enregistrés à proximité.** » en gras, puis « Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire. », puis les champs « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) », un par ligne ; résultat vert/rouge affiché dessous (textes inchangés). L'ancien message jaune renvoyant au formulaire de droite est supprimé
+- Quand un mouillage est à moins de 100 m : bloc environnement réduit à une ligne avec un bouton « Détails ▾ » replié par défaut. Titre vert « Aucune zone bloquante détectée sur cet emplacement. » (décision de Nicolas, 25/09/2026, plutôt que « AOT mouillage autorisée sur cette zone », jugé trompeur) ; titres neutres « Emplacement situé en site Natura 2000. » / « … en ZNIEFF. » / « … en site Natura 2000 et en ZNIEFF. » (décision de Nicolas : réduire aussi ces cas). Hors proximité, bloc environnement inchangé
+- `afficherEnvironnement(html, teinte, titreCompact)` : nouveau 3e paramètre optionnel
+- Colonne d'eau à marée haute : récupération automatique depuis les données du SHOM demandée ; **reportée** à une vérification de faisabilité (décision de Nicolas, 25/09/2026). Champ saisi à la main en attendant
+- Testé : harnais Node.js (exécution synchrone complète, sans erreur) ; Chromium headless (services distants coupés) en pilotant les fonctions du script — bloc réduit replié puis déplié, champs, résultat rouge 16 m pour 10 m / 4 m, bloc complet hors proximité, aucune `pageerror`. Pas de clic réel sur la carte (fond de plan injoignable depuis l'environnement de test). **Non vérifié sur la version publiée**
+
+### v2.4 — 25 septembre 2026
+**Ajustements de libellés et affichage par défaut de Natura 2000 oiseaux**
+- Modale d'accueil, branche port/ZMEL : « c'est de loin l'option la moins dommageable pour les **écosystèmes marins** » (au lieu de « pour les herbiers »)
+- Légende « Couches affichées » : « AOT existantes et leur évitage » devient « **AOT de mouillage existantes et leur évitage** »
+- Popup Natura 2000 (C5.1) : « Cet emplacement se situe dans un site Natura 2000. Une étude d'incidence va être réalisée suite à votre demande. Nom de la zone à reporter dans le formulaire de demande : **{noms des sites}** » — remplace la mention d'évaluation environnementale
+- Couche « Natura 2000 — oiseaux (ZPS) » désormais **cochée par défaut** (`visible:true`), comme la couche habitats. **Décision de Nicolas (25/09/2026) :** pas de regroupement des deux couches Natura 2000 en une seule entrée de légende — les tuiles IGN des deux couches ayant des couleurs différentes (jaune / vert) non modifiables, on garde deux légendes distinctes
 
 ### v2.3 — 23 septembre 2026
 **Dissociation du message de proximité et du formulaire de calcul du rayon d'évitage**
@@ -766,4 +817,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 23 septembre 2026
+**Dernière mise à jour:** 25 septembre 2026

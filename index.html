@@ -174,9 +174,26 @@
       /* v2.3 : message de proximité dans la modale centrale, découplé du formulaire. */
       #boat-block .jaune-box, #boat-block .evitage-resultat { margin:0; font-size:13px; }
       .evitage-sous-titre { display:block; margin-top:5px; font-size:11px; font-style:italic; opacity:.85; }
-      /* Bloc « Calcul rayon d'évitage » (colonne de droite, v2.3). */
-      #out-rayon { margin:4px 0 0; font-size:13px; font-weight:700; color:#003189; }
-      #out-rayon:empty { display:none; }
+      /* v2.5 : formulaire du rayon d'évitage intégré au bloc de proximité de la modale. */
+      #boat-block .proximite-intro { margin:0 0 6px; }
+      #boat-block .champ-ligne { display:flex; align-items:center; justify-content:space-between;
+                                 gap:8px; margin-top:6px; }
+      #boat-block .champ-ligne label { font-size:12.5px; font-weight:700; color:#6b2600; }
+      #boat-block .champ-ligne input { width:92px; flex-shrink:0; box-sizing:border-box;
+                                       padding:4px 6px; font-size:13px; border:1px solid #ccc;
+                                       border-radius:4px; font-family:inherit; }
+      #boat-block #out-conflict:not(:empty) { margin-top:8px; }
+      #boat-block .note-colonne { margin:3px 0 0; font-size:11px; font-style:italic; color:#6b2600;
+                                  opacity:.9; line-height:1.35; }
+      #boat-block .note-colonne:empty { display:none; }
+      /* v2.5 : bloc environnement réduit à une ligne quand un mouillage est proche. */
+      #env-block .env-ligne { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      #env-block .env-ligne-titre { font-weight:700; }
+      #env-block .env-toggle { flex-shrink:0; background:none; border:1px solid currentColor;
+                               border-radius:4px; padding:2px 8px; font-size:12px; cursor:pointer;
+                               color:inherit; font-family:inherit; }
+      #env-block .env-detail { margin-top:6px; }
+      #env-block .env-detail[hidden] { display:none; }
       .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
                     border-top:1px solid #eee; padding-top:7px; }
 
@@ -336,6 +353,8 @@
       longueurAutres:   9,      // mètres — longueur supposée des AUTRES bateaux
                                 //   (le fichier Grist ne contient que des positions,
                                 //    aucune caractéristique de navire)
+      delaiProfondeur: 5000,    // ms — délai max de l'API EMODnet pour l'estimation de la colonne d'eau (v2.6)
+      colonneMin: 0.5,          // m — en dessous, pas d'estimation proposée (point asséché, estran ou à terre)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
 
@@ -447,7 +466,7 @@
       { groupe:'Protection de la nature',
         id:'natura_zps', label:'Natura 2000 — oiseaux (ZPS)', couleur:'#a7c827',
         picto:'aplat', statut:'verifie',
-        tiles: WMTS('Patrinat_ZPS','image/png'), visible:false,
+        tiles: WMTS('Patrinat_ZPS','image/png'), visible:true,
         attribution:'© IGN / INPN' },
 
       { groupe:'Protection de la nature',
@@ -507,7 +526,7 @@
         note:"À venir : aucune source ne permet aujourd'hui de représenter ni d'identifier ces zones au clic." },
 
       { groupe:'Usages de la mer',
-        id:'aot', label:'AOT existantes et leur évitage', couleur:'#c2185b',
+        id:'aot', label:'AOT de mouillage existantes et leur évitage', couleur:'#c2185b',
         picto:'aot', statut:'local', aot:true,
         geojson:'data/aot-existantes.geojson', visible:true,
         note:"Données simulées : 249 positions fictives sur 6 sites de Bretagne et de Méditerranée, pour figurer la pression sur le plan d'eau. Natura 2000 n'est pas exclu : une AOT peut y être autorisée." }
@@ -639,26 +658,26 @@
     envBlock.id = 'env-block';
     const boatBlock = document.createElement('div');
     boatBlock.id = 'boat-block';
-    // v2.3 : la modale centrale ne porte plus que le MESSAGE de proximité
-    // (jaune tant que le calcul n'est pas fait, puis vert/rouge). Le formulaire
-    // de calcul vit dans la colonne de droite (bloc « Calcul rayon d'évitage »).
-    boatBlock.innerHTML = `<div id="out-conflict"></div>`;
-    const evitagePanel = document.createElement('div');
-    evitagePanel.className = 'side-panel';
-    evitagePanel.id = 'evitage-panel';
-    evitagePanel.innerHTML = `
-      <div class="panel-header" data-panel="evitage">Calcul rayon d'évitage <span>▸</span></div>
-      <div class="panel-body">
-        <div class="field">
+    // v2.5 : le bloc de proximité de la modale centrale porte à la fois le message,
+    // le formulaire (longueur du navire, colonne d'eau à marée haute) et, dessous,
+    // le résultat. Le bloc « Calcul rayon d'évitage » de la colonne de droite
+    // (v2.3) est supprimé. La colonne d'eau reste saisie à la main tant qu'une
+    // source SHOM interrogeable au clic n'a pas été validée.
+    boatBlock.innerHTML = `
+      <div class="jaune-box">
+        <p class="proximite-intro"><strong>D'autres mouillages sont enregistrés à proximité.</strong><br>
+          Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire.</p>
+        <div class="champ-ligne">
           <label for="in-loa">Longueur de mon navire (m)</label>
-          <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à renseigner">
+          <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à saisir">
         </div>
-        <div class="field">
+        <div class="champ-ligne">
           <label for="in-depth">Colonne d'eau à marée haute (m)</label>
-          <input type="number" id="in-depth" min="1" max="40" step="0.5" placeholder="à renseigner">
+          <input type="number" id="in-depth" min="0.5" max="60" step="0.1" placeholder="à saisir">
         </div>
-        <p id="out-rayon"></p>
-      </div>`;
+        <p class="note-colonne" id="note-colonne"></p>
+      </div>
+      <div id="out-conflict"></div>`;
     const popupEl = document.getElementById('coords-popup');
     popupEl.insertBefore(boatBlock, popupEl.firstChild);
     popupEl.insertBefore(envBlock, boatBlock);
@@ -680,7 +699,7 @@
         <p class="bif-titre">Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?</p>
         <p class="bif-txt">Dans un port ou une zone de mouillages et d'équipements
           légers, le navire est amarré à un corps-mort. Aucune ancre ne laboure le
-          fond : c'est de loin l'option la moins dommageable pour les herbiers.</p>
+          fond : c'est de loin l'option la moins dommageable pour les écosystèmes marins.</p>
         <p class="bif-info">
           <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
             <circle cx="8" cy="8" r="7" fill="none" stroke="#0063cb" stroke-width="1.6"/>
@@ -702,7 +721,6 @@
       </ol>`;
 
     colonneD.appendChild(layerPanel);
-    colonneD.appendChild(evitagePanel);
 
 
     // Plus de bouton ici : l'usager clique directement les ports et ZMEL sur la
@@ -734,11 +752,80 @@
         replier(p, p.querySelector('.panel-body').style.display === 'none');
       });
     });
-    // État initial : couches dépliées, calcul d'évitage replié.
+    // État initial : couches dépliées.
     replier(layerPanel, true);
-    replier(evitagePanel, false);
 
-    /* Saisie du bloc « Calcul rayon d'évitage » (v2.3). Le calcul est « fait »
+    /* ---------- Estimation de la colonne d'eau à marée haute (v2.6) ----------
+       Approximation assumée (décision de Nicolas, 25/09/2026) :
+         colonne d'eau à marée haute = profondeur au point + hauteur de marée haute
+       - profondeur : API EMODnet Bathymetry (`depth_sample`, moyenne de la maille
+         d'environ 115 m ; intègre les levés du Shom). Valeur négative = sous le
+         niveau de référence (plus basses mers astronomiques sur les côtes à marée,
+         niveau moyen en Méditerranée). Le WMS « MNT » du Shom n'est pas
+         interrogeable au point (testé le 25/09/2026) ;
+       - hauteur de marée haute : table fixe data/ram-ports.json (Shom, RAM), port
+         de référence le plus proche à vol d'oiseau : PMVE − PBMA (vives-eaux,
+         coefficient 95), ou PHMA − NM en Méditerranée.
+       La valeur pré-remplit le champ, que l'usager peut corriger. En cas d'échec
+       (service lent ou injoignable, point asséché), le champ reste à saisir. */
+    let portsRAM = null;
+    async function chargerPortsRAM() {
+      if (portsRAM) return portsRAM;
+      try {
+        const j = await (await fetch('data/ram-ports.json')).json();
+        portsRAM = j.ports.map(([site, lat, lon, h, ref]) => ({ site, p:[lon, lat], h, ref }));
+      } catch (e) { portsRAM = []; }
+      return portsRAM;
+    }
+    async function profondeurEMODnet(lng, lat) {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiProfondeur);
+      try {
+        const rep = await fetch(`https://rest.emodnet-bathymetry.eu/depth_sample?geom=POINT(${lng} ${lat})`,
+                                { signal: ctrl.signal });
+        if (!rep.ok) return null;
+        const j = await rep.json();
+        return isFinite(j.avg) ? j.avg : null;   // altitude : négative sous l'eau
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }
+    async function estimerColonneEau(pos) {
+      const [ports, alt] = await Promise.all([chargerPortsRAM(), profondeurEMODnet(pos[0], pos[1])]);
+      if (alt === null || !ports.length) return null;
+      let port = ports[0], dMin = Infinity;
+      ports.forEach(pt => { const d = distanceM(pos, pt.p); if (d < dMin) { dMin = d; port = pt; } });
+      const colonne = port.h - alt;
+      if (!(colonne >= CONFIG.colonneMin)) return null;
+      return { colonne: Math.round(colonne * 10) / 10, prof: -alt, port };
+    }
+    const fmt1 = v => v.toLocaleString('fr-FR', { maximumFractionDigits:1 });
+    let jetonEstimation = 0;       // ignore les réponses d'un clic précédent
+    let colonneAuto = false;       // la valeur du champ vient-elle de l'estimation ?
+    async function lancerEstimationColonne() {
+      const jeton = ++jetonEstimation;
+      const champ = document.getElementById('in-depth');
+      const note  = document.getElementById('note-colonne');
+      note.textContent = 'Estimation de la colonne d\'eau en cours…';
+      const est = await estimerColonneEau(position);
+      if (jeton !== jetonEstimation || !position) return;
+      if (est) {
+        champ.value = est.colonne;
+        colonneAuto = true;
+        const maree = est.port.ref === 'PMVE-PBMA' ? 'marée haute de vives-eaux' : 'marée haute';
+        const refPort = `(port de référence : ${est.port.site}, Shom)`;
+        note.textContent = est.prof >= 0
+          ? `Estimation : profondeur ≈ ${fmt1(est.prof)} m (EMODnet) + ${maree} ≈ ` +
+            `${fmt1(est.port.h)} m ${refPort}. Modifiable.`
+          : `Estimation : ${maree} ≈ ${fmt1(est.port.h)} m ${refPort}, moins un fond ` +
+            `découvrant à marée basse ≈ ${fmt1(-est.prof)} m (EMODnet). Modifiable.`;
+      } else {
+        if (colonneAuto) champ.value = '';
+        colonneAuto = false;
+        note.textContent = 'Estimation indisponible à cet endroit : saisissez la valeur.';
+      }
+      recalculer();
+    }
+
+    /* Saisie du formulaire de rayon d'évitage (modale centrale depuis v2.5). Le calcul est « fait »
        quand les DEUX champs sont renseignés (plus de colonne d'eau par défaut
        côté usager). Renvoie { loa, prof, r } ou null. */
     function lireSaisieEvitage() {
@@ -1126,7 +1213,7 @@
     /* ---------- Marqueur, calcul, conflits ---------- */
     let marker = null, position = null;
     let aotPositions = [];          // mouillages existants, pour le recoupement
-    let aotVisibles = true;         // suit la case « AOT existantes » — n'influence plus
+    let aotVisibles = true;         // suit la case « AOT de mouillage existantes » — n'influence plus
                                     // rien : la vérification de proximité est silencieuse (C6).
     let formNavireRequis = false;   // le bloc « navire » n'est montré qu'à moins de 100 m d'une AOT
     const popup = document.getElementById('coords-popup');
@@ -1137,9 +1224,26 @@
     const hint = document.getElementById('coords-hint');
 
     // Affiche (ou efface, avec html='') le bloc « environnement » du popup.
-    function afficherEnvironnement(html, teinte) {
+    // Avec un `titreCompact` (v2.5, mouillage proche), le bloc est réduit à une
+    // ligne : le titre et un bouton « Détails » qui déplie `html`, replié par défaut.
+    function afficherEnvironnement(html, teinte, titreCompact) {
       envBlock.className = teinte ? 'env-' + teinte : '';
-      envBlock.innerHTML = html;
+      if (!titreCompact) { envBlock.innerHTML = html; return; }
+      envBlock.innerHTML = `
+        <div class="env-ligne">
+          <span class="env-ligne-titre">${titreCompact}</span>
+          <button type="button" class="env-toggle" aria-expanded="false"
+                  aria-controls="env-detail">Détails ▾</button>
+        </div>
+        <div class="env-detail" id="env-detail" hidden>${html}</div>`;
+      const btn = envBlock.querySelector('.env-toggle');
+      const det = envBlock.querySelector('.env-detail');
+      btn.addEventListener('click', () => {
+        const ouvrir = det.hidden;
+        det.hidden = !ouvrir;
+        btn.setAttribute('aria-expanded', String(ouvrir));
+        btn.textContent = ouvrir ? 'Masquer ▴' : 'Détails ▾';
+      });
     }
 
     /* Interroge l'API Carto de l'IGN (module « nature ») pour identifier les
@@ -1408,17 +1512,14 @@
       // moins de 100 m — au-delà, le risque de chevauchement est négligeable
       // et demander la longueur du navire n'aurait pas d'intérêt.
       // La vérification est SILENCIEUSE : elle ne dépend pas de la case
-      // « AOT existantes » de la légende (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6), au même
+      // « AOT de mouillage existantes » de la légende (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6), au même
       // titre que la vérification Natura 2000 / ZNIEFF.
       formNavireRequis = aotPositions.some(a => distanceM(position, a.p) < 100);
       boatBlock.style.display = formNavireRequis ? 'block' : 'none';
-      // Cas d'origine (calcul pas encore fait) : on replie « Couches affichées »
-      // et on ouvre le bloc « Calcul rayon d'évitage ». Cas secondaire (calcul
-      // déjà fait) : aucune action sur la colonne de droite (v2.3).
-      if (formNavireRequis && !lireSaisieEvitage()) {
-        replier(layerPanel, false);
-        replier(evitagePanel, true);
-      }
+      // v2.5 : plus d'action sur la colonne de droite, le formulaire est dans la modale.
+      // v2.6 : estimation de la colonne d'eau, sans attendre (en parallèle des zonages).
+      if (formNavireRequis) lancerEstimationColonne();
+      else jetonEstimation++;
       recalculer();   // message de proximité affiché sans attendre les zonages
 
       afficherEnvironnement('<p><em>Vérification des zonages environnementaux…</em></p>', 'neutre');
@@ -1426,10 +1527,9 @@
       const blocsZones = [];
       if (natura.length) {
         blocsZones.push(
-          `<p>Cet emplacement se situe dans un site Natura 2000. Une AOT peut être
-           autorisée sur une zone Natura 2000, mais elle sera soumise à évaluation
-           environnementale. Le nom de la zone : <strong>${natura.join(', ')}</strong>
-           est à reporter dans le formulaire de demande.</p>`);
+          `<p>Cet emplacement se situe dans un site Natura 2000. Une étude d'incidence
+           va être réalisée suite à votre demande. Nom de la zone à reporter dans le
+           formulaire de demande : <strong>${natura.join(', ')}</strong></p>`);
       }
       if (znieff.length) {
         blocsZones.push(
@@ -1437,18 +1537,31 @@
            Faunistique et Floristique (ZNIEFF). Cette zone est sensible, merci d'adopter
            des pratiques de mouillage durables.</p>`);
       }
+      // v2.5 : si un mouillage est proche, le bloc environnement (vert, ou neutre
+      // Natura 2000 / ZNIEFF) est réduit à une ligne de titre, avec un bouton pour
+      // déplier le détail (replié par défaut) — la modale reste concise.
       if (blocsZones.length) {
-        afficherEnvironnement(blocsZones.join('') + MENTION_NON_DETECTABLES, 'neutre');
+        const titre = natura.length && znieff.length
+          ? 'Emplacement situé en site Natura 2000 et en ZNIEFF.'
+          : natura.length ? 'Emplacement situé en site Natura 2000.'
+                          : 'Emplacement situé en ZNIEFF.';
+        afficherEnvironnement(blocsZones.join('') + MENTION_NON_DETECTABLES, 'neutre',
+                              formNavireRequis ? titre : null);
       } else if (echec) {
         afficherEnvironnement(
           `<p>Informations environnementales momentanément indisponibles (service
            distant injoignable). Vos coordonnées restent accessibles ci-dessous.</p>`,
           'neutre');
       } else {
-        afficherEnvironnement(
-          `<p>Pas de contre-indication détectée automatiquement sur cette zone.</p>
-           ${MENTION_NON_DETECTABLES}`,
-          'vert');
+        if (formNavireRequis) {
+          afficherEnvironnement(MENTION_NON_DETECTABLES, 'vert',
+                                'Aucune zone bloquante détectée sur cet emplacement.');
+        } else {
+          afficherEnvironnement(
+            `<p>Pas de contre-indication détectée automatiquement sur cette zone.</p>
+             ${MENTION_NON_DETECTABLES}`,
+            'vert');
+        }
       }
 
       recalculer();
@@ -1465,6 +1578,7 @@
       if (marker) { marker.remove(); marker = null; }
       position = null;
       // v2.3 : les valeurs du calcul d'évitage sont conservées à la fermeture.
+      jetonEstimation++;   // v2.6 : une estimation en cours ne remplit plus le champ
       copieFaite = false;
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
       coordsRow.style.display = 'none';
@@ -1493,10 +1607,7 @@
       };
       majEtapes();
 
-      // Résultat du calcul dans le bloc de droite, indépendamment du point choisi.
       const saisie = lireSaisieEvitage();
-      document.getElementById('out-rayon').textContent =
-        saisie ? `Rayon d'évitage = ${Math.round(saisie.r)} m` : '';
 
       if (!position) {
         zone.innerHTML = '';
@@ -1513,11 +1624,10 @@
         return;
       }
 
-      // Calcul pas encore fait : message jaune, pas de cercle (v2.3).
+      // Calcul pas encore fait : le bloc orange (message + champs) suffit,
+      // aucun résultat affiché dessous, pas de cercle (v2.5).
       if (!saisie) {
-        zone.innerHTML = `<div class="jaune-box">D'autres mouillages sont enregistrés à
-          proximité, vérifier en remplissant les champs du formulaire « Calcul rayon
-          d'évitage » si les rayons d'évitage des navires ne se chevauchent pas.</div>`;
+        zone.innerHTML = '';
         messagePopup('', null);
         vider();
         return;
@@ -1556,6 +1666,12 @@
       messagePopup('', null);
     }
 
+    // Une saisie à la main remplace l'estimation (v2.6).
+    document.getElementById('in-depth').addEventListener('input', () => {
+      if (!colonneAuto) return;
+      colonneAuto = false;
+      document.getElementById('note-colonne').textContent = 'Valeur modifiée à la main.';
+    });
     ['in-loa','in-depth'].forEach(id => {
       const el = document.getElementById(id);
       el.addEventListener('input',  recalculer);

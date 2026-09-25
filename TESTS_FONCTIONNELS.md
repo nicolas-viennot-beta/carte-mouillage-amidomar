@@ -211,7 +211,7 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu : « Herbiers de posidonie et de zostère ».
    - Vérification : lecture du code.
 
-3. **Libellés du formulaire navire (bloc « Calcul rayon d'évitage » de la colonne de droite depuis v2.3 ; popup de coordonnées de v1.5 à v2.2)**
+3. **Libellés du formulaire navire (bloc de proximité de la modale centrale depuis v2.5 ; colonne de droite en v2.3–v2.4 ; popup de coordonnées de v1.5 à v2.2)**
    - Action : rechercher les `<label>` du formulaire navire.
    - Attendu : **deux champs seulement** — « Longueur de mon navire (m) »
      (`in-loa`) et « Colonne d'eau à marée haute (m) » (`in-depth`). Le champ
@@ -219,6 +219,17 @@ fonctionnalité correspondante a réellement disparu.
      été retiré en v1.5 : aucune occurrence de `in-scope` ne doit subsister,
      ni dans le HTML, ni dans les écouteurs, ni dans `recalculer()`.
    - Vérification : lecture du code.
+
+3bis. **Libellés v2.4 (25 sept. 2026)**
+   - Action : rechercher dans `index.html` le texte de `.bif-txt`, le `label`
+     de l'entrée `aot` de `COUCHES` et les propriétés des entrées
+     `natura_sic` / `natura_zps`.
+   - Attendu : `.bif-txt` se termine par « la moins dommageable pour les
+     écosystèmes marins. » (plus aucune occurrence de « dommageable pour les
+     herbiers ») ; label `aot` = « AOT de mouillage existantes et leur
+     évitage » ; `natura_sic` et `natura_zps` restent deux entrées distinctes
+     (labels inchangés), toutes deux `visible:true`.
+   - Vérification : lecture du code (`grep`).
 
 4. **Réserves naturelles nationales absentes**
    - Action : rechercher `rnn` et « Réserves naturelles nationales » dans
@@ -233,10 +244,10 @@ fonctionnalité correspondante a réellement disparu.
 1. **Panneau « Mon mouillage » supprimé**
    - Action : rechercher toute trace d'un panneau latéral dédié « Mon
      mouillage » distinct du popup de coordonnées.
-   - Attendu : aucune occurrence. Depuis v2.3, `boatBlock` (injecté dans
-     `#coords-popup`) ne porte que le message de proximité ; le formulaire est
-     dans le bloc « Calcul rayon d'évitage » de la colonne de droite (voir
-     §5.9ter), ce qui est voulu.
+   - Attendu : aucune occurrence. Depuis v2.5, `boatBlock` (injecté dans
+     `#coords-popup`) porte le message de proximité, le formulaire et le
+     résultat (voir §5.9ter) ; la colonne de droite ne contient plus que
+     « Couches affichées ».
    - Vérification : lecture du code (`grep`).
 
 2. **Ordre de priorité de la cascade de clic**
@@ -364,9 +375,11 @@ fonctionnalité correspondante a réellement disparu.
 
 5ter. **Messages distincts Natura 2000 / ZNIEFF (17 sept. 2026)**
    - Action : lire le bloc `blocsZones` dans le gestionnaire de clic.
-   - Attendu : un message Natura 2000 (mention de l'évaluation
-     environnementale et du report du nom de la zone dans le formulaire de
-     demande) apparaît uniquement si `natura.length`, listant les noms de
+   - Attendu : un message Natura 2000 (depuis v2.4, texte exact : « Cet
+     emplacement se situe dans un site Natura 2000. Une étude d'incidence va
+     être réalisée suite à votre demande. Nom de la zone à reporter dans le
+     formulaire de demande : {noms} » ; plus aucune mention d'« évaluation
+     environnementale ») apparaît uniquement si `natura.length`, listant les noms de
      sites ; un message ZNIEFF distinct, générique (aucun nom ni type
      affiché, recommandation de pratiques de mouillage durables) apparaît
      uniquement si `znieff.length` ; les deux peuvent s'afficher ensemble
@@ -419,7 +432,7 @@ fonctionnalité correspondante a réellement disparu.
      cliqué et l'AOT existante la plus proche est `< 100`; si faux,
      `boatBlock` reste masqué et `recalculer()` retourne un état vide sans
      erreur. **La condition ne fait plus intervenir `aotVisibles`** : la
-     vérification est silencieuse, indépendante de la case « AOT existantes »
+     vérification est silencieuse, indépendante de la case « AOT de mouillage existantes »
      (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6).
    - Vérification : lecture du code.
 
@@ -431,16 +444,38 @@ fonctionnalité correspondante a réellement disparu.
      nulle part dans le fichier.
    - Vérification : lecture du code.
 
-9ter. **Message de proximité dissocié du formulaire (v2.3, remplace la cascade C6 v1.5)**
-   - Action : lire `boatBlock.innerHTML`, `evitagePanel.innerHTML` et
-     `recalculer()`.
-   - Attendu : `boatBlock` ne contient plus que `<div id="out-conflict">` ;
-     les champs `in-loa` et `in-depth` (ce dernier **sans** attribut `value`,
-     placeholder « à renseigner ») et `p#out-rayon` sont dans
-     `#evitage-panel`, ajouté à `colonneD` après `layerPanel`. Aucune
-     occurrence de `rappel-filtre-aot`, `chapeau-evitage`, « Renseignez la
-     longueur » dans le fichier.
+9ter. **Formulaire et résultat dans la modale centrale (v2.5, remplace la dissociation v2.3)**
+   - Action : lire `boatBlock.innerHTML` et `recalculer()` ; rechercher
+     `evitagePanel`, `evitage-panel`, `out-rayon`.
+   - Attendu : `boatBlock` contient, dans cet ordre, un `.jaune-box` avec
+     `<p class="proximite-intro"><strong>D'autres mouillages sont enregistrés à
+     proximité.</strong><br>Vérifier que votre rayon d'évitage ne soit pas en
+     collision avec un autre navire.</p>`, deux `.champ-ligne` (`in-loa` puis
+     `in-depth`, **sans** attribut `value`, placeholder « à saisir »), puis
+     `<div id="out-conflict">`. Aucune occurrence de `evitagePanel`,
+     `evitage-panel` ni `out-rayon` hors commentaires ; aucun appel à
+     `replier(layerPanel, false)` dans le gestionnaire de clic. Dans
+     `recalculer()`, sans saisie complète, `zone.innerHTML` vaut `''` (plus de
+     message jaune renvoyant au formulaire de droite). Aucune occurrence de
+     `rappel-filtre-aot`, `chapeau-evitage`, « Renseignez la longueur ».
    - Vérification : lecture du code (`grep`).
+
+9ter-bis. **Bloc environnement réduit à une ligne si mouillage proche (v2.5)**
+   - Action : lire `afficherEnvironnement(html, teinte, titreCompact)` et ses
+     appels en fin de gestionnaire de clic.
+   - Attendu : sans `titreCompact`, `envBlock.innerHTML = html` (comportement
+     inchangé). Avec `titreCompact` : `.env-ligne` (titre `.env-ligne-titre` +
+     bouton `.env-toggle` « Détails ▾ », `aria-expanded="false"`) puis
+     `.env-detail` **`hidden`** contenant `html` ; le clic sur le bouton bascule
+     `hidden`, `aria-expanded` et le libellé (« Masquer ▴ »). `titreCompact`
+     n'est passé que si `formNavireRequis` : vert « Aucune zone bloquante
+     détectée sur cet emplacement. » (détail = `MENTION_NON_DETECTABLES`) ;
+     neutre « Emplacement situé en site Natura 2000. » / « … en ZNIEFF. » /
+     « … en site Natura 2000 et en ZNIEFF. » (détail = messages complets C5).
+     Le cas « service injoignable » n'est jamais réduit. Hors proximité, texte
+     vert d'origine « Pas de contre-indication détectée automatiquement sur
+     cette zone. ».
+   - Vérification : lecture du code + navigateur headless (§17).
 
 9quater. **Calcul « fait » = deux champs renseignés (v2.3)**
    - Action : lire `lireSaisieEvitage()`.
@@ -449,20 +484,37 @@ fonctionnalité correspondante a réellement disparu.
      repli sur `CONFIG.profondeurDefaut` pour la saisie usager.
    - Vérification : lecture du code + exécution en navigateur (§16).
 
+9quinquies. **Estimation de la colonne d'eau (v2.6) — lecture du code**
+   - Action : lire `chargerPortsRAM`, `profondeurEMODnet`, `estimerColonneEau`,
+     `lancerEstimationColonne`, l'écouteur `input` de `in-depth`, et
+     `fermerPopupCoordonnees` ; lire `data/ram-ports.json`.
+   - Attendu : `colonne = port.h − avg` (avg EMODnet, négatif sous l'eau),
+     arrondi à 0,1 ; port = plus proche par `distanceM` ; `null` si `avg`
+     absent, table vide ou colonne < `CONFIG.colonneMin` ; délai
+     `CONFIG.delaiProfondeur` via `AbortController` ; lancée seulement si
+     `formNavireRequis` ; `jetonEstimation` incrémenté à chaque clic et à la
+     fermeture (réponse périmée ignorée) ; `colonneAuto` repasse à `false` à
+     la première saisie manuelle. `data/ram-ports.json` : JSON valide, 214
+     ports, colonnes `site, lat, lon, h, ref`, `ref` ∈ {PMVE-PBMA, PHMA-NM} ;
+     sommes de contrôle à l'extraction : Σh = 1242,23, Σlat = 10083,1747,
+     Σlon = −151,7266.
+   - Vérification : lecture du code + parse JSON (Python/Node).
+
 10. **Test visuel : clic à moins de 100 m d'une AOT (v2.3)**
     - Action : cliquer sur l'eau à proximité immédiate (< 100 m) d'une AOT
       existante (`data/aot-existantes.geojson`), champs vides.
-    - Attendu : message **jaune** dans le popup ; « Couches affichées » se
-      replie, « Calcul rayon d'évitage » s'ouvre. À la saisie des deux champs :
-      « Rayon d'évitage = {r} m », message vert/rouge, cercle tracé. Même
-      comportement **couche AOT décochée** (vérification silencieuse).
+    - Attendu *(v2.5)* : bloc environnement sur une ligne avec « Détails ▾ » ;
+      bloc orange (message en gras, consigne, deux champs) ; rien dessous ;
+      colonne de droite inchangée. À la saisie des deux champs : message
+      vert/rouge sous le bloc orange, cercle tracé. Même comportement
+      **couche AOT décochée** (vérification silencieuse).
     - Vérification : visuelle ou navigateur headless (§16).
 
 11. **Test visuel : clic à plus de 100 m de toute AOT**
     - Action : cliquer sur l'eau loin (> 100 m) de toute AOT existante.
     - Attendu : aucun message d'évitage (`boatBlock` masqué), colonne de
-      droite inchangée ; seules les
-      coordonnées (et le bloc environnement) sont affichées.
+      droite inchangée ; seules les coordonnées et le bloc environnement
+      **complet** (non réduit, sans bouton « Détails ») sont affichées.
     - Vérification : visuelle.
 
 12. **Modales Port et ZMEL conservées (pas de popup)**
@@ -547,7 +599,7 @@ fonctionnalité correspondante a réellement disparu.
     - **Non vérifié en conditions réelles** : aucun navigateur disponible dans
       cette session pour confirmer visuellement le rendu (couleurs, alignement).
 
-16. **Dissociation message / calcul du rayon d'évitage — scénario complet (v2.3)**
+16. **Dissociation message / calcul du rayon d'évitage — scénario complet (v2.3) — REMPLACÉ par §17 en v2.5 (ne plus exécuter tel quel : `#evitage-panel` et `#out-rayon` n'existent plus)**
     - Action : servir le dossier en local (`python3 -m http.server`), ouvrir
       `index.html` dans Chromium headless (Playwright), fermer le guide, puis
       simuler les clics avec `map.fire('click', {lngLat, point:
@@ -583,6 +635,69 @@ fonctionnalité correspondante a réellement disparu.
       services cartographiques distants (proxy de l'environnement de test)
       ne sont pas bloquantes.
     - *Dernière exécution : 23 sept. 2026 (v2.3) — OK sur les 10 points.*
+
+17. **Rayon d'évitage dans la modale et bloc environnement réduit — scénario complet (v2.5)**
+    - Action : servir le dossier en local (`python3 -m http.server`), ouvrir
+      `index.html` dans Chromium headless (Playwright), fermer le guide. Pour
+      chaque clic : `map.jumpTo({center, zoom:16})` puis
+      `map.fire('click', {lngLat, point: map.project(...), originalEvent: new
+      MouseEvent('click')})` — **`originalEvent` est indispensable** dès qu'un
+      marqueur existe (sinon `Marker._onMapClick` lève une TypeError propre au
+      test). Simuler l'API Carto et le WFS Géoplateforme avec `page.route`
+      (réponse `{features:[]}`, ou un `sitename` pour `natura-habitat`).
+    - Attendu, dans l'ordre :
+      1. au chargement : ni `#evitage-panel` ni `#out-rayon` ; `#layer-panel`
+         ouvert ;
+      2. clic à ~30 m d'une AOT (réponses vides) : `boatBlock` affiché,
+         `.proximite-intro strong` = « D'autres mouillages sont enregistrés à
+         proximité. », `#out-conflict` vide, `#layer-panel` toujours ouvert ;
+         `.env-ligne-titre` = « Aucune zone bloquante détectée sur cet
+         emplacement. », `.env-detail` caché ; clic sur `.env-toggle` → détail
+         visible ;
+      3. longueur seule (10) : `#out-conflict` vide ;
+      4. colonne d'eau 4 : `.evitage-resultat` « … estimé à 16 m … » ;
+      5. longueur 40 : 46 m immédiatement ;
+      6. `fermerPopupCoordonnees()` : valeurs conservées (40 / 4) ; re-clic au
+         même endroit : résultat 46 m direct ;
+      7. même clic avec `natura-habitat` renvoyant un site : titre « Emplacement
+         situé en site Natura 2000. », détail replié contenant le nom du site ;
+      8. clic loin de toute AOT (ex. -4,9 / 47,3) : `boatBlock` masqué, aucun
+         `.env-toggle`, texte vert complet (ou message Natura 2000 complet) ;
+      9. aucune `pageerror`.
+    - Vérification : exécution (Playwright). Les erreurs réseau vers le fond
+      de plan (injoignable depuis l'environnement de test) ne sont pas
+      bloquantes.
+    - *Dernière exécution : 25 sept. 2026 (v2.5) — OK sur les 9 points.*
+
+18. **Pré-remplissage de la colonne d'eau — scénario (v2.6)**
+    - Action : même montage que §17 ; simuler aussi
+      `rest.emodnet-bathymetry.eu` avec `page.route` (trois variantes :
+      `{"avg":-12.35}`, requête avortée, `{"avg":1.2}`). Cliquer à ~30 m
+      au nord de `aotPositions[5]` (-3,0893 / 47,4484, port le plus proche :
+      Port-Haliguen, h = 5,37).
+    - Attendu :
+      1. `avg` −12,35 → `in-depth` = 17.7, note « Estimation : profondeur ≈
+         12,4 m (EMODnet) + marée haute de vives-eaux ≈ 5,4 m (port de
+         référence : Port-Haliguen, Shom). Modifiable. » ; longueur 10 →
+         résultat 37 m ;
+      2. requête avortée → champ vide, « Estimation indisponible à cet
+         endroit : saisissez la valeur. » ; saisie manuelle 3 → résultat ;
+      3. `avg` +1,2 → 4.2, note « …, moins un fond découvrant à marée basse
+         ≈ 1,2 m (EMODnet). Modifiable. » ;
+      4. saisie manuelle 3 après une estimation → « Valeur modifiée à la
+         main. », résultat 15 m (longueur 10) ;
+      5. aucune `pageerror`.
+    - Vérification : exécution (Playwright).
+    - *Dernière exécution : 25 sept. 2026 (v2.6) — OK sur les 5 points.*
+
+19. **API EMODnet réelle (v2.6)**
+    - Action : depuis le site publié (ou une page https), exécuter
+      `fetch('https://rest.emodnet-bathymetry.eu/depth_sample?geom=POINT(-2.970485 47.510572)')`.
+    - Attendu : HTTP 200 sans erreur CORS, JSON avec `avg` négatif
+      (≈ −12,35 le 25/09/2026).
+    - Vérification : navigateur (console ou outil JavaScript).
+    - *Dernière exécution : 25 sept. 2026 — OK (Quiberon −12,35 ; Brest
+      −23,6 ; Saint-Malo −1,86 ; 60 à 370 ms).*
 
 ---
 
@@ -621,7 +736,10 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 23 sept. 2026 (v2.3) — chargement complet dans
+   - *Dernière exécution : 25 sept. 2026 (v2.5) — harnais Node.js (`vm`,
+     globaux simulés) : phase synchrone exécutée en entier, sans erreur ; puis
+     chargement complet dans Chromium headless sans `pageerror` (§5/17).*
+   - *Exécution précédente : 23 sept. 2026 (v2.3) — chargement complet dans
      Chromium headless (au-delà du harnais Node.js), sans `pageerror`, et
      `recalculer()` déclenché par des clics simulés (voir §5/16).*
    - *Exécution précédente : 22 sept. 2026 (v2.2) — phase synchrone OK, événement

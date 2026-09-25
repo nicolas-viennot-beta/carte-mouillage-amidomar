@@ -129,3 +129,16 @@ conversion se fait avec QGIS (gratuit) : ouvrir la couche, clic droit,
 
 Le choix du SCR compte : la carte attend des coordonnées en longitude/latitude.
 Un fichier exporté en Lambert 93 s'affichera au large de l'Afrique.
+
+---
+
+## Marée haute par port — `ram-ports.json` (v2.6, 25 septembre 2026)
+
+Extrait du WFS du Shom « Références Altimétriques Maritimes »
+(`RAM_BDD_WLD_WGS84G_WFS:ram_3857`, Licence Ouverte, citer « Shom, 2025 »),
+interrogé le 25/09/2026 depuis un navigateur. 214 ports de métropole sur 229
+(15 sans valeurs exploitables écartés). Pour chaque port : `h` = PMVE − PBMA
+(pleine mer de vives-eaux moyenne au-dessus des plus basses mers), ou PHMA − NM
+en Méditerranée (PMVE non publiée). Sert à estimer la colonne d'eau à marée
+haute avec la profondeur EMODnet (voir DOCUMENTATION_FONCTIONNELLE.md §4.2).
+Contrôle : Σh = 1242,23. Fiche : https://www.data.gouv.fr/datasets/references-altimetriques-maritimes
