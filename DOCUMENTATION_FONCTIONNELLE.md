@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.8 (septembre 2026)  
+**Version:** 2.9 (septembre 2026)  
 **Dernière mise à jour:** 25 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -98,12 +98,12 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 - Variables (`data/ports-plaisance.geojson`) : `nom_port_de_plaisance` (repli `nom`), `nom_commune` (repli `commune`), `places_disponibles`, `contact`. Accord singulier/pluriel automatique.
 
 #### C2 — ZMEL
-- Titre : « Zone de mouillages et d'équipements légers : {nom_zmel} — Commune :{nom_commune} » (« cette zone » si le nom manque, par exemple au clic depuis la légende).
-- Corps : « Vous êtes sur une ZMEL qui dépend de la commune ou du gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui évite le labourage du fond par les ancres. S'y installer est **nettement moins dommageable** qu'un mouillage individuel sur ancre. »
-  - si `nb_postes` est renseigné : « Il reste {nb_postes} place(s) disponible(s) à {nom_zmel}. »
-  - si `mailto` est renseigné : « Faites votre demande auprès de {mailto} » (lien) ; sinon : « Renseignez-vous sur les places disponibles auprès de son gestionnaire ou de la DDTM de votre département. »
-- Note : « Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. Capacité et contact sont des données fictives, à remplacer par les données réelles. »
-- Variables (`data/zmel.geojson`) : `nom_zmel` (repli `nom`), `nom_commune` (repli `commune`), `nb_postes`, `mailto`.
+- Titre *(v2.9)* : « Zone de mouillages et d'équipements légers : {nom_zmel} - {lieu_dit_s} - {commune} », en ne gardant que les parties renseignées et différentes de `nom_zmel` (« cette zone » à la place de `nom_zmel` si le nom manque, par exemple au clic depuis la légende).
+- Corps *(v2.9)* : « Vous êtes sur une ZMEL qui dépend de la commune ou du gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui évite le labourage du fond par les ancres. C'est un très bon projet. S'y installer est **nettement moins dommageable** qu'un mouillage individuel. »
+  - si une capacité est renseignée (`nb_postes_`, repli `nb_postes` pour l'ancien schéma fictif) : « Capacité d'accueil : {n} navires. » — affichée telle quelle, sans mise en forme du pluriel (la donnée source `nb_postes_` est un nombre total agrégé, en texte)
+  - si `mailto` est renseigné : « Faites votre demande directement auprès de la ZMEL : {mailto} » (lien) ; sinon (cas de la quasi-totalité des vraies ZMEL, qui n'ont pas d'e-mail dans la donnée source) : « Renseignez-vous sur les places disponibles auprès de son gestionnaire ou de la DDTM de votre département. »
+- Note : « Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. Capacité et contact sont des données fictives, à remplacer par les données réelles. » — **note à revoir** quand `data/zmel.geojson` sera remplacé par les vraies données (voir `data/zmel-reel.geojson` ci-dessous, pas encore branché sur la carte)
+- Variables : `nom_zmel` (repli `nom`), `lieu_dit_s`, `commune` (repli `nom_commune`), `nb_postes_` (repli `nb_postes`), `mailto`.
 
 #### C3 — Clic à terre
 - Popup rouge : « Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau. » Pas de coordonnées, pas de marqueur. Détection : voir §4.4.
@@ -146,7 +146,7 @@ Le clic sur la carte suit une cascade de priorité unique, implémentée dans le
 #### a. Ports et ZMEL (priorité la plus haute)
 Les **ports de plaisance** et les **ZMEL** (Zones de Mouillages et d'Équipements Légers) restent gérés par leurs propres écouteurs dédiés, avec leur **modale existante** (et non un popup) :
 - **Ports de plaisance** — Modale affichant nom du port, places disponibles (fictives), contact
-- **ZMEL** — Modale affichant le nom de la zone, le nombre de postes (`nb_postes`, actuellement une donnée placeholder), le gestionnaire et un contact (`mailto`, placeholder)
+- **ZMEL** — Modale affichant le nom de la zone (avec lieu-dit et commune, v2.9), la capacité d'accueil (`nb_postes_`, réelle pour les territoires couverts par `data/zmel-reel.geojson`, non encore branché) et un contact (`mailto`, resté placeholder : la donnée source n'a pas de champ e-mail et les fiches officielles Légicem ne sont pas accessibles publiquement, voir §11 v2.9)
 - Textes exacts des deux modales : §4.0 (C1, C2). La phrase « Pas d'AOT individuel sur cette zone » a été retirée en v1.5
 - Ce cas court-circuite tout le reste de la cascade : pas de marqueur, pas de coordonnées, pas de popup d'environnement
 
@@ -278,7 +278,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 
 ### Usages de la mer
 - 🟢 **Informations portuaires** — couche SHOM (image de symboles : sans nom de port, gestionnaire ni limites)
-- 🟧 **ZMEL** — fichier local `data/zmel.geojson` (données `nb_postes`, `gestionnaire`, `mailto` actuellement fictives)
+- 🟧 **ZMEL** — fichier local `data/zmel.geojson` (données `nb_postes`, `gestionnaire`, `mailto` actuellement fictives). Vraies données disponibles depuis v2.9 dans `data/zmel-reel.geojson` (647 ZMEL, Cerema/CACEM, converties depuis un shapefile Lambert-93 fourni par Nicolas) mais **pas encore branchées** sur la carte (le popup lit toujours `data/zmel.geojson`)
 - 🔵 **Cultures marines** — fichier local `data/cultures-marines.geojson` — un clic dans cette zone déclenche désormais un popup d'interdiction (voir §4.1.c)
 
 ### Habitats sensibles
@@ -620,6 +620,17 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.9 — 25 septembre 2026
+**Vraies données ZMEL converties (non branchées) ; popup ZMEL reformulé**
+- Nicolas a fourni un shapefile officiel (Cerema/CACEM, `ZMEL_18_09_2026`, 647 ZMEL, France entière + Antilles, projection RGF93/Lambert-93) : converti en GeoJSON WGS84, attributs d'origine conservés, dans le nouveau fichier `data/zmel-reel.geojson`. **Ce fichier n'est pas encore utilisé par la carte** : `data/zmel.geojson` (fictif) reste la source active de la couche ZMEL — le branchement est une étape ultérieure
+- Tentative de récupération d'e-mails de contact par territoire abandonnée : le lien `url_v2` du jeu de données pointe vers `legicem.metier.e2.rie.gouv.fr`, un domaine du RIE (réseau interministériel de l'État) **injoignable depuis l'extérieur** (confirmé par un test réseau direct, échec de connexion au niveau du proxy/DNS, cohérent avec un `error=login_required` observé sur l'une des fiches) — donc inutilisable pour le public comme pour Claude
+- Décision de Nicolas (25/09/2026) : le popup `modaleZmel()` est reformulé indépendamment du branchement des vraies données (préparation du terrain) :
+  - Titre : « {nom_zmel} - {lieu_dit_s} - {commune} » (au lieu de « {nom_zmel} — Commune :{nom_commune} »)
+  - Corps : ajout de « C'est un très bon projet. » ; « Capacité d'accueil : {n} navires. » remplace « Il reste {n} place(s) disponible(s) à… » ; « Faites votre demande directement auprès de la ZMEL : {mailto} » remplace « Faites votre demande auprès de… »
+  - Champs lus : `nom_zmel`/`lieu_dit_s`/`commune`/`nb_postes_` (vraies données), avec repli sur `nom`/`nom_commune`/`nb_postes` (ancien schéma fictif) pour ne rien casser tant que `data/zmel.geojson` n'est pas remplacé
+  - Sans `mailto` (cas de la quasi-totalité des vraies ZMEL) : message générique inchangé « Renseignez-vous… auprès de son gestionnaire ou de la DDTM de votre département. » (décision de Nicolas : pas de lien vers la fiche Légicem, inaccessible au public)
+- Testé : harnais Node.js (exécution synchrone/asynchrone) ; Chromium headless, `modaleZmel()` appelée directement avec 4 jeux de données (vraie ZMEL sans mailto, lieu-dit proche du nom, ancien schéma fictif avec mailto, sans capacité ni contact) — titres et textes vérifiés caractère près, aucune `pageerror`. **Non vérifié sur la version publiée**
 
 ### v2.8 — 25 septembre 2026
 **Repli automatique du bloc de proximité après une pause de frappe, et texte de collision reformulé**

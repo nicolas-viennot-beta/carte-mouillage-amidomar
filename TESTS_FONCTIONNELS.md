@@ -544,19 +544,29 @@ fonctionnalité correspondante a réellement disparu.
       individuel sur cette zone » a été supprimée des deux modales en v1.5**
       et ne doit plus apparaître nulle part dans le fichier (elle a également
       été retirée du cas cultures marines). Titres attendus :
-      « Port de plaisance : {nom} — Commune :{commune} » et « Zone de
-      mouillages et d'équipements légers : {nom} — Commune :{commune} » ;
-      ouvertures « Vous êtes dans un bassin portuaire qui… » et « Vous êtes
-      sur une ZMEL qui… ».
+      « Port de plaisance : {nom} — Commune :{commune} » (inchangé) et,
+      *(v2.9)* « Zone de mouillages et d'équipements légers :
+      {nom_zmel} - {lieu_dit_s} - {commune} » (parties vides ou identiques à
+      `nom_zmel` omises) ; ouvertures « Vous êtes dans un bassin portuaire
+      qui… » et « Vous êtes sur une ZMEL qui… ».
     - Vérification : lecture du code, plus test d'exécution des deux fonctions
       (voir §6.1ter).
 
-13. **Données placeholder ZMEL**
-    - Action : lire l'entrée ZMEL dans `SECOURS` et/ou
-      `data/zmel.geojson`, et le rendu dans `modaleZmel`.
-    - Attendu : présence de `nb_postes`, `gestionnaire`, `mailto` ; ces
-      valeurs sont affichées dans la modale.
-    - Vérification : lecture du code.
+13. **Données ZMEL — placeholder et vraies données converties (v2.9)**
+    - Action : lire l'entrée ZMEL dans `SECOURS` et/ou `data/zmel.geojson`
+      (toujours la source active de la couche), le nouveau
+      `data/zmel-reel.geojson` (647 ZMEL réelles, converties depuis un
+      shapefile Cerema/CACEM fourni par Nicolas, **pas encore branché** sur
+      la carte), et le rendu dans `modaleZmel`.
+    - Attendu : `data/zmel.geojson` contient toujours `nom_zmel`,
+      `nom_commune`, `nb_postes`, `mailto` (fictifs) et continue d'être lu
+      tel quel par `modaleZmel` (repli `nom`/`nom_commune`/`nb_postes`).
+      `data/zmel-reel.geojson` est un GeoJSON valide, en WGS84 (coordonnées
+      en degrés, pas en mètres Lambert-93), avec les champs `nom_zmel`,
+      `lieu_dit_s`, `commune`, `nb_postes_` (capacité totale, en texte) que
+      `modaleZmel` sait déjà lire *(v2.9)*, mais aucune couche `index.html`
+      ne le charge encore (pas d'entrée dans `COUCHES` ni de `fetch` dessus).
+    - Vérification : lecture du code + parse JSON de `data/zmel-reel.geojson`.
 
 14. **Fermeture explicite du popup de coordonnées (v2.1)**
     - Action : lire le bouton `#coords-fermer` (HTML), son style CSS, et la
@@ -753,6 +763,17 @@ fonctionnalité correspondante a réellement disparu.
     - *Dernière exécution : 25 sept. 2026 — OK (Quiberon −12,35 ; Brest
       −23,6 ; Saint-Malo −1,86 ; 60 à 370 ms).*
 
+21. **Popup ZMEL reformulé — rendu exact (v2.9)**
+    - Action : Chromium headless, appeler `modaleZmel(z)` directement avec 4
+      jeux de données (voir §1ter) et lire `#modale-titre`/`#modale-texte`.
+    - Attendu : titre et texte correspondent caractère près au format décrit
+      en §4.0 (C2) de DOCUMENTATION_FONCTIONNELLE.md pour chaque cas ; aucune
+      `pageerror`.
+    - Vérification : exécution (Playwright).
+    - *Dernière exécution : 25 sept. 2026 (v2.9) — OK sur les 4 jeux de
+      données (vraie ZMEL sans mailto, lieu-dit proche du nom, fictif avec
+      mailto, sans capacité ni contact).*
+
 ---
 
 ## 6. Intégrité générale
@@ -764,19 +785,26 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : exécution (Node.js), à refaire après **toute**
      modification du fichier avant de le considérer livrable.
 
-1ter. **Test d'exécution des modales Port et ZMEL (v1.5)**
+1ter. **Test d'exécution des modales Port et ZMEL (v1.5, ZMEL revue v2.9)**
    - Action : extraire `modalePort` et `modaleZmel` du script, les exécuter
-     dans Node.js avec un `ouvrirModale` simulé qui capture ses arguments.
-   - Attendu, pour chacune : titre au format du §4.0 de DOCUMENTATION_FONCTIONNELLE.md (C1/C2) ; absence de
-     « Pas d'AOT individuel » ; nouvelle phrase d'ouverture ; accord
+     (Node.js ou navigateur headless) avec un `ouvrirModale` simulé/réel qui
+     capture ses arguments, sur plusieurs jeux : vraie ZMEL sans `mailto`,
+     `lieu_dit_s` proche de `nom_zmel` (pas de doublon dans le titre), ancien
+     schéma fictif avec `mailto`, aucune capacité ni contact.
+   - Attendu, pour chacune : titre au format du §4.0 de
+     DOCUMENTATION_FONCTIONNELLE.md (C1/C2) ; absence de « Pas d'AOT
+     individuel » ; nouvelle phrase d'ouverture ; pour le port, accord
      singulier/pluriel correct sur le nombre de places ; **repli sur les
-     anciens noms de champs** (`nom`, `commune`) quand les nouveaux
-     (`nom_port_de_plaisance`, `nom_zmel`, `nom_commune`) sont absents ;
-     absence de tiret orphelin quand la commune est vide ; pour la ZMEL,
-     `modaleZmel(null)` (clic depuis la légende) ne doit pas planter, et
-     l'absence de `nb_postes` ou de `mailto` doit basculer sur les replis.
-   - Vérification : exécution (Node.js). Ce test couvre les cas d'absence de
-     donnée qu'une simple lecture du code laisse passer.
+     anciens noms de champs** (`nom`, `commune`, `nb_postes`) quand les
+     nouveaux (`nom_port_de_plaisance`, `nom_zmel`, `lieu_dit_s`, `commune`,
+     `nb_postes_`) sont absents ; pour la ZMEL, `modaleZmel(null)` (clic
+     depuis la légende) ne doit pas planter, la capacité affichée est
+     « Capacité d'accueil : {n} navires. » (sans accord pluriel, `n` peut
+     être une chaîne), et sans `mailto` le message générique s'affiche («
+     Renseignez-vous… »), jamais « undefined ».
+   - Vérification : exécution (Node.js pour la syntaxe/l'ordre
+     d'initialisation ; Chromium headless pour le rendu exact des chaînes —
+     voir aussi §20bis).
 
 1quater. **Noms de champs des fichiers de données (v1.5)**
    - Action : lire `data/ports-plaisance.geojson`, `data/zmel.geojson` et les

@@ -1202,24 +1202,33 @@
         NOTE_FICTIVE);
     }
     function modaleZmel(z) {
-      // Noms de champs de DOCUMENTATION_FONCTIONNELLE.md §4.0 (C2) ; repli sur les
-      // anciens noms pour les fichiers territoriaux pas encore renommés.
+      // Noms de champs des vraies ZMEL (Cerema/CACEM, v2.9) : nom_zmel, lieu_dit_s,
+      // commune, nb_postes_ (nombre total de postes, en texte dans la donnée source).
+      // Repli sur nom/commune/nb_postes pour l'ancien fichier fictif data/zmel.geojson,
+      // le temps que tous les territoires soient couverts par les vraies données.
       const nom = (z && (z.nom_zmel || z.nom)) ? (z.nom_zmel || z.nom) : 'cette zone';
-      const commune = (z && (z.nom_commune || z.commune)) ? (z.nom_commune || z.commune) : '';
-      const postes = z && z.nb_postes != null
-        ? `<br><br>Il reste ${z.nb_postes} place${z.nb_postes>1?'s':''}
-           disponible${z.nb_postes>1?'s':''} à ${nom}.` : '';
+      const lieuDit = (z && z.lieu_dit_s) ? z.lieu_dit_s : '';
+      const commune = (z && (z.commune || z.nom_commune)) ? (z.commune || z.nom_commune) : '';
+      // Titre : « {nom_zmel} - {lieu_dit_s} - {commune} », en ne gardant que les parties
+      // renseignées et différentes du nom (évite les doublons quand lieu_dit == nom_zmel).
+      const partiesTitre = [nom, lieuDit, commune]
+        .filter((v, i) => v && (i === 0 || v !== nom));
+      const titre = partiesTitre.join(' - ');
+      const capacite = z && (z.nb_postes_ != null && z.nb_postes_ !== '') ? z.nb_postes_
+                      : (z && z.nb_postes != null ? z.nb_postes : null);
+      const postes = capacite != null
+        ? `<br><br>Capacité d'accueil : ${capacite} navires.` : '';
       const contact = z && z.mailto
-        ? `<br><br>Faites votre demande auprès de
+        ? `<br><br>Faites votre demande directement auprès de la ZMEL :
            <a href="mailto:${z.mailto}">${z.mailto}</a>.`
         : `<br><br>Renseignez-vous sur les places disponibles auprès de son gestionnaire
            ou de la DDTM de votre département.`;
-      ouvrirModale(`Zone de mouillages et d’équipements légers : ${nom}${commune ? ' — Commune :' + commune : ''}`,
+      ouvrirModale(`Zone de mouillages et d’équipements légers : ${titre}`,
         `Vous êtes sur une ZMEL qui dépend de la commune ou du
          gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui
          évite le labourage du fond par les ancres.<br><br>
-         S'y installer est <strong>nettement moins dommageable</strong> qu'un mouillage
-         individuel sur ancre.${postes}${contact}`,
+         C'est un très bon projet. S'y installer est <strong>nettement moins dommageable</strong>
+         qu'un mouillage individuel.${postes}${contact}`,
         "Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. "
         + "Capacité et contact sont des données fictives, à remplacer par les données réelles.");
     }
