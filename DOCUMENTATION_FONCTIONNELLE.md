@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.10 (septembre 2026)  
+**Version:** 2.11 (septembre 2026)  
 **Dernière mise à jour:** 25 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -620,6 +620,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.11 — 25 septembre 2026
+**Correction d'une régression bloquante à l'initialisation (aucune couche ne se chargeait, sur réseau lent)**
+- Découverte lors de la vérification demandée par Nicolas sur la version publiée (« c'est publié, tu peux tester ») de la v2.10 : sur plusieurs chargements de page dans le navigateur de test, la carte restait bloquée sur le seul fond IGN, sans aucune couche applicative (ni AOT, ni ZMEL, ni rien) — donc sans possibilité de tester le clic sur une ZMEL
+- Cause identifiée précisément via la console : `demarrer()` s'appuyait sur trois déclencheurs (`styledata` + vérification `isStyleLoaded()`, `load`, et un filet de sécurité `setTimeout(demarrer, 8000)`). Ce dernier appelait `demarrer()` sans revérifier `isStyleLoaded()` : sur un réseau plus lent que 8 s (plausible pour l'usage visé — un plaisancier en mer avec un signal faible), `initialiser()` se lançait alors que le style n'était pas prêt, plantait dès son premier `map.addSource()` (`"Style is not done loading."`), et — la garde `demarre` étant déjà passée à `true` — l'application restait bloquée pour le reste du chargement de page, quelle que soit la durée d'attente ensuite
+- Correctif : `demarrer()` revérifie désormais systématiquement `map.isStyleLoaded()` avant de se lancer ; si le style n'est pas prêt, il se reprogramme (toutes les 500 ms, jusqu'à 40 fois, soit ~20 s de plus) au lieu de forcer l'exécution. Le filet de sécurité à 8 s devient ainsi le début d'une fenêtre de retry plutôt qu'un déclenchement inconditionnel unique
+- Bug pré-existant depuis la V1 (mécanisme `demarrer()`/`initialiser()` inchangé jusqu'ici), sans lien avec les évolutions ZMEL v2.7–v2.10 ; probablement resté invisible faute d'avoir testé un chargement de page « à froid » avec un style lent jusqu'ici
+- Testé : harnais Node.js (exécution synchrone/asynchrone) ; test unitaire isolé de la logique de `demarrer()` reproduisant un style qui ne devient prêt qu'après 3 s (retry confirmé, `initialiser()` appelé une seule fois, avec succès) et un style qui ne devient jamais prêt (abandon propre après 40 tentatives, aucune boucle infinie, aucun plantage) ; suite de tests v2.8/v2.9/v2.10 rejouée sans régression (Chromium headless, harnais HTTP local)
 
 ### v2.10 — 25 septembre 2026
 **Vraies données ZMEL branchées sur la carte (data/zmel.geojson remplacé)**

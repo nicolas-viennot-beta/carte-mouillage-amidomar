@@ -794,6 +794,45 @@ fonctionnalité correspondante a réellement disparu.
       (647 features, source et layer présents, modale conforme), aucune
       `pageerror`.*
 
+23. **Démarrage résilient à un style lent (v2.11) — non-régression de la
+    régression bloquante trouvée sur la version publiée**
+    - Contexte : vérification demandée par Nicolas sur la version publiée
+      de la v2.10 (« c'est publié, tu peux tester ») — sur plusieurs
+      chargements réels dans un navigateur de test, la carte restait
+      bloquée sur le seul fond IGN, sans aucune couche applicative (ni AOT,
+      ni ZMEL), rendant tout test de clic impossible. Cause : le filet de
+      sécurité `setTimeout(demarrer, 8000)` appelait `demarrer()` sans
+      revérifier `map.isStyleLoaded()` ; sur un réseau plus lent que 8 s,
+      `initialiser()` se lançait quand même et plantait dès son premier
+      `map.addSource()` (`"Style is not done loading."`), bloquant
+      l'application pour le reste du chargement de page (garde `demarre`
+      déjà passée à `true`). Voir §11 (v2.11) de
+      `DOCUMENTATION_FONCTIONNELLE.md` pour le détail.
+    - Action (test unitaire isolé, sans navigateur) : rejouer la logique de
+      `demarrer()`/`initialiser()` copiée telle quelle depuis `index.html`,
+      avec un objet `map` simulé dont `isStyleLoaded()` ne répond `true`
+      qu'après un délai contrôlé. Deux scénarios : (a) le style devient prêt
+      après 3 s (bien au-delà d'un seul essai) ; (b) le style ne devient
+      jamais prêt.
+    - Attendu :
+      (a) `demarrer()` retente toutes les 500 ms tant que le style n'est
+      pas prêt, puis appelle `initialiser()` **exactement une fois**, avec
+      succès, une fois `isStyleLoaded()` devenu vrai — pas de plantage, pas
+      d'appel prématuré ;
+      (b) après 40 tentatives (~20 s), `demarrer()` abandonne proprement
+      (`demarre` reste `false`, `initialiser()` n'est jamais appelé) — pas
+      de boucle infinie, pas de plantage.
+    - Action complémentaire : rejouer l'intégralité des tests §9ter-bis,
+      §21 et §22 (Chromium headless, serveur HTTP local) pour confirmer
+      l'absence de régression sur le reste de l'application.
+    - Vérification : exécution (Node.js pour le test unitaire ; Playwright
+      pour la non-régression).
+    - *Dernière exécution : 25 sept. 2026 (v2.11) — scénario (a) : OK
+      (retry confirmé, `initialiser()` appelé une seule fois, avec succès) ;
+      scénario (b) : OK (abandon propre après 40 tentatives, aucune
+      exception) ; suite §9ter-bis/§21/§22 rejouée sans régression, aucune
+      `pageerror` nouvelle.*
+
 ---
 
 ## 6. Intégrité générale

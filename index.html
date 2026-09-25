@@ -919,10 +919,25 @@
        fond de carte est injoignable (proxy d'administration, panne du service),
        'load' ne survient jamais et l'application resterait entièrement inerte.
        On s'accroche donc au chargement du style, qui ne dépend pas du réseau
-       de tuiles, avec une garantie d'exécution unique. */
+       de tuiles, avec une garantie d'exécution unique.
+
+       v2.11 - correction d'une régression bloquante constatée sur le site publié :
+       le filet de sécurité (setTimeout 8s) appelait demarrer() sans revérifier
+       isStyleLoaded(). Sur un réseau lent, le style pouvait mettre plus de 8s à
+       être prêt : initialiser() se lançait alors quand même, plantait dès son
+       premier map.addSource() ("Style is not done loading."), et - la garde
+       `demarre` étant déjà passée à true - l'application restait bloquée pour le
+       reste du chargement de page (aucune couche, aucun clic, rien). demarrer()
+       revérifie donc désormais l'état réel du style avant de se lancer, et se
+       reprogramme tant qu'il n'est pas prêt plutôt que de forcer l'exécution. */
     let demarre = false;
+    let tentativesDemarrage = 0;
     function demarrer() {
       if (demarre) return;
+      if (!map.isStyleLoaded()) {
+        if (tentativesDemarrage++ < 40) setTimeout(demarrer, 500);
+        return;
+      }
       demarre = true;
       initialiser();
     }
@@ -930,7 +945,7 @@
     else {
       map.on('styledata', () => { if (map.isStyleLoaded()) demarrer(); });
       map.once('load', demarrer);
-      setTimeout(demarrer, 8000);   // filet de sécurité
+      setTimeout(demarrer, 8000);   // filet de sécurité (retente jusqu'à ~28 s au total)
     }
 
     /* Signaler visiblement un fond de carte indisponible plutôt que
