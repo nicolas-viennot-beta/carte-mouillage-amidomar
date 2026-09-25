@@ -831,7 +831,12 @@ fonctionnalité correspondante a réellement disparu.
       (retry confirmé, `initialiser()` appelé une seule fois, avec succès) ;
       scénario (b) : OK (abandon propre après 40 tentatives, aucune
       exception) ; suite §9ter-bis/§21/§22 rejouée sans régression, aucune
-      `pageerror` nouvelle.*
+      `pageerror` nouvelle. **Vérifié en plus sur la version publiée**
+      (commit `671d2a5`) : chargement à froid réel dans un navigateur —
+      `tentativesDemarrage`/`demarre` observés en conditions réelles (retry
+      effectif sur un essai lent, démarrage direct sur un autre) ; clic
+      réel sur le polygone ZMEL « Baie de L'Île-Rousse » ouvrant la modale
+      attendue (titre, texte, capacité 18 navires, note), sans erreur JS.*
 
 ---
 
