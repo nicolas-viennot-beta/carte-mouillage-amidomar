@@ -552,21 +552,24 @@ fonctionnalité correspondante a réellement disparu.
     - Vérification : lecture du code, plus test d'exécution des deux fonctions
       (voir §6.1ter).
 
-13. **Données ZMEL — placeholder et vraies données converties (v2.9)**
-    - Action : lire l'entrée ZMEL dans `SECOURS` et/ou `data/zmel.geojson`
-      (toujours la source active de la couche), le nouveau
-      `data/zmel-reel.geojson` (647 ZMEL réelles, converties depuis un
-      shapefile Cerema/CACEM fourni par Nicolas, **pas encore branché** sur
-      la carte), et le rendu dans `modaleZmel`.
-    - Attendu : `data/zmel.geojson` contient toujours `nom_zmel`,
-      `nom_commune`, `nb_postes`, `mailto` (fictifs) et continue d'être lu
-      tel quel par `modaleZmel` (repli `nom`/`nom_commune`/`nb_postes`).
-      `data/zmel-reel.geojson` est un GeoJSON valide, en WGS84 (coordonnées
-      en degrés, pas en mètres Lambert-93), avec les champs `nom_zmel`,
-      `lieu_dit_s`, `commune`, `nb_postes_` (capacité totale, en texte) que
-      `modaleZmel` sait déjà lire *(v2.9)*, mais aucune couche `index.html`
-      ne le charge encore (pas d'entrée dans `COUCHES` ni de `fetch` dessus).
-    - Vérification : lecture du code + parse JSON de `data/zmel-reel.geojson`.
+13. **Données ZMEL — vraies données branchées (v2.9 conversion, v2.10 branchement)**
+    - Action : lire `data/zmel.geojson` (source active de la couche `zmel`
+      dans `COUCHES`), `data/zmel-reel.geojson` (copie de référence,
+      identique depuis v2.10), `SECOURS['data/zmel.geojson']`, et le rendu
+      dans `modaleZmel`.
+    - Attendu : `data/zmel.geojson` est un GeoJSON valide de 647 features en
+      WGS84 (coordonnées en degrés, pas en mètres Lambert-93), champs
+      `nom_zmel`, `lieu_dit_s`, `commune`, `nb_postes_` (capacité totale, en
+      texte), identique à `data/zmel-reel.geojson`. `SECOURS` contient 3
+      vraies ZMEL (Étel, Anse du Croûton, Baie de L'Île-Rousse), plus aucune
+      trace d'« EXEMPLE FICTIF ». `modaleZmel` continue d'accepter en repli
+      l'ancien schéma (`nom`/`nom_commune`/`nb_postes`) — non testable en
+      direct (plus aucun fichier ne l'utilise) mais le code doit le
+      conserver, au cas où un fichier territorial pas encore migré
+      l'utiliserait.
+    - Vérification : lecture du code + parse JSON de `data/zmel.geojson` +
+      navigateur headless servi en HTTP réel (voir §22, le `fetch` d'un
+      fichier local échoue silencieusement en `file://` dans Chromium).
 
 14. **Fermeture explicite du popup de coordonnées (v2.1)**
     - Action : lire le bouton `#coords-fermer` (HTML), son style CSS, et la
@@ -773,6 +776,23 @@ fonctionnalité correspondante a réellement disparu.
     - *Dernière exécution : 25 sept. 2026 (v2.9) — OK sur les 4 jeux de
       données (vraie ZMEL sans mailto, lieu-dit proche du nom, fictif avec
       mailto, sans capacité ni contact).*
+
+22. **Chargement réel de la couche ZMEL branchée (v2.10)**
+    - Action : servir `projet/` en HTTP réel (`python -m http.server`, pas
+      `file://` — le `fetch()` d'un fichier local échoue silencieusement par
+      restriction CORS dans Chromium et retomberait sur `SECOURS` sans le
+      signaler). Charger la page, lire `fetch('data/zmel.geojson')`
+      directement, `map.getSource('zmel')`, `map.getLayer('zmel-fill')`, puis
+      appeler `modaleZmel()` avec la première feature réellement chargée.
+    - Attendu : 647 features dans le fichier chargé (pas 1, pas 3 — confirme
+      que ce n'est ni l'ancien fichier fictif ni le fallback `SECOURS` qui a
+      été servi) ; source et layer MapLibre `zmel`/`zmel-fill` existent ;
+      titre, texte et note de la modale conformes au §4.0 (C2), sans mention
+      de données fictives.
+    - Vérification : exécution (Playwright, serveur HTTP local).
+    - *Dernière exécution : 25 sept. 2026 (v2.10) — OK sur les 4 points
+      (647 features, source et layer présents, modale conforme), aucune
+      `pageerror`.*
 
 ---
 

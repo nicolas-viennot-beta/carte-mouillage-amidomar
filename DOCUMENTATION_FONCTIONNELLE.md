@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.9 (septembre 2026)  
+**Version:** 2.10 (septembre 2026)  
 **Dernière mise à jour:** 25 septembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -102,7 +102,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 - Corps *(v2.9)* : « Vous êtes sur une ZMEL qui dépend de la commune ou du gestionnaire local. Les corps-morts y sont installés et entretenus, ce qui évite le labourage du fond par les ancres. C'est un très bon projet. S'y installer est **nettement moins dommageable** qu'un mouillage individuel. »
   - si une capacité est renseignée (`nb_postes_`, repli `nb_postes` pour l'ancien schéma fictif) : « Capacité d'accueil : {n} navires. » — affichée telle quelle, sans mise en forme du pluriel (la donnée source `nb_postes_` est un nombre total agrégé, en texte)
   - si `mailto` est renseigné : « Faites votre demande directement auprès de la ZMEL : {mailto} » (lien) ; sinon (cas de la quasi-totalité des vraies ZMEL, qui n'ont pas d'e-mail dans la donnée source) : « Renseignez-vous sur les places disponibles auprès de son gestionnaire ou de la DDTM de votre département. »
-- Note : « Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. Capacité et contact sont des données fictives, à remplacer par les données réelles. » — **note à revoir** quand `data/zmel.geojson` sera remplacé par les vraies données (voir `data/zmel-reel.geojson` ci-dessous, pas encore branché sur la carte)
+- Note *(v2.10)* : « Zone officielle (Cerema/CACEM, données du 18/09/2026). Capacité d'accueil arrondie au total ; aucun contact e-mail direct n'est disponible dans cette source. »
 - Variables : `nom_zmel` (repli `nom`), `lieu_dit_s`, `commune` (repli `nom_commune`), `nb_postes_` (repli `nb_postes`), `mailto`.
 
 #### C3 — Clic à terre
@@ -146,7 +146,7 @@ Le clic sur la carte suit une cascade de priorité unique, implémentée dans le
 #### a. Ports et ZMEL (priorité la plus haute)
 Les **ports de plaisance** et les **ZMEL** (Zones de Mouillages et d'Équipements Légers) restent gérés par leurs propres écouteurs dédiés, avec leur **modale existante** (et non un popup) :
 - **Ports de plaisance** — Modale affichant nom du port, places disponibles (fictives), contact
-- **ZMEL** — Modale affichant le nom de la zone (avec lieu-dit et commune, v2.9), la capacité d'accueil (`nb_postes_`, réelle pour les territoires couverts par `data/zmel-reel.geojson`, non encore branché) et un contact (`mailto`, resté placeholder : la donnée source n'a pas de champ e-mail et les fiches officielles Légicem ne sont pas accessibles publiquement, voir §11 v2.9)
+- **ZMEL** — Modale affichant le nom de la zone (avec lieu-dit et commune, v2.9), la capacité d'accueil réelle (`nb_postes_`, v2.10) et un contact (`mailto`, resté placeholder : la donnée source n'a pas de champ e-mail et les fiches officielles Légicem ne sont pas accessibles publiquement, voir §11 v2.9)
 - Textes exacts des deux modales : §4.0 (C1, C2). La phrase « Pas d'AOT individuel sur cette zone » a été retirée en v1.5
 - Ce cas court-circuite tout le reste de la cascade : pas de marqueur, pas de coordonnées, pas de popup d'environnement
 
@@ -278,7 +278,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 
 ### Usages de la mer
 - 🟢 **Informations portuaires** — couche SHOM (image de symboles : sans nom de port, gestionnaire ni limites)
-- 🟧 **ZMEL** — fichier local `data/zmel.geojson` (données `nb_postes`, `gestionnaire`, `mailto` actuellement fictives). Vraies données disponibles depuis v2.9 dans `data/zmel-reel.geojson` (647 ZMEL, Cerema/CACEM, converties depuis un shapefile Lambert-93 fourni par Nicolas) mais **pas encore branchées** sur la carte (le popup lit toujours `data/zmel.geojson`)
+- 🟢 **ZMEL** — fichier local `data/zmel.geojson` *(v2.10)* : vraies données (647 ZMEL, Cerema/CACEM, France entière et Antilles, converties depuis un shapefile Lambert-93 fourni par Nicolas — copie de référence dans `data/zmel-reel.geojson`) ; capacité d'accueil réelle, contact (`mailto`) resté sans donnée (absent de la source)
 - 🔵 **Cultures marines** — fichier local `data/cultures-marines.geojson` — un clic dans cette zone déclenche désormais un popup d'interdiction (voir §4.1.c)
 
 ### Habitats sensibles
@@ -295,7 +295,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 - **Parcs naturels marins, Aires marines protégées:** Aucune API d'identification de zone au clic identifiée à ce jour (contrairement à Natura 2000 et ZNIEFF, couverts par l'API Carto IGN — module *nature*, endpoints `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) — restent affichées/masquables normalement, simplement absentes de la vérification automatique au clic
 - **APB:** couche WMTS `Patrinat_APB` ajoutée en v1.8, tuiles confirmées ; pas d'identification au clic
 - **Zones de baignade, zones réglementaires:** Aucune source publique interrogeable identifiée — regroupées dans l'entrée « À venir » du panneau (voir ci-dessus)
-- **ZMEL:** Aucune couche nationale consolidée — créées par arrêté préfectoral, diffusées par DDTM ; données de capacité/contact actuellement fictives
+- **ZMEL:** Couche nationale consolidée depuis v2.9/v2.10 (647 ZMEL, Cerema/CACEM, fournie par Nicolas le 18/09/2026) ; capacité d'accueil réelle, contact (e-mail) non disponible dans la source
 - **Cultures marines:** Relèvent du cadastre conchylicole — à demander aux DDTM/délégations à la mer
 - **Réserves naturelles nationales:** Couche retirée de la configuration (n'apparaît plus dans « Couches affichées »)
 
@@ -620,6 +620,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.10 — 25 septembre 2026
+**Vraies données ZMEL branchées sur la carte (data/zmel.geojson remplacé)**
+- Nicolas a demandé le branchement, après avoir constaté qu'aucune ZMEL ne s'affichait sur la carte (le fichier fictif à une seule zone, en Méditerranée, restait actif depuis v2.9) : « Comment brancher les 647 vraies ZMEL sur la carte ? » → remplacement pur et simple de `data/zmel.geojson` par le contenu de `data/zmel-reel.geojson` (647 ZMEL, France entière et Antilles), option retenue plutôt qu'une couche séparée à activer
+- `data/zmel-reel.geojson` conservé tel quel (copie de référence/traçabilité de la conversion, voir v2.9)
+- Note de la couche « ZMEL » (légende, `COUCHES`) et note de bas de modale ZMEL mises à jour : ne mentionnent plus de données fictives ni « aucune couche nationale identifiée » ; statut de la couche passé de `local` à `verifie`
+- Jeu de secours hors-ligne (`SECOURS['data/zmel.geojson']`, utilisé seulement à l'ouverture du fichier par double-clic) remplacé par 3 vraies ZMEL (Étel, Anse du Croûton à Antibes, Baie de l'Île-Rousse) au lieu de l'exemple fictif — cohérent avec la note qui ne parle plus de données fictives
+- Testé : harnais Node.js (exécution synchrone/asynchrone) ; Chromium headless **servi en HTTP réel** (`python -m http.server`, pas `file://`, pour que le `fetch('data/zmel.geojson')` aboutisse réellement plutôt que de retomber sur `SECOURS`) — 647 features confirmées côté fichier chargé, source et layer MapLibre `zmel`/`zmel-fill` bien créés, `modaleZmel()` appelée avec la première vraie feature du fichier chargé (titre, texte et note conformes), aucune `pageerror`. **Non vérifié sur la version publiée**
 
 ### v2.9 — 25 septembre 2026
 **Vraies données ZMEL converties (non branchées) ; popup ZMEL reformulé**

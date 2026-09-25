@@ -433,12 +433,9 @@
         {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.57131,43.1511]}},
         {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.58277,43.15089]}}
       ]},
-      'data/zmel.geojson': { type:'FeatureCollection', features:[{
-        type:'Feature', properties:{ nom_zmel:'EXEMPLE FICTIF — ZMEL à remplacer',
-          nom_commune:'', nb_postes:24, gestionnaire:'Association des usagers de la ZMEL (fictif)',
-          mailto:'contact@zmel-exemple.fr' },
-        geometry:{ type:'Polygon', coordinates:[[[6.130,43.043],[6.146,43.043],
-                   [6.146,43.052],[6.130,43.052],[6.130,43.043]]] } }]},
+      // Jeu réduit (3 vraies ZMEL, v2.9) : la carte reste démonstrative même ouverte par
+      // double-clic, avec de vraies données plutôt qu'un exemple fictif.
+      'data/zmel.geojson': {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"nom_zmel":"Etel","lieu_dit_s":"Le Pradic","commune":"Etel","nb_postes_":"Non renseigné"},"geometry":{"type":"Polygon","coordinates":[[[-3.206288971473486,47.65325767949805],[-3.2073207107002433,47.65327039512765],[-3.207761156783054,47.6560921935558],[-3.206288971473486,47.65325767949805]]]}},{"type":"Feature","properties":{"nom_zmel":"Anse du Croûton","lieu_dit_s":"Anse du Croûton","commune":"Antibes","nb_postes_":"7"},"geometry":{"type":"Polygon","coordinates":[[[7.117000000594633,43.552300000748644],[7.119433333808966,43.55196666781681],[7.11794999973281,43.55075000093052],[7.117000000594633,43.552300000748644]]]}},{"type":"Feature","properties":{"nom_zmel":"Baie de L'Île-Rousse","lieu_dit_s":"Baie de l'Ile Rousse","commune":"Ile Rousse","nb_postes_":"18"},"geometry":{"type":"Polygon","coordinates":[[[8.939899999819742,42.636533330513004],[8.941116667565081,42.6384333312011],[8.944216666357681,42.63795000100421],[8.943199999660507,42.63578333139147],[8.939899999819742,42.636533330513004]]]}}]},
       'data/cultures-marines.geojson': { type:'FeatureCollection', features:[{
         type:'Feature', properties:{ nom:'EXEMPLE FICTIF — zone à remplacer' },
         geometry:{ type:'Polygon', coordinates:[[[6.163,43.058],[6.178,43.058],
@@ -516,9 +513,9 @@
 
       { groupe:'Usages de la mer',
         id:'zmel', label:'ZMEL', couleur:'#f9a825',
-        picto:'polygone', statut:'local',
+        picto:'polygone', statut:'verifie',
         geojson:'data/zmel.geojson', visible:true,
-        note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
+        note:"Jeu national Cerema/CACEM (647 ZMEL, France entière et Antilles), fourni le 18/09/2026. Capacité d'accueil et contact restent approximatifs : pas de champ e-mail dans la source." },
 
       { groupe:'Usages de la mer',
         id:'cultures', label:'Cultures marines', couleur:'#00838f',
@@ -1229,8 +1226,8 @@
          évite le labourage du fond par les ancres.<br><br>
          C'est un très bon projet. S'y installer est <strong>nettement moins dommageable</strong>
          qu'un mouillage individuel.${postes}${contact}`,
-        "Zone d'exemple : le fichier data/zmel.geojson reste à compléter territoire par territoire. "
-        + "Capacité et contact sont des données fictives, à remplacer par les données réelles.");
+        "Zone officielle (Cerema/CACEM, données du 18/09/2026). Capacité d'accueil arrondie au "
+        + "total ; aucun contact e-mail direct n'est disponible dans cette source.");
     }
 
     /* ---------- Marqueur, calcul, conflits ---------- */
