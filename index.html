@@ -174,15 +174,22 @@
       /* v2.3 : message de proximité dans la modale centrale, découplé du formulaire. */
       #boat-block .jaune-box, #boat-block .evitage-resultat { margin:0; font-size:13px; }
       .evitage-sous-titre { display:block; margin-top:5px; font-size:11px; font-style:italic; opacity:.85; }
-      /* v2.5 : formulaire du rayon d'évitage intégré au bloc de proximité de la modale. */
-      #boat-block .proximite-intro { margin:0 0 6px; }
+      /* v2.7 : le bloc de proximité tient sur une ligne une fois le calcul fait,
+         formulaire replié derrière « Détails » — remplace le sous-bloc fixe de v2.5. */
+      #boat-block .proximite-header { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+      #boat-block .proximite-msg { flex:1; }
+      #boat-block .detail-toggle { flex-shrink:0; background:none; border:1px solid currentColor;
+                                   border-radius:4px; padding:2px 8px; font-size:12px; cursor:pointer;
+                                   color:inherit; font-family:inherit; white-space:nowrap; }
+      #boat-block .proximite-detail { margin-top:8px; }
+      #boat-block .proximite-detail[hidden] { display:none; }
       #boat-block .champ-ligne { display:flex; align-items:center; justify-content:space-between;
                                  gap:8px; margin-top:6px; }
+      #boat-block .champ-ligne:first-child { margin-top:0; }
       #boat-block .champ-ligne label { font-size:12.5px; font-weight:700; color:#6b2600; }
       #boat-block .champ-ligne input { width:92px; flex-shrink:0; box-sizing:border-box;
                                        padding:4px 6px; font-size:13px; border:1px solid #ccc;
                                        border-radius:4px; font-family:inherit; }
-      #boat-block #out-conflict:not(:empty) { margin-top:8px; }
       #boat-block .note-colonne { margin:3px 0 0; font-size:11px; font-style:italic; color:#6b2600;
                                   opacity:.9; line-height:1.35; }
       #boat-block .note-colonne:empty { display:none; }
@@ -664,20 +671,27 @@
     // (v2.3) est supprimé. La colonne d'eau reste saisie à la main tant qu'une
     // source SHOM interrogeable au clic n'a pas été validée.
     boatBlock.innerHTML = `
-      <div class="jaune-box">
-        <p class="proximite-intro"><strong>D'autres mouillages sont enregistrés à proximité.</strong><br>
-          Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire.</p>
-        <div class="champ-ligne">
-          <label for="in-loa">Longueur de mon navire (m)</label>
-          <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à saisir">
+      <div class="jaune-box" id="proximite-block">
+        <div class="proximite-header">
+          <span class="proximite-msg" id="proximite-msg">
+            <strong>D'autres mouillages sont enregistrés à proximité.</strong><br>
+            Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire.
+          </span>
+          <button type="button" class="detail-toggle" id="proximite-toggle"
+                  aria-expanded="false" aria-controls="proximite-detail" hidden>Détails ▾</button>
         </div>
-        <div class="champ-ligne">
-          <label for="in-depth">Colonne d'eau à marée haute (m)</label>
-          <input type="number" id="in-depth" min="0.5" max="60" step="0.1" placeholder="à saisir">
+        <div class="proximite-detail" id="proximite-detail">
+          <div class="champ-ligne">
+            <label for="in-loa">Longueur de mon navire (m)</label>
+            <input type="number" id="in-loa" min="2" max="60" step="0.5" placeholder="à saisir">
+          </div>
+          <div class="champ-ligne">
+            <label for="in-depth">Colonne d'eau à marée haute (m)</label>
+            <input type="number" id="in-depth" min="0.5" max="60" step="0.1" placeholder="à saisir">
+          </div>
+          <p class="note-colonne" id="note-colonne"></p>
         </div>
-        <p class="note-colonne" id="note-colonne"></p>
-      </div>
-      <div id="out-conflict"></div>`;
+      </div>`;
     const popupEl = document.getElementById('coords-popup');
     popupEl.insertBefore(boatBlock, popupEl.firstChild);
     popupEl.insertBefore(envBlock, boatBlock);
@@ -1216,6 +1230,12 @@
     let aotVisibles = true;         // suit la case « AOT de mouillage existantes » — n'influence plus
                                     // rien : la vérification de proximité est silencieuse (C6).
     let formNavireRequis = false;   // le bloc « navire » n'est montré qu'à moins de 100 m d'une AOT
+    let proximiteComplete = false;  // v2.7 : le calcul était-il déjà fait au dernier recalculer() ?
+                                     //   sert à ne replier « Détails » qu'à l'instant où il se complète.
+    let replierAuBlur = false;      // v2.7 : le calcul vient de se compléter PENDANT que l'usager
+                                     //   tapait dans un des deux champs — on ne le replie qu'à la
+                                     //   sortie du champ, pour ne pas lui faire perdre le focus
+                                     //   (et donc la fin de sa saisie) en pleine frappe.
     const popup = document.getElementById('coords-popup');
     const coordsText = document.getElementById('coords-text');
     const coordsRow = document.getElementById('coords-row');
@@ -1518,6 +1538,8 @@
       boatBlock.style.display = formNavireRequis ? 'block' : 'none';
       // v2.5 : plus d'action sur la colonne de droite, le formulaire est dans la modale.
       // v2.6 : estimation de la colonne d'eau, sans attendre (en parallèle des zonages).
+      proximiteComplete = false;   // v2.7 : nouveau point → le résultat, s'il est déjà là, se replie
+      replierAuBlur = false;
       if (formNavireRequis) lancerEstimationColonne();
       else jetonEstimation++;
       recalculer();   // message de proximité affiché sans attendre les zonages
@@ -1579,6 +1601,8 @@
       position = null;
       // v2.3 : les valeurs du calcul d'évitage sont conservées à la fermeture.
       jetonEstimation++;   // v2.6 : une estimation en cours ne remplit plus le champ
+      proximiteComplete = false;
+      replierAuBlur = false;
       copieFaite = false;
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
       coordsRow.style.display = 'none';
@@ -1594,9 +1618,12 @@
     });
 
     function recalculer() {
-      const zone = document.getElementById('out-conflict');
-      const src  = map.getSource('mon-cercle');   // absente tant que l'init n'a pas eu lieu
-      const vider = () => { if (src) src.setData({ type:'FeatureCollection', features:[] }); };
+      const bloc   = document.getElementById('proximite-block');
+      const msgEl  = document.getElementById('proximite-msg');
+      const toggle = document.getElementById('proximite-toggle');
+      const detail = document.getElementById('proximite-detail');
+      const src    = map.getSource('mon-cercle');   // absente tant que l'init n'a pas eu lieu
+      const vider  = () => { if (src) src.setData({ type:'FeatureCollection', features:[] }); };
 
       // Le message au-dessus des coordonnées suit l'état : invitation à saisir,
       // rappel neutre, ou alerte de recoupement.
@@ -1609,27 +1636,24 @@
 
       const saisie = lireSaisieEvitage();
 
-      if (!position) {
-        zone.innerHTML = '';
+      if (!position || !formNavireRequis) {
         messagePopup('', null);
         vider();
-        return;
-      }
-      // Aucun mouillage connu à moins de 100 m : le bloc navire n'est pas
-      // affiché, donc pas de calcul de rayon d'évitage à faire non plus.
-      if (!formNavireRequis) {
-        zone.innerHTML = '';
-        messagePopup('', null);
-        vider();
+        proximiteComplete = false;
         return;
       }
 
-      // Calcul pas encore fait : le bloc orange (message + champs) suffit,
-      // aucun résultat affiché dessous, pas de cercle (v2.5).
+      // Calcul pas encore fait (v2.7) : le bloc orange affiche l'intitulé et les
+      // champs directement, pas de bouton « Détails » — rien à replier.
       if (!saisie) {
-        zone.innerHTML = '';
+        bloc.className = 'jaune-box';
+        msgEl.innerHTML = `<strong>D'autres mouillages sont enregistrés à proximité.</strong><br>
+          Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire.`;
+        toggle.hidden = true;
+        detail.hidden = false;
         messagePopup('', null);
         vider();
+        proximiteComplete = false;
         return;
       }
       const r = saisie.r;
@@ -1644,27 +1668,68 @@
       f.properties.couleur = conflits.length ? '#c9191e' : '#18753c';
       if (src) src.setData({ type:'FeatureCollection', features:[f] });
 
-      // Bloc fusionné (v2.2) : le rayon estimé et le résultat du recoupement ne font
-      // plus qu'un seul message, rouge (chevauchement) ou vert (pas de chevauchement) —
-      // remplace les anciens .result-box + .warn-box/.ok-box séparés.
+      // v2.7 : une fois le calcul fait, le message de conclusion remplace l'intitulé
+      // « D'autres mouillages… » dans le bloc lui-même (qui passe au rouge ou au vert),
+      // et le formulaire se replie derrière « Détails », modifiable à tout moment.
       const n = conflits.length;
       const rArrondi = Math.round(r);
       const sousTitre = `<span class="evitage-sous-titre">Estimation indicative qui ne
         remplace pas une vérification sur place.</span>`;
-      zone.innerHTML = n
-        ? `<div class="evitage-resultat chevauche">Le rayon d'évitage de votre navire, estimé à
-             <strong>${rArrondi} m</strong>, risque une collision avec le rayon d'évitage des
-             navires à proximité. Veuillez vérifier sur site ou modifier l'emplacement par
-             précaution.${sousTitre}</div>`
-        : `<div class="evitage-resultat libre">Le rayon d'évitage de votre navire, estimé à
-             <strong>${rArrondi} m</strong>, ne semble pas être en collision avec les rayons
-             d'évitage des navires à proximité.${sousTitre}</div>`;
+      bloc.className = n ? 'evitage-resultat chevauche' : 'evitage-resultat libre';
+      msgEl.innerHTML = n
+        ? `Le rayon d'évitage de votre navire, estimé à <strong>${rArrondi} m</strong>, risque une
+           collision avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur site ou
+           modifier l'emplacement par précaution.${sousTitre}`
+        : `Le rayon d'évitage de votre navire, estimé à <strong>${rArrondi} m</strong>, ne semble pas
+           être en collision avec les rayons d'évitage des navires à proximité.${sousTitre}`;
+      toggle.hidden = false;
+      // Ne replier automatiquement qu'à l'instant où le calcul vient de se compléter —
+      // pas à chaque frappe suivante, pour ne pas fermer un « Détails » rouvert par l'usager.
+      if (!proximiteComplete) {
+        if (detail.contains(document.activeElement)) {
+          // L'usager est en train de saisir : on ne replie pas sous ses doigts, on le
+          // fera au blur (voir l'écouteur « focusout » plus bas).
+          replierAuBlur = true;
+          toggle.setAttribute('aria-expanded', 'true');
+          toggle.textContent = 'Masquer ▴';
+        } else {
+          detail.hidden = true;
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.textContent = 'Détails ▾';
+        }
+      }
+      proximiteComplete = true;
 
       // Le hint au-dessus des coordonnées ne sert plus à ce stade : le résultat est
       // maintenant dans le bloc ci-dessus, et le sous-titre disclaimer porte la mention
       // « estimation indicative » en permanence — éviter la redite (v2.2).
       messagePopup('', null);
     }
+
+    // v2.7 : bouton « Détails » du bloc de proximité — replié par défaut une fois le calcul fait.
+    document.getElementById('proximite-toggle').addEventListener('click', () => {
+      const detail = document.getElementById('proximite-detail');
+      const btn = document.getElementById('proximite-toggle');
+      const ouvrir = detail.hidden;
+      detail.hidden = !ouvrir;
+      btn.setAttribute('aria-expanded', String(ouvrir));
+      btn.textContent = ouvrir ? 'Masquer ▴' : 'Détails ▾';
+      replierAuBlur = false;   // ouverture/fermeture volontaire : plus d'auto-repli en attente
+    });
+    // Replie le bloc, différé pendant la frappe (voir replierAuBlur ci-dessus), dès que le
+    // focus quitte réellement les deux champs (pas juste entre eux : d'où le setTimeout).
+    document.getElementById('proximite-detail').addEventListener('focusout', () => {
+      setTimeout(() => {
+        const detail = document.getElementById('proximite-detail');
+        if (replierAuBlur && !detail.contains(document.activeElement)) {
+          replierAuBlur = false;
+          detail.hidden = true;
+          const btn = document.getElementById('proximite-toggle');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = 'Détails ▾';
+        }
+      }, 0);
+    });
 
     // Une saisie à la main remplace l'estimation (v2.6).
     document.getElementById('in-depth').addEventListener('input', () => {

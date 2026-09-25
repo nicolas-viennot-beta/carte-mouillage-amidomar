@@ -444,21 +444,37 @@ fonctionnalité correspondante a réellement disparu.
      nulle part dans le fichier.
    - Vérification : lecture du code.
 
-9ter. **Formulaire et résultat dans la modale centrale (v2.5, remplace la dissociation v2.3)**
+9ter. **Formulaire replié dans le bloc de proximité (v2.7, remplace le sous-bloc fixe v2.5)**
    - Action : lire `boatBlock.innerHTML` et `recalculer()` ; rechercher
-     `evitagePanel`, `evitage-panel`, `out-rayon`.
-   - Attendu : `boatBlock` contient, dans cet ordre, un `.jaune-box` avec
-     `<p class="proximite-intro"><strong>D'autres mouillages sont enregistrés à
-     proximité.</strong><br>Vérifier que votre rayon d'évitage ne soit pas en
-     collision avec un autre navire.</p>`, deux `.champ-ligne` (`in-loa` puis
-     `in-depth`, **sans** attribut `value`, placeholder « à saisir »), puis
-     `<div id="out-conflict">`. Aucune occurrence de `evitagePanel`,
-     `evitage-panel` ni `out-rayon` hors commentaires ; aucun appel à
-     `replier(layerPanel, false)` dans le gestionnaire de clic. Dans
-     `recalculer()`, sans saisie complète, `zone.innerHTML` vaut `''` (plus de
-     message jaune renvoyant au formulaire de droite). Aucune occurrence de
+     `evitagePanel`, `evitage-panel`, `out-rayon`, `out-conflict`,
+     `proximite-intro`.
+   - Attendu : `boatBlock` contient un seul bloc `#proximite-block`
+     (`.jaune-box` au départ), avec dans l'ordre : `.proximite-header`
+     (`#proximite-msg` + bouton `#proximite-toggle`, `hidden` au départ) puis
+     `#proximite-detail` (deux `.champ-ligne` — `in-loa` puis `in-depth`,
+     **sans** attribut `value`, placeholder « à saisir » — et `#note-colonne`).
+     Aucune occurrence de `evitagePanel`, `evitage-panel`, `out-rayon`,
+     `out-conflict`, `proximite-intro` hors commentaires d'historique. Dans
+     `recalculer()`, sans saisie complète, `#proximite-msg` porte le texte
+     « D'autres mouillages… », `#proximite-toggle` reste `hidden`,
+     `#proximite-detail` reste visible. Aucune occurrence de
      `rappel-filtre-aot`, `chapeau-evitage`, « Renseignez la longueur ».
    - Vérification : lecture du code (`grep`).
+
+9ter-bis. **Repli différé au blur, jamais pendant la frappe (v2.7)**
+   - Action : lire `proximiteComplete`, `replierAuBlur`, la fin de
+     `recalculer()` (branche « calcul fait »), l'écouteur `click` de
+     `#proximite-toggle` et l'écouteur `focusout` de `#proximite-detail`.
+   - Attendu : quand le calcul vient de se compléter (`!proximiteComplete`) et
+     que `document.activeElement` est dans `#proximite-detail`,
+     `replierAuBlur` passe à `true` et le détail **reste visible** (pas de
+     repli) ; sinon il se replie immédiatement. L'écouteur `focusout` (avec un
+     `setTimeout(…, 0)` pour laisser le focus se déplacer avant de tester)
+     replie le détail seulement si `replierAuBlur` est vrai et qu'aucun champ
+     n'a plus le focus, puis remet `replierAuBlur` à `false`. Le clic sur
+     `#proximite-toggle` remet aussi `replierAuBlur` à `false` (ouverture ou
+     fermeture volontaire, plus de repli différé en attente).
+   - Vérification : lecture du code + navigateur headless (§20).
 
 9ter-bis. **Bloc environnement réduit à une ligne si mouillage proche (v2.5)**
    - Action : lire `afficherEnvironnement(html, teinte, titreCompact)` et ses
@@ -689,6 +705,31 @@ fonctionnalité correspondante a réellement disparu.
       5. aucune `pageerror`.
     - Vérification : exécution (Playwright).
     - *Dernière exécution : 25 sept. 2026 (v2.6) — OK sur les 5 points.*
+
+20. **Repli du bloc de proximité — scénario complet (v2.7)**
+    - Action : même montage que §18. Cliquer près de `aotPositions[5]`
+      (`avg` −12,35, colonne pré-remplie 17,7). Taper `20` caractère par
+      caractère dans `#in-loa` (`page.type`, avec un léger délai entre
+      touches) sans cliquer ailleurs, puis lire l'état.
+    - Attendu, dans l'ordre :
+      1. avant saisie : `.jaune-box`, `#proximite-toggle` caché, champs
+         visibles, aucun résultat ;
+      2. en cours de frappe dans `#in-loa` (focus toujours dans le champ) :
+         dès que les deux champs sont valides, le bloc passe déjà en
+         `.evitage-resultat` (vert ou rouge) et `#proximite-toggle` affiche
+         « Masquer ▴ », **mais `#in-loa` reste visible et garde la totalité
+         de la valeur tapée** (`"20"`, pas `"2"`) — c'est le point qui
+         régresserait si le repli se faisait sur l'événement `input` sans
+         attendre le blur ;
+      3. clic en dehors du formulaire (ex. `#coords-label`) : le détail se
+         replie, `#proximite-toggle` repasse à « Détails ▾ » ;
+      4. clic sur `#proximite-toggle` : les champs réapparaissent avec leurs
+         valeurs, « Masquer ▴ » ;
+      5. clic en dehors du formulaire après cette réouverture manuelle : les
+         champs **restent visibles** (pas de repli automatique cette fois) ;
+      6. aucune `pageerror` sur l'ensemble du scénario.
+    - Vérification : exécution (Playwright).
+    - *Dernière exécution : 25 sept. 2026 (v2.7) — OK sur les 6 points.*
 
 19. **API EMODnet réelle (v2.6)**
     - Action : depuis le site publié (ou une page https), exécuter
