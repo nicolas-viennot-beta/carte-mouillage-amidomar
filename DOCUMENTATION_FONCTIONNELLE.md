@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.12 (octobre 2026)  
+**Version:** 2.13 (octobre 2026)  
 **Dernière mise à jour:** 5 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -53,7 +53,7 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
   - Intertitre : « Si aucun port ni ZMEL ne convient : »
   3. **Cliquez sur l'emplacement** où vous souhaitez mouiller : la carte vous indique les interdictions, les recommandations et les mouillages voisins trop proches.
   4. **Copiez les coordonnées GPS** et collez-les dans votre formulaire de demande d'AOT mouillage.
-- Les étapes 1 et 2 sont des consignes fixes ; les étapes 3 et 4 suivent l'état du parcours (✓ quand un emplacement est choisi, puis quand les coordonnées sont copiées). La saisie du navire n'est plus une étape de la marche à suivre (le formulaire reste affiché à moins de 100 m d'une AOT, voir §4)
+- Les étapes 1 et 2 sont des consignes fixes ; les étapes 3 et 4 suivent l'état du parcours (✓ quand un emplacement est choisi, puis quand les coordonnées sont copiées). Depuis v2.13, tout nouveau clic sur la carte les remet à zéro : un clic refusé (cultures marines, arrêté de protection de biotope) laisse l'étape 3 « en cours », et un nouvel emplacement accepté décoche l'étape 4 tant que ses coordonnées n'ont pas été copiées. La saisie du navire n'est plus une étape de la marche à suivre (le formulaire reste affiché à moins de 100 m d'une AOT, voir §4)
 - Bouton « Commencer » en bas de la modale
 - Se ferme par « Commencer », ✕, Échap, ou clic extérieur
 - Réouvrable via le bouton ❓
@@ -627,6 +627,13 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.13 — 5 octobre 2026
+**Étapes 3 et 4 de la modale d'accueil : ✓ périmés corrigés**
+- L'étape 4 restait cochée après un nouveau clic sur un autre emplacement (coordonnées non recopiées) : `copieFaite` n'était remis à `false` qu'à la fermeture du popup
+- L'étape 3 restait cochée après un clic refusé (cultures marines, APB) alors que l'emplacement était effacé : ces branches ne rappelaient pas `majEtapes()`
+- Correctif : `copieFaite = false; majEtapes();` dès que le clic efface l'emplacement précédent (branche cultures marines, et avant la vérification APB)
+- Défauts antérieurs à la v2.12, repérés lors de la suite de tests complète du 5 octobre
 
 ### v2.12 — 5 octobre 2026
 **Modale d'accueil simplifiée en 4 étapes**

@@ -214,6 +214,10 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu (exécution) : le bouton `#guide-commencer` ferme la modale ;
      après un clic en mer, `#et-0` passe à `faite` (puce ✓) et `#et-1` à
      `encours` (puce 4) ; après copie des coordonnées, `#et-1` passe à `faite`.
+   - Attendu (v2.13, non-régression) : après copie, un nouveau clic accepté
+     ailleurs laisse `#et-0` `faite` mais remet `#et-1` à `encours` (puce 4) ;
+     un clic refusé (cultures marines, ou APB simulé) remet `#et-0` à
+     `encours` (puce 3) et `#et-1` à l'état neutre (puce 4).
    - Vérification : lecture du code + Chromium headless.
 
 2. **Légende posidonie**

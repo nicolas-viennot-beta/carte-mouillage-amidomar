@@ -1507,6 +1507,7 @@
         boatBlock.style.display = 'none';
         if (marker) { marker.remove(); marker = null; }
         position = null;
+        copieFaite = false; majEtapes();   // v2.13 : clic refusé → étapes 3 et 4 remises à zéro
         coordsRow.style.display = 'none';
         coordsLabel.style.display = 'none';
         hint.textContent = '';
@@ -1520,6 +1521,9 @@
       // de coordonnées d'un point différent affichées pendant la vérification.
       if (marker) { marker.remove(); marker = null; }
       position = null;
+      // v2.13 : tout nouveau clic remet les étapes 3 et 4 à zéro — l'ancien
+      // emplacement n'est plus choisi, et ses coordonnées copiées ne valent plus.
+      copieFaite = false; majEtapes();
       coordsRow.style.display = 'none';
       coordsLabel.style.display = 'none';
       boatBlock.style.display = 'none';
