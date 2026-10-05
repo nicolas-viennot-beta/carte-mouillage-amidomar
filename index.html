@@ -205,20 +205,12 @@
                     border-top:1px solid #eee; padding-top:7px; }
 
       /* ---------- Panneau « Comment procéder » ----------
-         Une bifurcation, puis trois étapes. La bifurcation n'est pas une étape :
-         si l'usager la prend, il quitte le parcours — la présenter comme
-         « étape 1 sur 4 » laisserait croire qu'il faut la franchir pour
-         continuer, alors que c'est justement l'issue préférable. */
+         Quatre étapes numérotées, une phrase chacune, l'essentiel en gras
+         (v2.12). L'étape 2 (port ou ZMEL) est mise en avant en vert : c'est
+         l'issue préférable. Les étapes 3 et 4 ne concernent que l'usager
+         pour qui aucun port ni ZMEL ne convient. */
       /* Couleurs système « information » du DSFR : le panneau de gauche informe,
          les blocs de droite pilotent. La distinction se voit avant d'être lue. */
-      .bifurcation { background:#e8edff; border-left:3px solid #0063cb; padding:9px 11px;
-                     border-radius:3px; margin-bottom:12px; }
-      .bif-titre { margin:0 0 4px; font-size:13px; font-weight:700; color:#0063cb; line-height:1.3; }
-      .bif-txt { margin:0 0 8px; font-size:11.5px; color:#3a3a3a; line-height:1.45; }
-      .bif-info { margin:0; font-size:11.5px; color:#0063cb; line-height:1.45; font-weight:700;
-                  display:flex; gap:6px; align-items:flex-start;
-                  border-top:1px solid #c5d3f6; padding-top:8px; }
-      .bif-info svg { flex-shrink:0; margin-top:1px; }
       .etape.encours .puce { box-shadow:0 0 0 3px #e8edff; }
 
       .etapes { list-style:none; margin:0; padding:0; counter-reset:e; }
@@ -250,16 +242,23 @@
       #guide-titre { margin:0 40px 16px 0; font-size:19px; font-weight:700; color:#003189;
                      line-height:1.3; }
       .guide-inter { margin:16px 0 10px; font-size:13.5px; color:#1e1e1e; line-height:1.5; }
-      #guide .bifurcation { margin-bottom:0; padding:12px 14px; }
-      #guide .bif-titre { font-size:14.5px; margin-bottom:6px; }
-      #guide .bif-txt { font-size:13px; margin-bottom:10px; }
-      #guide .bif-info { font-size:12.5px; }
       #guide .etapes { margin:0; }
       #guide .etape { padding:7px 0; }
       #guide .etape:not(:last-child)::before { top:29px; }
       #guide .puce { width:24px; height:24px; font-size:12px; }
       #guide .etape-txt { font-size:13px; line-height:1.45; }
+      #guide .etape-txt { color:#3a3a3a; font-weight:400; }
       #guide .etape-txt strong { color:#1a1a1a; }
+      /* Étapes 1 et 2 : consignes fixes, sans état à suivre. */
+      #guide .etape.fixe .puce { background:#003189; color:#fff; }
+      #guide .etape.verte { background:#dffee6; border-left:3px solid #18753c; border-radius:3px;
+                            padding:10px 12px 10px 9px; margin:4px 0 0 -12px; }
+      #guide .etape.verte .puce { background:#18753c; }
+      #guide .etape.fixe::before { display:none; }
+      #guide-commencer { display:block; margin:18px 0 0 auto; background:#000091; color:#fff;
+                         border:none; padding:8px 22px; font-size:14px; font-weight:500;
+                         font-family:inherit; cursor:pointer; }
+      #guide-commencer:hover { background:#1212ff; }
       /* Bouton de réouverture : sans lui, la marche à suivre serait perdue
          dès la première fermeture. */
       #guide-rouvrir { position:absolute; left:10px; z-index:520; width:29px; height:29px;
@@ -318,9 +317,9 @@
     <div id="guide" role="dialog" aria-modal="true" aria-labelledby="guide-titre">
       <div id="guide-carte">
         <button id="guide-fermer" aria-label="Fermer">&times;</button>
-        <h2 id="guide-titre">Fonctionnement de la carte pour un choix d'emplacement
-          de mouillage responsable</h2>
+        <h2 id="guide-titre">Choisir un emplacement de mouillage en 4 étapes</h2>
         <div id="guide-corps"></div>
+        <button id="guide-commencer" type="button">Commencer</button>
       </div>
     </div>
 
@@ -693,42 +692,39 @@
     popupEl.insertBefore(boatBlock, popupEl.firstChild);
     popupEl.insertBefore(envBlock, boatBlock);
 
-    const ETAPES = [
-      { titre:"Choisir un emplacement",
-        detail:"Cliquez sur la carte, à l'écart des zones sensibles affichées." },
-      { titre:"Renseigner votre navire",
-        detail:"Sa longueur et la colonne d'eau à marée haute déterminent le rayon d'évitage, comparé aux mouillages voisins." },
-      { titre:"Récupérer les coordonnées",
-        detail:"Copiez-les, puis collez-les dans le formulaire de votre démarche." }
-    ];
     /* La marche à suivre s'ouvre en modale au chargement : elle explique avant
-       que l'usager n'agisse, puis lui rend l'écran. Les étapes restent dans le
-       document, donc leur état continue de se mettre à jour — rouvrir la modale
-       en cours de route montre où l'on en est. */
+       que l'usager n'agisse, puis lui rend l'écran. Une phrase par étape,
+       l'action en gras. Les étapes 1 et 2 sont des consignes fixes ; les
+       étapes 3 et 4 (et-0, et-1) suivent l'état réel du parcours — rouvrir la
+       modale en cours de route montre où l'on en est. */
     document.getElementById('guide-corps').innerHTML = `
-      <div class="bifurcation">
-        <p class="bif-titre">Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?</p>
-        <p class="bif-txt">Dans un port ou une zone de mouillages et d'équipements
-          légers, le navire est amarré à un corps-mort. Aucune ancre ne laboure le
-          fond : c'est de loin l'option la moins dommageable pour les écosystèmes marins.</p>
-        <p class="bif-info">
-          <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="#0063cb" stroke-width="1.6"/>
-            <circle cx="8" cy="4.6" r="1" fill="#0063cb"/>
-            <path d="M8 7v5" stroke="#0063cb" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span>Cliquez sur les ports et ZMEL qui vous conviennent pour vérifier
-            les disponibilités.</span>
-        </p>
-      </div>
-      <p class="guide-inter">Si aucune de ces solutions ne convient, la carte vous
-        accompagne en trois étapes :</p>
       <ol class="etapes">
-        ${ETAPES.map((t,i) => `
-          <li class="etape" id="et-${i}">
-            <span class="puce">${i+1}</span>
-            <span class="etape-txt"><strong>${t.titre}</strong><br>${t.detail}</span>
-          </li>`).join('')}
+        <li class="etape fixe">
+          <span class="puce">1</span>
+          <span class="etape-txt"><strong>Recherchez ou zoomez</strong> sur le
+            secteur qui vous intéresse.</span>
+        </li>
+        <li class="etape fixe verte">
+          <span class="puce">2</span>
+          <span class="etape-txt"><strong>Regardez d'abord si un port ou une ZMEL
+            vous convient</strong> : c'est de loin l'option la moins dommageable
+            pour les fonds marins. Cliquez dessus pour savoir comment faire une
+            demande.</span>
+        </li>
+      </ol>
+      <p class="guide-inter">Si aucun port ni ZMEL ne convient :</p>
+      <ol class="etapes" start="3">
+        <li class="etape" id="et-0">
+          <span class="puce">3</span>
+          <span class="etape-txt"><strong>Cliquez sur l'emplacement</strong> où
+            vous souhaitez mouiller : la carte vous indique les interdictions,
+            les recommandations et les mouillages voisins trop proches.</span>
+        </li>
+        <li class="etape" id="et-1">
+          <span class="puce">4</span>
+          <span class="etape-txt"><strong>Copiez les coordonnées GPS</strong> et
+            collez-les dans votre formulaire de demande d'AOT mouillage.</span>
+        </li>
       </ol>`;
 
     colonneD.appendChild(layerPanel);
@@ -741,13 +737,13 @@
        décorent pas. */
     let copieFaite = false;
     function majEtapes() {
-      const etape2Faite = !formNavireRequis || lireSaisieEvitage() !== null;
-      const etats = [ !!position, !!position && etape2Faite, copieFaite ];
+      // et-0 = étape 3 affichée (emplacement choisi), et-1 = étape 4 (coordonnées copiées).
+      const etats = [ !!position, copieFaite ];
       const encours = etats.indexOf(false);
       etats.forEach((fait, i) => {
         const li = document.getElementById('et-' + i);
         li.className = 'etape' + (fait ? ' faite' : (i === encours ? ' encours' : ''));
-        li.querySelector('.puce').textContent = fait ? '✓' : (i + 1);
+        li.querySelector('.puce').textContent = fait ? '✓' : (i + 3);
       });
     }
 
@@ -852,6 +848,7 @@
                               document.getElementById('guide-fermer').focus(); }
     function fermerGuide()  { guide.classList.remove('ouverte'); }
     document.getElementById('guide-fermer').addEventListener('click', fermerGuide);
+    document.getElementById('guide-commencer').addEventListener('click', fermerGuide);
     guide.addEventListener('click', e => { if (e.target === guide) fermerGuide(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerGuide(); });
 

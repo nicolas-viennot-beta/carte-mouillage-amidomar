@@ -13,23 +13,26 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution complète : 23 sept. 2026 (v2.3), avant commit.**
-- Lecture du code (script de vérification automatisé) : §1.1-1.4, §2.1-2.2,
-  §3.1-3.3, §3.4bis, §3.5, §4.1-4.4, §5.1-5.3, §5.4bis-ter, §5.5, §5.5bis,
-  §5.5ter, §5.5sexies, §5.5septies, §5.9 à §5.9quater, §5.14, §5.15,
-  §6.1quater, §6.3 — conformes.
-- Exécution dans Chromium headless (serveur local, `fetch` simulé pour les
-  services distants) : §6.1ter (4 cas), §5.4bis (5 scénarios, timeout mesuré
-  ≈ 4 s), §5.5sexies (6 scénarios), légende §3.3/§3.4/§3.4bis, clic cultures
-  marines §5.4, clic APB §5.4ter, clic Natura/ZNIEFF §5.6, aucune zone §5.7,
-  tout hors ligne §5.8, copie §5.12, fermeture/Échap §5.14, scénario v2.3
-  §5.16 — conformes, aucune `pageerror`.
-- Node.js (§6.1, §6.1bis) : syntaxe OK, phase synchrone OK, événement `load`
-  exécuté sans erreur.
-- **Non exécutables avant publication** (fond de carte et services réels
+**Dernière exécution complète : 5 oct. 2026 (v2.12), avant commit.**
+- Lecture du code (script) : §1.1-1.4, §2.1-2.2, §3.1-3.3, §3.5, §4.1-4.4,
+  §5.1-5.3, §5.5, §5.5bis, §5.5ter, §5.5septies, §5.9 à §5.9quinquies,
+  §5.15, §6.1quater, §6.3 — conformes, sauf écarts de texte ci-dessous.
+- Chromium headless (serveur local, services distants simulés) : scénario
+  v2.12 de la modale d'accueil (§4.1) de bout en bout avec vrais clics
+  souris, §3.4, §3.4bis, §5.4 à §5.14, §17, §18, §20, §21, §22, §6.1ter,
+  §6.2 — conformes, aucune `pageerror`.
+- Node.js : §6.1, §6.1bis (phase synchrone + `load`), §23 (a) et (b) — OK.
+- **Écarts relevés, sans lien avec la v2.12, non corrigés** : §2.3 (le titre
+  « Surcouches » reste affiché, liste vide ; le fond est libellé
+  « Aérienne ») ; §5.5sexies F (si toutes les couches terrestres de repli
+  échouent, `echec:true` bien que le résultat marin soit conservé — scénario
+  à préciser) ; §6.1quater (les ZMEL portent `commune`, pas `nom_commune`,
+  depuis v2.9 — texte du test à rafraîchir) ; §5.13 (« EXEMPLE FICTIF »
+  subsiste dans `SECOURS` des cultures marines).
+- **Non exécutables avant publication** (fonds de carte et services réels
   inaccessibles depuis l'environnement de test) : §1.5-1.8 (terre/eau sur
-  tuiles réelles), §2.3, §3.6, §4quater et §5quater en réseau réel — à
-  vérifier sur le site publié.
+  tuiles réelles), §2.3 (vignettes), §3.6 (rendu), §5.4quater, §5.5quater,
+  §19, §23 (version publiée) — à vérifier sur le site publié.
 
 ---
 
@@ -200,11 +203,18 @@ fonctionnalité correspondante a réellement disparu.
 
 ## 4. Contenus textuels (libellés)
 
-1. **Bifurcation d'accueil**
-   - Action : rechercher le texte de `.bif-titre` dans `index.html`.
-   - Attendu : « Tout d'abord, regarder si un emplacement en port ou ZMEL
-     est possible ? »
-   - Vérification : lecture du code.
+1. **Modale d'accueil en 4 étapes (v2.12)**
+   - Action : lire `#guide-titre` et le gabarit injecté dans `#guide-corps`
+     dans `index.html` ; puis l'ouvrir dans Chromium headless.
+   - Attendu : titre « Choisir un emplacement de mouillage en 4 étapes » ;
+     quatre `li.etape` numérotés 1 à 4, textes conformes au §3 « Étape 0 » de
+     DOCUMENTATION_FONCTIONNELLE.md ; l'étape 2 porte la classe `verte` ;
+     intertitre « Si aucun port ni ZMEL ne convient : » ; aucune mention de
+     la longueur du navire ; plus aucun élément `.bifurcation` dans la modale.
+   - Attendu (exécution) : le bouton `#guide-commencer` ferme la modale ;
+     après un clic en mer, `#et-0` passe à `faite` (puce ✓) et `#et-1` à
+     `encours` (puce 4) ; après copie des coordonnées, `#et-1` passe à `faite`.
+   - Vérification : lecture du code + Chromium headless.
 
 2. **Légende posidonie**
    - Action : rechercher le `label` de l'entrée `posidonie` dans `COUCHES`.
@@ -221,11 +231,13 @@ fonctionnalité correspondante a réellement disparu.
    - Vérification : lecture du code.
 
 3bis. **Libellés v2.4 (25 sept. 2026)**
-   - Action : rechercher dans `index.html` le texte de `.bif-txt`, le `label`
+   - Action : rechercher dans `index.html` le texte de l'étape 2 de la modale
+     d'accueil (`li.etape.verte`, depuis v2.12 ; `.bif-txt` auparavant), le `label`
      de l'entrée `aot` de `COUCHES` et les propriétés des entrées
      `natura_sic` / `natura_zps`.
-   - Attendu : `.bif-txt` se termine par « la moins dommageable pour les
-     écosystèmes marins. » (plus aucune occurrence de « dommageable pour les
+   - Attendu : l'étape 2 contient « la moins dommageable pour les fonds
+     marins » (v2.12 ; « écosystèmes marins » en v2.4) ; plus aucun élément ni
+     règle CSS `.bifurcation` / `.bif-*` (plus aucune occurrence de « dommageable pour les
      herbiers ») ; label `aot` = « AOT de mouillage existantes et leur
      évitage » ; `natura_sic` et `natura_zps` restent deux entrées distinctes
      (labels inchangés), toutes deux `visible:true`.
@@ -427,7 +439,7 @@ fonctionnalité correspondante a réellement disparu.
 
 9. **Formulaire navire conditionnel (gate 100 m) — désormais silencieux (v1.5)**
    - Action : lire la variable/logique `formNavireRequis` et son usage dans
-     `recalculer()` et `majEtapes()`.
+     `recalculer()` (depuis v2.12, `majEtapes()` ne l'utilise plus).
    - Attendu : `formNavireRequis` vrai seulement si `distanceM` entre le point
      cliqué et l'AOT existante la plus proche est `< 100`; si faux,
      `boatBlock` reste masqué et `recalculer()` retourne un état vide sans
@@ -647,14 +659,15 @@ fonctionnalité correspondante a réellement disparu.
          mouillages sont enregistrés à proximité, vérifier en remplissant les
          champs du formulaire « Calcul rayon d'évitage » si les rayons d'évitage
          des navires ne se chevauchent pas. » (plus de « ci-dessous ») ;
-         `#layer-panel` replié, `#evitage-panel` ouvert ; étape 2 « en cours » ;
+         `#layer-panel` replié, `#evitage-panel` ouvert ;
       3. longueur seule (10) : toujours jaune, `#out-rayon` vide ;
       4. colonne d'eau 4 : `#out-rayon` = « Rayon d'évitage = 16 m », message
          `.evitage-resultat.chevauche` « … estimé à 16 m, risque une collision
          avec le rayon d'évitage des navires à proximité. Veuillez vérifier sur
          site ou modifier l'emplacement par précaution. » + `.evitage-sous-titre`
          « Estimation indicative qui ne remplace pas une vérification sur
-         place. » ; étape 2 faite ;
+         place. » (depuis v2.12, la saisie du navire n'est plus une étape de la
+         marche à suivre) ;
       5. longueur 40 : mise à jour immédiate à 46 m ;
       6. `fermerPopupCoordonnees()` : valeurs conservées (4 / 40) ;
       7. replier le calcul, déplier les couches, re-cliquer au même endroit :

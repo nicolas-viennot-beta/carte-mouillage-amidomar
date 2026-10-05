@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.11 (septembre 2026)  
-**Dernière mise à jour:** 25 septembre 2026  
+**Version:** 2.12 (octobre 2026)  
+**Dernière mise à jour:** 5 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -46,10 +46,16 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 ## 3. Parcours utilisateur
 
 ### Étape 0 — Orientation (modale d'accueil)
-- Modale « *Fonctionnement de la carte pour un choix d'emplacement de mouillage responsable* »
-- Présente la bifurcation « *Tout d'abord, regarder si un emplacement en port ou ZMEL est possible ?* » : **port ou ZMEL** vs **mouillage individuel** — le texte de la branche port/ZMEL se termine par « c'est de loin l'option la moins dommageable pour les écosystèmes marins » (v2.4 ; « pour les herbiers » auparavant)
-- Décrit les étapes suivantes
-- Se ferme par ✕, Échap, ou clic extérieur
+- Modale « *Choisir un emplacement de mouillage en 4 étapes* » (v2.12 ; « Fonctionnement de la carte pour un choix d'emplacement de mouillage responsable » auparavant)
+- Quatre étapes numérotées, une seule phrase chacune, l'action en gras :
+  1. **Recherchez ou zoomez** sur le secteur qui vous intéresse.
+  2. *(bloc vert)* **Regardez d'abord si un port ou une ZMEL vous convient** : c'est de loin l'option la moins dommageable pour les fonds marins. Cliquez dessus pour savoir comment faire une demande.
+  - Intertitre : « Si aucun port ni ZMEL ne convient : »
+  3. **Cliquez sur l'emplacement** où vous souhaitez mouiller : la carte vous indique les interdictions, les recommandations et les mouillages voisins trop proches.
+  4. **Copiez les coordonnées GPS** et collez-les dans votre formulaire de demande d'AOT mouillage.
+- Les étapes 1 et 2 sont des consignes fixes ; les étapes 3 et 4 suivent l'état du parcours (✓ quand un emplacement est choisi, puis quand les coordonnées sont copiées). La saisie du navire n'est plus une étape de la marche à suivre (le formulaire reste affiché à moins de 100 m d'une AOT, voir §4)
+- Bouton « Commencer » en bas de la modale
+- Se ferme par « Commencer », ✕, Échap, ou clic extérieur
 - Réouvrable via le bouton ❓
 
 ### Étape 1 — Cliquer sur la carte
@@ -426,7 +432,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### ✅ 7. Clic et modale d'orientation
 - [ ] Cliquer sur la carte → modale d'orientation reste visibleOU disparaît selon la séquence
-- [ ] Rouvrir la modale d'orientation via ❓ → affiche l'étape en cours
+- [ ] La modale d'accueil affiche 4 étapes (étape 2 en vert) et se ferme par le bouton « Commencer »
+- [ ] Rouvrir la modale d'orientation via ❓ → affiche l'étape en cours (étapes 3 et 4 uniquement)
 - [ ] Les cases ✓ (complétées) et l'étape courante en bleu sont à jour
 
 ### ✅ 8. Curseur terre/eau
@@ -620,6 +627,13 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.12 — 5 octobre 2026
+**Modale d'accueil simplifiée en 4 étapes**
+- Nouveau titre : « Choisir un emplacement de mouillage en 4 étapes »
+- Une phrase par étape, l'action en gras ; ajout de l'étape « Recherchez ou zoomez » ; le bloc port/ZMEL devient l'étape 2, en vert, raccourci à deux phrases (« fonds marins » remplace « écosystèmes marins »)
+- L'étape « Renseigner votre navire » disparaît de la marche à suivre (le formulaire navire lui-même est inchangé) ; `majEtapes()` ne suit plus que deux états (emplacement choisi, coordonnées copiées)
+- Ajout d'un bouton « Commencer » (`#guide-commencer`) qui ferme la modale
 
 ### v2.11 — 25 septembre 2026
 **Correction d'une régression bloquante à l'initialisation (aucune couche ne se chargeait, sur réseau lent)**
@@ -862,4 +876,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 25 septembre 2026
+**Dernière mise à jour:** 5 octobre 2026
