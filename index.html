@@ -414,6 +414,7 @@
       delaiProfondeur: 5000,    // ms — délai max de l'API EMODnet pour l'estimation de la colonne d'eau (v2.6)
       colonneMin: 0.5,          // m — en dessous, pas d'estimation proposée (point asséché, estran ou à terre)
       delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
+      rayonCouvertureShom: 5,   // km — rayon du test de couverture du trait terre-mer (v2.17, calibré le 13/10/2026 : voir interrogerTraitTerreMer)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
@@ -1474,23 +1475,61 @@
                      '&count=1&propertyName=id,numdep&typeNames=' +
                      encodeURIComponent('LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones');
 
-    /* Renvoie { surDPM, departement } d'après le trait terre-mer, ou null si le
+    /* v2.17 : zéro objet au point ne suffit pas à conclure « mer ».
+       La couche ne couvre que les DÉPARTEMENTS LITTORAUX, et elle les couvre
+       ENTIÈREMENT, jusqu'à leur limite intérieure — vérifié le 13/10/2026 :
+       Vire, Falaise et Lisieux (14) renvoient 1 objet, Évreux (27) et Rennes (35)
+       aussi, alors qu'Argentan (61), Paris, Lyon et Toulouse renvoient 0. Un
+       point très à l'intérieur des terres, hors département littoral, renverrait
+       donc « 0 objet » et serait lu à tort comme « vous êtes en mer ».
+       D'où la seconde requête, menée en parallèle : y a-t-il de la terre
+       cartographiée dans un rayon de CONFIG.rayonCouvertureShom autour du point ?
+       - des objets autour, zéro au point      → mer ou estran, verdict fiable ;
+       - zéro au point ET zéro autour          → hors couverture, on ne conclut pas.
+       Calibrage du rayon, mesuré le 13/10/2026 (nombre d'objets renvoyés selon
+       le rayon, pour un point sans objet au point lui-même) :
+                                  1 km   2 km   5 km   10 km  20 km
+         Argentan (61)              0      0      0      0      1
+         Laval (53)                 0      0      0      0      1
+         Niort (79)                 0      0      0      1      1
+         Alençon (61), Angers (49),
+         Paris, Lyon                0      0      0      0      0
+         mer à 1 km de Ouistreham   1      1      1      1      1
+         mer à 3 km                 0      0      1      1      1
+         estran Mont-Saint-Michel   1      1      1      1      1
+       5 km écarte donc toutes les villes de l'intérieur testées tout en
+       couvrant la mer jusqu'à 5 km du rivage. Au-delà de 5 km au large, la
+       détection locale conclut « eau » sans appeler le Shom : ce cas ne passe
+       pas par ici. Risque résiduel assumé : un point situé à moins de 5 km d'un
+       département littoral, mais dans un département qui ne l'est pas, serait
+       lu comme « mer » — l'avertissement manquerait, sans autre conséquence.
+
+       Renvoie { surDPM, departement } d'après le trait terre-mer, ou null si le
        service est injoignable, lent, ou hors couverture (métropole seulement).
-       `null` ne doit JAMAIS bloquer l'usager : on retombe alors sur la détection
-       locale, comme avant. */
+       `null` ne doit JAMAIS laisser passer l'usager : le clic conserve alors
+       l'avertissement « à terre » de la détection locale, qui est le
+       comportement prudent (voir le traitement du clic). */
     async function interrogerTraitTerreMer(lngLat) {
-      const filtre = `INTERSECTS(geom,SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const point = `SRID=4326;POINT(${lngLat.lng} ${lngLat.lat})`;
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), CONFIG.delaiTraitTerreMer);
+      const interroger = filtre =>
+        fetch(WFS_SHOM + '&CQL_FILTER=' + encodeURIComponent(filtre), { signal: ctrl.signal })
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null);
       try {
-        const rep = await fetch(WFS_SHOM + '&CQL_FILTER=' + encodeURIComponent(filtre),
-                                { signal: ctrl.signal });
-        if (!rep.ok) return null;
-        const j = await rep.json();
-        if (!Array.isArray(j.features)) return null;
-        return { surDPM: j.features.length === 0,
-                 departement: j.features.length
-                   ? (j.features[0].properties || {}).numdep || null : null };
+        const [auPoint, autour] = await Promise.all([
+          interroger(`INTERSECTS(geom,${point})`),
+          interroger(`DWITHIN(geom,${point},${CONFIG.rayonCouvertureShom},kilometers)`)
+        ]);
+        if (!auPoint || !Array.isArray(auPoint.features)) return null;
+        if (auPoint.features.length)
+          return { surDPM: false,
+                   departement: (auPoint.features[0].properties || {}).numdep || null };
+        // Zéro objet au point : mer (estran compris)… ou hors couverture.
+        if (!autour || !Array.isArray(autour.features) || autour.features.length === 0)
+          return null;
+        return { surDPM: true, departement: null };
       } catch (e) { return null; } finally { clearTimeout(t); }
     }
 
@@ -1683,30 +1722,41 @@
        DOCUMENTATION_FONCTIONNELLE.md. Le seul rappel conservé dans le popup est
        celui sur les herbiers, porté par la carte « nature du fond ». */
 
-    /* Terre ou eau ?
-       Dans le style Plan IGN, la mer n'est pas une couche : c'est le fond de la
-       carte, et la terre est dessinée par-dessus. Le test est donc inversé — on
-       cherche de la terre au point cliqué, sur la carte fantôme (toujours au
-       fond « simple », voir plus haut) plutôt que sur la carte visible : le
-       fond « Aérien » ne porte pas ces informations. Les toponymes et les
-       limites administratives sont ignorés : ils débordent en mer.
+    /* Terre ou eau ? — raisonnement refondu en v2.17
+       La v2.16 cherchait LA TERRE au point cliqué : tout point sans objet
+       terrestre retombait sur « indéterminable », et un verdict indéterminable
+       laissait passer le clic. Or, dans le style Plan IGN, la terre ordinaire
+       N'EST PAS UN OBJET : seuls le bâti, les routes, la végétation et
+       l'hydrographie sont dessinés ; un champ, une plage, une dune ou un bourg
+       sans bâti au pixel cliqué ne portent AUCUN objet et ne sont qu'un aplat
+       de fond rgb(240,240,237). D'où les faux « vous êtes en mer » signalés le
+       13/10/2026 au sud de Caen et au cap Blanc-Nez, à tous les zooms.
+       Mesures du 13/10/2026 sur la carte fantôme (source unique : plan_ign) :
+         mer (z6 à z14)        → objet hydro_surf   + rgb(151,205,213)
+         estran baie de Somme  → hydro_surf + ocs_  + rgb(192,229,219)
+         champ, plage, dune,
+         bourg de Camaret      → AUCUN objet        + rgb(240,240,237)
+       La preuve est donc inversée : ce n'est plus la terre qu'on cherche, c'est
+       L'EAU qu'on exige. Sans preuve d'eau et avec les tuiles chargées, le point
+       est tenu pour terrestre — verdict soumis, comme depuis la v2.14, au trait
+       terre-mer du Shom, qui replace l'estran du côté mer.
+       Le socle OpenMapTiles (landcover, landuse, building, aeroway) évoqué en
+       v2.16 n'existe pas sur cette carte : le style ne porte qu'une source,
+       plan_ign. Les noms sont conservés dans TERRE, sans effet, au cas où le
+       fond évoluerait.
+       Les toponymes et les limites administratives restent ignorés : ils
+       débordent en mer.
 
-       Le style « simple » combine deux jeux de couches vectorielles : les
-       couches IGN proprement dites (bati_, ocs_, routier_, ferre, oro_relief)
-       et un socle générique OpenMapTiles (landcover, landuse, building,
-       aeroway) qui porte notamment les marais, plages, dunes, prés et bois —
-       des zones de terre qui n'ont ni bâti ni route à proximité. Ce second
-       jeu manquait à l'origine : un point de marais ou de plage, non couvert
-       par la première liste, n'était alors identifié comme terre par aucun
-       des deux tests et retombait, à tort, sur la confirmation « eau ».
-
-       Renvoie true (eau), false (terre) ou null (indéterminable). */
+       Renvoie true (eau), false (terre) ou null (indéterminable : tuiles non
+       chargées — le seul cas qui subsiste). */
     const TERRE = /^(oro_relief|ocs_|bati_|routier_|ferre|landcover|landuse|building|aeroway)/;
+    // Objets d'eau du fond « simple » : hydro_surf porte la mer, les estuaires,
+    // les grands cours d'eau et les plans d'eau intérieurs.
+    const EAU = /^hydro_/;
     // Couleur exacte de la mer sur le fond « simple » (la seule couche « water »
     // du style, cf. vendor/carte-facile.js — rgba(151,205,213,1)), plus une
     // légère marge observée à l'écran pour les variations de rendu. Sert de
-    // confirmation positive quand aucune caractéristique vectorielle de terre
-    // n'a pu être testée (p. ex. tuiles pas encore chargées).
+    // confirmation positive quand la mer est peinte en fond plutôt qu'en objet.
     // ATTENTION : une ancienne deuxième teinte ({199,228,219}, prétendument
     // « zone littorale peu profonde ») a été retirée — elle était à 7 près de
     // rgb(192,229,219), la couleur exacte des marais (landcover_wetland) ET
@@ -1740,15 +1790,17 @@
       let f;
       try { f = mapTerrain.queryRenderedFeatures(point); } catch (e) { return null; }
       if (!f) return null;
+      // Un objet terrestre l'emporte sur tout : l'estran, qui porte à la fois
+      // ocs_ et hydro_surf, part ainsi à l'arbitrage du Shom plutôt que d'être
+      // conclu ici (v2.14).
       if (f.some(x => TERRE.test(x.sourceLayer || ''))) return false;
+      // Preuve d'eau, par l'objet puis par la couleur de fond.
+      if (f.some(x => EAU.test(x.sourceLayer || ''))) return true;
       if (EAU_SIMPLE.some(c => couleursProches(couleurPixel(mapTerrain, point), c, 6))) return true;
-      // Aucune trace de terre, et la couleur ne confirme pas la mer : soit on
-      // est bien en mer sous une teinte non répertoriée, soit les tuiles du
-      // fond de carte ne sont pas chargées. Dans les deux cas, indéterminable :
-      // on n'empêche pas l'usager (voir le traitement du clic, qui ne bloque
-      // que sur `=== false`), mais on ne le fait plus, comme avant, sous
-      // couvert d'une confirmation « eau » qui n'en était pas une.
-      return mapTerrain.areTilesLoaded() ? null : null;
+      // Aucune preuve d'eau. Si les tuiles ne sont pas chargées, on ne sait
+      // rien et on ne bloque pas. Sinon le point est terrestre : c'est le cas
+      // du champ, de la plage et du bourg, qui ne portent aucun objet (v2.17).
+      return mapTerrain.areTilesLoaded() ? false : null;
     }
 
     // v2.14 : le clic comporte désormais une attente réseau AVANT l'avertissement

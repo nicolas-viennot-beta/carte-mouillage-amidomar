@@ -1,7 +1,8 @@
 # Carte AMIDOMAR — Tests fonctionnels (à exécuter par Claude)
 
 Ce document liste les tests fonctionnels que Claude doit exécuter lui-même
-avant de proposer une évolution ou un déploiement de `prototype/index.html`.
+avant de proposer une évolution ou un déploiement de `index.html`
+(dossier `/Claude/Amidomar/projet`).
 Il est distinct de la checklist manuelle du §9 de
 `DOCUMENTATION_FONCTIONNELLE.md` (destinée à un test humain en conditions
 réelles, dans un navigateur) : ici, chaque test précise l'action, le
@@ -13,7 +14,26 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution partielle : 13 oct. 2026 (v2.16) — popup réorganisée.**
+**Dernière exécution : 13 oct. 2026 (v2.17) — refonte de la détection terre/mer.**
+- Harnais Node.js (`vm`, globaux simulés) : §6.1 (syntaxe) et §6.1bis (phase
+  synchrone exécutée en entier, sans exception ; 4 fetch locaux observés) — OK.
+- Chromium headless (Playwright, serveur local, Shom et Géoplateforme rejoués),
+  26 assertions, 26/26 : §1.1, §1.2, §1.3, §1.9, §1.24, §1.25, §1.27, §6.1bis,
+  §6.1quater. Dont les sept cas de `estSurLEau` pilotés par stub
+  (`queryRenderedFeatures`, `areTilesLoaded`, `couleurPixel`) et les quatre
+  réponses possibles de `interrogerTraitTerreMer`. Les seules `console.error`
+  restantes sont des artefacts du harnais (tuiles `.pbf` simulées par du JSON,
+  `zmel.geojson` non recopié dans le bac à sable).
+- Navigateur réel, sur la version publiée, avec le code corrigé extrait du
+  fichier et injecté : §1.26 et §1.29 — **20 scénarios géographiques, 20/20**,
+  latence Shom 28 à 124 ms. §1.28 (calibrage du rayon) exécuté en réel contre
+  `services.data.shom.fr`.
+- **Non rejoué cette fois :** §2, §3, §4, §5 et §7 (sélecteur de fond, couches à
+  venir, libellés, cascade de clic, popup v2.16). La v2.17 ne touche qu'à
+  `estSurLEau` et `interrogerTraitTerreMer`, et le chargement complet de la page
+  dans Chromium ne lève aucune `pageerror`.
+
+**Exécution précédente : 13 oct. 2026 (v2.16) — popup réorganisée.**
 - Chromium headless (serveur local, réponses du Shom et de l'API Carto rejouées) :
   §7.1 à §7.9 — conformes, plus §6.1 (syntaxe) et §6.1bis (chargement complet,
   aucune `pageerror` ni `console.error`).
@@ -78,7 +98,8 @@ fonctionnalité correspondante a réellement disparu.
 portent sur la détection locale (carte fantôme), les tests 9 à 15 sur
 l'arbitrage par le trait terre-mer du Shom. Les tests 16 à 23 portent sur la
 nature du fond affichée au clic (v2.15), qui s'appuie sur le même mécanisme
-d'interrogation ponctuelle du Shom.*
+d'interrogation ponctuelle du Shom. Les tests 24 à 29 couvrent la refonte de
+la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
 
 
 1. **Carte fantôme présente et configurée**
@@ -104,19 +125,27 @@ d'interrogation ponctuelle du Shom.*
      canal dans `couleursProches` ; lecture via `gl.readPixels` avec prise en
      compte du ratio `devicePixelRatio` et de l'inversion de l'axe Y.
      L'ancienne deuxième teinte (`{ r:199, g:228, b:219 }`) a été retirée : à
-     7 près de `rgb(192,229,219)`, la couleur exacte des marais
-     (`landcover_wetland`) et des plages/dunes (`landcover_sand`) sur ce même
-     style, elle confirmait « eau » des points de terre (voir test 7).
+     7 près de `rgb(192,229,219)`, elle confirmait « eau » des points de terre
+     (voir test 7). *Rectificatif du 13/10/2026 : `rgb(192,229,219)` n'est pas
+     la couleur de couches `landcover_*` — ce socle n'existe pas sur cette
+     carte — mais celle des zones découvrantes (estran, marais littoraux),
+     rendues avec un objet `hydro_surf`. Le retrait de la teinte reste
+     justifié ; la raison documentée en v1.6 était inexacte.*
    - Vérification : lecture du code.
 
 4. **`TERRE` couvre aussi le socle générique OpenMapTiles**
    - Action : lire la regex `TERRE`.
    - Attendu (depuis le 18 septembre 2026) : en plus des couches IGN
      (`oro_relief`, `ocs_`, `bati_`, `routier_`, `ferre`), la regex couvre
-     `landcover`, `landuse`, `building` et `aeroway` — le socle générique
-     OpenMapTiles du même style, qui porte notamment marais, plages, dunes,
-     prés, champs et bois.
-   - Vérification : lecture du code.
+     `landcover`, `landuse`, `building` et `aeroway`.
+   - **Rectificatif du 13/10/2026 :** ce socle générique **n'existe pas** sur
+     cette carte. `mapTerrain.getStyle().sources` ne compte qu'une source,
+     `plan_ign`, et les `sourceLayer` réellement rencontrés sont `bati_surf`,
+     `ocs_vegetation_surf`, `ocs_nature_sol_surf`, `routier_*`, `hydro_surf`,
+     `hydro_reseau`, `toponyme_*`. Ces quatre noms restent dans `TERRE`, sans
+     effet, au cas où le fond évoluerait — ils ne doivent plus être présentés
+     comme une protection active.
+   - Vérification : lecture du code + `mapTerrain.getStyle()` en console.
 
 5. **Test visuel (si navigateur disponible) : clic à terre sur fond Simple**
    - Action : ouvrir la carte, sélectionner le fond Simple, cliquer sur une
@@ -305,6 +334,94 @@ d'interrogation ponctuelle du Shom.*
       le second cas, revérifier aussi la table des libellés (test 16).
     - Vérification : exécution réelle contre `services.data.shom.fr`, depuis un
       navigateur (le conteneur d'exécution de Claude n'a pas accès à ce domaine).
+
+24. **La terre sans objet est bien conclue « terre » (v2.17)**
+    - Action : lire la fin de `estSurLEau`.
+    - Attendu : la fonction se termine par
+      `return mapTerrain.areTilesLoaded() ? false : null;` — **`false`**, pas
+      `null`, quand les tuiles sont chargées. Un `null` dans cette branche est
+      la régression exacte corrigée en v2.17 : il laisse passer tout point
+      terrestre sans objet au pixel. Vérifier aussi que les deux branches du
+      ternaire sont bien distinctes (la v2.16 écrivait `? null : null`).
+    - Vérification : lecture du code.
+    - **Test de non-régression prioritaire.**
+
+25. **Ordre des tests dans `estSurLEau` (v2.17)**
+    - Action : lire le corps de `estSurLEau`.
+    - Attendu, dans cet ordre : (1) objet `TERRE` → `false` ; (2) objet `EAU`
+      (`/^hydro_/`) → `true` ; (3) couleur `EAU_SIMPLE` → `true` ; (4) défaut
+      selon `areTilesLoaded`. L'objet terrestre doit rester **prioritaire** sur
+      l'objet d'eau : l'estran porte les deux, et doit partir à l'arbitrage du
+      Shom plutôt qu'être conclu localement (v2.14).
+    - Vérification : lecture du code.
+
+26. **Points de contrôle de la détection locale (v2.17)**
+    - Action : dans un navigateur, caler la carte sur chaque point puis appeler
+      `estSurLEau({lng, lat})` une fois `mapTerrain.areTilesLoaded()` vrai.
+    - Attendu (relevés le 13/10/2026) :
+
+      | Point | Objets au point | Couleur | `estSurLEau` |
+      |---|---|---|---|
+      | Mer, Manche (-0,40 / 49,50), zooms 6 à 14 | `hydro_surf` | `rgb(151,205,213)` | `true` |
+      | Estran, baie de Somme (1,61 / 50,22) | `hydro_surf` + `ocs_` | `rgb(192,229,219)` | `false` → Shom |
+      | Champ au sud de Caen (-0,022765 / 49,095841) | aucun | `rgb(240,240,237)` | `false` |
+      | Cap Blanc-Nez (1,762662 / 50,930565) | aucun | `rgb(240,240,237)` | `false` |
+      | Bourg de Camaret (-4,5920 / 48,2795) | aucun | `rgb(240,240,237)` | `false` |
+
+    - Vérification : exécution en navigateur (console).
+    - **Test de non-régression prioritaire** : les deux points signalés par
+      Nicolas le 13/10/2026 (champ au sud de Caen, cap Blanc-Nez) renvoyaient
+      `null` à tous les zooms de 6 à 16 avant la v2.17.
+
+27. **Garde-fou de couverture du trait terre-mer (v2.17)**
+    - Action : lire `interrogerTraitTerreMer`.
+    - Attendu : **deux** requêtes lancées par `Promise.all`, partageant le même
+      `AbortController` et le même délai — `INTERSECTS(geom, point)` et
+      `DWITHIN(geom, point, CONFIG.rayonCouvertureShom, kilometers)`. Un objet
+      au point → `surDPM` faux. Zéro au point mais des objets autour → `surDPM`
+      vrai. Zéro au point **et** zéro autour → `null` (hors couverture, repli
+      prudent), jamais `surDPM` vrai.
+    - Vérification : lecture du code.
+
+28. **Couverture départementale de la couche et calibrage du rayon (v2.17)**
+    - Action : interroger le service en réel, au point puis à 1, 2, 5, 10 et
+      20 km, sur des villes de l'intérieur et des points de mer.
+    - Attendu (relevés le 13/10/2026, nombre d'objets) :
+
+      | Point | point | 1 km | 2 km | 5 km | 10 km | 20 km |
+      |---|---|---|---|---|---|---|
+      | Argentan (61) | 0 | 0 | 0 | 0 | 0 | 1 |
+      | Laval (53) | 0 | 0 | 0 | 0 | 0 | 1 |
+      | Niort (79) | 0 | 0 | 0 | 0 | 1 | 1 |
+      | Alençon (61), Angers (49), Paris, Lyon | 0 | 0 | 0 | 0 | 0 | 0 |
+      | Mer à 1 km de Ouistreham | 0 | 1 | 1 | 1 | 1 | 1 |
+      | Mer à 3 km | 0 | 0 | 0 | 1 | 1 | 1 |
+      | Estran du Mont-Saint-Michel | 0 | 1 | 1 | 1 | 1 | 1 |
+
+    - Attendu aussi : la couche couvre **entièrement** les départements
+      littoraux, jusqu'à leur limite intérieure — Vire, Falaise et Lisieux (14),
+      Évreux (27) et Rennes (35) renvoient 1 objet.
+    - Conclusion à retrouver : 5 km est le seul rayon testé qui écarte toutes
+      les villes de l'intérieur tout en couvrant la mer proche du rivage. **Si
+      `CONFIG.rayonCouvertureShom` est modifié, ce tableau doit être rejoué.**
+    - Vérification : exécution réelle contre `services.data.shom.fr`, depuis un
+      navigateur (le conteneur d'exécution de Claude n'a pas accès à ce domaine).
+
+29. **Scénarios de bout en bout terre/mer (v2.17)**
+    - Action : pour chaque point, caler la carte, appeler `estSurLEau` puis,
+      si le verdict est `false`, `interrogerTraitTerreMer`, et conclure comme
+      le fait le gestionnaire de clic.
+    - Attendu (20/20 le 13/10/2026, latence Shom 28 à 124 ms) :
+      - **Avertissement « à terre »** : champ au sud de Caen (zoom 13), cap
+        Blanc-Nez (zooms 8 et 15), bourg de Camaret, plage de Ouistreham, dune
+        de Lacanau, Argentan (61), Laval (53), Niort (79), Paris, Lyon.
+      - **Clic autorisé** : anse de Pen Hat, Manche (zooms 6 et 10), mer à 1 km
+        de Ouistreham, estran du Mont-Saint-Michel, estran de la baie de Somme,
+        rade de Brest, golfe du Morbihan, Méditerranée au large d'Hyères.
+    - Attendu aussi : les clics autorisés en pleine eau (Manche, rade de Brest,
+      Méditerranée) sont conclus **localement**, sans aucun appel au Shom.
+    - Vérification : exécution en navigateur (console + onglet réseau).
+    - **Test de non-régression prioritaire.**
 
 ---
 

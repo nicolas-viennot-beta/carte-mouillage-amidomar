@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.16 (octobre 2026)  
+**Version:** 2.17 (octobre 2026)  
 **Dernière mise à jour:** 13 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -265,29 +265,46 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 
 Depuis la v2.14, la détection se fait en **deux instances** : une détection locale instantanée (§4.4.1), puis, et seulement lorsque celle-ci annonce « à terre », un arbitrage par le **trait terre-mer du Shom** (§4.4.2). Motif : la détection locale classe les plages, dunes et marais comme de la terre, alors que l'**estran** — le haut de plage qui découvre à marée basse — relève du domaine public maritime et peut légitimement porter un mouillage. Les faux « vous êtes à terre » signalés par la DDTM des Côtes-d'Armor venaient de là.
 
+**Refonte de la v2.17.** La première instance cherchait *la terre* et laissait passer tout point où elle n'en trouvait pas. Or la terre ordinaire n'est pas un objet du fond Plan IGN : un champ, une plage, une dune ou un bourg sans bâti au pixel cliqué ne portent aucun objet. Un clic en pleine campagne ressortait donc « indéterminé », c'est-à-dire autorisé, et n'était jamais soumis au Shom. Depuis la v2.17, c'est **l'eau** qui doit être prouvée : sans preuve d'eau et avec les tuiles chargées, le point est tenu pour terrestre, puis arbitré par le Shom comme depuis la v2.14. Le second verrou porte sur l'arbitrage lui-même : zéro objet renvoyé par le Shom ne vaut « mer » que si la couche couvre bien l'endroit (§4.4.2).
+
 #### 4.4.2 Arbitrage par le trait terre-mer du Shom *(v2.14)*
 
 - **Source:** couche WFS `LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones` du service INSPIRE du Shom (`https://services.data.shom.fr/INSPIRE/wfs`). Aucune clé d'API, aucun conventionnement. Licence Ouverte Etalab v2.0.
 - **Ce que porte la donnée:** d'après la métadonnée du produit, « la Limite terre-mer correspond à la laisse des plus hautes mers astronomiques (PHMA) dans le cas d'une marée de coefficient 120 et dans des conditions météorologiques normales […] elle correspond aussi à la limite haute du rivage en matérialisant le haut de l'estran ». C'est la définition du **DPM naturel** (art. L2111-4 du CGPPP), issue du croisement d'un modèle de PHMA et du MNT littoral Litto3D®/RGE ALTI®, à 1 à 5 m de résolution (échelle de saisie 1:2000).
 - **Méthode:** la couche porte les **surfaces terrestres**. Un filtre `CQL_FILTER=INTERSECTS(geom,SRID=4326;POINT(lng lat))` renvoie donc **zéro objet si le point est côté mer** (estran compris) et un objet, avec son `numdep`, s'il est à terre. `propertyName=id,numdep` évite de rapatrier la géométrie : réponse de 150 à 300 octets, 25 à 250 ms mesurés sur les trois sites de test.
+- **Test de couverture *(v2.17)*:** « zéro objet » ne suffit pas à conclure « mer ». La couche ne couvre que les **départements littoraux**, mais elle les couvre **entièrement**, jusqu'à leur limite intérieure : mesuré le 13/10/2026, Vire, Falaise et Lisieux (14), Évreux (27) et Rennes (35) renvoient bien 1 objet, tandis qu'Argentan (61), Laval (53), Niort (79), Paris et Lyon renvoient 0. Un point très à l'intérieur des terres serait donc lu comme « en mer ». Une **seconde requête est donc menée en parallèle** de la première, avec un filtre `DWITHIN(geom, point, CONFIG.rayonCouvertureShom, kilometers)` : y a-t-il de la terre cartographiée autour du point ? Des objets autour et zéro au point → mer ou estran, verdict fiable ; zéro au point **et** zéro autour → hors couverture, la fonction ne conclut pas et renvoie `null` (repli prudent). Les deux requêtes partagent le même `AbortController` et le même délai, donc la latence reste celle d'un seul appel.
+- **Calibrage du rayon *(v2.17, mesuré le 13/10/2026)*:** 5 km écarte toutes les villes de l'intérieur testées (Argentan, Laval, Niort, Alençon, Angers, Paris, Lyon → 0 objet à 5 km) tout en couvrant la mer jusqu'à 5 km du rivage (mer à 1 et 3 km de Ouistreham, estran du Mont-Saint-Michel → 1 objet). Un rayon de 10 ou 20 km rattrapait Niort, Argentan et Laval et rouvrait le défaut. Au-delà de 5 km au large, la détection locale conclut « eau » sans appeler le Shom : ce cas ne passe pas par l'arbitrage. **Risque résiduel assumé :** un point situé à moins de 5 km d'un département littoral, mais dans un département qui ne l'est pas, serait lu comme « mer » — l'avertissement manquerait, sans autre conséquence.
 - **Point d'attention — projection:** la couche est en Lambert 93 (EPSG:2154). Le préfixe `SRID=4326;` du filtre est **obligatoire** ; sans lui, le service renvoie silencieusement zéro objet, ce qui se lirait à tort comme « en mer ». Même convention que `interrogerWFS` (§4.3).
 - **Coût pour l'usager:** aucun sur un clic en pleine eau — le service n'est interrogé **que** sur le cas contesté, c'est-à-dire quand la détection locale annonce « à terre ». Pendant l'attente, le popup affiche « Vérification de l'emplacement… ». Délai borné par `CONFIG.delaiTraitTerreMer` (3 000 ms).
-- **Robustesse:** si le service est injoignable, lent, ou hors couverture (le produit ne couvre que la France métropolitaine), la fonction renvoie `null` et **l'avertissement « à terre » de la détection locale est maintenu** — c'est-à-dire le comportement d'avant la v2.14, le comportement prudent. Un échec du Shom ne peut donc jamais laisser passer un clic qui aurait été refusé auparavant.
+- **Robustesse:** si le service est injoignable, lent, hors couverture géographique (le produit ne couvre que la France métropolitaine) ou hors couverture départementale (v2.17), la fonction renvoie `null` et **l'avertissement « à terre » de la détection locale est maintenu** — c'est-à-dire le comportement d'avant la v2.14, le comportement prudent. Un échec du Shom ne peut donc jamais laisser passer un clic qui aurait été refusé auparavant.
 - **Jeton de clic:** l'avertissement comportant désormais une attente réseau, un compteur `jetonClic` fait abandonner la vérification d'un clic qu'un clic plus récent a remplacé. Le même garde-fou a été ajouté après l'attente APB.
 - **Ce que l'arbitrage ne dit pas:** le trait terre-mer répond à « suis-je sur le DPM ? », pas à « y a-t-il assez d'eau pour mon bateau ? ». Un point d'estran est sur le DPM *et* au sec à marée basse. La seconde question reste traitée par l'estimation de la colonne d'eau (§4.2, EMODnet + RAM).
 - **Mention obligatoire:** la citation « Shom-IGN, 2021 (doi:10.17183/LIMTM) » et la clause « non certifié pour la navigation » sont portées par l'attribution de la carte (`attributionControl.customAttribution`), la couche n'étant pas affichée et n'ayant donc pas de source de tuiles pour la porter.
-- **Contrôles de non-régression** (valeurs relevées en réel le 12/10/2026) : anse de Pen Hat (-4,6050 / 48,2870) → 0 objet, donc mer ; bourg de Camaret (-4,5920 / 48,2795) → 1 objet, `numdep` = 29, donc terre ; estran de la baie du Mont-Saint-Michel (-1,6100 / 48,6330), à +13 m au-dessus du niveau de référence → 0 objet, donc mer. Voir `TESTS_FONCTIONNELS.md` §1, tests 9 à 15.
+- **Contrôles de non-régression** (valeurs relevées en réel le 12/10/2026) : anse de Pen Hat (-4,6050 / 48,2870) → 0 objet, donc mer ; bourg de Camaret (-4,5920 / 48,2795) → 1 objet, `numdep` = 29, donc terre ; estran de la baie du Mont-Saint-Michel (-1,6100 / 48,6330), à +13 m au-dessus du niveau de référence → 0 objet, donc mer. Relevés complémentaires du 13/10/2026 : champ au sud de Caen (-0,022765 / 49,095841) → 1 objet, `numdep` = 14 ; cap Blanc-Nez (1,762662 / 50,930565) → 1 objet, `numdep` = 62 ; Paris et Lyon → 0 objet au point **et** 0 dans les 5 km, donc hors couverture. Voir `TESTS_FONCTIONNELS.md` §1, tests 9 à 15 et 24 à 29.
 
 #### 4.4.1 Détection locale (première instance)
 
 La détection locale ne peut pas se fonder sur le fond de carte visible par l'usager : le fond « Aérien » (photographie aérienne) ne comporte, en vecteur, que les routes et voies ferrées — aucune couche d'occupation du sol, de bâti ou de relief. Un point cliqué loin de toute route (champ, plage, maison isolée) y serait donc à tort classé comme « en mer ».
 
 - **Méthode:** Une carte de référence invisible (« carte fantôme »), jamais affichée à l'écran, reste en permanence calée sur le fond vectoriel **Simple** (Plan IGN) et synchronisée sur le centre/zoom/orientation de la carte visible. C'est cette carte fantôme qui est interrogée à chaque clic, quel que soit le fond réellement affiché à l'usager (Simple ou Aérien).
-- **Test vectoriel:** Recherche de caractéristiques de terre au point cliqué, projeté sur la carte fantôme, sur deux jeux de couches du même style : les couches IGN (`oro_relief`, `ocs_`, `bati_`, `routier_`, `ferre` — relief, occupation du sol, bâti, voirie, voies ferrées) **et**, depuis le 18 septembre 2026, le socle générique OpenMapTiles du même style (`landcover`, `landuse`, `building`, `aeroway`), qui porte notamment les marais, plages, dunes, prés, champs et bois. Les toponymes et limites administratives sont ignorés (ils débordent en mer).
-- **Confirmation par couleur:** Si aucune caractéristique de terre n'est trouvée, une lecture du pixel rendu sur la carte fantôme confirme la présence d'eau lorsque sa couleur est proche de la couleur exacte de la couche `water` du style (`rgb(151,205,213)`, tolérance ±6 par canal). Cette lecture nécessite `preserveDrawingBuffer: true` sur la carte fantôme.
+- **Ce que porte réellement le fond Plan IGN** *(mesuré le 13/10/2026 sur la carte fantôme, dont le style ne compte qu'une source, `plan_ign`)* :
+
+  | Point cliqué | Objets au point | Couleur du pixel |
+  |---|---|---|
+  | Mer, du zoom 6 au zoom 14 | `hydro_surf` | `rgb(151,205,213)` |
+  | Estran (baie de Somme) | `hydro_surf` + `ocs_nature_sol_surf` | `rgb(192,229,219)` |
+  | Champ, plage, dune, bourg de Camaret | **aucun** | `rgb(240,240,237)` |
+
+  La terre ordinaire n'est donc **pas** un objet : seuls le bâti, les routes, la végétation et l'hydrographie sont dessinés, le reste n'est que l'aplat de fond du style. Le socle générique OpenMapTiles (`landcover`, `landuse`, `building`, `aeroway`) évoqué depuis le 18 septembre 2026 **n'existe pas** sur cette carte ; ses noms restent dans la liste `TERRE`, sans effet, au cas où le fond évoluerait.
+- **Ordre des tests *(v2.17)*:**
+  1. **Objet terrestre** (`oro_relief`, `ocs_`, `bati_`, `routier_`, `ferre`) au point → **terre**. Cette priorité est volontaire : l'estran, qui porte à la fois `ocs_` et `hydro_surf`, part ainsi à l'arbitrage du Shom plutôt que d'être conclu ici.
+  2. **Objet d'eau** (`hydro_`, qui porte la mer, les estuaires, les grands cours d'eau et les plans d'eau intérieurs) au point → **eau**.
+  3. **Couleur de la mer** : lecture du pixel rendu sur la carte fantôme, eau si la couleur est proche de celle de la couche `water` du style (`rgb(151,205,213)`, tolérance ±6 par canal) — sert au cas où la mer serait peinte en fond plutôt qu'en objet. Cette lecture nécessite `preserveDrawingBuffer: true` sur la carte fantôme.
+  4. **Aucune preuve d'eau** : si les tuiles de la carte fantôme sont chargées → **terre** (soumise au Shom) ; sinon → indéterminé, le contrôle ne bloque pas.
 - **Critères ignorés:** Toponymes et limites administratives (débordent en mer)
-- **Robustesse:** Si ni une caractéristique de terre ni la couleur de la mer ne sont trouvées, le résultat est indéterminé — le contrôle ne bloque pas l'usager, y compris quand les tuiles de la carte fantôme (fond Simple) ne sont pas chargées alors que le fond **Aérien** est, lui, parfaitement chargé et affiché.
+- **Robustesse:** le seul cas « indéterminé » restant est celui des tuiles de la carte fantôme (fond Simple) non chargées — y compris quand le fond **Aérien** est, lui, parfaitement chargé et affiché. Ce cas ne bloque pas l'usager.
 - **Coût:** Cette méthode charge une seconde carte MapLibre en tâche de fond (invisible), avec son propre jeu de tuiles vectorielles — léger surcoût réseau et mémoire, sans impact visuel pour l'usager.
+- **Bug corrigé le 13 octobre 2026 (v2.17) :** signalé par Nicolas sur deux captures — un champ au sud de Caen et un point à l'intérieur des terres au cap Blanc-Nez — la détection ne produisait **aucun** avertissement « à terre », à tous les zooms testés (6 à 16). Cause : aucun objet terrestre n'existe au pixel cliqué sur ces points (voir le tableau ci-dessus), la couleur de fond `rgb(240,240,237)` ne correspondait à aucune teinte d'eau, et le code concluait alors « indéterminé », verdict qui laisse passer le clic et n'appelle jamais le Shom. Le Shom, lui, répondait correctement sur les deux points (1 objet, `numdep` 14 et 62). Correction : inversion de la charge de la preuve (voir « Ordre des tests » ci-dessus). Effet de bord corrigé dans le même mouvement : le code se terminait par `return mapTerrain.areTilesLoaded() ? null : null;`, deux branches identiques, donc un test sans effet.
 - **Bug corrigé le 18 septembre 2026 :** un marais ou une plage/dune, sans bâti ni route à proximité, n'était détecté par aucun des deux jeux de couches IGN d'origine et retombait, à tort, sur une confirmation « eau » — la seconde teinte de référence alors utilisée (`rgb(199,228,219)`) était en outre à 7 près de la couleur exacte des marais et des plages sur ce style (`rgb(192,229,219)`), ce qui confirmait activement ces zones de terre comme « eau ». Voir §11 (v1.6) et `TESTS_FONCTIONNELS.md` §1.7.
 
 ### 4.4bis Nature du fond au clic *(v2.15)*
@@ -381,6 +398,7 @@ const CONFIG = {
   delaiProfondeur: 5000,    // délai max de l'API EMODnet pour l'estimation de la colonne d'eau (ms, v2.6)
   colonneMin: 0.5,          // en dessous, pas d'estimation proposée (m, v2.6)
   delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
+  rayonCouvertureShom: 5,   // rayon du test de couverture du trait terre-mer (km, v2.17) — voir §4.4.2
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
@@ -510,6 +528,10 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] *(v2.14)* Cliquer dans un **bourg ou en pleine campagne** → l'avertissement « Vous êtes à terre » est bien maintenu après la vérification
 - [ ] *(v2.14)* Couper le réseau, puis cliquer sur une plage → l'avertissement « Vous êtes à terre » est maintenu (repli prudent, pas de blocage de l'interface)
 - [ ] *(v2.14)* Cliquer sur l'eau → **aucune latence ajoutée** et aucun appel au Shom dans l'onglet réseau (le trait terre-mer n'est consulté que sur un verdict « terre »)
+- [ ] *(v2.17)* Cliquer sur un **champ, un pré ou une forêt sans bâti ni route alentour**, à plusieurs kilomètres de la côte → l'avertissement « Vous êtes à terre » s'affiche (c'est le bug corrigé en v2.17 : ce cas passait silencieusement)
+- [ ] *(v2.17)* Rejouer le point ci-dessus **au zoom 8 puis au zoom 16** → même verdict aux deux zooms
+- [ ] *(v2.17)* Cliquer en **plein Paris ou en plein Lyon** (hors département littoral) → l'avertissement « Vous êtes à terre » s'affiche bien, et n'est pas levé par le Shom (test du garde-fou de couverture, §4.4.2)
+- [ ] *(v2.17)* Cliquer sur une **plage sèche** (au-dessus de la laisse des plus hautes mers) → avertissement maintenu, alors qu'un clic sur l'estran voisin est autorisé
 - [ ] Cliquer sur l'**eau**, sur l'un ou l'autre fond, hors ZMEL/port/cultures marines → popup affiche les coordonnées GPS et un bloc environnement (vert ou neutre/orange selon les zones détectées)
 - [ ] Popup affiche le **bouton Copier**
 
@@ -697,7 +719,14 @@ L'avertissement n'est levé que si le trait terre-mer du Shom répond, et répon
 1. **Le point est-il vraiment sur le DPM ?** Au-dessus de la laisse des plus hautes mers astronomiques, le haut de plage est juridiquement terrestre : le verdict est alors correct.
 2. **Le service répond-il ?** Dans l'onglet réseau, chercher l'appel à `services.data.shom.fr`. Une erreur, un délai dépassé (3 s) ou une absence d'appel conduit au repli prudent, qui maintient l'avertissement.
 3. **Est-on en outre-mer ?** Le produit ne couvre que la France métropolitaine : hors métropole, la réponse est toujours un repli.
+3 bis. **Est-on hors département littoral ?** *(v2.17)* Si le point et son voisinage de 5 km ne renvoient aucun objet, la couche ne couvre pas l'endroit : la fonction ne conclut pas et l'avertissement est maintenu. Normal à l'intérieur des terres, anormal sur un littoral — dans ce second cas, vérifier les deux appels au Shom dans l'onglet réseau.
 4. **Le filtre porte-t-il bien `SRID=4326;` ?** Sans ce préfixe, la couche étant en Lambert 93, le service renvoie zéro objet — ce qui produirait l'inverse du bug (tout passerait pour de la mer). À vérifier si des clics en pleine campagne cessent d'être refusés.
+
+### Un clic en pleine terre n'affiche aucun avertissement *(corrigé en v2.17)*
+Symptôme : le popup affiche les coordonnées et le contexte environnemental alors que le point est manifestement à terre, sans qu'aucun appel à `services.data.shom.fr` n'apparaisse dans l'onglet réseau. C'est la signature de l'ancien comportement : la détection locale renvoyait « indéterminé » faute d'objet terrestre au pixel, et un verdict indéterminé n'appelait pas le Shom. Si le symptôme réapparaît :
+1. **Y a-t-il un appel au Shom ?** S'il n'y en a aucun, le problème est dans la détection locale (`estSurLEau`), pas dans l'arbitrage.
+2. **Que renvoie `estSurLEau` ?** Attendu : `false` sur tout point sans objet `hydro_` et sans la couleur de la mer, dès lors que `mapTerrain.areTilesLoaded()` est vrai. Un `null` à cet endroit signale une régression de la v2.17.
+3. **La carte fantôme est-elle chargée ?** `mapTerrain.areTilesLoaded()` à `false` renvoie légitimement « indéterminé » : attendre le chargement et recliquer.
 
 ### Clic à terre ne fonctionne pas (sur l'un ou l'autre fond)
 **Diagnostic:**
@@ -728,6 +757,15 @@ L'avertissement n'est levé que si le trait terre-mer du Shom répond, et répon
 ---
 
 ## 11. Historique des corrections
+
+### v2.17 — 13 octobre 2026
+**Correction de bug : la détection terre/mer laissait passer la plupart des points terrestres**
+- Signalé par Nicolas sur deux captures (un champ au sud de Caen, `49.095841 / -0.022765` ; un point à l'intérieur des terres au cap Blanc-Nez, `50.930565 / 1.762662`) : le popup affichait coordonnées et contexte environnemental sans aucun avertissement « Vous êtes à terre », à tous les zooms testés.
+- Cause : `estSurLEau` cherchait **la terre**, alors que la terre ordinaire n'est pas un objet du fond Plan IGN. Un champ, une plage, une dune ou un bourg sans bâti au pixel cliqué ne portent aucun objet et ne sont qu'un aplat `rgb(240,240,237)`. Le verdict retombait sur « indéterminé », lequel laisse passer le clic — et n'appelle jamais le trait terre-mer du Shom, qui répondait pourtant correctement sur les deux points.
+- Correction : **inversion de la charge de la preuve**. C'est désormais l'eau qui doit être prouvée (objet `hydro_`, ou couleur exacte de la mer). Un objet terrestre reste prioritaire, pour que l'estran continue de partir à l'arbitrage du Shom. Sans preuve d'eau et avec les tuiles chargées, le point est terrestre.
+- Corrigé dans le même mouvement : `return mapTerrain.areTilesLoaded() ? null : null;`, dont les deux branches étaient identiques.
+- **Second verrou :** la couche du Shom ne couvrant que les départements littoraux, « zéro objet » pouvait aussi vouloir dire « hors couverture » — un clic en plein Paris ou en plein Lyon aurait été lu comme « en mer » une fois la détection locale corrigée. Ajout d'une seconde requête `DWITHIN` en parallèle, rayon `CONFIG.rayonCouvertureShom` = 5 km, calibré sur relevés réels (§4.4.2). Zéro au point et zéro autour → hors couverture, repli prudent.
+- Vérification : 20 scénarios rejoués sur la version publiée avec le code corrigé injecté — 20/20, latence Shom 28 à 124 ms. Voir `TESTS_FONCTIONNELS.md` §1, tests 24 à 29.
 
 ### v2.16 — 13 octobre 2026
 **Popup réorganisée en deux parties : contexte environnemental, puis valeurs à reporter**
