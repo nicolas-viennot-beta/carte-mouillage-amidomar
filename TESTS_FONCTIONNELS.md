@@ -28,6 +28,15 @@ fonctionnalité correspondante a réellement disparu.
   fichier et injecté : §1.26 et §1.29 — **20 scénarios géographiques, 20/20**,
   latence Shom 28 à 124 ms. §1.28 (calibrage du rayon) exécuté en réel contre
   `services.data.shom.fr`.
+- **Après déploiement (commit 6ca40a3), sur la version publiée :** les 20
+  scénarios de §1.29 rejoués avec les fonctions réellement servies — 20/20,
+  latence Shom 30 à 131 ms. Trois clics réels déclenchés sur la carte
+  (`map.fire('click', …)`) : champ au sud de Caen et cap Blanc-Nez →
+  popup `visible terre`, message « Attention, vous êtes à terre… », bloc
+  « À reporter » masqué, aucun marqueur ; mer au large de Ouistreham →
+  popup normale, marqueur posé, bloc « À reporter » visible. Aucune erreur
+  JavaScript en console : les seules 4xx observées sont des tuiles WMTS
+  `Patrinat_*` absentes hors couverture, antérieures à la v2.17.
 - **Non rejoué cette fois :** §2, §3, §4, §5 et §7 (sélecteur de fond, couches à
   venir, libellés, cascade de clic, popup v2.16). La v2.17 ne touche qu'à
   `estSurLEau` et `interrogerTraitTerreMer`, et le chargement complet de la page
