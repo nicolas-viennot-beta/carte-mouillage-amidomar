@@ -13,6 +13,42 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
+**Dernière exécution partielle : 13 oct. 2026 (v2.16) — popup réorganisée.**
+- Chromium headless (serveur local, réponses du Shom et de l'API Carto rejouées) :
+  §7.1 à §7.9 — conformes, plus §6.1 (syntaxe) et §6.1bis (chargement complet,
+  aucune `pageerror` ni `console.error`).
+- Les suites v2.14 (7 tests, trait terre-mer) et v2.15 (8 tests, nature du fond)
+  ont été rejouées intégralement : **aucune régression**. 26 tests au total.
+- **La suite complète n'a pas été rejouée** : aucun déploiement proposé sur
+  cette seule base.
+
+**Exécution précédente : 12 oct. 2026 (v2.15) — nature du fond.**
+- Lecture du code : §1.16, §1.17, §1.22 — conformes.
+- Exécution réelle contre `services.data.shom.fr`, depuis un navigateur sur le
+  poste de Nicolas : §1.23 (couverture par territoire) et établissement de la
+  table des libellés par comparaison légende / couleur rendue — 23 des 24 codes
+  confirmés à l'identique.
+- Chromium headless (serveur local, réponses du Shom rejouées) : §1.18 à §1.21
+  — conformes, plus §6.1bis (chargement complet, aucune `pageerror` ni
+  `console.error`) et §6.1 (syntaxe). Les 7 tests de la v2.14 ont été rejoués :
+  aucune régression.
+- **La suite complète n'a pas été rejouée** : aucun déploiement proposé sur
+  cette seule base.
+
+**Exécution précédente : 12 oct. 2026 (v2.14) — tests du trait terre-mer uniquement.**
+- Lecture du code : §1.9, §1.14 (garde de jeton après `interrogerAPB`) — conformes.
+- Exécution réelle contre `services.data.shom.fr`, depuis un navigateur sur le
+  poste de Nicolas : §1.10 — les quatre points de contrôle conformes
+  (56 à 207 ms). Le conteneur d'exécution de Claude n'a pas accès à ce
+  domaine : ce test ne peut pas être rejoué depuis le harnais headless, d'où
+  le rejeu des réponses dans les tests suivants.
+- Chromium headless (serveur local, réponses du Shom rejouées à l'identique) :
+  §1.11, §1.12, §1.13, §1.14, §1.15 — conformes, et §6.1bis (chargement
+  complet, aucune `pageerror` ni `console.error`). §6.1 (syntaxe) — OK.
+- **La suite complète n'a pas été rejouée** : aucun déploiement n'est donc
+  proposé sur cette seule base. À faire avant le prochain commit de
+  publication.
+
 **Dernière exécution complète : 5 oct. 2026 (v2.12), avant commit.**
 - Lecture du code (script) : §1.1-1.4, §2.1-2.2, §3.1-3.3, §3.5, §4.1-4.4,
   §5.1-5.3, §5.5, §5.5bis, §5.5ter, §5.5septies, §5.9 à §5.9quinquies,
@@ -36,7 +72,14 @@ fonctionnalité correspondante a réellement disparu.
 
 ---
 
-## 1. Détection terre/eau (`estSurLEau`, carte fantôme)
+## 1. Détection terre/eau (`estSurLEau` et carte fantôme, puis trait terre-mer du Shom)
+
+*Depuis la v2.14, la détection se fait en deux instances : les tests 1 à 8
+portent sur la détection locale (carte fantôme), les tests 9 à 15 sur
+l'arbitrage par le trait terre-mer du Shom. Les tests 16 à 23 portent sur la
+nature du fond affichée au clic (v2.15), qui s'appuie sur le même mécanisme
+d'interrogation ponctuelle du Shom.*
+
 
 1. **Carte fantôme présente et configurée**
    - Action : lire la déclaration de `mapTerrain` dans `index.html`.
@@ -111,6 +154,157 @@ fonctionnalité correspondante a réellement disparu.
    - Attendu : dans les deux cas, marqueur posé, coordonnées affichées,
      bouton Copier visible.
    - Vérification : visuelle.
+
+9. **Forme de la requête au trait terre-mer du Shom (v2.14)**
+   - Action : lire `WFS_SHOM` et `interrogerTraitTerreMer` dans `index.html`.
+   - Attendu : type d'objet
+     `LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones` ;
+     `outputFormat=application/json` ; `propertyName=id,numdep` (la géométrie
+     n'est jamais rapatriée) ; `count=1` ; filtre
+     `INTERSECTS(geom,SRID=4326;POINT(lng lat))` — **le préfixe `SRID=4326;`
+     est obligatoire**, la couche étant en Lambert 93 ; `AbortController`
+     borné par `CONFIG.delaiTraitTerreMer` ; renvoi de `null` (et non `false`)
+     sur erreur HTTP, exception ou délai dépassé.
+   - Vérification : lecture du code.
+
+10. **Sens de la couche : zéro objet signifie « mer » (v2.14)**
+    - Action : appeler le service en réel sur quatre points connus et vérifier
+      le `surDPM` renvoyé.
+    - Attendu : anse de Pen Hat (-4,6050 / 48,2870) → 0 objet, `surDPM` vrai ;
+      bourg de Camaret (-4,5920 / 48,2795) → 1 objet, `surDPM` faux,
+      `departement` = « 29 » ; estran de la baie du Mont-Saint-Michel
+      (-1,6100 / 48,6330) → 0 objet, `surDPM` vrai ; rade d'Hyères
+      (6,1300 / 43,0300) → 0 objet, `surDPM` vrai.
+    - Vérification : exécution réelle contre `services.data.shom.fr` (depuis
+      un navigateur ; le conteneur d'exécution de Claude n'a pas accès à ce
+      domaine). **Test de non-régression prioritaire : une inversion de ce
+      sens, ou la perte du préfixe `SRID=4326;`, ferait passer tous les
+      clics à terre pour de la mer.**
+
+11. **L'estran lève l'avertissement, la vraie terre le maintient (v2.14)**
+    - Action : forcer la détection locale à répondre « terre » (patch de
+      `mapTerrain.queryRenderedFeatures` renvoyant un `sourceLayer`
+      `landcover_sand`), puis déclencher un clic sur un point d'estran, et un
+      autre sur un point terrestre.
+    - Attendu : estran → « Vérification de l'emplacement… » puis avertissement
+      levé, classe `terre` retirée du popup, le clic se poursuit dans la
+      cascade ; point terrestre → avertissement « Attention, vous êtes à
+      terre. » maintenu, classe `terre` présente.
+    - Vérification : exécution (Chromium headless, réponses du Shom rejouées
+      à l'identique de celles relevées au test 10).
+
+12. **Aucun appel réseau sur un clic en pleine eau (v2.14)**
+    - Action : détection locale répondant « eau », déclencher un clic ;
+      compter les requêtes `GetFeature` portant `LIMTM` vers
+      `services.data.shom.fr`.
+    - Attendu : **zéro** requête — le trait terre-mer n'est consulté que sur
+      un verdict « terre ». Ne pas compter les tuiles « informations
+      portuaires », servies par le même domaine.
+    - Vérification : exécution (Chromium headless, interception réseau).
+
+13. **Repli prudent si le Shom est indisponible (v2.14)**
+    - Action : faire répondre le service en erreur (HTTP 500) ou le laisser
+      dépasser le délai, puis cliquer sur un point d'estran avec une
+      détection locale répondant « terre ».
+    - Attendu : l'avertissement « Attention, vous êtes à terre. » est
+      **maintenu** — comportement d'avant la v2.14. Un échec du service ne
+      doit jamais laisser passer un clic qui aurait été refusé auparavant, ni
+      bloquer l'interface.
+    - Vérification : exécution (Chromium headless).
+
+14. **Jeton de clic : c'est le dernier clic qui décide (v2.14)**
+    - Action : déclencher deux clics coup sur coup, le premier sur un point
+      terrestre, le second sur un point d'estran, sans attendre la réponse du
+      premier.
+    - Attendu : l'état final est celui du **second** clic (avertissement
+      levé) ; la réponse du premier est abandonnée par le test
+      `jeton !== jetonClic`. Vérifier aussi la présence de la même garde
+      après l'attente `interrogerAPB`.
+    - Vérification : exécution (Chromium headless) + lecture du code.
+
+15. **Citation Shom-IGN présente dans l'attribution (v2.14)**
+    - Action : charger la carte et lire le contenu de
+      `.maplibregl-ctrl-attrib-inner`.
+    - Attendu : la mention contient « Shom-IGN, 2021 », le lien
+      `10.17183/LIMTM` et la clause « non certifié pour la navigation ». La
+      couche n'étant pas affichée, cette mention vient de
+      `attributionControl.customAttribution` et non d'une source de tuiles :
+      elle disparaîtrait silencieusement si cette option était retirée.
+    - Vérification : exécution (Chromium headless).
+
+16. **Table des libellés de nature de fond (v2.15)**
+    - Action : lire `NATURES_FOND` dans `index.html`.
+    - Attendu : 24 codes, chacun associé à un libellé et à l'une des quatre
+      familles `sable`, `vase`, `graviers`, `dur`. Les libellés proviennent de la
+      légende officielle du service (`GetLegendGraphic`), **pas d'une déduction** :
+      la correspondance a été établie le 12/10/2026 en comparant, pour chaque
+      code, la couleur rendue par le WMS au point à celle de la pastille de
+      légende — 23 correspondances exactes. Seul `NFSFC` est déduit.
+    - **Si un libellé est modifié, refaire la vérification par la couleur**, ne
+      pas se fier au schéma de nommage : `NFC` (Cailloutis) et `NFGV` (Graviers
+      envasés) ont failli être confondus lors de l'établissement de la table.
+    - Vérification : lecture du code, et re-test de couleur en cas de doute.
+
+17. **Les trois cas de réponse sont bien distincts (v2.15)**
+    - Action : lire `interrogerNatureFond` et `blocNatureFond`.
+    - Attendu : un polygone trouvé → `{libelle, famille}` ; aucun polygone **ou
+      code inconnu** → `{absent:true}` ; service en erreur, délai dépassé ou
+      exception → `null`. Et côté affichage : libellé + conseil, « à vérifier »,
+      ou **rien du tout** respectivement. Un `null` ne doit jamais produire de
+      message d'erreur visible.
+    - Vérification : lecture du code + exécution (tests 19 à 21).
+
+18. **La nature du fond n'est demandée que si le mouillage n'est pas interdit (v2.15)**
+    - Action : cliquer à terre (confirmé par le trait terre-mer), en cultures
+      marines, en APB, puis sur un port et une ZMEL ; compter les requêtes
+      `GetFeature` portant `natures_fond`.
+    - Attendu : **zéro** requête dans tous ces cas. La couche n'est interrogée que
+      sur la branche « clic sur l'eau, hors interdiction ».
+    - Vérification : exécution (Chromium headless, interception réseau).
+
+19. **Fond cartographié : libellé, conseil, lien et rappel herbiers (v2.15)**
+    - Action : réponse `typelem = NFS`, puis `NFRoche`.
+    - Attendu : « Nature du fond : Sables (Shom) » avec le conseil de la famille
+      `sable` (« Idéal pour mouiller… ») et le lien « Voir les bonnes pratiques
+      d'ancrage sur fond sableux » ; « Nature du fond : Roche (Shom) » avec le
+      conseil `dur`. Dans les deux cas : lien vers la page « Bien mouiller » et la
+      phrase « Cette carte ne représente pas les herbiers ».
+    - Attendu aussi : **aucune appréciation de tenue d'ancre** dans les textes de
+      `CONSEIL_FOND` — le produit n'est pas certifié pour la navigation.
+    - Vérification : exécution (Chromium headless) + relecture des libellés.
+
+20. **Fond non cartographié : message explicite, jamais un silence (v2.15)**
+    - Action : réponse sans aucun objet, puis réponse avec un `typelem` inconnu.
+    - Attendu, dans les deux cas : « Nature du fond : à vérifier. Le fond marin
+      n'est pas cartographié à cet endroit : vérifiez-le sur place pour décider de
+      votre dispositif d'ancrage. » Le code brut inconnu ne doit **jamais**
+      apparaître à l'écran.
+    - Vérification : exécution (Chromium headless).
+    - **Test de non-régression prioritaire** : c'est le cas majoritaire dans les
+      Côtes-d'Armor (3 % de couverture), l'un des territoires pilotes.
+
+21. **Service indisponible : aucun bloc affiché (v2.15)**
+    - Action : faire répondre le service en erreur (HTTP 500) ou dépasser le délai.
+    - Attendu : le bloc environnement ne contient **aucune** mention « Nature du
+      fond », et aucun message d'erreur. Le reste du clic est inchangé.
+    - Vérification : exécution (Chromium headless).
+
+22. **Aucune latence ajoutée au clic (v2.15)**
+    - Action : lire le `Promise.all` du gestionnaire de clic.
+    - Attendu : `interrogerNatureFond` est lancée **en parallèle** de
+      `interrogerZonesProtegees`, jamais à la suite ; la garde
+      `jeton !== jetonClic` est présente après l'attente.
+    - Vérification : lecture du code + observation visuelle.
+
+23. **Couverture réelle de la couche, par territoire pilote (v2.15)**
+    - Action : tirer 30 points en mer au hasard dans chaque territoire pilote
+      (via le trait terre-mer) et mesurer le taux de réponse de la couche.
+    - Attendu, mesuré le 12/10/2026 : Morbihan 100 %, Var 97 %, Finistère 87 %,
+      Ille-et-Vilaine 27 %, Côtes-d'Armor 3 %. **Un écart important à ces valeurs
+      signale soit une panne du service, soit une mise à jour du produit** — dans
+      le second cas, revérifier aussi la table des libellés (test 16).
+    - Vérification : exécution réelle contre `services.data.shom.fr`, depuis un
+      navigateur (le conteneur d'exécution de Claude n'a pas accès à ce domaine).
 
 ---
 
@@ -952,3 +1146,62 @@ fonctionnalité correspondante a réellement disparu.
      chevauchements sont signalés.
    - Vérification : exécution (Node.js) — extraire la fonction du script et
      vérifier les valeurs attendues, plutôt qu'une simple lecture.
+
+---
+
+## 7. Popup réorganisée en deux parties (v2.16)
+
+*Tous ces tests s'exécutent en Chromium headless, sur le serveur local, avec les
+réponses du Shom et de l'API Carto rejouées. Harnais : `test_popup.mjs` (hors
+dépôt, dans le dossier de travail de Claude).*
+
+1. **Deux cartes, toutes repliées au départ**
+   - Action : cliquer sur l'eau, Natura 2000 présent, fond de sable.
+   - Attendu : deux cartes — `env-carte--protection` puis `env-carte--fond` —, et
+     **aucun** `.env-detail-bloc` visible.
+   - **Test de non-régression prioritaire** : le repli par défaut est une
+     décision de Nicolas (13/10/2026) ; il ne tient que si le test 2 passe aussi.
+
+2. **Chaque ligne repliée porte déjà la conséquence**
+   - Attendu : la carte Natura 2000 affiche « étude d'incidence à prévoir », la
+     carte fond affiche le résumé de sa famille (« ne laissez pas votre chaîne
+     racler le fond » pour le sable).
+   - Raison d'être : sans cette ligne, l'usager devrait déplier pour savoir s'il
+     doit déplier. Si un libellé de `CONSEIL_FOND.resume` disparaît, le repli par
+     défaut n'est plus défendable.
+
+3. **Libellés de bouton orientés action**
+   - Attendu : « Ce que ça implique » sur les zonages, « Comment mouiller ici »
+     sur un fond connu, « Que faire ici » sur un fond non cartographié — jamais
+     « Détails ».
+
+4. **Le dépliage fonctionne dans les deux sens**
+   - Action : cliquer le bouton d'une carte, puis le recliquer.
+   - Attendu : la carte se déplie et le bouton devient « Masquer » ; au second
+     clic elle se replie et le bouton reprend son libellé d'origine
+     (`data-libelle`). `aria-expanded` suit.
+
+5. **Bloc « à reporter » : nom de la zone et coordonnées**
+   - Attendu : libellé « Nom de la zone Natura 2000 », valeur = les noms de
+     sites ; libellé « Coordonnées GPS en degrés décimaux (DD) », valeur
+     `{lat}, {lng}` à 6 décimales. Un bouton « Copier » par ligne.
+
+6. **Seule la copie des coordonnées valide l'étape 4**
+   - Action : cliquer « Copier » sur le nom de la zone, puis sur les coordonnées.
+   - Attendu : `copieFaite` reste `false` après le premier, passe à `true` après
+     le second. Les deux boutons affichent « Copié ! » 2 s.
+
+7. **Natura 2000 + ZNIEFF**
+   - Attendu : trois cartes — deux `env-carte--protection` (**même bleu**, ce
+     sont deux zonages de même nature) puis `env-carte--fond`. La carte ZNIEFF
+     porte « rien à reporter dans le formulaire ».
+
+8. **Aucun zonage : carte verte et ligne « nom de la zone » masquée**
+   - Attendu : une carte `env-carte--ok` « Aucun zonage de protection détecté
+     ici », et `#zone-row` masquée — les ZNIEFF n'ayant pas de nom dans la
+     source, une ligne vide serait pire que son absence.
+
+9. **Clic à terre : le bloc « à reporter » disparaît**
+   - Action : détection locale « terre » confirmée par le trait terre-mer.
+   - Attendu : `#report-block` en `display:none` (et non seulement ses lignes).
+

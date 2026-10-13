@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.13 (octobre 2026)  
-**Dernière mise à jour:** 5 octobre 2026  
+**Version:** 2.16 (octobre 2026)  
+**Dernière mise à jour:** 13 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -72,10 +72,12 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
 5. Bouton « Copier » dans le popup pour copier les coordonnées
 6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage) ; les valeurs du calcul d'évitage sont **conservées** *(v2.3)* — voir §4.2
 
-### Étape 2 — Copier les coordonnées
-1. Bouton « Copier » dans le popup de coordonnées
-2. Les coordonnées sont copiées dans le presse-papiers
-3. Les coller directement dans le formulaire Démarches Simplifiées
+### Étape 2 — Copier ce qu'il faut reporter *(revu en v2.16)*
+1. Le bas du popup porte un bloc « À reporter dans le formulaire de demande », distinct du contexte environnemental
+2. Chaque valeur y a son propre bouton « Copier » : le nom de la zone Natura 2000 (quand il y en a une) et les coordonnées GPS
+3. Les coller directement dans le formulaire Démarches Numériques
+
+> Seule la copie des **coordonnées** valide l'étape 4 de la marche à suivre : c'est d'elle que parle l'étape, et toutes les positions n'ont pas de nom de zone à reporter.
 
 ---
 
@@ -94,8 +96,8 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 | C3 | Terre | Popup rouge, sans coordonnées |
 | C4 | Cultures marines | Popup rouge, sans marqueur ni coordonnées |
 | C4 bis | Arrêté de protection de biotope (APB) | Popup rouge, sans marqueur ni coordonnées |
-| C5 | Tout autre point sur l'eau | Marqueur, popup environnement + coordonnées |
-| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Bloc environnement réduit à une ligne + bloc de proximité, qui se réduit lui aussi au résultat une fois le calcul fait (v2.7), avec repli différé automatique après une pause de frappe (v2.8) |
+| C5 | Tout autre point sur l'eau | Marqueur, puis popup en deux parties *(v2.16)* : « Contexte environnemental » (une carte repliable par information) et « À reporter dans le formulaire de demande » (nom de la zone et coordonnées, chacun avec son bouton « Copier ») |
+| C6 | Point C5 situé à moins de 100 m d'une AOT existante | Même popup que C5, plus un bloc de proximité, qui se réduit au résultat une fois le calcul fait (v2.7), avec repli différé automatique après une pause de frappe (v2.8) |
 
 #### C1 — Port de plaisance
 - Titre : « Port de plaisance : {nom_port_de_plaisance} — Commune :{nom_commune} » (la partie « — Commune : » est omise si la commune est vide).
@@ -121,24 +123,37 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 - Pendant la vérification réseau : « *Vérification de la zone…* » (teinte neutre).
 - Si le point est dans un APB, popup rouge : « **Vous êtes dans un arrêté de protection de biotope — {noms des arrêtés}.** » puis « Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement. » Mécanisme : §4.3bis.
 
-#### C5 — Autre point sur l'eau : environnement et coordonnées
-- Marqueur rouge posé ; bouton « Fermer ✕ » en haut à droite du popup.
-- Pendant l'interrogation : « *Vérification des zonages environnementaux…* »
-- C5.1 — Natura 2000 (teinte neutre) : « Cet emplacement se situe dans un site Natura 2000. Une étude d'incidence va être réalisée suite à votre demande. Nom de la zone à reporter dans le formulaire de demande : **{noms des sites}** » (v2.4)
-- C5.2 — ZNIEFF (teinte neutre) : « Cet emplacement se situe sur une Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique (ZNIEFF). Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. »
-- C5.1 et C5.2 peuvent s'afficher ensemble. Aucune zone trouvée (teinte verte) : « Pas de contre-indication détectée automatiquement sur cette zone. » (hors proximité d'une AOT — sinon voir C6)
-- Mention ajoutée dans ces trois cas : « D'autres zonages (Herbiers de posidonie et de zostère, Parcs naturels marins, Aires marines protégées, zones de baignade ou réglementaires) sont visibles dans la légende mais ne peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les visuellement. »
-- Service injoignable (teinte neutre) : « Informations environnementales momentanément indisponibles (service distant injoignable). Vos coordonnées restent accessibles ci-dessous. »
-- Coordonnées : libellé « Coordonnées GPS en degrés décimaux (DD) : », valeur `{lat}, {lng}` à 6 décimales, bouton « Copier » (« Copié ! » pendant 2 s). Le libellé est un élément distinct : seul `{lat}, {lng}` est copié.
+#### C5 — Autre point sur l'eau : contexte environnemental et valeurs à reporter *(réorganisé en v2.16)*
+
+Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil ce qui est une information de ce qui est une action.
+
+**Partie 1 — « Contexte environnemental ».** Une carte par information, **toutes repliées au départ** (décision de Nicolas, 13/10/2026). Chaque carte montre un titre, une ligne de conséquence et un bouton qui déplie le détail. La ligne repliée porte déjà l'essentiel : c'est ce qui rend le repli acceptable, un bandeau replié qui ne dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
+
+Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. Le vert reste réservé au « rien de détecté », le rouge aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc.
+
+| Carte | Couleur | Ligne repliée | Bouton | Détail déplié |
+|---|---|---|---|---|
+| Natura 2000 | bleu | « **Site Natura 2000** — {noms des sites} » / « étude d'incidence à prévoir » | « Ce que ça implique » | « Une étude d'incidence sera réalisée suite à votre demande. Le nom de la zone est à reporter dans le formulaire : il est repris ci-dessous, avec un bouton pour le copier. » |
+| ZNIEFF | bleu | « **ZNIEFF** — zone naturelle sensible » / « rien à reporter dans le formulaire » | « Ce que ça implique » | « Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. » |
+| Aucun zonage | vert | « **Aucun zonage de protection détecté ici** » / « Natura 2000 et ZNIEFF vérifiés » | aucun | — |
+| Vérification impossible | bleu | « **Zonages de protection : vérification impossible** » / « service distant momentanément injoignable » | aucun | — |
+| Nature du fond | sable | voir §4.4bis | « Comment mouiller ici » ou « Que faire ici » | voir §4.4bis |
+
+Le bouton reprend son libellé d'origine quand on replie ; déplié, il affiche « Masquer ». Les libellés nomment une **action** et non un contenu (« Ce que ça implique » plutôt que « Détails ») : un verbe appelle le clic, un nom ne l'appelle pas.
+
+Pendant l'interrogation, le bloc affiche « *Vérification des zonages environnementaux…* ».
+
+**Partie 2 — « À reporter dans le formulaire de demande ».** Un cadre à deux lignes, chacune avec sa valeur et son bouton « Copier » (« Copié ! » pendant 2 s) :
+- « Nom de la zone Natura 2000 » → `{noms des sites}`. **Cette ligne disparaît s'il n'y a pas de site Natura 2000** : les ZNIEFF n'ont pas de nom dans la source (message générique), afficher une ligne vide serait pire que l'omettre.
+- « Coordonnées GPS en degrés décimaux (DD) » → `{lat}, {lng}` à 6 décimales. Seul le couple de valeurs est copié, pas le libellé.
+
+> **Retiré en v2.16** : la mention « D'autres zonages (Herbiers de posidonie et de zostère, Parcs naturels marins, Aires marines protégées, zones de baignade ou réglementaires) […] vérifiez-les visuellement » (décision de Nicolas, 13/10/2026, pour alléger). Ces zonages restent affichables dans la légende, et leur absence de vérification automatique reste documentée au §4.1.d et au §5. Le seul rappel conservé dans le popup est celui sur les herbiers, porté par la carte « nature du fond ».
 
 #### C6 — Proximité d'une AOT existante (< 100 m)
-Détection silencieuse (indépendante de la case « AOT de mouillage existantes »). Tout se passe dans la modale centrale : bloc environnement réduit (v2.5), puis le bloc de proximité, qui se réduit à son tour une fois le calcul fait (v2.7). Mécanisme et formule : §4.2.
-- **Bloc environnement réduit à une ligne** *(v2.5)*, avec un bouton « Détails ▾ » à droite (« Masquer ▴ » une fois déplié), replié par défaut ; le détail déplié reprend les textes complets de C5 (y compris le nom de la zone Natura 2000 à reporter et la mention des zonages non détectables). Titres de la ligne :
-  - aucune zone trouvée (teinte verte) : « **Aucune zone bloquante détectée sur cet emplacement.** » — décision de Nicolas (25/09/2026) : formulation préférée à « AOT mouillage autorisée sur cette zone », qui laisserait croire que la demande est déjà acceptée ;
-  - Natura 2000 (teinte neutre) : « **Emplacement situé en site Natura 2000.** » ;
-  - ZNIEFF (teinte neutre) : « **Emplacement situé en ZNIEFF.** » ;
-  - les deux : « **Emplacement situé en site Natura 2000 et en ZNIEFF.** » ;
-  - service injoignable : message inchangé, non réduit.
+Détection silencieuse (indépendante de la case « AOT de mouillage existantes »). Tout se passe dans la modale centrale : le popup de C5, puis le bloc de proximité, qui se réduit au résultat une fois le calcul fait (v2.7). Mécanisme et formule : §4.2.
+
+> **Retiré en v2.16** : le « bloc environnement réduit à une ligne » introduit en v2.5 pour ce cas, avec son bouton « Détails ▾ » et ses quatre titres de synthèse. Il n'avait plus d'objet — depuis la v2.16, le contexte est présenté en cartes qui tiennent déjà sur une ligne chacune, qu'un mouillage soit proche ou non. Le popup de C6 est donc exactement celui de C5, augmenté du bloc de proximité.
+
 - **Bloc de proximité, calcul pas encore fait** (fond orange, `.jaune-box`) : « **D'autres mouillages sont enregistrés à proximité.** » (gras), à la ligne « Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire. », puis une ligne par champ : « Longueur de mon navire (m) » et « Colonne d'eau à marée haute (m) » (placeholder « à saisir »). Pas de bouton « Détails » à ce stade — les champs sont visibles directement.
 - **Bloc de proximité, calcul fait** *(v2.7, texte de collision revu v2.8)* : le message ci-dessus est **remplacé** par le résultat, et le bloc change de couleur — vert (pas de chevauchement) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, ne semble pas être en collision avec les rayons d'évitage des navires à proximité. » ; rouge (chevauchement) *(v2.8)* : « Le rayon d'évitage de votre navire est estimé à **{r} m** avec un risque de collision. Modifier l'emplacement ou vérifier sur place. » — dans les deux cas suivi du sous-titre « *Estimation indicative qui ne remplace pas une vérification sur place.* ». Un bouton « Détails ▾ » apparaît à droite du message ; l'usager peut rouvrir pour consulter ou corriger les valeurs, qui recalculent le résultat en direct.
 - **Repli automatique différé, jamais pendant la frappe** *(v2.8)* : dès que le calcul se complète, le bloc bascule en vert/rouge et un minuteur de repli automatique (700 ms) est armé, puis **réarmé à chaque nouvelle frappe** dans l'un des deux champs — il ne se déclenche donc jamais en pleine saisie, seulement après une courte pause une fois le résultat affiché, pour regagner de la visibilité sur la carte sous la modale sans action supplémentaire de l'usager. Avant v2.8, le repli n'attendait que la sortie du champ (blur) ; désormais il se produit après une pause de frappe, sans nécessiter de clic ailleurs. Une réouverture manuelle des « Détails » désarme ce repli automatique : le bloc ne se referme plus tout seul ensuite, même après une nouvelle modification des champs.
@@ -157,7 +172,7 @@ Les **ports de plaisance** et les **ZMEL** (Zones de Mouillages et d'Équipement
 - Ce cas court-circuite tout le reste de la cascade : pas de marqueur, pas de coordonnées, pas de popup d'environnement
 
 #### b. Clic à terre
-Voir §4.4 — popup rouge, aucune coordonnée. Comportement inchangé par rapport à v1.1.
+Voir §4.4 — popup rouge, aucune coordonnée (depuis la v2.16, c'est tout le bloc « À reporter dans le formulaire de demande » qui est masqué). **Depuis la v2.14**, un verdict « à terre » de la détection locale n'est plus définitif : il est soumis au trait terre-mer du Shom (§4.4.2), qui place l'estran du côté mer. Un point confirmé sur le DPM lève l'avertissement et le clic se poursuit dans la cascade normale (cultures marines, APB, puis zones protégées). Un point confirmé à terre, ou un service Shom injoignable, conserve le comportement d'avant.
 
 #### c. Cultures marines (interdiction, vérification locale)
 Un clic dans une zone de cultures marines (`data/cultures-marines.geojson`) affiche un popup rouge d'interdiction (pas de marqueur, pas de coordonnées) : un mouillage individuel n'est pas envisageable dans une zone de concession conchylicole. Cette vérification est instantanée (donnée déjà chargée sur la carte, pas d'appel réseau).
@@ -248,7 +263,24 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 
 ### 4.4 Détection terre/eau
 
-La détection terre/eau ne peut pas se fonder sur le fond de carte visible par l'usager : le fond « Aérien » (photographie aérienne) ne comporte, en vecteur, que les routes et voies ferrées — aucune couche d'occupation du sol, de bâti ou de relief. Un point cliqué loin de toute route (champ, plage, maison isolée) y serait donc à tort classé comme « en mer ».
+Depuis la v2.14, la détection se fait en **deux instances** : une détection locale instantanée (§4.4.1), puis, et seulement lorsque celle-ci annonce « à terre », un arbitrage par le **trait terre-mer du Shom** (§4.4.2). Motif : la détection locale classe les plages, dunes et marais comme de la terre, alors que l'**estran** — le haut de plage qui découvre à marée basse — relève du domaine public maritime et peut légitimement porter un mouillage. Les faux « vous êtes à terre » signalés par la DDTM des Côtes-d'Armor venaient de là.
+
+#### 4.4.2 Arbitrage par le trait terre-mer du Shom *(v2.14)*
+
+- **Source:** couche WFS `LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones` du service INSPIRE du Shom (`https://services.data.shom.fr/INSPIRE/wfs`). Aucune clé d'API, aucun conventionnement. Licence Ouverte Etalab v2.0.
+- **Ce que porte la donnée:** d'après la métadonnée du produit, « la Limite terre-mer correspond à la laisse des plus hautes mers astronomiques (PHMA) dans le cas d'une marée de coefficient 120 et dans des conditions météorologiques normales […] elle correspond aussi à la limite haute du rivage en matérialisant le haut de l'estran ». C'est la définition du **DPM naturel** (art. L2111-4 du CGPPP), issue du croisement d'un modèle de PHMA et du MNT littoral Litto3D®/RGE ALTI®, à 1 à 5 m de résolution (échelle de saisie 1:2000).
+- **Méthode:** la couche porte les **surfaces terrestres**. Un filtre `CQL_FILTER=INTERSECTS(geom,SRID=4326;POINT(lng lat))` renvoie donc **zéro objet si le point est côté mer** (estran compris) et un objet, avec son `numdep`, s'il est à terre. `propertyName=id,numdep` évite de rapatrier la géométrie : réponse de 150 à 300 octets, 25 à 250 ms mesurés sur les trois sites de test.
+- **Point d'attention — projection:** la couche est en Lambert 93 (EPSG:2154). Le préfixe `SRID=4326;` du filtre est **obligatoire** ; sans lui, le service renvoie silencieusement zéro objet, ce qui se lirait à tort comme « en mer ». Même convention que `interrogerWFS` (§4.3).
+- **Coût pour l'usager:** aucun sur un clic en pleine eau — le service n'est interrogé **que** sur le cas contesté, c'est-à-dire quand la détection locale annonce « à terre ». Pendant l'attente, le popup affiche « Vérification de l'emplacement… ». Délai borné par `CONFIG.delaiTraitTerreMer` (3 000 ms).
+- **Robustesse:** si le service est injoignable, lent, ou hors couverture (le produit ne couvre que la France métropolitaine), la fonction renvoie `null` et **l'avertissement « à terre » de la détection locale est maintenu** — c'est-à-dire le comportement d'avant la v2.14, le comportement prudent. Un échec du Shom ne peut donc jamais laisser passer un clic qui aurait été refusé auparavant.
+- **Jeton de clic:** l'avertissement comportant désormais une attente réseau, un compteur `jetonClic` fait abandonner la vérification d'un clic qu'un clic plus récent a remplacé. Le même garde-fou a été ajouté après l'attente APB.
+- **Ce que l'arbitrage ne dit pas:** le trait terre-mer répond à « suis-je sur le DPM ? », pas à « y a-t-il assez d'eau pour mon bateau ? ». Un point d'estran est sur le DPM *et* au sec à marée basse. La seconde question reste traitée par l'estimation de la colonne d'eau (§4.2, EMODnet + RAM).
+- **Mention obligatoire:** la citation « Shom-IGN, 2021 (doi:10.17183/LIMTM) » et la clause « non certifié pour la navigation » sont portées par l'attribution de la carte (`attributionControl.customAttribution`), la couche n'étant pas affichée et n'ayant donc pas de source de tuiles pour la porter.
+- **Contrôles de non-régression** (valeurs relevées en réel le 12/10/2026) : anse de Pen Hat (-4,6050 / 48,2870) → 0 objet, donc mer ; bourg de Camaret (-4,5920 / 48,2795) → 1 objet, `numdep` = 29, donc terre ; estran de la baie du Mont-Saint-Michel (-1,6100 / 48,6330), à +13 m au-dessus du niveau de référence → 0 objet, donc mer. Voir `TESTS_FONCTIONNELS.md` §1, tests 9 à 15.
+
+#### 4.4.1 Détection locale (première instance)
+
+La détection locale ne peut pas se fonder sur le fond de carte visible par l'usager : le fond « Aérien » (photographie aérienne) ne comporte, en vecteur, que les routes et voies ferrées — aucune couche d'occupation du sol, de bâti ou de relief. Un point cliqué loin de toute route (champ, plage, maison isolée) y serait donc à tort classé comme « en mer ».
 
 - **Méthode:** Une carte de référence invisible (« carte fantôme »), jamais affichée à l'écran, reste en permanence calée sur le fond vectoriel **Simple** (Plan IGN) et synchronisée sur le centre/zoom/orientation de la carte visible. C'est cette carte fantôme qui est interrogée à chaque clic, quel que soit le fond réellement affiché à l'usager (Simple ou Aérien).
 - **Test vectoriel:** Recherche de caractéristiques de terre au point cliqué, projeté sur la carte fantôme, sur deux jeux de couches du même style : les couches IGN (`oro_relief`, `ocs_`, `bati_`, `routier_`, `ferre` — relief, occupation du sol, bâti, voirie, voies ferrées) **et**, depuis le 18 septembre 2026, le socle générique OpenMapTiles du même style (`landcover`, `landuse`, `building`, `aeroway`), qui porte notamment les marais, plages, dunes, prés, champs et bois. Les toponymes et limites administratives sont ignorés (ils débordent en mer).
@@ -257,6 +289,30 @@ La détection terre/eau ne peut pas se fonder sur le fond de carte visible par l
 - **Robustesse:** Si ni une caractéristique de terre ni la couleur de la mer ne sont trouvées, le résultat est indéterminé — le contrôle ne bloque pas l'usager, y compris quand les tuiles de la carte fantôme (fond Simple) ne sont pas chargées alors que le fond **Aérien** est, lui, parfaitement chargé et affiché.
 - **Coût:** Cette méthode charge une seconde carte MapLibre en tâche de fond (invisible), avec son propre jeu de tuiles vectorielles — léger surcoût réseau et mémoire, sans impact visuel pour l'usager.
 - **Bug corrigé le 18 septembre 2026 :** un marais ou une plage/dune, sans bâti ni route à proximité, n'était détecté par aucun des deux jeux de couches IGN d'origine et retombait, à tort, sur une confirmation « eau » — la seconde teinte de référence alors utilisée (`rgb(199,228,219)`) était en outre à 7 près de la couleur exacte des marais et des plages sur ce style (`rgb(192,229,219)`), ce qui confirmait activement ces zones de terre comme « eau ». Voir §11 (v1.6) et `TESTS_FONCTIONNELS.md` §1.7.
+
+### 4.4bis Nature du fond au clic *(v2.15)*
+
+Affichée dans le bloc environnement **uniquement quand le mouillage n'est pas interdit** — donc jamais sur un clic à terre, en cultures marines, en APB, ni sur un port ou une ZMEL.
+
+- **Source:** couche WFS `NDF_BDD_WLD_WGS84G_WFS:natures_fond_50000` (« Natures de fond au 1/50 000 », Shom). Attribut géométrique `geometry`, filtre `INTERSECTS` au point, même mécanisme qu'au §4.4.2. Interrogée **en parallèle** des zonages Natura 2000/ZNIEFF (`Promise.all`) : elle n'allonge pas l'attente. Délai borné par `CONFIG.delaiNatureFond` (3 000 ms).
+- **Du code au libellé:** l'attribut `typelem` porte un code (`NFS`, `NFRoche`…). Les 24 libellés de la table `NATURES_FOND` **n'ont pas été devinés** : la légende officielle du service a été extraite (`GetLegendGraphic`, 33 entrées), puis, pour chaque code, la couleur réellement rendue par le WMS au point a été comparée à celle de la pastille de légende. **23 codes sur 24 correspondent à l'identique.** Seul `NFSFC`, un unique polygone dans toute la France, est déduit du schéma de nommage.
+- **Quatre familles** (`sable`, `vase`, `graviers`, `dur`) regroupent ces 24 codes pour choisir le conseil affiché. Le libellé montré à l'usager reste celui du Shom, pas la famille.
+- **Conseil associé:** chaque famille porte un texte et un libellé de lien vers la page [Bien mouiller pour préserver les fonds marins](https://amidomar.beta.gouv.fr/bien-mouiller--pr%C3%A9server-les-fonds-marins/), le libellé nommant le type de fond (« Voir les bonnes pratiques d'ancrage sur fond sableux », « …sur sol dur »). **Les textes des familles `sable` et `dur` ont été rédigés par Nicolas le 12/10/2026 : ne pas les reformuler sans lui** ; `vase` et `graviers` suivent la même construction. **Le conseil est volontairement environnemental, jamais une appréciation de tenue d'ancre** : le produit porte la mention « ne pas utiliser pour la navigation », et un conseil de tenue serait du conseil nautique sur une donnée non certifiée pour cet usage.
+- **Rappel systématique:** « Cette carte ne représente pas les herbiers : sur place, les taches sombres sont de l'herbier, à éviter. » C'est une carte **sédimentaire** — un fond de sable n'exclut pas un herbier, et les herbiers ne sont toujours pas couverts par une source nationale (§5).
+- **Trois cas distincts, trois comportements** (présentation en carte repliable depuis la v2.16, voir C5) :
+
+| Réponse du service | Ligne repliée | Bouton | Détail déplié |
+|---|---|---|---|
+| Un polygone, code connu | « **Nature du fond : {libellé Shom}** (Shom) » / le résumé de la famille (« ne laissez pas votre chaîne racler le fond », « emprise et ragage de la chaîne à surveiller »…) | « Comment mouiller ici » | le conseil complet de la famille, le lien vers les bonnes pratiques, puis le rappel herbiers |
+| Aucun polygone, ou code inconnu | « **Nature du fond : à vérifier** » / « non cartographiée à cet endroit » | « Que faire ici » | « Le fond marin n'est pas cartographié à cet endroit : vérifiez-le sur place pour décider de votre dispositif d'ancrage. » + le lien + le rappel herbiers |
+| Service injoignable, lent ou en erreur | **aucune carte** — pas de bloc, pas de message d'erreur | — | — |
+
+> **v2.16** : le rappel sur les herbiers est désormais présent dans les **deux** cas où une carte s'affiche, y compris « à vérifier » — c'est précisément quand on ne sait rien du fond qu'il compte le plus.
+
+> **Point de vigilance majeur — la couverture n'est pas nationale.** Le produit est la synthèse de 45 cartes sédimentaires publiées entre 1990 et 2023, et les feuilles non publiées laissent des trous. Taux de réponse mesuré le 12/10/2026 sur 30 points en mer tirés au hasard par territoire : **Morbihan 100 %, Var 97 %, Finistère 87 %, Ille-et-Vilaine 27 %, Côtes-d'Armor 3 %**. Le cas « à vérifier » sera donc courant, et majoritaire dans les Côtes-d'Armor — c'est la raison d'être du message explicite plutôt que d'un silence.
+
+- **Mention obligatoire:** « Shom, 2025. Natures de fond au 1/50 000, doi:10.17183/HOM_GEOL_NATURES_FOND_50 », Licence Ouverte Etalab v2.0, portée par l'attribution de la carte.
+- Voir `TESTS_FONCTIONNELS.md` §1, tests 16 à 23.
 
 ### 4.5 État des sources cartographiques
 Bandeau « Couches affichées » avec icônes:
@@ -296,6 +352,13 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 ### Autres couches
 - 🔴 **AOT de mouillage existantes** (libellé depuis v2.4 ; « AOT existantes » auparavant) — 249 positions simulées, fictives (Bretagne + Méditerranée)
 
+### Couches interrogées sans être affichées
+Ces sources n'apparaissent pas dans le panneau « Couches affichées » : elles ne sont jamais dessinées, seulement interrogées au point cliqué.
+- **Trait terre-mer (Shom, LIMTM)** *(v2.14)* — arbitre le verdict terre/mer, voir §4.4.2. France métropolitaine, millésime 2021. Citation obligatoire portée par l'attribution de la carte.
+- **Natures de fond au 1/50 000 (Shom)** *(v2.15)* — nature du fond et conseil d'ancrage au clic, voir §4.4bis. **Couverture partielle** (3 % des points testés en Côtes-d'Armor, 100 % dans le Morbihan). Citation obligatoire portée par l'attribution.
+- **APB (Géoplateforme, WFS)** — vérification bloquante, voir §4.3bis. La couche APB est par ailleurs affichable, elle, en WMTS.
+- **Natura 2000 / ZNIEFF (API Carto IGN)** — voir §4.3.
+
 ### État des sources problématiques
 - **Herbiers de posidonie et de zostère:** Couverture insuffisante — presque uniquement l'Occitanie ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère absente ; reste affichable mais non identifiable au clic
 - **Parcs naturels marins, Aires marines protégées:** Aucune API d'identification de zone au clic identifiée à ce jour (contrairement à Natura 2000 et ZNIEFF, couverts par l'API Carto IGN — module *nature*, endpoints `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) — restent affichées/masquables normalement, simplement absentes de la vérification automatique au clic
@@ -317,6 +380,8 @@ const CONFIG = {
   profondeurDefaut: 5,      // colonne d'eau supposée pour les AOT existantes (m) — ne pré-remplit plus le champ usager (v2.3)
   delaiProfondeur: 5000,    // délai max de l'API EMODnet pour l'estimation de la colonne d'eau (ms, v2.6)
   colonneMin: 0.5,          // en dessous, pas d'estimation proposée (m, v2.6)
+  delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
+  delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
 };
@@ -438,10 +503,36 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ### ✅ 8. Curseur terre/eau
 - [ ] Cliquer sur la **terre** (relief, bâti) sur le fond **Simple** → popup affiche alerte rouge « Vous êtes à terre »
-- [ ] Cliquer sur la **terre** (loin de toute route) sur le fond **Aérien** → popup affiche également l'alerte rouge « Vous êtes à terre » (test de non-régression de la carte fantôme, voir §4.4)
+- [ ] Cliquer sur la **terre** (loin de toute route) sur le fond **Aérien** → popup affiche également l'alerte rouge « Vous êtes à terre » (test de non-régression de la carte fantôme, voir §4.4.1)
 - [ ] Aucune coordonnée GPS n'apparaît dans les deux cas ci-dessus
+- [ ] *(v2.14)* Cliquer sur un **estran large** découvrant — baie du Mont-Saint-Michel, baie de Lancieux, golfe du Morbihan à marée basse — → un bref « Vérification de l'emplacement… » s'affiche, **puis l'avertissement est levé** : coordonnées GPS et bloc environnement apparaissent normalement (voir §4.4.2)
+- [ ] *(v2.14)* Cliquer sur une **plage de sable** adossée à la mer → même comportement : l'avertissement est levé
+- [ ] *(v2.14)* Cliquer dans un **bourg ou en pleine campagne** → l'avertissement « Vous êtes à terre » est bien maintenu après la vérification
+- [ ] *(v2.14)* Couper le réseau, puis cliquer sur une plage → l'avertissement « Vous êtes à terre » est maintenu (repli prudent, pas de blocage de l'interface)
+- [ ] *(v2.14)* Cliquer sur l'eau → **aucune latence ajoutée** et aucun appel au Shom dans l'onglet réseau (le trait terre-mer n'est consulté que sur un verdict « terre »)
 - [ ] Cliquer sur l'**eau**, sur l'un ou l'autre fond, hors ZMEL/port/cultures marines → popup affiche les coordonnées GPS et un bloc environnement (vert ou neutre/orange selon les zones détectées)
 - [ ] Popup affiche le **bouton Copier**
+
+### ✅ 8bis. Nature du fond au clic *(v2.15)*
+- [ ] Cliquer sur l'eau dans le **golfe du Morbihan** ou la **rade d'Hyères** → le bloc environnement indique « Nature du fond : … (Shom) », un conseil, un lien « Voir les bonnes pratiques » et le rappel sur les herbiers
+- [ ] Cliquer sur l'eau au large de **Paimpol (22)** → « Nature du fond : à vérifier » (la couverture y est quasi nulle), et non un silence
+- [ ] Le lien « Voir les bonnes pratiques » ouvre bien la page du site dans un nouvel onglet
+- [ ] Cliquer **à terre**, en **cultures marines** ou en **APB** → aucune mention de nature du fond (le mouillage y est interdit)
+- [ ] Cliquer sur un **port** ou une **ZMEL** → modale habituelle, aucune mention de nature du fond
+- [ ] Le clic n'est pas visiblement plus lent qu'avant (la requête part en parallèle des zonages)
+- [ ] L'attribution de la carte mentionne « Natures de fond au 1/50 000 : Shom, 2025 »
+
+### ✅ 8ter. Popup réorganisée *(v2.16)*
+- [ ] Cliquer sur l'eau dans un site Natura 2000 → le popup montre deux parties titrées : « Contexte environnemental » puis « À reporter dans le formulaire de demande »
+- [ ] Les cartes du contexte sont **toutes repliées** à l'ouverture
+- [ ] Chaque ligne repliée se suffit à elle-même (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond »)
+- [ ] Cliquer « Ce que ça implique » / « Comment mouiller ici » déplie la carte et le bouton devient « Masquer » ; recliquer replie et rend au bouton son libellé
+- [ ] Le nom de la zone Natura 2000 apparaît dans le bloc du bas avec son propre bouton « Copier », qui affiche « Copié ! » 2 s
+- [ ] Cliquer sur un point **sans** Natura 2000 → la ligne « Nom de la zone » disparaît, seules les coordonnées restent
+- [ ] Copier le **nom de la zone** ne coche pas l'étape 4 de la marche à suivre ; copier les **coordonnées** la coche
+- [ ] Cliquer sur un point en Natura 2000 **et** en ZNIEFF → deux cartes bleues empilées, puis la carte sable du fond
+- [ ] Cliquer à terre → tout le bloc « À reporter » disparaît
+- [ ] Vérifier sur téléphone que le popup reste lisible avec trois cartes (Natura, ZNIEFF, fond)
 
 ### ✅ 9. Cultures marines — interdiction
 - [ ] Cliquer dans une zone de cultures marines → popup rouge d'interdiction
@@ -598,6 +689,16 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 **Solutions:**
 - Rétablir les codes et les champs ci-dessus dans `interrogerZonesProtegees` ; ne pas se fier à la documentation seule, tester l'appel en réel (voir `TESTS_FONCTIONNELS.md`, test 5quater)
 
+### « Nature du fond : à vérifier » s'affiche presque partout *(v2.15)*
+Ce n'est probablement pas une panne. La couche du Shom ne couvre pas tout le littoral : elle synthétise 45 cartes sédimentaires publiées entre 1990 et 2023, et il manque des feuilles entières. Mesuré le 12/10/2026 : 3 % de réponses en Côtes-d'Armor, 27 % en Ille-et-Vilaine, contre 87 à 100 % en Finistère, Morbihan et Var. Pour distinguer une vraie panne d'un trou de couverture : une panne n'affiche **aucun** bloc « Nature du fond », tandis qu'un trou affiche le message « à vérifier ».
+
+### Un clic sur une plage ou un estran affiche encore « vous êtes à terre » *(v2.14)*
+L'avertissement n'est levé que si le trait terre-mer du Shom répond, et répond « côté mer ». Dans l'ordre :
+1. **Le point est-il vraiment sur le DPM ?** Au-dessus de la laisse des plus hautes mers astronomiques, le haut de plage est juridiquement terrestre : le verdict est alors correct.
+2. **Le service répond-il ?** Dans l'onglet réseau, chercher l'appel à `services.data.shom.fr`. Une erreur, un délai dépassé (3 s) ou une absence d'appel conduit au repli prudent, qui maintient l'avertissement.
+3. **Est-on en outre-mer ?** Le produit ne couvre que la France métropolitaine : hors métropole, la réponse est toujours un repli.
+4. **Le filtre porte-t-il bien `SRID=4326;` ?** Sans ce préfixe, la couche étant en Lambert 93, le service renvoie zéro objet — ce qui produirait l'inverse du bug (tout passerait pour de la mer). À vérifier si des clics en pleine campagne cessent d'être refusés.
+
 ### Clic à terre ne fonctionne pas (sur l'un ou l'autre fond)
 **Diagnostic:**
 - Tuiles du fond **Simple** non chargées — y compris si le fond **Aérien** est affiché : la détection terre/eau dépend toujours de la carte fantôme calée sur le fond Simple (voir §4.4), jamais du fond réellement visible
@@ -627,6 +728,39 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ---
 
 ## 11. Historique des corrections
+
+### v2.16 — 13 octobre 2026
+**Popup réorganisée en deux parties : contexte environnemental, puis valeurs à reporter**
+- Le contexte devient une carte repliable par information, toutes repliées au départ. Chaque ligne repliée porte la conséquence (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond ») : c'est ce qui rend le repli tenable
+- Les boutons nomment une action (« Ce que ça implique », « Comment mouiller ici ») plutôt qu'un contenu
+- Deux couleurs porteuses de sens : bleu pour les zonages de protection quel que soit leur nombre, sable pour la nature du fond. **Pas de pictogramme d'alerte** : un fond de sable est une bonne nouvelle, et tout signaler comme une alerte userait le symbole avant les vrais cas (mouillage interdit, cultures marines)
+- Nouveau bloc « À reporter dans le formulaire de demande » : le nom de la zone Natura 2000 sort du paragraphe pour devenir une valeur copiable, à côté des coordonnées, chacune avec son bouton. Seule la copie des coordonnées valide l'étape 4
+- La ligne « nom de la zone » est masquée hors Natura 2000 : les ZNIEFF n'ont pas de nom dans la source
+- Nouveau cas visible : « Aucun zonage de protection détecté ici » (vert) et « Zonages de protection : vérification impossible » (service injoignable) — trois issues distinctes là où deux se confondaient
+- Le rappel sur les herbiers est désormais présent aussi dans le cas « nature du fond à vérifier »
+- **Retiré** : la mention « D'autres zonages […] vérifiez-les visuellement », et le mode « bloc environnement réduit à une ligne » de la v2.5, sans objet désormais
+- Ajouts dans le code : `#report-block` et sa ligne `#zone-row`, `carteEnv()`, `carteNatureFond()`, `majLigneZone()`, `brancherCopie()`, écouteur délégué sur `#env-block`, styles `.popup-section`, `.report-*`, `.env-carte*`
+- Maquettes comparées avec Nicolas avant implémentation (canvas « Popup carte AMIDOMAR — 3 réorganisations »)
+
+### v2.15 — 12 octobre 2026
+**Nature du fond et conseil d'ancrage au clic**
+- Au clic sur un emplacement où le mouillage n'est pas interdit, le bloc environnement indique désormais la nature du fond (couche « Natures de fond au 1/50 000 » du Shom) et le conseil correspondant, repris de la page « Bien mouiller pour préserver les fonds marins »
+- Les 24 libellés ont été établis par comparaison entre la légende officielle du service et la couleur réellement rendue au point : 23 correspondances exactes, 1 code déduit (`NFSFC`, un seul polygone en France)
+- Le conseil est environnemental (écosystème à protéger, chaîne qui ne doit pas racler, emprise et ragage sur sol dur), jamais une appréciation de tenue d'ancre : le produit n'est pas certifié pour la navigation. Textes « sable » et « sol dur » rédigés par Nicolas ; le libellé du lien nomme le type de fond
+- Rappel systématique que la carte sédimentaire **ne montre pas les herbiers**
+- Là où la donnée manque — et c'est fréquent : 3 % de réponses seulement en Côtes-d'Armor, 27 % en Ille-et-Vilaine — le message « Nature du fond : à vérifier » est affiché explicitement, plutôt qu'un silence qui laisserait croire qu'il n'y a rien à signaler
+- Service injoignable : aucun bloc affiché, aucun message d'erreur
+- La couche est interrogée en parallèle des zonages (`Promise.all`) : aucune attente ajoutée. Ajouts : `CONFIG.delaiNatureFond`, `WFS_NDF`, `NATURES_FOND`, `CONSEIL_FOND`, `interrogerNatureFond()`, `blocNatureFond()`, style `.env-fond`, citation Shom 2025 dans l'attribution
+
+### v2.14 — 12 octobre 2026
+**L'estran est désormais considéré comme la mer (trait terre-mer du Shom)**
+- La détection locale classait plages, dunes et marais comme de la terre — or l'estran relève du DPM et peut porter un mouillage. D'où les faux « vous êtes à terre » signalés par la DDTM des Côtes-d'Armor
+- Le verdict « à terre » de la détection locale est maintenant soumis au trait terre-mer du Shom (couche WFS `LIMTM_2154_WFS:…_polygones`), qui matérialise la laisse des plus hautes mers astronomiques, soit la limite du DPM naturel, à 1-5 m de résolution. Un point côté mer lève l'avertissement
+- Le service n'est interrogé que sur ce cas contesté : un clic en pleine eau n'attend rien de plus qu'avant
+- Repli prudent assumé : service injoignable, lent, ou hors métropole → l'avertissement est maintenu, comme avant la v2.14
+- Ajouts dans le code : `CONFIG.delaiTraitTerreMer`, `WFS_SHOM`, `interrogerTraitTerreMer()`, `jetonClic` (et garde de jeton après l'attente APB), citation Shom-IGN dans `attributionControl`
+- La carte fantôme est **conservée** : elle fournit la réponse instantanée et le repli hors réseau. Sa suppression éventuelle est à décider après la phase de test auprès des DDTM pilotes
+- Issu de l'exploitation des flux Shom transmis par Eric Le Guen le 2 octobre 2026 ; inventaire complet et couches restantes à intégrer dans `notes/AMIDOMAR_Flux_Shom_tests_et_integration.md`
 
 ### v2.13 — 5 octobre 2026
 **Étapes 3 et 4 de la modale d'accueil : ✓ périmés corrigés**
@@ -883,4 +1017,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 5 octobre 2026
+**Dernière mise à jour:** 13 octobre 2026

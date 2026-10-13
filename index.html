@@ -95,10 +95,52 @@
       #env-block.env-vert   { background:#e8f5ec; border-left:3px solid #18753c; color:#1e1e1e; }
       #env-block.env-rouge  { background:#ffe9e9; border-left:3px solid #c9191e; color:#8a1215; }
       #env-block .env-caveat { font-size:11px; font-style:italic; opacity:.8; }
+      /* ---------- v2.16 : une carte repliable par information ----------
+         Deux couleurs seulement, et elles portent un sens : le bleu pour les
+         zonages de protection (quel que soit leur nombre — Natura 2000 et
+         ZNIEFF sont de même nature, les distinguer par la teinte ferait croire
+         à deux choses différentes), le sable pour la nature du fond, qui est un
+         conseil et non une contrainte. Le vert reste réservé à « rien de
+         détecté », le rouge aux interdictions (bloc entier, pas une carte).
+         Volontairement PAS de pictogramme d'alerte : un fond de sable est une
+         bonne nouvelle, et tout signaler comme une alerte userait le symbole
+         avant les vrais cas (mouillage interdit, cultures marines). */
+      #env-block.env-cartes { background:none; border-left:none; padding:0; }
+      #env-block .env-carte { border-radius:0 4px 4px 0; margin-bottom:8px; }
+      #env-block .env-carte:last-child { margin-bottom:0; }
+      #env-block .env-carte--protection { background:#f0f4ff; border-left:3px solid #003189; }
+      #env-block .env-carte--fond       { background:#fdf8ec; border-left:3px solid #c3992a; }
+      #env-block .env-carte--ok         { background:#e8f5ec; border-left:3px solid #18753c; }
+      #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
+      #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
+      #env-block .env-carte--protection .env-carte-resume { color:#003189; }
+      #env-block .env-carte--fond .env-carte-resume       { color:#6b5212; }
+      #env-block .env-carte--ok .env-carte-resume         { color:#0d3d20; }
+      #env-block .env-carte-consequence { font-weight:400; }
+      #env-block .env-toggle-bloc { flex-shrink:0; background:#fff; border:1px solid currentColor;
+                                    border-radius:4px; padding:3px 8px; font-size:12px; cursor:pointer;
+                                    font-family:inherit; color:inherit; white-space:nowrap; }
+      #env-block .env-detail-bloc { padding:0 10px 9px; }
+      #env-block .env-detail-bloc[hidden] { display:none; }
+      #env-block .env-detail-bloc p { margin:0 0 4px; }
+      #env-block .env-detail-bloc p:last-child { margin-bottom:0; }
       /* ---------- Bloc « navire », affiché seulement à proximité d'une AOT ---------- */
       #boat-block { display:none; text-align:left; margin-bottom:8px; }
-      #coords-row { display:flex; align-items:center; gap:10px; justify-content:center;
-                    font-family:monospace; }
+      /* ---------- v2.16 : popup en deux parties ----------
+         Le contexte environnemental (cartes repliables, ci-dessus) puis ce qu'il
+         faut recopier dans le formulaire. Les deux portent un titre de section
+         identique, pour qu'on voie d'un coup d'œil ce qui est une information
+         et ce qui est une action. */
+      .popup-section { margin:0 0 6px; font-size:10px; font-weight:800; text-transform:uppercase;
+                       letter-spacing:.06em; color:#666; text-align:left; }
+      #report-block { text-align:left; }
+      .report-cadre { border:1px solid #ddd; border-radius:6px; overflow:hidden; }
+      .report-ligne { display:flex; align-items:center; gap:10px; padding:9px 10px; }
+      .report-ligne + .report-ligne { border-top:1px solid #eee; }
+      .report-valeur { flex:1; min-width:0; }
+      .report-label { margin:0 0 2px; font-size:11px; color:#595959; }
+      .report-texte { margin:0; font-size:14px; font-weight:700; overflow-wrap:anywhere; }
+      .report-mono { font-family:monospace; }
       #coords-hint { margin:0 0 8px; font-size:13px; line-height:1.4; color:#6b2800;
                      background:#fff4e5; border-left:3px solid #b34000; padding:6px 9px;
                      border-radius:3px; }
@@ -110,13 +152,12 @@
       /* Recoupement détecté : même emplacement, ton plus ferme. */
       #coords-popup.alerte #coords-hint { color:#8a1215; background:#ffe9e9; border-left-color:#c9191e; }
       /* Avertissement « vous êtes à terre » : le popup ne montre alors aucune coordonnée. */
-      #coords-popup.terre #coords-row, #coords-popup.terre #coords-label { display:none; }
-      #coords-label { margin:0 0 4px; font-size:12px; color:#3a3a3a; text-align:center; }
+      #coords-popup.terre #report-block { display:none; }
       #coords-popup.terre #coords-hint { color:#8a1215; background:#ffe9e9; border-left-color:#c9191e; }
-      #copy-btn { background:#1a73e8; color:#fff; border:none; border-radius:5px; padding:5px 10px;
-                  cursor:pointer; font-size:13px; }
-      #copy-btn:hover { background:#1558b0; }
-      #copy-btn.copied { background:#2e7d32; }
+      .copy-btn { flex-shrink:0; background:#1a73e8; color:#fff; border:none; border-radius:5px;
+                  padding:7px 12px; cursor:pointer; font-size:13px; font-family:inherit; }
+      .copy-btn:hover { background:#1558b0; }
+      .copy-btn.copied { background:#2e7d32; }
 
       /* ---------- Panneaux latéraux ----------
          Deux zones de sens opposé. À gauche la demande de l'usager ; à droite
@@ -193,14 +234,9 @@
       #boat-block .note-colonne { margin:3px 0 0; font-size:11px; font-style:italic; color:#6b2600;
                                   opacity:.9; line-height:1.35; }
       #boat-block .note-colonne:empty { display:none; }
-      /* v2.5 : bloc environnement réduit à une ligne quand un mouillage est proche. */
-      #env-block .env-ligne { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-      #env-block .env-ligne-titre { font-weight:700; }
-      #env-block .env-toggle { flex-shrink:0; background:none; border:1px solid currentColor;
-                               border-radius:4px; padding:2px 8px; font-size:12px; cursor:pointer;
-                               color:inherit; font-family:inherit; }
-      #env-block .env-detail { margin-top:6px; }
-      #env-block .env-detail[hidden] { display:none; }
+      /* v2.5 : bloc environnement réduit à une ligne quand un mouillage est proche —
+         retiré en v2.16, le contexte étant désormais présenté en cartes qui
+         tiennent déjà sur une ligne chacune. */
       .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
                     border-top:1px solid #eee; padding-top:7px; }
 
@@ -336,10 +372,26 @@
       <button id="coords-fermer" aria-label="Fermer">Fermer <span class="coords-fermer-croix" aria-hidden="true">&times;</span></button>
       <!-- #env-block et #boat-block sont injectés en tête de ce conteneur par le script -->
       <p id="coords-hint"></p>
-      <p id="coords-label">Coordonnées GPS en degrés décimaux (DD) :</p>
-      <div id="coords-row">
-        <span id="coords-text"></span>
-        <button id="copy-btn">Copier</button>
+      <!-- v2.16 : ce qu'il faut recopier dans le formulaire est séparé du contexte
+           environnemental, et chaque valeur a son propre bouton « Copier ». -->
+      <div id="report-block">
+        <h2 class="popup-section">À reporter dans le formulaire de demande</h2>
+        <div class="report-cadre">
+          <div id="zone-row" class="report-ligne">
+            <div class="report-valeur">
+              <p id="zone-label" class="report-label">Nom de la zone</p>
+              <p id="zone-text" class="report-texte"></p>
+            </div>
+            <button id="copy-zone" type="button" class="copy-btn">Copier</button>
+          </div>
+          <div id="coords-row" class="report-ligne">
+            <div class="report-valeur">
+              <p id="coords-label" class="report-label">Coordonnées GPS en degrés décimaux (DD)</p>
+              <p id="coords-text" class="report-texte report-mono"></p>
+            </div>
+            <button id="copy-btn" type="button" class="copy-btn">Copier</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -361,6 +413,8 @@
                                 //    aucune caractéristique de navire)
       delaiProfondeur: 5000,    // ms — délai max de l'API EMODnet pour l'estimation de la colonne d'eau (v2.6)
       colonneMin: 0.5,          // m — en dessous, pas d'estimation proposée (point asséché, estran ou à terre)
+      delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
+      delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
 
@@ -544,7 +598,16 @@
       style: CarteFacile.mapStyles.simple,
       center: CONFIG.centre,
       zoom: CONFIG.zoom,
-      maxZoom: 18.9
+      maxZoom: 18.9,
+      // v2.14 : le trait terre-mer est interrogé en WFS, sans couche affichée ;
+      // sa citation est donc imposée ici et non par une source de tuiles.
+      // Licence Ouverte Etalab v2.0, mention exigée par la métadonnée du produit.
+      attributionControl: { customAttribution:
+        'Limite terre-mer : Shom-IGN, 2021 (<a href="https://dx.doi.org/10.17183/LIMTM" ' +
+        'target="_blank" rel="noopener">doi:10.17183/LIMTM</a>) — Natures de fond au ' +
+        '1/50 000 : Shom, 2025 (<a href="https://dx.doi.org/10.17183/HOM_GEOL_NATURES_FOND_50" ' +
+        'target="_blank" rel="noopener">doi:10.17183/HOM_GEOL_NATURES_FOND_50</a>) — ' +
+        'produits non certifiés pour la navigation' }
     });
     // Tous les outils de carte à droite : la gauche reste à l'usager.
     // Tous les contrôles à gauche : le haut-droite reste libre pour que la
@@ -1257,32 +1320,70 @@
                                      //   rouvre « Détails » volontairement, pour ne plus le lui refermer.
     const popup = document.getElementById('coords-popup');
     const coordsText = document.getElementById('coords-text');
-    const coordsRow = document.getElementById('coords-row');
-    const coordsLabel = document.getElementById('coords-label');
     const copyBtn = document.getElementById('copy-btn');
     const hint = document.getElementById('coords-hint');
+    // v2.16 : bloc « à reporter dans le formulaire » et sa ligne « nom de la zone ».
+    const reportBlock = document.getElementById('report-block');
+    const zoneRow   = document.getElementById('zone-row');
+    const zoneLabel = document.getElementById('zone-label');
+    const zoneText  = document.getElementById('zone-text');
+    const copyZone  = document.getElementById('copy-zone');
 
     // Affiche (ou efface, avec html='') le bloc « environnement » du popup.
-    // Avec un `titreCompact` (v2.5, mouillage proche), le bloc est réduit à une
-    // ligne : le titre et un bouton « Détails » qui déplie `html`, replié par défaut.
-    function afficherEnvironnement(html, teinte, titreCompact) {
+    // v2.16 : le mode « réduit à une ligne » de la v2.5 (`titreCompact`) a été
+    // retiré — il n'avait plus d'objet, le contexte étant désormais présenté en
+    // cartes qui tiennent déjà sur une ligne chacune.
+    function afficherEnvironnement(html, teinte) {
       envBlock.className = teinte ? 'env-' + teinte : '';
-      if (!titreCompact) { envBlock.innerHTML = html; return; }
-      envBlock.innerHTML = `
-        <div class="env-ligne">
-          <span class="env-ligne-titre">${titreCompact}</span>
-          <button type="button" class="env-toggle" aria-expanded="false"
-                  aria-controls="env-detail">Détails ▾</button>
-        </div>
-        <div class="env-detail" id="env-detail" hidden>${html}</div>`;
-      const btn = envBlock.querySelector('.env-toggle');
-      const det = envBlock.querySelector('.env-detail');
-      btn.addEventListener('click', () => {
-        const ouvrir = det.hidden;
-        det.hidden = !ouvrir;
-        btn.setAttribute('aria-expanded', String(ouvrir));
-        btn.textContent = ouvrir ? 'Masquer ▴' : 'Détails ▾';
-      });
+      envBlock.innerHTML = html;
+    }
+
+    /* ---------- v2.16 : le contexte environnemental en cartes repliables ----------
+       Une carte par information. La ligne visible porte à elle seule l'essentiel
+       (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le
+       fond ») : c'est ce qui rend le repli acceptable — un bandeau replié qui ne
+       dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
+       Tout est replié au départ (décision de Nicolas, 13/10/2026). */
+    const echapper = (s) => String(s).replace(/[&<>"]/g,
+      c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+    function carteEnv({ type, titre, suffixe, complement, consequence, detail, bouton }) {
+      const resume =
+        `<span class="env-carte-resume"><strong>${echapper(titre)}</strong>` +
+        (suffixe ? ` ${echapper(suffixe)}` : '') +
+        (complement ? ` — ${echapper(complement)}` : '') +
+        (consequence ? `<br><span class="env-carte-consequence">${echapper(consequence)}</span>` : '') +
+        `</span>`;
+      const action = detail
+        ? `<button type="button" class="env-toggle-bloc" aria-expanded="false"
+                   data-libelle="${echapper(bouton)}">${echapper(bouton)}</button>` : '';
+      const corps = detail ? `<div class="env-detail-bloc" hidden>${detail}</div>` : '';
+      return `<div class="env-carte env-carte--${type}">
+                <div class="env-carte-entete">${resume}${action}</div>${corps}</div>`;
+    }
+
+    // Un seul écouteur, posé une fois : les cartes sont réécrites à chaque clic
+    // sur la carte, un écouteur par bouton fuirait.
+    envBlock.addEventListener('click', e => {
+      const btn = e.target.closest('.env-toggle-bloc');
+      if (!btn || !envBlock.contains(btn)) return;
+      const detail = btn.closest('.env-carte').querySelector('.env-detail-bloc');
+      if (!detail) return;
+      const ouvrir = detail.hidden;
+      detail.hidden = !ouvrir;
+      btn.setAttribute('aria-expanded', String(ouvrir));
+      btn.textContent = ouvrir ? 'Masquer' : btn.dataset.libelle;
+    });
+
+    /* Ligne « Nom de la zone » du bloc à reporter. Seul un site Natura 2000
+       alimente ce champ du formulaire : les ZNIEFF n'ont pas de nom dans la
+       source (message générique), la ligne reste donc masquée pour elles. */
+    function majLigneZone(natura) {
+      if (!natura.length) { zoneRow.style.display = 'none'; return; }
+      zoneRow.style.display = '';
+      zoneLabel.textContent = 'Nom de la zone Natura 2000';
+      zoneText.textContent = natura.join(', ');
+      copyZone.textContent = 'Copier'; copyZone.classList.remove('copied');
     }
 
     /* Interroge l'API Carto de l'IGN (module « nature ») pour identifier les
@@ -1339,6 +1440,183 @@
       } catch (e) {
         return [];
       }
+    }
+
+    /* ---------- Trait terre-mer du Shom : l'estran est de la mer (v2.14) ----------
+       La détection locale `estSurLEau` lit le fond « Plan IGN vectoriel » : elle
+       classe plages, dunes et marais comme de la terre. Or l'estran — le haut de
+       plage découvrant — EST du domaine public maritime, et un mouillage peut
+       légitimement s'y trouver. D'où les faux « vous êtes à terre » signalés par
+       la DDTM des Côtes-d'Armor.
+       La couche « Limite terre-mer » du Shom tranche la question sur la bonne
+       donnée. Métadonnée du produit : « La Limite terre-mer correspond à la
+       laisse des plus hautes mers astronomiques (PHMA) dans le cas d'une marée
+       de coefficient 120 et dans des conditions météorologiques normales […]
+       elle correspond aussi à la limite haute du rivage en matérialisant le haut
+       de l'estran. » C'est la définition du DPM naturel (art. L2111-4 du CGPPP),
+       à 1-5 m de résolution.
+       Deux précautions, VÉRIFIÉES EN RÉEL le 12/10/2026 :
+       - la couche `…_polygones` porte les SURFACES TERRESTRES. Zéro objet
+         retourné signifie donc « côté mer », estran compris ;
+       - la couche est en Lambert 93 : le préfixe `SRID=4326;` est obligatoire,
+         faute de quoi le service renvoie silencieusement zéro objet — ce qui se
+         lirait à tort comme « en mer ». Même convention que `interrogerWFS`.
+       Contrôle de non-régression : au point -4,6050 / 48,2870 (anse de Pen Hat),
+       0 objet attendu ; au point -4,5920 / 48,2795 (bourg de Camaret), 1 objet
+       attendu, `numdep` = 29. Transect dans la baie du Mont-Saint-Michel : les
+       points d'estran à +10 et +13 m au-dessus du niveau de référence renvoient
+       bien 0 objet (donc : mer).
+       Licence Ouverte Etalab v2.0 — citation imposée : « Shom-IGN, 2021.
+       https://dx.doi.org/10.17183/LIMTM ». Produit non certifié pour la
+       navigation (cohérent avec le bandeau « prototype de travail »). */
+    const WFS_SHOM = 'https://services.data.shom.fr/INSPIRE/wfs?service=WFS&version=2.0.0' +
+                     '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326' +
+                     '&count=1&propertyName=id,numdep&typeNames=' +
+                     encodeURIComponent('LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones');
+
+    /* Renvoie { surDPM, departement } d'après le trait terre-mer, ou null si le
+       service est injoignable, lent, ou hors couverture (métropole seulement).
+       `null` ne doit JAMAIS bloquer l'usager : on retombe alors sur la détection
+       locale, comme avant. */
+    async function interrogerTraitTerreMer(lngLat) {
+      const filtre = `INTERSECTS(geom,SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiTraitTerreMer);
+      try {
+        const rep = await fetch(WFS_SHOM + '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                { signal: ctrl.signal });
+        if (!rep.ok) return null;
+        const j = await rep.json();
+        if (!Array.isArray(j.features)) return null;
+        return { surDPM: j.features.length === 0,
+                 departement: j.features.length
+                   ? (j.features[0].properties || {}).numdep || null : null };
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }
+
+    /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
+       Couche WFS NDF_BDD_WLD_WGS84G_WFS:natures_fond_50000, interrogée au point.
+       L'attribut `typelem` porte un code ; les libellés ci-dessous ne sont pas
+       devinés : ils ont été établis le 12/10/2026 en lisant la légende officielle
+       du service (GetLegendGraphic, 33 entrées) puis, pour chaque code, en
+       comparant la couleur réellement rendue par le WMS au point à celle de la
+       pastille de légende. 23 des 24 codes présents en métropole correspondent à
+       une couleur de légende à l'identique. Seul `NFSFC` (un unique polygone dans
+       toute la France) est déduit du schéma de nommage, faute de polygone assez
+       grand pour une lecture de couleur fiable.
+       ATTENTION, deux limites à ne pas perdre de vue :
+       - la couverture n'est PAS nationale (synthèse de 45 cartes sédimentaires
+         publiées de 1990 à 2023). Taux de réponse mesuré sur 30 points en mer
+         tirés au hasard : Morbihan 100 %, Var 97 %, Finistère 87 %, mais
+         Ille-et-Vilaine 27 % et Côtes-d'Armor 3 %. Le cas « pas de donnée » est
+         donc fréquent et doit être dit explicitement à l'usager ;
+       - c'est une carte SÉDIMENTAIRE : elle ne représente pas les herbiers. Un
+         fond de sable n'exclut pas un herbier. D'où le rappel systématique.
+       Le conseil associé est volontairement ENVIRONNEMENTAL (préservation des
+       fonds, cf. la page « Bien mouiller »), et jamais un conseil de tenue
+       d'ancre : le produit porte la mention « ne pas utiliser pour la
+       navigation ». Licence Ouverte 2.0, citation « Shom, 2025. Natures de fond
+       au 1/50 000, https://dx.doi.org/10.17183/HOM_GEOL_NATURES_FOND_50 ». */
+    const WFS_NDF = 'https://services.data.shom.fr/INSPIRE/wfs?service=WFS&version=2.0.0' +
+                    '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326' +
+                    '&count=1&propertyName=typelem&typeNames=' +
+                    encodeURIComponent('NDF_BDD_WLD_WGS84G_WFS:natures_fond_50000');
+
+    // code Shom → [libellé officiel, famille]. Familles : 'sable', 'vase',
+    // 'graviers', 'dur' — elles ne servent qu'à choisir le conseil affiché.
+    const NATURES_FOND = {
+      NFRoche:['Roche','dur'],              NFC:['Cailloutis','dur'],
+      NFCG:['Cailloutis et graviers','dur'], NFGC:['Graviers et cailloutis','dur'],
+      NFCV:['Cailloutis envasés','dur'],    NFCS:['Cailloutis et sables','dur'],
+      NFSC:['Sables et cailloutis','dur'],  NFSFC:['Sables fins et cailloutis','dur'],
+      NFS:['Sables','sable'],               NFSF:['Sables fins','sable'],
+      NFV:['Vases','vase'],                 NFSV:['Sables vaseux','vase'],
+      NFSFV:['Sables fins vaseux','vase'],  NFVS:['Vases sableuses','vase'],
+      NFVSF:['Vases et sables fins','vase'], NFVG:['Vases et graviers','vase'],
+      NFSSi:['Sables et silts','vase'],     NFSFSi:['Sables fins et silts','vase'],
+      NFG:['Graviers','graviers'],          NFSG:['Sables et graviers','graviers'],
+      NFGS:['Graviers et sables','graviers'], NFGV:['Graviers envasés','graviers'],
+      NFSGV:['Sables et graviers envasés','graviers'],
+      NFSFG:['Sables fins et graviers','graviers']
+    };
+
+    const PAGE_BONNES_PRATIQUES =
+      'https://amidomar.beta.gouv.fr/bien-mouiller--pr%C3%A9server-les-fonds-marins/';
+
+    /* Conseils repris de la page « Bien mouiller pour préserver les fonds marins ».
+       Textes « sable » et « dur » : rédigés par Nicolas le 12/10/2026 — ne pas les
+       reformuler sans lui. « vase » et « graviers » suivent la même construction
+       (une phrase de conseil, puis un libellé de lien qui nomme le type de fond).
+       `lien` est le texte du lien, qui termine le conseil : il change avec la
+       famille pour renvoyer vers la bonne pratique correspondante. */
+    const CONSEIL_FOND = {
+      sable:    { resume: "ne laissez pas votre chaîne racler le fond",
+                  texte: "Idéal pour mouiller. Tout un écosystème à protéger y prospère, " +
+                         "veillez à ce que votre chaîne ne racle pas le fond.",
+                  lien:  "Voir les bonnes pratiques d'ancrage sur fond sableux" },
+      vase:     { resume: "fond meuble : la chaîne s'y enfonce et racle",
+                  texte: "Sur un fond meuble, la chaîne s'enfonce et racle facilement. " +
+                         "Tout un écosystème à protéger y prospère.",
+                  lien:  "Voir les bonnes pratiques d'ancrage" },
+      graviers: { resume: "ne laissez pas votre chaîne racler le fond",
+                  texte: "Veillez à ce que votre chaîne ne racle pas le fond : tout un " +
+                         "écosystème à protéger y prospère.",
+                  lien:  "Voir les bonnes pratiques d'ancrage" },
+      dur:      { resume: "emprise et ragage de la chaîne à surveiller",
+                  texte: "Sur un sol dur, l'emprise du mouillage et le ragage de la chaîne " +
+                         "sont à surveiller de près.",
+                  lien:  "Voir les bonnes pratiques d'ancrage sur sol dur" }
+    };
+
+    /* Renvoie { libelle, famille } si la donnée existe au point, { absent:true }
+       si la zone n'est pas cartographiée, ou null si le service n'a pas répondu —
+       trois cas bien distincts, le troisième ne devant rien afficher du tout. */
+    async function interrogerNatureFond(lngLat) {
+      const filtre = `INTERSECTS(geometry,SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiNatureFond);
+      try {
+        const rep = await fetch(WFS_NDF + '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                { signal: ctrl.signal });
+        if (!rep.ok) return null;
+        const j = await rep.json();
+        if (!Array.isArray(j.features)) return null;
+        if (!j.features.length) return { absent: true };
+        const code = (j.features[0].properties || {}).typelem;
+        const n = NATURES_FOND[code];
+        // Code inconnu (nouvelle valeur côté Shom) : on affiche le cas « à
+        // vérifier » plutôt qu'un code brut incompréhensible pour l'usager.
+        return n ? { libelle: n[0], famille: n[1] } : { absent: true };
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }
+
+    // v2.16 : rend une carte repliable, ou '' si le service n'a pas répondu.
+    function carteNatureFond(fond) {
+      if (!fond) return '';                       // service muet : on ne dit rien
+      const lien = (texte) =>
+        `<a href="${PAGE_BONNES_PRATIQUES}" target="_blank" rel="noopener">${texte}</a>.`;
+      const herbiers = `<p class="env-caveat">Cette carte ne représente pas les herbiers :
+        sur place, les taches sombres sont de l'herbier, à éviter.</p>`;
+      if (fond.absent) {
+        return carteEnv({
+          type: 'fond',
+          titre: 'Nature du fond : à vérifier',
+          consequence: 'non cartographiée à cet endroit',
+          bouton: 'Que faire ici',
+          detail: `<p>Le fond marin n'est pas cartographié à cet endroit : vérifiez-le sur
+                   place pour décider de votre dispositif d'ancrage.
+                   ${lien("Voir les bonnes pratiques d'ancrage")}</p>${herbiers}`
+        });
+      }
+      const c = CONSEIL_FOND[fond.famille];
+      return carteEnv({
+        type: 'fond',
+        titre: `Nature du fond : ${fond.libelle}`,
+        suffixe: '(Shom)',
+        consequence: c.resume,
+        bouton: 'Comment mouiller ici',
+        detail: `<p>${c.texte} ${lien(c.lien)}</p>${herbiers}`
+      });
     }
 
     async function interrogerZonesProtegees(lngLat) {
@@ -1398,11 +1676,12 @@
       return { natura:noms.natura, znieff:noms.znieff, echec };
     }
 
-    const MENTION_NON_DETECTABLES = `<p class="env-caveat">D'autres zonages (Herbiers de
-      posidonie et de zostère, Parcs naturels marins, Aires marines protégées,
-      zones de baignade ou réglementaires) sont visibles dans la légende mais ne
-      peuvent pas encore être identifiés automatiquement à cet endroit — vérifiez-les
-      visuellement.</p>`;
+    /* v2.16 : la mention « D'autres zonages […] ne peuvent pas encore être
+       identifiés automatiquement » a été retirée du popup (décision de Nicolas,
+       13/10/2026, pour alléger). Ces zonages restent affichables dans la légende,
+       et leur absence de vérification automatique reste documentée au §4.1 de
+       DOCUMENTATION_FONCTIONNELLE.md. Le seul rappel conservé dans le popup est
+       celui sur les herbiers, porté par la carte « nature du fond ». */
 
     /* Terre ou eau ?
        Dans le style Plan IGN, la mer n'est pas une couche : c'est le fond de la
@@ -1472,8 +1751,14 @@
       return mapTerrain.areTilesLoaded() ? null : null;
     }
 
+    // v2.14 : le clic comporte désormais une attente réseau AVANT l'avertissement
+    // « à terre » (trait terre-mer). Ce jeton fait abandonner la vérification d'un
+    // clic qu'un clic plus récent a remplacé.
+    let jetonClic = 0;
+
     map.on('click', async e => {
       const { lng, lat } = e.lngLat;
+      const jeton = ++jetonClic;
 
       // Un clic sur un port ou une ZMEL ouvre leur modale dédiée (gérée par les
       // écouteurs attachés à ces couches, plus haut) : ni AOT individuel, ni
@@ -1481,12 +1766,27 @@
       const ciblesOrientation = ['ports-pts-c','zmel-fill'].filter(l => map.getLayer(l));
       if (ciblesOrientation.length && map.queryRenderedFeatures(e.point, { layers:ciblesOrientation }).length) return;
 
+      // La détection locale est instantanée mais classe plages, dunes et marais
+      // comme de la terre. Elle ne vaut donc plus qu'en première instance : son
+      // verdict « à terre » est soumis au trait terre-mer du Shom, qui place
+      // l'estran du côté mer. Un point confirmé sur le DPM passe. L'appel réseau
+      // n'a lieu QUE sur ce cas contesté : un clic en pleine eau n'attend rien.
       if (estSurLEau(e.lngLat) === false) {
         afficherEnvironnement('', '');
         boatBlock.style.display = 'none';
         popup.classList.add('visible', 'terre');
-        hint.textContent = "Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau.";
-        return;
+        hint.textContent = "Vérification de l'emplacement…";
+        const ttm = await interrogerTraitTerreMer(e.lngLat);
+        if (jeton !== jetonClic) return;          // un clic plus récent a pris la main
+        if (!ttm || !ttm.surDPM) {
+          // Terre confirmée par le Shom, ou service indisponible : on conserve le
+          // comportement d'avant, qui est le comportement prudent.
+          hint.textContent = "Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau.";
+          return;
+        }
+        // Le point est sur le DPM : l'avertissement est levé et le clic se
+        // poursuit normalement (le reste de la fonction s'exécute).
+        hint.textContent = '';
       }
       popup.classList.remove('terre');
 
@@ -1508,8 +1808,7 @@
         if (marker) { marker.remove(); marker = null; }
         position = null;
         copieFaite = false; majEtapes();   // v2.13 : clic refusé → étapes 3 et 4 remises à zéro
-        coordsRow.style.display = 'none';
-        coordsLabel.style.display = 'none';
+        reportBlock.style.display = 'none';
         hint.textContent = '';
         popup.classList.remove('info', 'alerte');
         popup.classList.add('visible');
@@ -1524,8 +1823,7 @@
       // v2.13 : tout nouveau clic remet les étapes 3 et 4 à zéro — l'ancien
       // emplacement n'est plus choisi, et ses coordonnées copiées ne valent plus.
       copieFaite = false; majEtapes();
-      coordsRow.style.display = 'none';
-      coordsLabel.style.display = 'none';
+      reportBlock.style.display = 'none';
       boatBlock.style.display = 'none';
       hint.textContent = '';
       popup.classList.remove('info', 'alerte');
@@ -1533,6 +1831,7 @@
       afficherEnvironnement('<p><em>Vérification de la zone…</em></p>', 'neutre');
 
       const apb = await interrogerAPB(e.lngLat);
+      if (jeton !== jetonClic) return;            // v2.14 : clic remplacé pendant l'attente
       if (apb.length) {
         afficherEnvironnement(
           `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.join(', ')}.</strong></p>
@@ -1541,8 +1840,10 @@
         return;
       }
 
-      coordsRow.style.display = '';
-      coordsLabel.style.display = '';
+      reportBlock.style.display = '';
+      // La ligne « nom de la zone » n'apparaît qu'une fois les zonages connus
+      // (plus bas) : sans ça, elle garderait le nom du point précédent.
+      majLigneZone([]);
 
       position = [lng, lat];
       if (marker) marker.setLngLat(position);
@@ -1569,46 +1870,59 @@
       recalculer();   // message de proximité affiché sans attendre les zonages
 
       afficherEnvironnement('<p><em>Vérification des zonages environnementaux…</em></p>', 'neutre');
-      const { natura, znieff, echec } = await interrogerZonesProtegees(e.lngLat);
-      const blocsZones = [];
-      if (natura.length) {
-        blocsZones.push(
-          `<p>Cet emplacement se situe dans un site Natura 2000. Une étude d'incidence
-           va être réalisée suite à votre demande. Nom de la zone à reporter dans le
-           formulaire de demande : <strong>${natura.join(', ')}</strong></p>`);
-      }
-      if (znieff.length) {
-        blocsZones.push(
-          `<p>Cet emplacement se situe sur une Zone Naturelle d'Intérêt Écologique,
-           Faunistique et Floristique (ZNIEFF). Cette zone est sensible, merci d'adopter
-           des pratiques de mouillage durables.</p>`);
-      }
+      // v2.15 : la nature du fond part en parallèle des zonages — elle répond en
+      // quelques dizaines de millisecondes et ne doit pas rallonger l'attente.
+      // Elle n'est demandée QUE sur cette branche, c'est-à-dire quand le mouillage
+      // n'est pas interdit (ni cultures marines, ni APB, ni terre, ni port/ZMEL).
+      const [{ natura, znieff, echec }, fond] = await Promise.all([
+        interrogerZonesProtegees(e.lngLat),
+        interrogerNatureFond(e.lngLat)
+      ]);
+      if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
+
+      // v2.16 : le nom de la zone quitte le paragraphe pour devenir une valeur
+      // copiable du bloc « à reporter ».
+      majLigneZone(natura);
+
+      const cartes = [];
+      if (natura.length) cartes.push(carteEnv({
+        type: 'protection',
+        titre: 'Site Natura 2000',
+        complement: natura.join(', '),
+        consequence: 'étude d’incidence à prévoir',
+        bouton: 'Ce que ça implique',
+        detail: `<p>Une étude d'incidence sera réalisée suite à votre demande. Le nom de
+                 la zone est à reporter dans le formulaire : il est repris ci-dessous,
+                 avec un bouton pour le copier.</p>`
+      }));
+      if (znieff.length) cartes.push(carteEnv({
+        type: 'protection',
+        titre: 'ZNIEFF',
+        complement: 'zone naturelle sensible',
+        consequence: 'rien à reporter dans le formulaire',
+        bouton: 'Ce que ça implique',
+        detail: `<p>Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette
+                 zone est sensible, merci d'adopter des pratiques de mouillage durables.</p>`
+      }));
+      // Trois issues distinctes, à ne pas confondre : service en panne, zone
+      // vérifiée et vide, ou zonages trouvés (cartes ci-dessus).
+      if (echec) cartes.push(carteEnv({
+        type: 'protection',
+        titre: 'Zonages de protection : vérification impossible',
+        consequence: 'service distant momentanément injoignable'
+      }));
+      else if (!natura.length && !znieff.length) cartes.push(carteEnv({
+        type: 'ok',
+        titre: 'Aucun zonage de protection détecté ici',
+        consequence: 'Natura 2000 et ZNIEFF vérifiés'
+      }));
+      cartes.push(carteNatureFond(fond));
       // v2.5 : si un mouillage est proche, le bloc environnement (vert, ou neutre
       // Natura 2000 / ZNIEFF) est réduit à une ligne de titre, avec un bouton pour
       // déplier le détail (replié par défaut) — la modale reste concise.
-      if (blocsZones.length) {
-        const titre = natura.length && znieff.length
-          ? 'Emplacement situé en site Natura 2000 et en ZNIEFF.'
-          : natura.length ? 'Emplacement situé en site Natura 2000.'
-                          : 'Emplacement situé en ZNIEFF.';
-        afficherEnvironnement(blocsZones.join('') + MENTION_NON_DETECTABLES, 'neutre',
-                              formNavireRequis ? titre : null);
-      } else if (echec) {
-        afficherEnvironnement(
-          `<p>Informations environnementales momentanément indisponibles (service
-           distant injoignable). Vos coordonnées restent accessibles ci-dessous.</p>`,
-          'neutre');
-      } else {
-        if (formNavireRequis) {
-          afficherEnvironnement(MENTION_NON_DETECTABLES, 'vert',
-                                'Aucune zone bloquante détectée sur cet emplacement.');
-        } else {
-          afficherEnvironnement(
-            `<p>Pas de contre-indication détectée automatiquement sur cette zone.</p>
-             ${MENTION_NON_DETECTABLES}`,
-            'vert');
-        }
-      }
+      afficherEnvironnement(
+        '<h2 class="popup-section">Contexte environnemental</h2>' + cartes.join(''),
+        'cartes');
 
       recalculer();
     });
@@ -1630,8 +1944,8 @@
       clearTimeout(repliTimer);
       copieFaite = false;
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
-      coordsRow.style.display = 'none';
-      coordsLabel.style.display = 'none';
+      copyZone.textContent = 'Copier'; copyZone.classList.remove('copied');
+      reportBlock.style.display = 'none';
       boatBlock.style.display = 'none';
       afficherEnvironnement('', '');
       popup.classList.remove('visible', 'info', 'alerte', 'terre');
@@ -1764,18 +2078,26 @@
       el.addEventListener('change', recalculer);
     });
 
-    copyBtn.addEventListener('click', () => {
-      const marquerCopie = () => {
-        copieFaite = true; majEtapes();
-        copyBtn.textContent = 'Copié !'; copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.textContent='Copier'; copyBtn.classList.remove('copied'); }, 2000);
-      };
-      // Le presse-papier peut être refusé (contexte non sécurisé, permission) :
-      // l'étape doit se valider quand même, l'usager peut copier à la main.
-      if (navigator.clipboard && navigator.clipboard.writeText)
-        navigator.clipboard.writeText(coordsText.textContent).then(marquerCopie, marquerCopie);
-      else marquerCopie();
-    });
+    /* Copie d'une valeur du bloc « à reporter ». Le presse-papier peut être refusé
+       (contexte non sécurisé, permission) : le retour visuel a lieu quand même,
+       l'usager peut copier à la main.
+       v2.16 : seules les COORDONNÉES valident l'étape 4 de la marche à suivre —
+       c'est d'elles que parle l'étape, et le nom de la zone n'apparaît pas sur
+       tous les emplacements. */
+    function brancherCopie(bouton, source, validerEtape) {
+      bouton.addEventListener('click', () => {
+        const marquerCopie = () => {
+          if (validerEtape) { copieFaite = true; majEtapes(); }
+          bouton.textContent = 'Copié !'; bouton.classList.add('copied');
+          setTimeout(() => { bouton.textContent = 'Copier'; bouton.classList.remove('copied'); }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText)
+          navigator.clipboard.writeText(source.textContent).then(marquerCopie, marquerCopie);
+        else marquerCopie();
+      });
+    }
+    brancherCopie(copyBtn, coordsText, true);
+    brancherCopie(copyZone, zoneText, false);
     </script>
   </body>
 </html>
