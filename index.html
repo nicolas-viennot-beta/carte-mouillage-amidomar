@@ -415,7 +415,7 @@
       delaiProfondeur: 5000,    // ms — délai max de l'API EMODnet pour l'estimation de la colonne d'eau (v2.6)
       colonneMin: 0.5,          // m — en dessous, pas d'estimation proposée (point asséché, estran ou à terre)
       delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
-      rayonCouvertureShom: 5,   // km — rayon du test de couverture du trait terre-mer (v2.17, calibré le 13/10/2026 : voir interrogerTraitTerreMer)
+      rayonCouvertureShom: 20,  // km — rayon du test de couverture du trait terre-mer (v2.17, recalibré le 14/10/2026 : voir interrogerTraitTerreMer)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
       centre: [2.4, 46.6],      // vue initiale : la France entière
@@ -1567,23 +1567,38 @@
        cartographiée dans un rayon de CONFIG.rayonCouvertureShom autour du point ?
        - des objets autour, zéro au point      → mer ou estran, verdict fiable ;
        - zéro au point ET zéro autour          → hors couverture, on ne conclut pas.
-       Calibrage du rayon, mesuré le 13/10/2026 (nombre d'objets renvoyés selon
-       le rayon, pour un point sans objet au point lui-même) :
-                                  1 km   2 km   5 km   10 km  20 km
-         Argentan (61)              0      0      0      0      1
-         Laval (53)                 0      0      0      0      1
-         Niort (79)                 0      0      0      1      1
+       Calibrage du rayon. Le 13/10/2026, 5 km avait été retenu sur des points
+       de mer tous proches du rivage. C'ÉTAIT TROP COURT : signalé par Nicolas
+       le 14/10/2026, un clic sur l'estran de la baie du Mont-Saint-Michel
+       déclenchait un faux « vous êtes à terre », de façon capricieuse — à marée
+       basse, le point cliqué est à plus de 5 km de toute terre cartographiée, et
+       l'on franchit l'isoligne en quelques mètres. Sur 24 points tirés au hasard
+       dans la baie, le Shom répondait « mer » 24 fois, mais le test de couverture
+       à 5 km échouait 8 fois.
+       Nouveau relevé, le 14/10/2026 (nombre d'objets selon le rayon, pour un
+       point sans objet au point lui-même) :
+                                      5 km  10 km  20 km  30 km  50 km
+         large de Dunkerque             0      0      1      1      1
+         baie de Somme, nord baie MSM   0      1      1      1      1
+         centre baie MSM, rade de Brest,
+         golfe du Morbihan, Arcachon    1      1      1      1      1
+         Niort (79)                     0      1      1      1      1
+         Argentan (61), Laval (53)      0      0      1      1      1
          Alençon (61), Angers (49),
-         Paris, Lyon                0      0      0      0      0
-         mer à 1 km de Ouistreham   1      1      1      1      1
-         mer à 3 km                 0      0      1      1      1
-         estran Mont-Saint-Michel   1      1      1      1      1
-       5 km écarte donc toutes les villes de l'intérieur testées tout en
-       couvrant la mer jusqu'à 5 km du rivage. Au-delà de 5 km au large, la
-       détection locale conclut « eau » sans appeler le Shom : ce cas ne passe
-       pas par ici. Risque résiduel assumé : un point situé à moins de 5 km d'un
-       département littoral, mais dans un département qui ne l'est pas, serait
-       lu comme « mer » — l'avertissement manquerait, sans autre conséquence.
+         Chartres (28)                  0      0      0      0      1
+         Paris, Lyon, Le Mans (72),
+         Poitiers (86)                  0      0      0      0      0
+       AUCUN RAYON NE SÉPARE LES DEUX CAS : la mer en exige au moins 20, les
+       villes de l'intérieur moins de 10. Le choix se fait donc sur la
+       conséquence, qui n'est pas symétrique — bloquer un plaisancier sur un
+       estran légitime casse le cœur du service, ne pas avertir quelqu'un qui
+       clique à Niort ne coûte rien. D'où 20 km.
+       Risque résiduel assumé : Niort, Argentan et Laval ne sont plus avertis ;
+       Paris, Lyon, Le Mans, Poitiers, Chartres, Alençon et Angers le restent.
+       Piste pour supprimer ce compromis, si le besoin s'en fait sentir :
+       résoudre le département du point (ADMINEXPRESS, Géoplateforme) plutôt que
+       de raisonner en distance — un point en mer n'appartient à aucun
+       département, un point à Niort appartient à un département non littoral.
 
        Renvoie { surDPM, departement } d'après le trait terre-mer, ou null si le
        service est injoignable, lent, ou hors couverture (métropole seulement).

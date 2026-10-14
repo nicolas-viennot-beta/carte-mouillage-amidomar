@@ -14,7 +14,18 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 13 oct. 2026 (v2.17) — refonte de la détection terre/mer.**
+**Dernière exécution : 14 oct. 2026 — recalibrage du garde-fou de couverture.**
+- Harnais Node.js sur le fichier courant (v2.19 + travaux v2.20 en cours) :
+  §6.1 (syntaxe) et §6.1bis (phase synchrone complète, sans exception) — OK.
+- Chromium headless (Playwright, services rejoués), 26 assertions, **26/26** :
+  §1.1, §1.2, §1.3, §1.9, §1.24, §1.25, §1.27, §6.1bis, §6.1quater.
+- Navigateur réel contre `services.data.shom.fr` : §1.28 (nouveau tableau de
+  calibrage), §1.30 (**30 points de la baie du Mont-Saint-Michel, 0 `null`**,
+  contre 8 sur 24 avec le rayon de 5 km) et §1.31 (**23 scénarios, 23/23**).
+- **Non rejoué :** §2, §3, §4, §5 et §7. Le correctif ne change qu'une valeur de
+  `CONFIG`, et le chargement complet de la page ne lève aucune `pageerror`.
+
+**Exécution précédente : 13 oct. 2026 (v2.17) — refonte de la détection terre/mer.**
 - Harnais Node.js (`vm`, globaux simulés) : §6.1 (syntaxe) et §6.1bis (phase
   synchrone exécutée en entier, sans exception ; 4 fetch locaux observés) — OK.
 - Chromium headless (Playwright, serveur local, Shom et Géoplateforme rejoués),
@@ -105,7 +116,8 @@ fonctionnalité correspondante a réellement disparu.
 
 *Depuis la v2.14, la détection se fait en deux instances : les tests 1 à 8
 portent sur la détection locale (carte fantôme), les tests 9 à 15 sur
-l'arbitrage par le trait terre-mer du Shom. Les tests 16 à 23 portent sur la
+l'arbitrage par le trait terre-mer du Shom. Les tests 30 et 31 portent sur le
+recalibrage du 14/10/2026. Les tests 16 à 23 portent sur la
 nature du fond affichée au clic (v2.15), qui s'appuie sur le même mécanisme
 d'interrogation ponctuelle du Shom. Les tests 24 à 29 couvrent la refonte de
 la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
@@ -392,27 +404,31 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
       prudent), jamais `surDPM` vrai.
     - Vérification : lecture du code.
 
-28. **Couverture départementale de la couche et calibrage du rayon (v2.17)**
-    - Action : interroger le service en réel, au point puis à 1, 2, 5, 10 et
-      20 km, sur des villes de l'intérieur et des points de mer.
-    - Attendu (relevés le 13/10/2026, nombre d'objets) :
+28. **Couverture départementale de la couche et calibrage du rayon (v2.17, recalibré le 14/10/2026)**
+    - Action : interroger le service en réel, au point puis à 5, 10, 20, 30 et
+      50 km, sur des villes de l'intérieur **et sur des points de mer éloignés
+      du rivage** (c'est ce second jeu qui manquait au calibrage du 13/10/2026).
+    - Attendu (relevés le 14/10/2026, nombre d'objets) :
 
-      | Point | point | 1 km | 2 km | 5 km | 10 km | 20 km |
-      |---|---|---|---|---|---|---|
-      | Argentan (61) | 0 | 0 | 0 | 0 | 0 | 1 |
-      | Laval (53) | 0 | 0 | 0 | 0 | 0 | 1 |
-      | Niort (79) | 0 | 0 | 0 | 0 | 1 | 1 |
-      | Alençon (61), Angers (49), Paris, Lyon | 0 | 0 | 0 | 0 | 0 | 0 |
-      | Mer à 1 km de Ouistreham | 0 | 1 | 1 | 1 | 1 | 1 |
-      | Mer à 3 km | 0 | 0 | 0 | 1 | 1 | 1 |
-      | Estran du Mont-Saint-Michel | 0 | 1 | 1 | 1 | 1 | 1 |
+      | Point | 5 km | 10 km | 20 km | 30 km | 50 km |
+      |---|---|---|---|---|---|
+      | Large de Dunkerque | 0 | 0 | 1 | 1 | 1 |
+      | Baie de Somme, nord de la baie du Mont-Saint-Michel | 0 | 1 | 1 | 1 | 1 |
+      | Centre baie du MSM, rade de Brest, golfe du Morbihan, Arcachon | 1 | 1 | 1 | 1 | 1 |
+      | Niort (79) | 0 | 1 | 1 | 1 | 1 |
+      | Argentan (61), Laval (53) | 0 | 0 | 1 | 1 | 1 |
+      | Alençon (61), Angers (49), Chartres (28) | 0 | 0 | 0 | 0 | 1 |
+      | Paris, Lyon, Le Mans (72), Poitiers (86) | 0 | 0 | 0 | 0 | 0 |
 
     - Attendu aussi : la couche couvre **entièrement** les départements
       littoraux, jusqu'à leur limite intérieure — Vire, Falaise et Lisieux (14),
       Évreux (27) et Rennes (35) renvoient 1 objet.
-    - Conclusion à retrouver : 5 km est le seul rayon testé qui écarte toutes
-      les villes de l'intérieur tout en couvrant la mer proche du rivage. **Si
-      `CONFIG.rayonCouvertureShom` est modifié, ce tableau doit être rejoué.**
+    - Conclusion à retrouver : **aucun rayon ne sépare les deux cas.** La mer en
+      exige au moins 20 km, les villes de l'intérieur moins de 10. 20 km est
+      retenu sur la conséquence (ne jamais bloquer une étendue d'eau légitime),
+      et non sur une séparation nette qui n'existe pas. **Si
+      `CONFIG.rayonCouvertureShom` est modifié, ce tableau doit être rejoué, et
+      le test 30 avec.**
     - Vérification : exécution réelle contre `services.data.shom.fr`, depuis un
       navigateur (le conteneur d'exécution de Claude n'a pas accès à ce domaine).
 
@@ -431,6 +447,34 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
       Méditerranée) sont conclus **localement**, sans aucun appel au Shom.
     - Vérification : exécution en navigateur (console + onglet réseau).
     - **Test de non-régression prioritaire.**
+
+30. **Larges estrans : aucun faux « à terre » (correctif du 14/10/2026)**
+    - Action : tirer 30 points au hasard dans la baie du Mont-Saint-Michel
+      (latitude 48,62 à 48,70 ; longitude -1,82 à -1,50) et appeler
+      `interrogerTraitTerreMer` sur chacun.
+    - Attendu : **aucun `null`**. Les points réellement terrestres (rive, polders,
+      abords du Mont) renvoient `surDPM` faux avec leur `numdep` ; tous les
+      autres renvoient `surDPM` vrai. Relevé du 14/10/2026 : 29 « mer », 1
+      « terre » légitime (48,6220 / -1,5274, `numdep` = 50), 0 `null`.
+    - **Test de non-régression prioritaire** : avec le rayon de 5 km du
+      13/10/2026, le même tirage donnait **8 `null` sur 24** — soit autant de
+      faux « vous êtes à terre » en plein estran, signalés par Nicolas le
+      14/10/2026. Un `null` qui réapparaît ici signale un rayon de nouveau trop
+      court, pas une panne du service : le vérifier en rejouant le test 28.
+    - Vérification : exécution en navigateur (console).
+
+31. **Baies et estuaires larges : clic autorisé (correctif du 14/10/2026)**
+    - Action : rejouer les scénarios de bout en bout (test 29) sur des étendues
+      d'eau éloignées du rivage.
+    - Attendu, tous « clic autorisé » : large de Dunkerque, baie de Somme,
+      nord et centre de la baie du Mont-Saint-Michel, bassin d'Arcachon, rade de
+      Brest, golfe du Morbihan, Méditerranée au large d'Hyères, anse de Pen Hat,
+      mer à 1 km de Ouistreham.
+    - Attendu aussi, tous « avertissement à terre » : champ au sud de Caen, cap
+      Blanc-Nez, bourg de Camaret, plage de Ouistreham, dune de Lacanau, Paris,
+      Lyon, Le Mans, Chartres, Angers, Alençon.
+    - Relevé du 14/10/2026 : 23/23.
+    - Vérification : exécution en navigateur (console).
 
 ---
 

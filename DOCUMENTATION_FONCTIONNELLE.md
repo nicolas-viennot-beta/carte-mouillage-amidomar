@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.19 (octobre 2026)  
+**Version:** 2.20 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -295,18 +295,28 @@ Chaque entrée porte son `emprise` WGS84, telle que déclarée par le `GetCapabi
 **Mécanique de la requête.**
 - `BBOX` et non `INTERSECTS` : MapServer ne gère pas `CQL_FILTER` (propre à GeoServer)
 - **Ordre des axes :** en WFS 1.1.0 et `EPSG:4326`, la `BBOX` attend **latitude puis longitude** — vérifié sur ces flux le 13/10/2026. Même piège que celui déjà relevé sur `patrinat_apb:apb` (§4.3bis)
-- `tolerance` : rayon en mètres de la boîte envoyée. **5 m** pour une couche surfacique (le test vaut un point) ; **25 m** pour une couche linéaire, qui n'a pas de surface et qu'un point ne toucherait jamais
+- Rayon de la boîte envoyée : `CONFIG.proximiteCulturesMarines` (40 m) pour **toutes** les couches depuis la v2.20 — la requête sert désormais à la fois au blocage et à la détection de voisinage. Jusqu'à 20 entités sont demandées, et c'est la plus proche qui est retenue
+- **La distance est mesurée, pas déduite de la BBOX.** Les `<gml:posList>` renvoyés sont lus et la distance du point à chaque segment est calculée, en approximation plate (1° de latitude = 111 320 m, 1° de longitude = autant × cos(latitude)) : suffisant à quelques dizaines de mètres. Pour une couche surfacique, un test d'appartenance (lancer de rayon) met la distance à zéro quand le point est à l'intérieur ; pour une couche linéaire, on n'est jamais « dedans », seule la distance au tracé compte
+- **MapServer filtre sur la géométrie réelle, pas sur le rectangle englobant** — vérifié le 14/10/2026 sur un bouchot diagonal de la baie du Mont-Saint-Michel : un point à 53 m de la parcelle mais à l'intérieur de son rectangle englobant ne renvoie rien. C'est ce qui rend la méthode utilisable : les bouchots sont des bandes diagonales dont le rectangle englobant couvre largement les couloirs entre parcelles, et un filtre par rectangle aurait signalé à tort tous ces couloirs
 - Le WFS 1.1.0 ne répond qu'en GML (`application/json` renvoie une erreur) : la réponse est lue au `DOMParser`, champs repérés par nom local, sans dépendre du préfixe `ms:`
 - Délai borné par `CONFIG.delaiCulturesMarines` = 4 000 ms. Latences mesurées : **147 ms** sur un point sans parcelle, **736 ms** au premier appel sur une parcelle
 
-**Quatre issues, à ne pas confondre** — c'est le point important de cette fonctionnalité :
+**Cinq issues, à ne pas confondre** — c'est le point important de cette fonctionnalité :
 
 | Issue | Condition | Conséquence |
 |---|---|---|
-| `parcelle` | une parcelle au point | popup rouge, clic refusé (C4) |
-| `aucune` | le flux a répondu, rien au point | rien n'est dit : le silence vaut mieux qu'une ligne de plus |
+| `parcelle` | distance ≤ `CONFIG.blocageCulturesMarines` (5 m), ou point à l'intérieur du polygone | popup rouge, clic refusé (C4) |
+| `proximite` *(v2.20)* | distance ≤ `CONFIG.proximiteCulturesMarines` (40 m) | carte d'information, **le clic n'est pas bloqué** |
+| `aucune` | le flux a répondu, rien dans les 40 m | rien n'est dit : le silence vaut mieux qu'une ligne de plus |
 | `horsFlux` | aucune emprise ne contient le point | carte « Cultures marines : non vérifiées ici » |
 | `indisponible` | le flux n'a pas répondu, ou a renvoyé un `ExceptionReport` | carte « Cultures marines : vérification impossible » |
+
+Quand deux flux couvrent le point (Charente-Maritime, surfacique et linéaire), c'est la parcelle **la plus proche** qui l'emporte.
+
+**La parcelle voisine *(v2.20)*.** Jusqu'à la v2.19, la carte était binaire : sur la parcelle, ou silence. Un clic de Nicolas en baie du Mont-Saint-Michel, le 14/10/2026, à 36 m d'un parc à moules, ne disait rien — alors que le seul rayon d'évitage d'un voilier de 10 m dépasse cette distance et que la chaîne finirait sur les pieux. D'où une troisième voie : **signaler sans bloquer**. Rien n'interdit juridiquement de mouiller à côté d'une concession ; élargir le blocage aurait été refuser un emplacement licite.
+
+- Carte affichée : « **Parcelle de cultures marines à {n} m** » / « votre rayon d'évitage peut l'atteindre », bouton « Que faire ici », détail « Il serait préférable d'envisager un autre emplacement. » puis, en petit, le numéro de parcelle, la commune, l'espèce et la DDTM source. Texte écrit par Nicolas le 14/10/2026 — ne pas le reformuler sans lui.
+- Seuil : `CONFIG.proximiteCulturesMarines` = 40 m (choisi par Nicolas).
 
 Un `ExceptionReport` est traité comme une **panne**, jamais comme une absence de parcelle : MapServer répond en HTTP 200 avec ce document, et le prendre pour un vide reviendrait à déclarer un secteur libre alors qu'on n'en sait rien. C'est exactement ce que renvoie aujourd'hui la DDTM 50 (voir plus bas).
 
@@ -329,7 +339,22 @@ Depuis la v2.14, la détection se fait en **deux instances** : une détection lo
 - **Ce que porte la donnée:** d'après la métadonnée du produit, « la Limite terre-mer correspond à la laisse des plus hautes mers astronomiques (PHMA) dans le cas d'une marée de coefficient 120 et dans des conditions météorologiques normales […] elle correspond aussi à la limite haute du rivage en matérialisant le haut de l'estran ». C'est la définition du **DPM naturel** (art. L2111-4 du CGPPP), issue du croisement d'un modèle de PHMA et du MNT littoral Litto3D®/RGE ALTI®, à 1 à 5 m de résolution (échelle de saisie 1:2000).
 - **Méthode:** la couche porte les **surfaces terrestres**. Un filtre `CQL_FILTER=INTERSECTS(geom,SRID=4326;POINT(lng lat))` renvoie donc **zéro objet si le point est côté mer** (estran compris) et un objet, avec son `numdep`, s'il est à terre. `propertyName=id,numdep` évite de rapatrier la géométrie : réponse de 150 à 300 octets, 25 à 250 ms mesurés sur les trois sites de test.
 - **Test de couverture *(v2.17)*:** « zéro objet » ne suffit pas à conclure « mer ». La couche ne couvre que les **départements littoraux**, mais elle les couvre **entièrement**, jusqu'à leur limite intérieure : mesuré le 13/10/2026, Vire, Falaise et Lisieux (14), Évreux (27) et Rennes (35) renvoient bien 1 objet, tandis qu'Argentan (61), Laval (53), Niort (79), Paris et Lyon renvoient 0. Un point très à l'intérieur des terres serait donc lu comme « en mer ». Une **seconde requête est donc menée en parallèle** de la première, avec un filtre `DWITHIN(geom, point, CONFIG.rayonCouvertureShom, kilometers)` : y a-t-il de la terre cartographiée autour du point ? Des objets autour et zéro au point → mer ou estran, verdict fiable ; zéro au point **et** zéro autour → hors couverture, la fonction ne conclut pas et renvoie `null` (repli prudent). Les deux requêtes partagent le même `AbortController` et le même délai, donc la latence reste celle d'un seul appel.
-- **Calibrage du rayon *(v2.17, mesuré le 13/10/2026)*:** 5 km écarte toutes les villes de l'intérieur testées (Argentan, Laval, Niort, Alençon, Angers, Paris, Lyon → 0 objet à 5 km) tout en couvrant la mer jusqu'à 5 km du rivage (mer à 1 et 3 km de Ouistreham, estran du Mont-Saint-Michel → 1 objet). Un rayon de 10 ou 20 km rattrapait Niort, Argentan et Laval et rouvrait le défaut. Au-delà de 5 km au large, la détection locale conclut « eau » sans appeler le Shom : ce cas ne passe pas par l'arbitrage. **Risque résiduel assumé :** un point situé à moins de 5 km d'un département littoral, mais dans un département qui ne l'est pas, serait lu comme « mer » — l'avertissement manquerait, sans autre conséquence.
+- **Calibrage du rayon — 20 km *(recalibré le 14/10/2026)*:** le rayon de 5 km retenu le 13/10/2026 avait été calibré sur des points de mer tous proches du rivage. Il était trop court : signalé par Nicolas le lendemain, un clic sur l'estran de la **baie du Mont-Saint-Michel** déclenchait un faux « vous êtes à terre », de façon capricieuse — à marée basse le point cliqué est à plus de 5 km de toute terre cartographiée, et l'on franchit l'isoligne en quelques mètres. Sur 24 points tirés au hasard dans la baie, le Shom répondait « mer » 24 fois, mais le test de couverture à 5 km échouait **8 fois**.
+
+  Relevé du 14/10/2026 (nombre d'objets renvoyés selon le rayon, pour un point sans objet au point lui-même) :
+
+  | Point | 5 km | 10 km | 20 km | 30 km | 50 km |
+  |---|---|---|---|---|---|
+  | Large de Dunkerque | 0 | 0 | 1 | 1 | 1 |
+  | Baie de Somme, nord de la baie du Mont-Saint-Michel | 0 | 1 | 1 | 1 | 1 |
+  | Centre de la baie du MSM, rade de Brest, golfe du Morbihan, bassin d'Arcachon | 1 | 1 | 1 | 1 | 1 |
+  | Niort (79) | 0 | 1 | 1 | 1 | 1 |
+  | Argentan (61), Laval (53) | 0 | 0 | 1 | 1 | 1 |
+  | Alençon (61), Angers (49), Chartres (28) | 0 | 0 | 0 | 0 | 1 |
+  | Paris, Lyon, Le Mans (72), Poitiers (86) | 0 | 0 | 0 | 0 | 0 |
+
+  **Aucun rayon ne sépare les deux cas** : la mer en exige au moins 20 km, les villes de l'intérieur moins de 10. Le choix se fait donc sur la conséquence, qui n'est pas symétrique — bloquer un plaisancier sur un estran légitime casse le cœur du service, ne pas avertir quelqu'un qui clique à Niort ne coûte rien. D'où **20 km**.
+- **Risque résiduel assumé *(v2.17, révisé le 14/10/2026)*:** Niort, Argentan et Laval ne sont plus avertis ; Paris, Lyon, Le Mans, Poitiers, Chartres, Alençon et Angers le restent. **Piste pour supprimer ce compromis**, si le besoin s'en fait sentir : résoudre le département du point (ADMINEXPRESS, Géoplateforme) plutôt que de raisonner en distance — un point en mer n'appartient à aucun département, un point à Niort appartient à un département non littoral.
 - **Point d'attention — projection:** la couche est en Lambert 93 (EPSG:2154). Le préfixe `SRID=4326;` du filtre est **obligatoire** ; sans lui, le service renvoie silencieusement zéro objet, ce qui se lirait à tort comme « en mer ». Même convention que `interrogerWFS` (§4.3).
 - **Coût pour l'usager:** aucun sur un clic en pleine eau — le service n'est interrogé **que** sur le cas contesté, c'est-à-dire quand la détection locale annonce « à terre ». Pendant l'attente, le popup affiche « Vérification de l'emplacement… ». Délai borné par `CONFIG.delaiTraitTerreMer` (3 000 ms).
 - **Robustesse:** si le service est injoignable, lent, hors couverture géographique (le produit ne couvre que la France métropolitaine) ou hors couverture départementale (v2.17), la fonction renvoie `null` et **l'avertissement « à terre » de la détection locale est maintenu** — c'est-à-dire le comportement d'avant la v2.14, le comportement prudent. Un échec du Shom ne peut donc jamais laisser passer un clic qui aurait été refusé auparavant.
@@ -454,7 +479,7 @@ const CONFIG = {
   delaiProfondeur: 5000,    // délai max de l'API EMODnet pour l'estimation de la colonne d'eau (ms, v2.6)
   colonneMin: 0.5,          // en dessous, pas d'estimation proposée (m, v2.6)
   delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
-  rayonCouvertureShom: 5,   // rayon du test de couverture du trait terre-mer (km, v2.17) — voir §4.4.2
+  rayonCouvertureShom: 20,  // rayon du test de couverture du trait terre-mer (km, v2.17, recalibré le 14/10/2026) — voir §4.4.2
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
   longueurAutres: 9,        // longueur supposée des autres navires (m)
@@ -787,6 +812,10 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ### « Nature du fond : à vérifier » s'affiche presque partout *(v2.15)*
 Ce n'est probablement pas une panne. La couche du Shom ne couvre pas tout le littoral : elle synthétise 45 cartes sédimentaires publiées entre 1990 et 2023, et il manque des feuilles entières. Mesuré le 12/10/2026 : 3 % de réponses en Côtes-d'Armor, 27 % en Ille-et-Vilaine, contre 87 à 100 % en Finistère, Morbihan et Var. Pour distinguer une vraie panne d'un trou de couverture : une panne n'affiche **aucun** bloc « Nature du fond », tandis qu'un trou affiche le message « à vérifier ».
 
+### Faux « vous êtes à terre » au milieu d'un large estran *(corrigé le 14/10/2026)*
+Symptôme caractéristique : l'avertissement apparaît sur un point d'estran manifestement maritime, **et disparaît quelques mètres plus loin**. Ce n'est pas le trait terre-mer qui se trompe, c'est le test de couverture (§4.4.2) : dans une baie très large à marée basse, le point peut être à plus de `CONFIG.rayonCouvertureShom` de toute terre cartographiée, et la fonction conclut à tort « hors couverture ». Le caractère capricieux vient de l'isoligne du rayon, qu'on franchit en quelques mètres.
+Pour le diagnostiquer : interroger le service en réel sur le point, avec les deux filtres. `INTERSECTS` à 0 objet et `DWITHIN` à 0 objet alors que le point est évidemment en mer = rayon trop court. Rayon porté de 5 à 20 km le 14/10/2026.
+
 ### Un clic sur une plage ou un estran affiche encore « vous êtes à terre » *(v2.14)*
 L'avertissement n'est levé que si le trait terre-mer du Shom répond, et répond « côté mer ». Dans l'ordre :
 1. **Le point est-il vraiment sur le DPM ?** Au-dessus de la laisse des plus hautes mers astronomiques, le haut de plage est juridiquement terrestre : le verdict est alors correct.
@@ -831,6 +860,13 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ## 11. Historique des corrections
 
+### 14 octobre 2026 — correctif du garde-fou de couverture terre/mer
+**Correction de bug : faux « vous êtes à terre » sur les larges estrans**
+- Signalé par Nicolas sur la baie du Mont-Saint-Michel : l'avertissement apparaissait sur un point d'estran, et disparaissait quelques mètres plus loin.
+- Cause : le test de couverture ajouté en v2.17 (§4.4.2) utilisait un rayon de 5 km, calibré la veille sur des points de mer tous proches du rivage. Dans une baie très large à marée basse, le point est à plus de 5 km de toute terre cartographiée : le test concluait « hors couverture » et la fonction renvoyait `null`, que le gestionnaire de clic traite — prudemment — comme « à terre ». Mesuré : sur 24 points tirés au hasard dans la baie, le Shom répondait « mer » 24 fois, le test de couverture échouait 8 fois.
+- Correction : `CONFIG.rayonCouvertureShom` porté de 5 à **20 km**. Aucun rayon ne sépare les deux cas (la mer en exige au moins 20, les villes de l'intérieur moins de 10) : le choix est fait sur la conséquence, bloquer un estran légitime étant bien plus coûteux que ne pas avertir un clic à Niort. Tableau de relevés et risque résiduel au §4.4.2.
+- Vérification : 30 points tirés au hasard dans la baie → **0 faux « à terre »** (contre 8 sur 24 avant), et 23 scénarios de non-régression rejoués, 23/23. Voir `TESTS_FONCTIONNELS.md` §1, tests 28 et 30.
+
 ### v2.19 — 14 octobre 2026
 **« Aucun zonage de protection détecté ici » ne s'affiche plus**
 - Demande de Nicolas, sur une capture d'un clic au large de Flamanville : quand rien n'est détecté, ne rien afficher plutôt que d'annoncer l'absence. Une bonne nouvelle n'a pas besoin d'une ligne — l'absence de carte le dit déjà, et chaque ligne de moins rend les lignes restantes plus lisibles.
@@ -857,7 +893,7 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 - Cause : `estSurLEau` cherchait **la terre**, alors que la terre ordinaire n'est pas un objet du fond Plan IGN. Un champ, une plage, une dune ou un bourg sans bâti au pixel cliqué ne portent aucun objet et ne sont qu'un aplat `rgb(240,240,237)`. Le verdict retombait sur « indéterminé », lequel laisse passer le clic — et n'appelle jamais le trait terre-mer du Shom, qui répondait pourtant correctement sur les deux points.
 - Correction : **inversion de la charge de la preuve**. C'est désormais l'eau qui doit être prouvée (objet `hydro_`, ou couleur exacte de la mer). Un objet terrestre reste prioritaire, pour que l'estran continue de partir à l'arbitrage du Shom. Sans preuve d'eau et avec les tuiles chargées, le point est terrestre.
 - Corrigé dans le même mouvement : `return mapTerrain.areTilesLoaded() ? null : null;`, dont les deux branches étaient identiques.
-- **Second verrou :** la couche du Shom ne couvrant que les départements littoraux, « zéro objet » pouvait aussi vouloir dire « hors couverture » — un clic en plein Paris ou en plein Lyon aurait été lu comme « en mer » une fois la détection locale corrigée. Ajout d'une seconde requête `DWITHIN` en parallèle, rayon `CONFIG.rayonCouvertureShom` = 5 km, calibré sur relevés réels (§4.4.2). Zéro au point et zéro autour → hors couverture, repli prudent.
+- **Second verrou :** la couche du Shom ne couvrant que les départements littoraux, « zéro objet » pouvait aussi vouloir dire « hors couverture » — un clic en plein Paris ou en plein Lyon aurait été lu comme « en mer » une fois la détection locale corrigée. Ajout d'une seconde requête `DWITHIN` en parallèle, rayon `CONFIG.rayonCouvertureShom`, calibré sur relevés réels (§4.4.2). Zéro au point et zéro autour → hors couverture, repli prudent. *Rayon initialement fixé à 5 km, porté à 20 km le 14/10/2026 — voir l'entrée du 14 octobre.*
 - Vérification : 20 scénarios rejoués sur la version publiée avec le code corrigé injecté — 20/20, latence Shom 28 à 124 ms. Voir `TESTS_FONCTIONNELS.md` §1, tests 24 à 29.
 
 ### v2.16 — 13 octobre 2026
