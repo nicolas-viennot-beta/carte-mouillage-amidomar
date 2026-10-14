@@ -1846,6 +1846,23 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
    - Attendu aussi : `onSelect` sur une entrée d'aide ne fait rien et ne jette pas.
    - Vérification : exécution (Node.js).
 
+4bis. **Niveau de zoom à l'arrivée (v2.25.3)**
+   - Action : lire `allerAuPointGps` dans `index.html`.
+   - Attendu : `Math.max(map.getZoom(), 14)` — un **plancher** à 14, pas un zoom
+     fixe et pas 16.
+   - *Pourquoi ce test existe* : le 14/10/2026, le plancher était à 16, repris par
+     erreur du `maxZoom: 16` du `fitBounds` qui recadre sur une zone AOT — un
+     **plafond de recadrage** pris pour un **plancher d'arrivée**. En venant de la
+     vue France (zoom 5), on atterrissait trop près pour se repérer. Si ces deux
+     valeurs doivent rebouger un jour, vérifier laquelle est laquelle avant de les
+     aligner : elles n'ont pas le même rôle.
+   - Attendu aussi : aucune couche de `COUCHES` ne déclare de `minzoom`, sans quoi
+     dézoomer masquerait des entités et le clic rejoué ne trouverait plus les
+     ports ou les ZMEL.
+   - Vérification : lecture du code, puis contrôle visuel sur une fenêtre large
+     (le volet étroit d'un navigateur de test fausse le jugement : le popup et le
+     panneau de légende y écrasent la carte à tous les zooms).
+
 5. **Déroulant — entrée GPS en tête, avec son sous-titre**
    - Action : taper `43.267710, 6.622611` dans `.cartefacile-ctrl-search__input`,
      attendre le debounce (300 ms, prévoir 700 ms).

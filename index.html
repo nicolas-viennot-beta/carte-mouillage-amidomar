@@ -760,7 +760,7 @@
     // colonne de panneaux remonte jusque sous l'en-tête.
 
     /* ========================================================================
-       Recherche par coordonnées GPS  (v2.25, attente corrigée en v2.25.2)
+       Recherche par coordonnées GPS  (v2.25 ; attente corrigée en v2.25.2, zoom en v2.25.3)
 
        Le champ de recherche est celui de carte-facile (CarteFacile.SearchControl).
        Il accepte plusieurs « providers » interrogés en parallèle, chacun avec son
@@ -907,7 +907,14 @@
 
     async function allerAuPointGps(coords) {
       const lngLat = new maplibregl.LngLat(coords.lon, coords.lat);
-      const zoomCible = Math.max(map.getZoom(), 16);
+      /* Plancher à 14, pas 16 (v2.25.3) : en venant de la vue France, 16 posait
+         le point sur un cadrage si serré qu'il ne restait plus de littoral pour
+         se repérer — à 14 le golfe entier est lisible. Le plancher, et non un
+         zoom fixe, préserve l'échelle de travail de qui était déjà plus près :
+         un instructeur qui vérifie plusieurs coordonnées à la suite garde la
+         sienne. À ne pas confondre avec le plafond de 16 du fitBounds qui
+         recadre sur une zone AOT : là c'est un maximum, ici un minimum. */
+      const zoomCible = Math.max(map.getZoom(), 14);
       const centre = map.getCenter();
       /* Caméra inchangée : la carte est déjà peinte à cet endroit, aucun `idle`
          ne sera émis et attendre coûterait le plafond pour rien. */

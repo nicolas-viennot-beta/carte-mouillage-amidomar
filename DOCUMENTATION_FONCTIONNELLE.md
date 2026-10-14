@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.25.2 (octobre 2026)  
+**Version:** 2.25.3 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -525,7 +525,7 @@ C'est l'erreur la plus courante sur des coordonnées recopiées. Si le couple sa
 - **Texte non numérique** (`Saint-Tropez`, `Le Pradic`) → le provider GPS ne renvoie rien et laisse la place à la Géoplateforme.
 
 #### Sélection d'un point : le clic carte est rejoué
-`onSelect` centre la carte (`jumpTo`, zoom 16 minimum), attend que la carte soit stable, puis **rejoue le clic** à cet endroit :
+`onSelect` centre la carte (`jumpTo`, **zoom 14 minimum**, voir plus bas), attend que la carte soit peinte, puis **rejoue le clic** à cet endroit :
 
 ```js
 map.fire('click', { lngLat, point: map.project(lngLat), originalEvent: null });
@@ -538,6 +538,10 @@ Le corps du gestionnaire de clic a été extrait dans une fonction nommée, `tra
 **Attente avant le clic rejoué** *(corrigée en v2.25.2)* — `attendreCartePeinte()` attend l'événement **`idle`** de MapLibre, qui garantit « plus de transition de caméra, toutes les tuiles chargées, tous les fondus terminés », et vérifie au passage que la carte fantôme (§4.4.1) a suivi, puisque `estSurLEau` la lit. Plafond de 6 s ; au-delà le clic part quand même, et `estSurLEau` renvoie alors `null` (« on ne sait pas »), cas non bloquant déjà prévu. Si la caméra ne bouge pas (point déjà à l'écran au même zoom), l'attente est **sautée** : aucun `idle` ne serait émis et on paierait le plafond pour rien.
 
 > **Pourquoi pas un simple `isMoving()` + `areTilesLoaded()`** — c'était la première version, et elle était fausse. `jumpTo` est instantané, donc `isMoving()` est faux immédiatement, et `areTilesLoaded()` parle des **tuiles**, pas des couches GeoJSON du projet. En arrivant de loin, le clic partait sur un cadrage pas encore peint et `queryRenderedFeatures` ne trouvait rien : une coordonnée saisie sur un port ouvrait le popup de coordonnées au lieu de la modale du port, alors qu'un vrai clic au même endroit l'ouvrait. Le défaut est invisible en harnais headless (sans fond de carte, les deux gestes partent en branche « à terre » avant d'atteindre `queryRenderedFeatures`) : il n'a été vu qu'en conditions réelles, sur la version publiée. Voir TESTS_FONCTIONNELS.md §10.10 et §10.12.
+
+**Niveau de zoom à l'arrivée** *(v2.25.3)* — `Math.max(map.getZoom(), 14)`. Le plancher était à 16 : en venant de la vue France (zoom 5), le point arrivait sur un cadrage si serré qu'il ne restait plus de littoral pour se repérer, le popup et le panneau de légende occupant déjà une bonne part de l'écran. À 14, le golfe entier est lisible. Un **plancher** plutôt qu'un zoom fixe : qui était déjà plus près garde son échelle, ce qui sert à un instructeur vérifiant plusieurs coordonnées à la suite.
+
+> À ne pas confondre avec le plafond `maxZoom: 16` du `fitBounds` qui recadre sur une zone AOT cliquée depuis le bloc de règles locales (§4.4ter) : là c'est un **maximum**, ici un **minimum**. Avoir pris l'un pour l'autre est précisément l'erreur de la v2.25.
 
 #### Signalement des deux possibilités à l'usager
 Le label du `SearchControl` est **masqué visuellement** (`clip: rect(0,0,0,0)` dans `carte-facile.css`) et un contrôle flottant au-dessus de la carte n'offre pas de place pour un texte d'aide sous le champ : le `fr-hint-text` du DSFR n'est pas applicable ici. Trois signaux le remplacent :
@@ -1049,6 +1053,15 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.25.3 — 14 octobre 2026
+**Arrivée sur un point GPS trop zoomée**
+- Signalé par Nicolas après essai sur la version publiée : la saisie fonctionne, mais la carte arrive trop près.
+- Cause : le plancher était `Math.max(map.getZoom(), 16)`. En venant de la vue France (zoom 5, `CONFIG.zoom`), on atterrissait donc systématiquement à 16 — cadrage où il ne reste plus de littoral visible une fois le popup et le panneau de légende déduits.
+- Le 16 venait d'une confusion : c'est le `maxZoom` du `fitBounds` qui recadre sur une zone AOT (§4.4ter), donc un **plafond** pour un recadrage automatique. Le reprendre comme **plancher** d'une arrivée n'avait pas de raison d'être.
+- Correction : plancher à **14**, où le golfe entier reste lisible. Choix d'un plancher et non d'un zoom fixe, validé par Nicolas : qui était déjà plus près garde son échelle de travail — un instructeur qui vérifie plusieurs coordonnées à la suite n'est pas ramené en arrière à chaque saisie.
+- Aucune couche n'a de `minzoom` : dézoomer ne masque ni les ports, ni les ZMEL, ni les AOT existantes, donc le clic rejoué trouve les mêmes entités qu'à 16.
+- Tests : harnais Node 32/32 inchangé ; vérification visuelle en conditions réelles à 1440 px de large, à 16 puis à 14.
 
 ### v2.25.2 — 14 octobre 2026
 **Une coordonnée saisie sur un port n'ouvrait pas la modale du port**
