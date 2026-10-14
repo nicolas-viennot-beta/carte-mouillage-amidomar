@@ -1,0 +1,232 @@
+{
+ "type": "FeatureCollection",
+ "name": "zones-aot-mouillage-individuel",
+ "_lisez_moi": "Zones où une AOT de mouillage individuel reste délivrable, par DDTM. Saisie manuelle à partir des cartes PDF de la DDTM, à faire confirmer avant usage réglementaire. Chaque entité porte la propriété ddtm, qui fait le lien avec data/ddtm-messages.json.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "La Bouillabaisse",
+    "zone": 1,
+    "nom": "Zone 1 — La Bouillabaisse",
+    "capacite_unites": 30,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 13,
+    "source": "DDTM du Var / SML-BLO, carte n°42, octobre 2022",
+    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 28100
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.623683,
+       43.269167
+      ],
+      [
+       6.624033,
+       43.267517
+      ],
+      [
+       6.622833,
+       43.266583
+      ],
+      [
+       6.62165,
+       43.2676
+      ],
+      [
+       6.623683,
+       43.269167
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "Les Canebiers",
+    "zone": 2,
+    "nom": "Zone 2 — Les Canebiers",
+    "capacite_unites": 25,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
+    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 25397
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.649317,
+       43.2736
+      ],
+      [
+       6.651367,
+       43.272617
+      ],
+      [
+       6.650383,
+       43.2717
+      ],
+      [
+       6.648367,
+       43.272683
+      ],
+      [
+       6.649317,
+       43.2736
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "Les Canebiers",
+    "zone": 3,
+    "nom": "Zone 3 — Les Canebiers",
+    "capacite_unites": 25,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
+    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 21577
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.658333,
+       43.269617
+      ],
+      [
+       6.660133,
+       43.26865
+      ],
+      [
+       6.659267,
+       43.267783
+      ],
+      [
+       6.657483,
+       43.268733
+      ],
+      [
+       6.658333,
+       43.269617
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "Les Canebiers",
+    "zone": 4,
+    "nom": "Zone 4 — Les Canebiers",
+    "capacite_unites": 40,
+    "exposition": "Est",
+    "profondeur_min_m": 0.5,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
+    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 36564
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.660983,
+       43.2684
+      ],
+      [
+       6.662983,
+       43.2677
+      ],
+      [
+       6.66255,
+       43.266033
+      ],
+      [
+       6.660067,
+       43.266933
+      ],
+      [
+       6.660983,
+       43.2684
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "Les Canebiers",
+    "zone": 5,
+    "nom": "Zone 5 — Les Canebiers",
+    "capacite_unites": 40,
+    "exposition": "Est",
+    "profondeur_min_m": 0.5,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
+    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 42620
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.666033,
+       43.273383
+      ],
+      [
+       6.668117,
+       43.273583
+      ],
+      [
+       6.668467,
+       43.27135
+      ],
+      [
+       6.666383,
+       43.27115
+      ],
+      [
+       6.666033,
+       43.273383
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

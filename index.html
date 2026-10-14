@@ -132,11 +132,26 @@
          ce que la zone contient, celle-ci dit ce que l'administration autorise.
          Orange et non rouge : le rouge reste l'interdiction au point précis
          (biotope, parcelle conchylicole), qui ferme l'emplacement. Une règle
-         départementale réoriente la démarche, elle ne condamne pas le point. */
-      #env-block .env-carte--ddtm       { background:#fff4ed; border-left:3px solid #b34000; }
+         départementale réoriente la démarche, elle ne condamne pas le point.
+         v2.23 : bordure COMPLÈTE, et non plus un simple filet à gauche. Les
+         trois autres cartes décrivent le contexte ; celle-ci énonce une règle
+         qui prime sur tout le reste — un cadre fermé la détache du groupe au
+         lieu de l'y ranger. Le rayon passe à 4px sur les quatre coins : un
+         arrondi partiel n'a de sens qu'avec un filet sur un seul côté. */
+      #env-block .env-carte--ddtm       { background:#fff4ed; border:2px solid #b34000;
+                                          border-radius:4px; }
       #env-block .env-carte--ddtm .env-carte-resume { color:#8a3200; }
       #env-block .env-liste { margin:0 0 6px; padding-left:18px; }
       #env-block .env-liste li { margin-bottom:2px; }
+      /* v2.23 : le nom de zone est un bouton, pas un lien — il ne navigue
+         nulle part, il recadre la carte. Mis en forme comme un lien parce que
+         c'est ce que l'usager reconnaît comme cliquable. */
+      #env-block .env-zone-lien { background:none; border:none; padding:0; font:inherit;
+                                  color:#000091; text-decoration:underline; cursor:pointer; text-align:left; }
+      #env-block .env-zone-lien:hover { color:#b34000; }
+      #env-block .env-zone-dedans { background:#e8f5ec; border-left:3px solid #18753c;
+                                    padding:6px 8px; border-radius:0 4px 4px 0; margin:0 0 8px;
+                                    font-size:12.5px; color:#1e1e1e; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
@@ -492,6 +507,9 @@
       // qu'une copie des vrais messages : un message d'orientation périmé est
       // pire que pas de message, et ce secours ne sert qu'au double-clic local.
       'data/ddtm-messages.json': { millesime:'secours', ddtm:[] },
+      // v2.23 : même logique pour les zones autorisées — rien plutôt qu'un
+      // périmètre réglementaire périmé figé dans le code.
+      'data/zones-aot.geojson': { type:'FeatureCollection', features:[] },
       // Jeu reduit : la carte reste demonstrative meme ouverte par double-clic.
       'data/aot-existantes.geojson': { type:'FeatureCollection', features:[
         {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-3.12991,47.44856]}},
@@ -691,6 +709,13 @@
         tiles: CADASTRES_CM.map(tuilesCM),
         attribution: 'Cadastre conchylicole : DDTM 29, 35 et 17 (GéoIDE, Licence ouverte 2.0)',
         note:"Cadastre conchylicole des DDTM, en WFS et WMS sur GéoIDE : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime (13 391 surfaciques et 1 254 linéaires, février 2023). Une parcelle au point cliqué interdit le mouillage. Pas de flux exploitable ailleurs : Manche (WFS en panne), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement)." },
+
+      { groupe:'Usages de la mer',
+        id:'zones_aot', label:'Zones de mouillage autorisées (AOT)', couleur:'#b34000',
+        picto:'polygone', statut:'local',
+        geojson:'data/zones-aot.geojson', visible:true,
+        attribution:'DDTM du Var / SML-BLO, cartes n°41 et n°42, octobre 2022',
+        note:"Zones où une AOT de mouillage individuel reste délivrable. Couverture TRÈS partielle à ce jour : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF de la DDTM 83 et à faire confirmer par elle. Même teinte orange que la carte « Règles locales » du popup : c'est la même nature d'information, ce que l'administration autorise." },
 
       { groupe:'Usages de la mer',
         id:'restrictions_diverses', label:'Zone de baignade / zone réglementaire',
@@ -1489,6 +1514,14 @@
     // Un seul écouteur, posé une fois : les cartes sont réécrites à chaque clic
     // sur la carte, un écouteur par bouton fuirait.
     envBlock.addEventListener('click', e => {
+      // v2.23 : nom de zone → recadrage de la carte. Traité avant le repli des
+      // cartes, et sans le refermer : l'usager regarde la zone tout en gardant
+      // la liste ouverte pour passer à la suivante.
+      const lien = e.target.closest('.env-zone-lien');
+      if (lien && envBlock.contains(lien)) {
+        cadrerSurZone(Number(lien.dataset.zone));
+        return;
+      }
       const btn = e.target.closest('.env-toggle-bloc');
       if (!btn || !envBlock.contains(btn)) return;
       const detail = btn.closest('.env-carte').querySelector('.env-detail-bloc');
@@ -1763,13 +1796,80 @@
       return messagesDDTM;
     }
 
+    /* ---------- Zones de mouillage autorisées — v2.23 ----------
+       Le même fichier sert deux fois : il dessine la couche sur la carte (voir
+       COUCHES, id `zones_aot`) et il alimente la liste du message DDTM. Les
+       zones ne sont donc PAS recopiées dans `data/ddtm-messages.json` : une
+       zone est une géométrie, pas une ligne de texte, et la dupliquer
+       garantirait de voir les deux listes diverger. Le lien entre les deux
+       fichiers est la propriété `ddtm` portée par chaque entité.
+
+       Sens du zonage, à ne pas inverser : être DANS une zone est une bonne
+       nouvelle (c'est là que l'AOT reste délivrable), contrairement aux
+       parcelles conchylicoles ou aux arrêtés de biotope. Un clic dans une zone
+       ne court-circuite donc pas le parcours : il le poursuit normalement. */
+    let zonesAOT = null;
+    async function chargerZonesAOT() {
+      if (zonesAOT) return zonesAOT;
+      try {
+        const rep = await fetch('data/zones-aot.geojson');
+        if (!rep.ok) throw new Error('absent');
+        const j = await rep.json();
+        zonesAOT = Array.isArray(j.features) ? j.features : [];
+      } catch (e) {
+        zonesAOT = (SECOURS['data/zones-aot.geojson'] || {}).features || [];
+      }
+      return zonesAOT;
+    }
+
+    /* Le test « le point est-il dans la zone ? » réutilise `pointDansAnneau`,
+       écrit pour le cadastre conchylicole (v2.18) et éprouvé depuis. Une
+       seconde implémentation avait été écrite ici puis retirée : les
+       déclarations de fonction étant hissées, le doublon écrasait silencieusement
+       l'originale et cassait AUSSI la détection des parcelles conchylicoles.
+       Seule différence à gérer : cette fonction attend des anneaux en
+       « lat, lon » (ordre du WFS), là où le GeoJSON les donne en « lon, lat ».
+       D'où la conversion ci-dessous — cinq quadrilatères, coût négligeable. */
+    function zoneAOTauPoint(lngLat, zones) {
+      return (zones || []).find(f => {
+        const g = f.geometry;
+        if (!g) return false;
+        const polys = g.type === 'Polygon' ? [g.coordinates]
+                    : g.type === 'MultiPolygon' ? g.coordinates : [];
+        return polys.some(p => p.length &&
+          pointDansAnneau(lngLat.lat, lngLat.lng, p[0].map(([lng, lat]) => [lat, lng])));
+      }) || null;
+    }
+
+    // Cadrage sur une zone depuis le popup. Conservé dans une table indexée
+    // plutôt que sérialisé dans le DOM : les coordonnées n'ont rien à faire
+    // dans un attribut HTML, et l'index suffit à retrouver l'entité.
+    let zonesListees = [];
+    function cadrerSurZone(i) {
+      const f = zonesListees[i];
+      if (!f || !f.geometry) return;
+      const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+      let o, n, e, s;
+      polys.forEach(p => p[0].forEach(([lng, lat]) => {
+        o = (o === undefined || lng < o) ? lng : o;  e = (e === undefined || lng > e) ? lng : e;
+        s = (s === undefined || lat < s) ? lat : s;  n = (n === undefined || lat > n) ? lat : n;
+      }));
+      if (o === undefined) return;
+      // Marge à gauche : le popup occupe ce bord, la zone y serait cachée.
+      map.fitBounds([[o, s], [e, n]], {
+        padding: { top:60, bottom:60, left:Math.min(460, map.getCanvas().clientWidth*0.45), right:60 },
+        maxZoom: 16, duration: reduireAnimations() ? 0 : 600
+      });
+    }
+
     /* Rend le bloc « Règles locales » : la ligne de rattachement, puis le
        message de chaque DDTM concernée. Renvoie '' si le département est
        inconnu — on ne devine pas. Un département connu mais sans message
        particulier (29, 56 à ce jour) affiche uniquement la ligne de
        rattachement : savoir de qui l'on relève a une valeur en soi. */
-    function blocReglesLocales(dep, messages) {
+    function blocReglesLocales(dep, messages, zones, lngLat) {
       if (!dep || !dep.departements.length) return '';
+      zonesListees = [];
       const fiches = dep.departements.map(code =>
         (messages || []).find(m => String(m.ddtm) === String(code)) || { ddtm: code });
       const nommer = (f) => f.nom_departement
@@ -1795,9 +1895,34 @@
 
       const cartes = fiches.filter(f => f.message_titre).map(f => {
         const paragraphes = (f.message_detail || []).map(p => `<p>${echapper(p)}</p>`);
-        // La liste s'insère après le PREMIER paragraphe : elle énumère ce que
-        // celui-ci annonce, les suivants en tirent les conséquences.
-        if ((f.liste || []).length) {
+
+        // v2.23 : la liste des zones vient du GeoJSON, pas du fichier de
+        // messages — une zone est une géométrie, la recopier en texte ferait
+        // deux sources qui divergeraient. `f.liste` reste accepté pour une DDTM
+        // dont les zones ne seraient pas (encore) cartographiées.
+        const sesZones = (zones || []).filter(z => String((z.properties||{}).ddtm) === String(f.ddtm));
+        if (sesZones.length) {
+          const items = sesZones.map(z => {
+            const p = z.properties || {};
+            const i = zonesListees.push(z) - 1;
+            const detail = [
+              p.capacite_unites ? `${p.capacite_unites} unités` : '',
+              p.exposition ? `exposition ${String(p.exposition).toLowerCase()}` : '',
+              (p.profondeur_min_m != null && p.profondeur_max_m != null)
+                ? `profondeur ${String(p.profondeur_min_m).replace('.', ',')} à ${String(p.profondeur_max_m).replace('.', ',')} m` : ''
+            ].filter(Boolean).join(', ');
+            // « Saint-Tropez — Les Canebiers, zone 2 » : la commune d'abord,
+            // parce que c'est elle qui situe l'usager quand d'autres communes
+            // viendront s'ajouter à la liste.
+            const titre = [p.commune, p.lieu].filter(Boolean).join(' — ')
+                        + (p.zone != null ? `, zone ${p.zone}` : '');
+            return `<li><button type="button" class="env-zone-lien" data-zone="${i}"
+                      >${echapper(titre)}</button>${detail ? ' : ' + echapper(detail) : ''}</li>`;
+          }).join('');
+          paragraphes.splice(1, 0,
+            `<ul class="env-liste">${items}</ul>
+             <p class="env-caveat">Cliquez le nom d'une zone pour la voir sur la carte.</p>`);
+        } else if ((f.liste || []).length) {
           const items = f.liste.map(z => `<li>${echapper(z)}</li>`).join('');
           paragraphes.splice(1, 0, `<ul class="env-liste">${items}</ul>`);
         }
@@ -1819,7 +1944,18 @@
         });
       });
 
-      return entete + cartes.join('');
+      // v2.23 : la réponse directe à la question que se pose l'usager, placée
+      // AVANT le message général. Lui faire déduire d'une liste de noms s'il
+      // est au bon endroit alors que la carte sait le calculer serait lui
+      // laisser le travail que l'outil existe pour faire.
+      const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
+      let dedans = '';
+      if (zoneIci) {
+        const p = zoneIci.properties || {};
+        dedans = `<p class="env-zone-dedans"><strong>Cet emplacement est dans une zone où
+                    l'AOT reste délivrable&nbsp;: ${echapper([p.commune, p.nom].filter(Boolean).join(' — '))}.</strong></p>`;
+      }
+      return entete + dedans + cartes.join('');
     }
 
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
@@ -2441,11 +2577,12 @@
       // v2.22 : le rattachement départemental part dans le même peloton. Il ne
       // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
       // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
-      const [{ natura, znieff, echec }, fond, dep, fiches] = await Promise.all([
+      const [{ natura, znieff, echec }, fond, dep, fiches, zones] = await Promise.all([
         interrogerZonesProtegees(e.lngLat),
         interrogerNatureFond(e.lngLat),
         interrogerDepartement(e.lngLat),
-        chargerMessagesDDTM()
+        chargerMessagesDDTM(),
+        chargerZonesAOT()
       ]);
       if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
 
@@ -2501,7 +2638,7 @@
       // Côtes-d'Armor ne délivrent plus d'AOT du tout) : la lire après la nature
       // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
       // peut s'afficher sans l'autre.
-      const reglesLocales = blocReglesLocales(dep, fiches);
+      const reglesLocales = blocReglesLocales(dep, fiches, zones, e.lngLat);
       const contexte = aMontrer.length
         ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
         : '';

@@ -1546,8 +1546,16 @@ dernier bloc `<script>` d'`index.html`, l'exécute dans un contexte `vm` avec de
 globaux simulés, puis appelle directement `blocReglesLocales` avec le contenu réel
 de `data/ddtm-messages.json`.*
 
-*Dernière exécution : 14 oct. 2026 (v2.22) — 21/21, plus l'exécution synchrone
+*Dernière exécution : 14 oct. 2026 (v2.23) — 25/25, plus l'exécution synchrone
 complète du script sans exception et la non-régression `rayonEvitage` (16 / 21).*
+
+*Vérification en conditions réelles de la v2.22, 14 oct. 2026, sur la version
+déployée (GitHub Pages), navigateur intégré, viewport 1280 × 820 : build confirmé
+dans le source servi, `data/ddtm-messages.json` en 200, aucune exception au
+chargement. Clic au large d'Erquy (48,6443 / −2,5006) → sections « Règles
+locales » puis « Contexte environnemental », rattachement « Côtes-d'Armor (22) »,
+carte orange, bouton et lien corrects. Clic à 49,5578 / −3,2851 (plus de 10 km de
+toute côte) → aucun bloc, aucune erreur.*
 
 1. **Rattachement à un seul département**
    - Action : `blocReglesLocales({departements:['22'],rayonKm:5}, fiches)`.
@@ -1564,11 +1572,19 @@ complète du script sans exception et la non-régression `rayonEvitage` (16 / 21
 3. **Message du 83, et son état de brouillon**
    - Attendu : titre « …ne délivre plus de nouvelles AOT en dehors de certaines
      zones dédiées », conséquence « identifier ces zones pour faire une demande »,
-     exactement **4** `<li>`, mention « Information provisoire » présente, et
-     **aucun** `<a href` (champ `lien` vide).
-   - *Ce test échouera volontairement le jour où les vraies zones du Var seront
-     saisies si leur nombre change : mettre à jour le compte attendu, et retirer
-     `brouillon` du fichier au même moment.*
+     exactement **5** `<li>` (v2.23), mention « Information provisoire » présente,
+     et **aucun** `<a href` (champ `lien` vide). Depuis la v2.23 ces 5 `<li>`
+     sont produits à partir de `data/zones-aot.geojson`, pas du champ `liste`
+     (resté vide pour le 83) : chacun doit être un `<button class="env-zone-lien">`,
+     et l'invite « Cliquez le nom d'une zone » doit suivre la liste.
+   - **Deux contrôles ajoutés en v2.23, qui protègent une affirmation fausse** : la
+     sortie doit contenir « liste est partielle », et **chacun** des 5 `<li>` doit
+     nommer sa commune. Les cinq zones transmises sont toutes à Saint-Tropez, alors
+     que la DDTM 83 couvre toute la façade varoise : sans ces deux garde-fous, un
+     plaisancier de Bandol lirait une liste tropézienne comme exhaustive.
+   - *Le compte de `<li>` est à mettre à jour à chaque arrivée de nouvelles zones.
+     Le jour où la couverture devient complète, retirer `brouillon` et la phrase
+     « liste est partielle » — et alors seulement assouplir ces deux contrôles.*
 
 4. **Département connu sans message particulier (29, 56)**
    - Attendu : la ligne de rattachement seule, **aucun** `env-carte`.
@@ -1595,13 +1611,50 @@ complète du script sans exception et la non-régression `rayonEvitage` (16 / 21
      `message_titre`, `message_detail`, `lien` présents sur chaque fiche, et
      **aucune balise HTML** dans tout le fichier.
 
-9. **Dégagement du point sous le popup — non couvert par le harnais**
-   - `degagerPointSousPopup` est bien exposée et s'initialise sans erreur, mais son
+9. **Dégagement du point sous le popup — hors harnais Node, vérifié en navigateur**
+   - `degagerPointSousPopup` est exposée et s'initialise sans erreur, mais son
      comportement dépend de la géométrie réelle du rendu (rectangle du popup,
-     projection du point) que le stub ne reproduit pas fidèlement.
-   - **À vérifier en navigateur**, checklist §9.20 de DOCUMENTATION_FONCTIONNELLE.md :
-     clic en bas-gauche → glissement horizontal ; fenêtre < 700 px → glissement
-     vertical ; clic hors du popup → aucun glissement.
+     projection du point), que le stub ne reproduit pas fidèlement. Ce test se fait
+     donc en navigateur.
+   - *Relevé du 14/10/2026, version déployée, viewport 1280 × 820, popup occupant
+     x 16 → 436 : clic volontaire en (250, 500), sous le panneau. Trajectoire du
+     marqueur : x 250 → 256 → 455 → 460, y constant à 507. Arrivée à 460, soit le
+     bord droit du popup (436) plus la marge de 24 px — valeur attendue exactement.
+     Latitude préservée, glissement animé. **OK.***
+   - Restent à vérifier à la main, checklist §9.20 : fenêtre sous 700 px →
+     glissement **vertical** (branche non empruntée) ; clic hors du popup →
+     **aucun** glissement ; `prefers-reduced-motion` → glissement instantané.
+
+10. **Zones de mouillage autorisées — point dans / hors zone (v2.23)**
+   - Action : `blocReglesLocales({departements:['83'],rayonKm:1}, fiches, zones, {lng:6.62295, lat:43.26785})`
+     — point placé à l'intérieur de la zone 1 (La Bouillabaisse).
+   - Attendu : la sortie contient `env-zone-dedans` et le nom du lieu.
+   - Action : même appel avec `{lng:6.70, lat:43.20}`, au large et hors de toute zone.
+   - Attendu : **aucun** `env-zone-dedans`. Ne jamais relâcher ce second contrôle :
+     annoncer à tort qu'un emplacement est autorisé est la pire erreur que cette
+     fonctionnalité puisse commettre.
+   - Attendu aussi : le 22, qui n'a aucune zone cartographiée, ne produit **aucun**
+     `env-zone-lien` — une DDTM sans zones ne doit pas afficher de liste vide.
+   - Vérification : exécution (Node.js).
+
+11. **`pointDansAnneau` n'existe qu'en un seul exemplaire**
+   - Action : compter les occurrences de `function pointDansAnneau` dans `index.html`.
+   - Attendu : **exactement 1**.
+   - *Pourquoi ce test existe* : le 14/10/2026, une seconde implémentation a été
+     ajoutée pour les zones AOT. Les déclarations de fonction étant hissées, elle
+     écrasait celle du cadastre conchylicole et cassait la détection des parcelles
+     — une fonctionnalité sans rapport, qui n'aurait pas été retestée. Le test de
+     syntaxe passait sans rien voir ; seule l'exécution réelle a levé l'erreur.
+   - Vérification : lecture du code (`grep -c`), à rejouer après tout ajout de
+     fonction géométrique.
+
+12. **Bordure complète de la carte de règle locale (v2.23)**
+   - Action : lire la règle `#env-block .env-carte--ddtm` dans `index.html`.
+   - Attendu : `border` sur les quatre côtés (2 px), **pas** `border-left` seul, et
+     `border-radius:4px` sur les quatre coins.
+   - Vérification : lecture du code, puis contrôle visuel — la carte orange doit se
+     distinguer au premier coup d'œil des cartes bleue et sable, qui gardent leur
+     filet gauche.
 
 ---
 

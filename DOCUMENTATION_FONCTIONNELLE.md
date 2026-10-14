@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.22 (octobre 2026)  
+**Version:** 2.23 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -434,13 +434,28 @@ Un point au milieu d'une grande baie n'a aucune terre à 2 km : il faut pouvoir 
 
 **Deux départements au plus petit rayon** : on n'arbitre pas. Le bloc affiche « Ce point est proche de la limite entre … , qui n'appliquent pas les mêmes règles. » puis les messages des deux DDTM.
 
-**Affichage.** Un bloc « Règles locales » (`popup-entete-section`), placé **avant** « Contexte environnemental » : une règle départementale peut réorienter toute la démarche, la lire après la nature du fond n'aurait pas de sens. Le message lui-même réutilise `carteEnv`, dans une quatrième teinte `env-carte--ddtm` (orange DSFR `#b34000`). Orange et non rouge : le rouge reste l'interdiction au point précis (biotope, parcelle conchylicole), qui ferme l'emplacement ; une règle départementale réoriente la démarche, elle ne condamne pas le point. Un département connu mais sans message particulier (29, 56 à ce jour) n'affiche que la ligne de rattachement.
+**Affichage.** Un bloc « Règles locales » (`popup-entete-section`), placé **avant** « Contexte environnemental » : une règle départementale peut réorienter toute la démarche, la lire après la nature du fond n'aurait pas de sens. Le message lui-même réutilise `carteEnv`, dans une quatrième teinte `env-carte--ddtm` (orange DSFR `#b34000`) et, depuis la v2.23, une **bordure complète** de 2 px au lieu du filet gauche des trois autres cartes : celles-ci décrivent le contexte, celle-ci énonce une règle qui prime sur le reste, et un cadre fermé la détache du groupe au lieu de l'y ranger. Orange et non rouge : le rouge reste l'interdiction au point précis (biotope, parcelle conchylicole), qui ferme l'emplacement ; une règle départementale réoriente la démarche, elle ne condamne pas le point. Un département connu mais sans message particulier (29, 56 à ce jour) n'affiche que la ligne de rattachement.
 
 **Source des messages : `data/ddtm-messages.json`.** Fichier **provisoire**. L'interface instructeur Grist prévue pour que les agents DDTM gèrent leurs bandeaux par périmètre n'existe pas encore ; en attendant, les messages vivent dans le dépôt, mais avec **les noms de champs de la future table DDTM de Grist** (`ddtm`, `message_titre`, `message_consequence`, `message_detail`, `liste`, `lien`, `libelle_lien`, `brouillon`), pour que le basculement soit un script d'export et non une réécriture de la carte.
 
 **Tous les champs sont du texte brut, jamais du HTML**, et la carte les échappe à l'affichage. Ce n'est pas une précaution théorique : ce fichier sera demain rédigé par des agents DDTM via Grist, et du HTML injecté dans la page serait une faille. Les liens sont en outre filtrés sur `https://` — une URL `javascript:` saisie par mégarde ne devient pas cliquable. Quatre tests couvrent ce point (`TESTS_FONCTIONNELS.md` §9).
 
-Le drapeau `brouillon: true` fait ajouter « Information provisoire, en cours de validation avec la DDTM … » sous le message. Il est actuellement posé sur le **83**, dont la liste de zones n'est pas renseignée (`À COMPLÉTER — nom de la zone 1` à `4`) : **à remplir avant toute communication publique.**
+Le drapeau `brouillon: true` fait ajouter « Information provisoire, en cours de validation avec la DDTM … » sous le message. Il reste posé sur le **83**.
+
+**État de la liste du Var (v2.23).** Cinq zones ont été transmises par la DDTM 83, toutes sur la **commune de Saint-Tropez** : zone 1 à La Bouillabaisse (30 unités, 3 à 13 m) et zones 2 à 5 aux Canebiers (25, 25, 40 et 40 unités). Source : cartes n°41 et n°42, DDTM du Var / SML-BLO, octobre 2022, fond ORTHO_COULEUR_PVA2017_083.
+
+La liste **reste partielle et le texte le dit** : la DDTM 83 couvre toute la façade varoise (Hyères, Giens, Porquerolles, Cavalaire, Le Lavandou, Bandol…), et présenter cinq zones tropéziennes comme « les zones du Var » induirait en erreur quiconque clique ailleurs. Chaque entrée nomme donc sa commune, et le premier paragraphe annonce explicitement que la couverture se limite à Saint-Tropez.
+
+**Les zones sont désormais des polygones : `data/zones-aot.geojson`.** Les quatre sommets de chaque zone, donnés en degrés-minutes décimales sur les cartes PDF, ont été convertis en décimal et versés dans un GeoJSON. Ce fichier sert **deux fois** : il dessine la couche `zones_aot` sur la carte, et il alimente la liste du message DDTM. Les zones ne sont donc pas recopiées dans `data/ddtm-messages.json` — une zone est une géométrie, et la dupliquer en texte garantirait de voir les deux listes diverger. Le lien entre les deux fichiers est la propriété `ddtm` portée par chaque entité.
+
+Trois conséquences pour l'usager :
+- **La carte répond elle-même à la question.** Si le point cliqué tombe dans une zone, le bloc affiche en vert « Cet emplacement est dans une zone où l'AOT reste délivrable : … », avant le message général. Lui faire déduire d'une liste de noms s'il est au bon endroit, alors que la carte sait le calculer, serait lui laisser le travail que l'outil existe pour faire.
+- **Les noms de zone sont cliquables** et recadrent la carte dessus (`cadrerSurZone`), avec une marge à gauche pour que la zone ne se retrouve pas sous le popup. La liste reste ouverte : on passe d'une zone à l'autre sans tout rouvrir.
+- **Les zones sont visibles** sur la carte, sous la case « Zones de mouillage autorisées (AOT) », dans le même orange que la carte de règle locale — c'est la même nature d'information.
+
+**Contrôle de cohérence de la saisie.** Surface de chaque polygone rapportée à sa capacité : 937, 1 016, 863, 914 et 1 065 m² par mouillage. Cinq zones relevées séparément qui convergent toutes vers ~1 000 m² (soit un rayon d'évitage d'environ 18 m) : une erreur de chiffre sur une coordonnée aurait fait sortir l'une des cinq de cet intervalle. Ce contrôle ne remplace pas une validation par la DDTM 83, il écarte seulement la faute de frappe.
+
+**Le test point-dans-zone réutilise `pointDansAnneau`**, écrit pour le cadastre conchylicole (§4.3ter). Une seconde implémentation avait été écrite puis retirée : les déclarations de fonction étant hissées, le doublon écrasait silencieusement l'originale et cassait **aussi** la détection des parcelles conchylicoles. Attrapé par le test d'exécution réelle, pas par le test de syntaxe. Seule différence à gérer : cette fonction attend des anneaux en « lat, lon » (ordre du WFS), le GeoJSON les donne en « lon, lat ».
 
 **Secours hors ligne** volontairement **vide** (`SECOURS['data/ddtm-messages.json']`) : un message d'orientation périmé est pire que pas de message, et ce secours ne sert qu'à l'ouverture par double-clic.
 
@@ -482,6 +497,8 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 - 🟢 **Informations portuaires** — couche SHOM (image de symboles : sans nom de port, gestionnaire ni limites)
 - 🟢 **ZMEL** — fichier local `data/zmel.geojson` *(v2.10)* : vraies données (647 ZMEL, Cerema/CACEM, France entière et Antilles, converties depuis un shapefile Lambert-93 fourni par Nicolas — copie de référence dans `data/zmel-reel.geojson`) ; capacité d'accueil réelle, contact (`mailto`) resté sans donnée (absent de la source)
 - 🟢 **Cultures marines** *(v2.18)* — cadastre conchylicole des DDTM, en WMS sur GéoIDE, quatre flux sous une seule case : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime surfacique (13 391) et linéaire (1 254, février 2023). Un clic sur une parcelle déclenche un popup d'interdiction, sur la donnée réelle de la DDTM (§4.3ter). Pas de flux ailleurs : Manche (WFS en panne côté serveur), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement). Remplace le polygone fictif de `data/cultures-marines.geojson`, supprimé
+
+- 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Couverture très partielle** : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF n°41 et n°42 de la DDTM 83 (octobre 2022) et à faire confirmer par elle. Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup
 
 ### Habitats sensibles
 - 🟣 **Herbiers de posidonie et de zostère** — couche WMS (couverture partielle : presque uniquement l'Occitanie, Palavas et Albères ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère annoncée mais absente), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
@@ -803,6 +820,16 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer très au large (plus de 10 km de toute côte) → **aucun** bloc « Règles locales », et aucune erreur console
 - [ ] Couper le réseau puis cliquer → aucun bloc « Règles locales », le reste du popup fonctionne normalement
 
+### ✅ 21. Zones de mouillage autorisées *(v2.23)*
+- [ ] Rechercher « Saint-Tropez » → les 5 zones apparaissent en orange sur la carte (1 à La Bouillabaisse, 4 aux Canebiers)
+- [ ] Décocher « Zones de mouillage autorisées (AOT) » dans la légende → les polygones disparaissent ; recocher → ils reviennent
+- [ ] Cliquer **dans** une zone → ligne verte « Cet emplacement est dans une zone où l'AOT reste délivrable : … », **et** le parcours continue (marqueur posé, coordonnées affichées) — un clic en zone autorisée ne doit pas se comporter comme un clic sur un port
+- [ ] Cliquer dans le Var **hors** de toute zone → aucune ligne verte, le message général s'affiche normalement
+- [ ] Déplier « Voir les zones » → les 5 noms sont des liens soulignés
+- [ ] Cliquer un nom → la carte se recadre sur la zone, celle-ci n'est **pas** cachée par le popup, et la liste reste dépliée
+- [ ] Cliquer un second nom à la suite → le recadrage fonctionne aussi
+- [ ] Vérifier que la détection des parcelles conchylicoles marche toujours (§8) : les deux fonctionnalités partagent `pointDansAnneau`
+
 ### ✅ 20. Dégagement du point cliqué sous le popup *(v2.22)*
 - [ ] Cliquer dans le coin **bas-gauche** de la carte, là où le popup s'affiche → la carte glisse et le marqueur rouge reste visible à droite du panneau
 - [ ] Cliquer ailleurs sur la carte, loin du popup → **aucun** glissement
@@ -924,6 +951,16 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.23 — 14 octobre 2026
+**La règle locale prend un cadre, et les cinq premières zones du Var remplacent les placeholders**
+- Demande de Nicolas : encadrer entièrement la carte de règle locale plutôt que de lui donner un simple filet à gauche, « c'est une règle qui prime sur les autres ». Bordure de 2 px sur les quatre côtés, rayon porté à 4 px partout (un arrondi partiel n'a de sens qu'avec un filet sur un seul côté).
+- Zones du Var reçues de la DDTM 83, par deux cartes PDF (n°41 Les Canebiers, n°42 La Bouillabaisse, octobre 2022) : **cinq zones, toutes à Saint-Tropez**, avec capacité, exposition, profondeur et les quatre sommets GPS de chacune.
+- **Reformulation nécessaire, et pas cosmétique** : le texte annonçait « les zones dédiées au mouillage individuel dans le Var ». Cinq zones tropéziennes ne sont pas les zones du Var — un plaisancier cliquant au large de Bandol aurait lu une liste qui ne le concerne pas comme si elle était exhaustive. Le texte dit désormais « zones connues à ce jour », annonce que la couverture se limite à Saint-Tropez, et chaque entrée nomme sa commune. Le drapeau `brouillon` reste posé.
+- **Les sommets GPS deviennent des polygones** : `data/zones-aot.geojson`, nouvelle couche `zones_aot` visible sur la carte, liste du popup générée depuis ce fichier (et non recopiée dans les messages), noms de zone cliquables qui recadrent la carte, et détection « vous êtes dans une zone autorisée » au clic. Voir §4.4ter.
+- Contrôle de cohérence de la saisie : surface ÷ capacité = 863 à 1 065 m² par mouillage sur les cinq zones, soit ~18 m de rayon d'évitage. Convergence qui écarte la faute de frappe, sans valoir validation par la DDTM 83.
+- **Régression évitée de justesse, à retenir** : une seconde fonction `pointDansAnneau` avait été ajoutée pour ce besoin. Les déclarations de fonction étant hissées, elle écrasait celle du cadastre conchylicole et cassait la détection des parcelles — fonctionnalité sans rapport. Le test de syntaxe passait ; c'est l'**exécution réelle** (§5.2 du skill) qui l'a attrapée. La fonction d'origine est désormais réutilisée, avec conversion de l'ordre des coordonnées.
+- Tests : **25/25** (6 nouveaux : liste partielle, commune par entrée, 5 boutons cliquables, invite au clic, point dans une zone, point hors zone).
 
 ### v2.22 — 14 octobre 2026
 **Le clic dit de quelle DDTM relève l'emplacement, et quelles règles y sont appliquées**
