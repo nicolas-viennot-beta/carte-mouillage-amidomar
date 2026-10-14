@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.20 (octobre 2026)  
+**Version:** 2.21 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -120,7 +120,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 - Popup rouge : « **Vous êtes sur une parcelle de cultures marines — parcelle {parcelle}.** » puis, si le département publie ces champs, « {commune}, {espece}. » puis « Cette parcelle du domaine public maritime est déjà concédée : aucun mouillage individuel n'y est autorisable. Veuillez sélectionner un autre emplacement. » et enfin, en petit : « Source : cadastre conchylicole de la DDTM {departement} ({millesime}). »
 - Variables lues dans le cadastre conchylicole de la DDTM, au clic : `{parcelle}` = `CM1PAR`, `{commune}` = `COMMUNE` (absent en Charente-Maritime), `{espece}` = `ESPECE`. `{departement}` et `{millesime}` viennent du registre `CADASTRES_CM` du code.
 - Jusqu'en v2.17, ce cas reposait sur un **polygone fictif** de `data/cultures-marines.geojson` : l'interdiction s'affichait sur une zone inventée en rade d'Hyères, et nulle part ailleurs. Fichier supprimé en v2.18. Mécanisme : voir §4.3ter.
-- Trois autres issues, qui ne bloquent pas le clic et s'affichent en carte repliable dans le contexte environnemental (C5) : parcelle absente → rien n'est dit ; secteur sans cadastre publié → « Cultures marines : non vérifiées ici » ; flux injoignable → « Cultures marines : vérification impossible ».
+- Quatre autres issues, qui ne bloquent pas le clic et s'affichent en carte repliable dans le contexte environnemental (C5) : **parcelle à moins de 40 m** → « Parcelle de cultures marines à {n} m » *(v2.21)* ; parcelle absente → rien n'est dit ; secteur sans cadastre publié → « Cultures marines : non vérifiées ici » ; flux injoignable → « Cultures marines : vérification impossible ».
 
 #### C4 bis — Arrêté de protection de biotope (APB)
 - Pendant la vérification réseau : « *Vérification de la zone…* » (teinte neutre).
@@ -295,7 +295,7 @@ Chaque entrée porte son `emprise` WGS84, telle que déclarée par le `GetCapabi
 **Mécanique de la requête.**
 - `BBOX` et non `INTERSECTS` : MapServer ne gère pas `CQL_FILTER` (propre à GeoServer)
 - **Ordre des axes :** en WFS 1.1.0 et `EPSG:4326`, la `BBOX` attend **latitude puis longitude** — vérifié sur ces flux le 13/10/2026. Même piège que celui déjà relevé sur `patrinat_apb:apb` (§4.3bis)
-- Rayon de la boîte envoyée : `CONFIG.proximiteCulturesMarines` (40 m) pour **toutes** les couches depuis la v2.20 — la requête sert désormais à la fois au blocage et à la détection de voisinage. Jusqu'à 20 entités sont demandées, et c'est la plus proche qui est retenue
+- Rayon de la boîte envoyée : `CONFIG.proximiteCulturesMarines` (40 m) pour **toutes** les couches depuis la v2.21 — la requête sert désormais à la fois au blocage et à la détection de voisinage. Jusqu'à 20 entités sont demandées, et c'est la plus proche qui est retenue
 - **La distance est mesurée, pas déduite de la BBOX.** Les `<gml:posList>` renvoyés sont lus et la distance du point à chaque segment est calculée, en approximation plate (1° de latitude = 111 320 m, 1° de longitude = autant × cos(latitude)) : suffisant à quelques dizaines de mètres. Pour une couche surfacique, un test d'appartenance (lancer de rayon) met la distance à zéro quand le point est à l'intérieur ; pour une couche linéaire, on n'est jamais « dedans », seule la distance au tracé compte
 - **MapServer filtre sur la géométrie réelle, pas sur le rectangle englobant** — vérifié le 14/10/2026 sur un bouchot diagonal de la baie du Mont-Saint-Michel : un point à 53 m de la parcelle mais à l'intérieur de son rectangle englobant ne renvoie rien. C'est ce qui rend la méthode utilisable : les bouchots sont des bandes diagonales dont le rectangle englobant couvre largement les couloirs entre parcelles, et un filtre par rectangle aurait signalé à tort tous ces couloirs
 - Le WFS 1.1.0 ne répond qu'en GML (`application/json` renvoie une erreur) : la réponse est lue au `DOMParser`, champs repérés par nom local, sans dépendre du préfixe `ms:`
@@ -306,14 +306,14 @@ Chaque entrée porte son `emprise` WGS84, telle que déclarée par le `GetCapabi
 | Issue | Condition | Conséquence |
 |---|---|---|
 | `parcelle` | distance ≤ `CONFIG.blocageCulturesMarines` (5 m), ou point à l'intérieur du polygone | popup rouge, clic refusé (C4) |
-| `proximite` *(v2.20)* | distance ≤ `CONFIG.proximiteCulturesMarines` (40 m) | carte d'information, **le clic n'est pas bloqué** |
+| `proximite` *(v2.21)* | distance ≤ `CONFIG.proximiteCulturesMarines` (40 m) | carte d'information, **le clic n'est pas bloqué** |
 | `aucune` | le flux a répondu, rien dans les 40 m | rien n'est dit : le silence vaut mieux qu'une ligne de plus |
 | `horsFlux` | aucune emprise ne contient le point | carte « Cultures marines : non vérifiées ici » |
 | `indisponible` | le flux n'a pas répondu, ou a renvoyé un `ExceptionReport` | carte « Cultures marines : vérification impossible » |
 
 Quand deux flux couvrent le point (Charente-Maritime, surfacique et linéaire), c'est la parcelle **la plus proche** qui l'emporte.
 
-**La parcelle voisine *(v2.20)*.** Jusqu'à la v2.19, la carte était binaire : sur la parcelle, ou silence. Un clic de Nicolas en baie du Mont-Saint-Michel, le 14/10/2026, à 36 m d'un parc à moules, ne disait rien — alors que le seul rayon d'évitage d'un voilier de 10 m dépasse cette distance et que la chaîne finirait sur les pieux. D'où une troisième voie : **signaler sans bloquer**. Rien n'interdit juridiquement de mouiller à côté d'une concession ; élargir le blocage aurait été refuser un emplacement licite.
+**La parcelle voisine *(v2.21)*.** Jusqu'à la v2.19, la carte était binaire : sur la parcelle, ou silence. Un clic de Nicolas en baie du Mont-Saint-Michel, le 14/10/2026, à 36 m d'un parc à moules, ne disait rien — alors que le seul rayon d'évitage d'un voilier de 10 m dépasse cette distance et que la chaîne finirait sur les pieux. D'où une troisième voie : **signaler sans bloquer**. Rien n'interdit juridiquement de mouiller à côté d'une concession ; élargir le blocage aurait été refuser un emplacement licite.
 
 - Carte affichée : « **Parcelle de cultures marines à {n} m** » / « votre rayon d'évitage peut l'atteindre », bouton « Que faire ici », détail « Il serait préférable d'envisager un autre emplacement. » puis, en petit, le numéro de parcelle, la commune, l'espèce et la DDTM source. Texte écrit par Nicolas le 14/10/2026 — ne pas le reformuler sans lui.
 - Seuil : `CONFIG.proximiteCulturesMarines` = 40 m (choisi par Nicolas).
@@ -482,6 +482,8 @@ const CONFIG = {
   rayonCouvertureShom: 20,  // rayon du test de couverture du trait terre-mer (km, v2.17, recalibré le 14/10/2026) — voir §4.4.2
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
+  proximiteCulturesMarines: 40, // en deçà, une parcelle voisine est signalée sans bloquer (m, v2.21)
+  blocageCulturesMarines: 5,  // en deçà, on considère être SUR la parcelle (m, v2.21)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
 };
@@ -648,6 +650,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur une parcelle affichée → popup rouge nommant la parcelle (`CM1PAR`), la commune et l'espèce, avec la mention de la DDTM source
 - [ ] Aucun marqueur ni coordonnées GPS n'apparaissent, et les étapes 3 et 4 du guide repassent à zéro
 - [ ] Cliquer juste à côté de la parcelle, sur l'eau libre → le parcours reprend normalement et **rien** n'est dit des cultures marines
+- [ ] Cliquer dans un couloir entre deux blocs de bouchots en baie du Mont-Saint-Michel (environ 48,6499 N / −1,6841 E) → **pas** de blocage, mais une carte « Parcelle de cultures marines à 36 m » *(v2.21)*
 - [ ] Cliquer en rade d'Hyères → carte repliée « Cultures marines : non vérifiées ici » (aucun cadastre publié sur ce secteur)
 - [ ] Pas d'erreur console
 
@@ -859,6 +862,15 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.21 — 14 octobre 2026
+**Une parcelle de cultures marines à moins de 40 m est signalée, sans bloquer**
+- Déclencheur : un clic de Nicolas en baie du Mont-Saint-Michel, entre deux blocs de bouchots. La carte ne disait rien, à juste titre — vérification faite sur le cadastre de la DDTM 35, la parcelle la plus proche (12000844, Saint-Broladre, moules) est à **36 m**, et il y en a 18 dans un rayon de 200 m. Mais ne rien dire à 36 m d'un parc à moules est trompeur : le seul rayon d'évitage d'un voilier de 10 m dépasse cette distance.
+- Troisième voie retenue : signaler sans bloquer. Élargir le blocage aurait été refuser un emplacement qui n'est pas sur une parcelle concédée, ce que rien ne justifie juridiquement.
+- Carte : « **Parcelle de cultures marines à {n} m** » / « votre rayon d'évitage peut l'atteindre », détail « Il serait préférable d'envisager un autre emplacement. » Seuil (40 m) et texte choisis par Nicolas.
+- La requête passe d'un rayon de 5 m (25 m en linéaire) à **40 m pour toutes les couches**, et jusqu'à 20 entités : la carte lit désormais la géométrie renvoyée et **mesure** la distance au contour, au lieu de se contenter d'un oui/non. Blocage à 5 m ou à l'intérieur du polygone, information jusqu'à 40 m. Quand deux flux couvrent le point, la parcelle la plus proche l'emporte.
+- **Vérification qui conditionnait tout le reste :** MapServer filtre bien sur la géométrie réelle et non sur le rectangle englobant (point à 53 m d'un bouchot diagonal, mais dans son rectangle englobant → aucune réponse). Les bouchots étant des bandes diagonales, un filtre par rectangle aurait signalé à tort tous les couloirs entre parcelles.
+- Tests : **45/45**, dont 4 nouveaux sur la parcelle voisine (`TESTS_FONCTIONNELS.md` §8), rejoués sur la version incluant le correctif du rayon de couverture (commit `c3478b3`, mené en parallèle dans une autre session).
 
 ### 14 octobre 2026 — correctif du garde-fou de couverture terre/mer
 **Correction de bug : faux « vous êtes à terre » sur les larges estrans**

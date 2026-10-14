@@ -1491,11 +1491,51 @@ secteur sans cadastre publié, flux injoignable.
     - Attendu : aucun `pageerror` ni `console.error`, hors bruit habituel
       (favicon, WebGL/swiftshader, ressources interceptées).
 
+### Parcelle voisine — ajouts de la v2.21
+
+Le harnais `test_cm.mjs` rejoue désormais une parcelle décalée d'environ 33 m du
+point cliqué, avec une **géométrie exploitable** : depuis la v2.21 la carte lit
+les `<gml:posList>` et mesure la distance, une réponse sans géométrie ne
+suffirait plus à tester quoi que ce soit.
+
+**45. Parcelle à moins de 40 m : signalée, non bloquée**
+- Action : clic dans l'emprise du Finistère, le cadastre renvoyant une parcelle
+  à ~33 m.
+- Attendu : **pas** de `env-rouge`, marqueur et coordonnées délivrés, bloc « à
+  reporter » visible, et une carte `env-carte--usage` « Parcelle de cultures
+  marines à 33 m » / « votre rayon d'évitage peut l'atteindre ».
+
+**46. La distance affichée vient de la géométrie, pas d'une approximation**
+- Attendu : la distance affichée tombe entre 28 et 38 m pour la géométrie
+  rejouée. Un écart franc signale une erreur de projection (confusion lat/lon,
+  oubli du cosinus de la latitude) ou une lecture de `posList` à l'envers.
+
+**47. Le détail reprend le texte de Nicolas**
+- Action : déplier la carte.
+- Attendu : « Il serait préférable d'envisager un autre emplacement. », puis le
+  numéro de parcelle, la commune, l'espèce et la DDTM source. Texte écrit par
+  Nicolas le 14/10/2026 — ne pas le reformuler.
+
+**48. Au-delà de 40 m, rien n'est dit**
+- Action : clic dans l'emprise, cadastre répondant vide.
+- Attendu : aucune mention des cultures marines.
+
+**Deux pièges du harnais, rencontrés le 14/10/2026 :**
+- Les géométries rejouées doivent être **cohérentes avec le point cliqué**. La
+  parcelle linéaire de Charente-Maritime avait gardé des coordonnées du
+  Finistère : à 200 km, elle ne bloquait plus rien et le test échouait sans que
+  le code soit en cause.
+- Sur une couche **linéaire**, aucun point n'est jamais « dedans » : seule la
+  distance au tracé décide. Pour tester le blocage, le tracé rejoué doit passer
+  à moins de `CONFIG.blocageCulturesMarines` (5 m) du point.
+
 ### Résultat de la dernière exécution
 
-14 octobre 2026, version 2.19 : **41/41** sur l'ensemble des suites
-(estran 7/7, nature du fond 8/8, popup 11/11, cultures marines 15/15),
-rejouées après le retrait de la carte verte. Vérification de syntaxe des deux
+14 octobre 2026, version 2.21 : **45/45** sur l'ensemble des suites
+(estran 7/7, nature du fond 8/8, popup 11/11, cultures marines 19/19), rejouées
+sur la version incluant le correctif du rayon de couverture terre/mer (commit
+`c3478b3`, mené en parallèle dans une autre session — les premières exécutions
+portaient sur une copie prise avant ce correctif, et ont dû être refaites). Vérification de syntaxe des deux
 blocs `<script>` : OK.
 
 Le harnais « nature du fond » s'est révélé **intermittent** le 14/10 : il lisait

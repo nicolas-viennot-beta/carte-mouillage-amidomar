@@ -418,6 +418,8 @@
       rayonCouvertureShom: 20,  // km — rayon du test de couverture du trait terre-mer (v2.17, recalibré le 14/10/2026 : voir interrogerTraitTerreMer)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
+      proximiteCulturesMarines: 40, // m — en deçà, une parcelle voisine est signalée sans bloquer (v2.20, décision de Nicolas du 14/10/2026 : un rayon d'évitage ordinaire dépasse cette distance)
+      blocageCulturesMarines: 5,  // m — en deçà, on considère être SUR la parcelle (marge pour les imprécisions de saisie du cadastre)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
 
@@ -533,30 +535,30 @@
       { dep:'29', departement:'Finistère',
         base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37996/a11abacc-fd1d-441a-baa9-ad747d8d706b.internet.map',
         couche:'L_CADASTRE_CONCHYLICOLE_S_029',
-        emprise:[-5.1379, 47.6593, -3.5227, 48.7479], tolerance:5,
+        emprise:[-5.1379, 47.6593, -3.5227, 48.7479],
         millesime:'mise à jour juin 2026', entites:1406,
         champs:{ parcelle:'CM1PAR', commune:'COMMUNE', espece:'ESPECE', technique:'NATURE_EXP' } },
 
       { dep:'35', departement:'Ille-et-Vilaine',
         base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38012/22ac0c15-ef7f-44f1-a842-055eab09ba18.internet.map',
         couche:'L_CADASTRE_CONCHYLICOLE_S_035',
-        emprise:[-2.0503, 48.5492, -1.6053, 48.6990], tolerance:5,
+        emprise:[-2.0503, 48.5492, -1.6053, 48.6990],
         millesime:'mise à jour mars 2024', entites:2194,
         champs:{ parcelle:'CM1PAR', commune:'COMMUNE', espece:'ESPECE', technique:'NATURE_EXP' } },
 
       { dep:'17', departement:'Charente-Maritime',
         base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37974/ad176225-fbeb-4fc9-b56e-fb3c29c41e57.internet.map',
         couche:'L_CADASTRE_CONCH_S_017',
-        emprise:[-1.5061, 45.6682, -0.9733, 46.3034], tolerance:5,
+        emprise:[-1.5061, 45.6682, -0.9733, 46.3034],
         millesime:'mise à jour février 2023', entites:13391,
         champs:{ parcelle:'CM1PAR', espece:'ESPECE' } },
 
       // Couche linéaire : les concessions sur estacades et filières y sont des
-      // lignes, sans surface. Tolérance plus large, sinon jamais touchée.
+      // lignes, sans surface — on n'est jamais « dedans », seulement à côté.
       { dep:'17', departement:'Charente-Maritime', lineaire:true,
         base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37974/2c695a34-2604-4413-bbfe-3f8dd13682fa.internet.map',
         couche:'L_CADASTRE_CONCH_L_017',
-        emprise:[-1.3593, 45.8487, -1.0793, 46.2976], tolerance:25,
+        emprise:[-1.3593, 45.8487, -1.0793, 46.2976],
         millesime:'mise à jour février 2023', entites:1254,
         champs:{ parcelle:'CM1PAR', espece:'ESPECE' } }
     ];
@@ -1759,18 +1761,68 @@
       lngLat.lng >= c.emprise[0] && lngLat.lng <= c.emprise[2] &&
       lngLat.lat >= c.emprise[1] && lngLat.lat <= c.emprise[3]);
 
-    /* Interroge un flux. Renvoie la parcelle trouvée, ou null si le flux a
-       répondu sans rien au point. Lève si le flux n'a pas répondu : l'appelant
-       distingue « rien ici » de « on ne sait pas ».
+    /* Distance d'un point à un contour, en mètres, et test d'appartenance.
+       v2.20 : la carte ne se contente plus de savoir s'il y a une parcelle au
+       point, elle mesure la distance à la plus proche — ce qui suppose de lire
+       la géométrie renvoyée par le WFS, et non seulement les attributs.
+       Approximation plate (quelques dizaines de mètres près d'un point donné) :
+       un degré de latitude vaut 111 320 m, un degré de longitude le même chiffre
+       multiplié par le cosinus de la latitude. Suffisant à cette échelle. */
+    function anneauxDuFeature(f) {
+      // Chaque <gml:posList> est un contour, en « lat lon lat lon … » (EPSG:4326,
+      // WFS 1.1.0). Les MultiSurface en comptent plusieurs.
+      return [...f.getElementsByTagNameNS('*', 'posList')].map(el => {
+        const n = (el.textContent || '').trim().split(/\s+/).map(Number);
+        const pts = [];
+        for (let i = 0; i + 1 < n.length; i += 2) pts.push([n[i], n[i + 1]]);
+        return pts;
+      }).filter(a => a.length > 1);
+    }
+
+    function pointDansAnneau(lat, lon, pts) {
+      let dedans = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const [yi, xi] = pts[i], [yj, xj] = pts[j];
+        if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi))
+          dedans = !dedans;
+      }
+      return dedans;
+    }
+
+    function distanceAuContour(lat, lon, pts) {
+      const k = Math.cos(lat * Math.PI / 180);
+      const m = (dLat, dLon) => Math.hypot(dLat * 111320, dLon * 111320 * k);
+      let min = Infinity;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const [y1, x1] = pts[j], [y2, x2] = pts[i];
+        const dy = y2 - y1, dx = x2 - x1, l2 = dy * dy + dx * dx;
+        let u = l2 ? (((lat - y1) * dy + (lon - x1) * dx) / l2) : 0;
+        u = Math.max(0, Math.min(1, u));
+        min = Math.min(min, m(lat - (y1 + u * dy), lon - (x1 + u * dx)));
+      }
+      return min;
+    }
+
+    /* Interroge un flux dans un rayon de CONFIG.proximiteCulturesMarines, et
+       renvoie la parcelle la plus proche avec sa distance (0 si le point est
+       dedans), ou null si le flux a répondu sans rien dans ce rayon. Lève si le
+       flux n'a pas répondu : l'appelant distingue « rien ici » de « on ne sait pas ».
+
        ATTENTION : en WFS 1.1.0 et EPSG:4326, l'ordre des axes de la BBOX est
-       lat,lon (et non lon,lat) — vérifié sur ces flux le 13/10/2026. */
+       lat,lon (et non lon,lat) — vérifié sur ces flux le 13/10/2026.
+       MapServer filtre sur la GÉOMÉTRIE RÉELLE et non sur son rectangle
+       englobant — vérifié le 14/10/2026 sur un bouchot diagonal de la baie du
+       Mont-Saint-Michel : un point à 53 m de la parcelle, mais à l'intérieur de
+       son rectangle englobant, ne renvoie rien. Sans cela, les couloirs entre
+       bouchots seraient tous signalés à tort. */
     async function interrogerUnCadastreCM(c, lngLat, signal) {
-      const dLat = c.tolerance / 111320;
-      const dLon = c.tolerance / (111320 * Math.cos(lngLat.lat * Math.PI / 180));
+      const rayon = CONFIG.proximiteCulturesMarines;
+      const dLat = rayon / 111320;
+      const dLon = rayon / (111320 * Math.cos(lngLat.lat * Math.PI / 180));
       const bbox = [lngLat.lat - dLat, lngLat.lng - dLon,
                     lngLat.lat + dLat, lngLat.lng + dLon, 'EPSG:4326'].join(',');
       const rep = await fetch(c.base +
-        '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&SRSNAME=EPSG:4326&MAXFEATURES=1' +
+        '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&SRSNAME=EPSG:4326&MAXFEATURES=20' +
         '&TYPENAME=' + encodeURIComponent('ms:' + c.couche) +
         '&BBOX=' + encodeURIComponent(bbox), { signal });
       if (!rep.ok) throw new Error('HTTP ' + rep.status);
@@ -1778,24 +1830,46 @@
       // MapServer répond 200 avec un ExceptionReport : c'est une panne, pas un vide.
       if (txt.indexOf('ExceptionReport') !== -1) throw new Error('exception WFS');
       const doc = new DOMParser().parseFromString(txt, 'text/xml');
-      const f = doc.getElementsByTagNameNS('*', c.couche)[0];
-      if (!f) return null;
-      const lire = (nom) => {
-        if (!nom) return '';
-        const el = f.getElementsByTagNameNS('*', nom)[0];
-        return el ? (el.textContent || '').trim() : '';
-      };
-      return { etat:'parcelle', dep:c.dep, departement:c.departement,
+      const feats = [...doc.getElementsByTagNameNS('*', c.couche)];
+      if (!feats.length) return null;
+
+      let meilleure = null;
+      for (const f of feats) {
+        const anneaux = anneauxDuFeature(f);
+        // Géométrie absente (cas théorique) : on ne peut pas mesurer, on traite
+        // la parcelle comme présente au point plutôt que de l'ignorer.
+        let d = anneaux.length ? Infinity : 0;
+        for (const a of anneaux) {
+          if (!c.lineaire && pointDansAnneau(lngLat.lat, lngLat.lng, a)) { d = 0; break; }
+          d = Math.min(d, distanceAuContour(lngLat.lat, lngLat.lng, a));
+        }
+        if (!meilleure || d < meilleure.d) {
+          const lire = (nom) => {
+            if (!nom) return '';
+            const el = f.getElementsByTagNameNS('*', nom)[0];
+            return el ? (el.textContent || '').trim() : '';
+          };
+          meilleure = { d, parcelle:lire(c.champs.parcelle), commune:lire(c.champs.commune),
+                        espece:lire(c.champs.espece), technique:lire(c.champs.technique) };
+        }
+      }
+      if (!meilleure || meilleure.d > rayon) return null;
+      return { etat: meilleure.d <= CONFIG.blocageCulturesMarines ? 'parcelle' : 'proximite',
+               distance: meilleure.d, dep:c.dep, departement:c.departement,
                millesime:c.millesime, lineaire:!!c.lineaire,
-               parcelle:lire(c.champs.parcelle), commune:lire(c.champs.commune),
-               espece:lire(c.champs.espece), technique:lire(c.champs.technique) };
+               parcelle:meilleure.parcelle, commune:meilleure.commune,
+               espece:meilleure.espece, technique:meilleure.technique };
     }
 
-    /* Quatre issues, à ne pas confondre :
-         { etat:'parcelle', … }  une parcelle concédée au point → mouillage impossible
-         { etat:'aucune' }       le flux a répondu, rien au point → terrain libre
-         { etat:'horsFlux' }     aucun cadastre publié pour ce secteur → on ne sait pas
-         { etat:'indisponible' } le flux n'a pas répondu → on ne sait pas */
+    /* Cinq issues, à ne pas confondre :
+         { etat:'parcelle', … }   une parcelle concédée au point → mouillage impossible
+         { etat:'proximite', … }  une parcelle à moins de CONFIG.proximiteCulturesMarines
+                                  → signalée sans bloquer (v2.20)
+         { etat:'aucune' }        le flux a répondu, rien dans le rayon → terrain libre
+         { etat:'horsFlux' }      aucun cadastre publié pour ce secteur → on ne sait pas
+         { etat:'indisponible' }  le flux n'a pas répondu → on ne sait pas
+       Quand deux flux couvrent le point (Charente-Maritime : surfacique et
+       linéaire), c'est la parcelle la plus proche qui l'emporte. */
     async function interrogerCulturesMarines(lngLat) {
       const flux = fluxCMCouvrant(lngLat);
       if (!flux.length) return { etat:'horsFlux' };
@@ -1804,8 +1878,9 @@
       try {
         const res = await Promise.all(flux.map(c =>
           interrogerUnCadastreCM(c, lngLat, ctrl.signal).catch(() => undefined)));
-        const trouvee = res.find(r => r);
-        if (trouvee) return trouvee;
+        const trouvees = res.filter(r => r);
+        if (trouvees.length)
+          return trouvees.reduce((a, b) => (b.distance < a.distance ? b : a));
         if (res.every(r => r === undefined)) return { etat:'indisponible' };
         return { etat:'aucune' };
       } catch (e) { return { etat:'indisponible' };
@@ -1818,6 +1893,23 @@
        s'affiche en rouge sur tout le bloc, pas en carte. */
     function carteCulturesMarines(cm) {
       if (!cm || cm.etat === 'aucune' || cm.etat === 'parcelle') return '';
+      // v2.20 : parcelle voisine. Elle ne bloque pas — rien n'interdit de mouiller
+      // à côté d'une concession — mais à cette distance le rayon d'évitage et la
+      // chaîne peuvent l'atteindre. Texte écrit par Nicolas le 14/10/2026.
+      if (cm.etat === 'proximite') {
+        const precisions = [cm.parcelle && 'parcelle ' + cm.parcelle, cm.commune, cm.espece]
+          .filter(Boolean).join(', ');
+        return carteEnv({
+          type: 'usage',
+          titre: `Parcelle de cultures marines à ${Math.round(cm.distance)} m`,
+          consequence: "votre rayon d'évitage peut l'atteindre",
+          bouton: 'Que faire ici',
+          detail: `<p>Il serait préférable d'envisager un autre emplacement.</p>` +
+                  (precisions ? `<p class="env-caveat">${echapper(precisions)} — cadastre
+                     conchylicole de la DDTM ${echapper(cm.departement)}
+                     (${echapper(cm.millesime)}).</p>` : '')
+        });
+      }
       const commun = `<p>Les parcelles de cultures marines sont des parcelles du domaine
         public maritime déjà concédées : un mouillage individuel n'y est pas autorisable.
         Repérez-les sur la carte en activant « Cultures marines » dans la légende, et
@@ -2148,9 +2240,10 @@
         consequence: 'service distant momentanément injoignable'
       }));
       cartes.push(carteNatureFond(fond));
-      // v2.18 : en dernier, et seulement quand le cadastre conchylicole n'a pas
-      // pu répondre — une parcelle trouvée est une interdiction (rouge, plus
-      // haut), et une absence confirmée ne mérite pas une ligne.
+      // v2.18 : en dernier. Une parcelle AU POINT est une interdiction (rouge,
+      // plus haut) et une absence confirmée ne mérite pas une ligne : cette carte
+      // ne sert donc qu'aux trois autres cas — parcelle voisine (v2.20), secteur
+      // sans cadastre publié, flux injoignable.
       cartes.push(carteCulturesMarines(cm));
       // v2.5 : si un mouillage est proche, le bloc environnement (vert, ou neutre
       // Natura 2000 / ZNIEFF) est réduit à une ligne de titre, avec un bouton pour
