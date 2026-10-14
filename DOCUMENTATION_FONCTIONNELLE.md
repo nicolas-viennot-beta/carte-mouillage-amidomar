@@ -438,7 +438,7 @@ Ces sources n'apparaissent pas dans le panneau « Couches affichées » : elles 
 - **APB:** couche WMTS `Patrinat_APB` ajoutée en v1.8, tuiles confirmées ; pas d'identification au clic
 - **Zones de baignade, zones réglementaires:** Aucune source publique interrogeable identifiée — regroupées dans l'entrée « À venir » du panneau (voir ci-dessus)
 - **ZMEL:** Couche nationale consolidée depuis v2.9/v2.10 (647 ZMEL, Cerema/CACEM, fournie par Nicolas le 18/09/2026) ; capacité d'accueil réelle, contact (e-mail) non disponible dans la source
-- **Cultures marines:** Relèvent du cadastre conchylicole — à demander aux DDTM/délégations à la mer
+- **Cultures marines** *(v2.18)* : branchées sur les cadastres conchylicoles des DDTM publiés sur GéoIDE (Finistère, Ille-et-Vilaine, Charente-Maritime), affichées en WMS et interrogées au clic en WFS. Pas de flux exploitable ailleurs — Manche (WFS en panne côté serveur), Morbihan, Vendée, Loire-Atlantique, Gironde (téléchargement seulement). Voir §4.3ter
 - **Réserves naturelles nationales:** Couche retirée de la configuration (n'apparaît plus dans « Couches affichées »)
 
 ---

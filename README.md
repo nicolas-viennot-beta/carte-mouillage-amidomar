@@ -1,7 +1,13 @@
-# Carte AMIDOMAR — V1
+# Carte AMIDOMAR
 
 Carte d'aide au choix d'un emplacement de mouillage individuel, destinée à être
 consultée avant le dépôt d'une demande d'AOT sur Démarches Simplifiées.
+
+Ce fichier décrit l'installation et le fonctionnement général. Le détail
+fonctionnel, l'état de chaque source et l'historique des versions sont dans
+[`DOCUMENTATION_FONCTIONNELLE.md`](DOCUMENTATION_FONCTIONNELLE.md), qui fait
+foi ; les tests à rejouer avant toute évolution sont dans
+[`TESTS_FONCTIONNELS.md`](TESTS_FONCTIONNELS.md).
 
 Construite avec [Carte Facile](https://github.com/fab-geocommuns/carte-facile)
 et MapLibre GL : **aucune installation, aucune compilation.**
@@ -162,23 +168,33 @@ simulées ; elles proviendront d'un fichier Grist.
 
 Vérifiées comme fonctionnelles : Natura 2000 (SIC et ZPS), parcs naturels marins,
 ZNIEFF marines, réserves naturelles nationales, aires marines protégées,
-informations portuaires du SHOM.
+informations portuaires du SHOM, ZMEL (couche nationale Cerema/CACEM, 647 zones)
+et cultures marines (cadastres conchylicoles des DDTM).
 
 Deux réserves :
 
 - **Herbiers de posidonie** — la source appelée ne couvre que Palavas et les
   Albères. Elle n'affiche rien sur le Var, les Bouches-du-Rhône et la Corse,
   là où l'enjeu est le plus fort. Une source à couverture nationale reste à trouver.
-- **ZMEL et cultures marines** — aucune couche nationale consolidée n'a été
-  identifiée. Ces zones relèvent d'arrêtés préfectoraux et du cadastre
-  conchylicole tenu localement. Les fichiers `data/zmel.geojson` et
-  `data/cultures-marines.geojson` sont des gabarits à compléter territoire par
-  territoire avec les DDTM ; ils contiennent un exemple fictif à supprimer.
+- **Cultures marines** — il n'existe pas de flux national interrogeable. Le
+  cadastre aquacole national du Cerema est bien la version harmonisée des
+  fichiers DDTM (37 612 parcelles, soit 50 fois la couche « fermes marines » du
+  Shom), mais son service ne renvoie aucun en-tête CORS : une page web ne peut
+  pas l'appeler. La carte interroge donc les **cadastres conchylicoles
+  départementaux publiés par les DDTM sur GéoIDE** (WFS pour le clic, WMS pour
+  l'affichage, Licence ouverte 2.0) : Finistère, Ille-et-Vilaine et
+  Charente-Maritime à ce jour. Ailleurs, la carte dit qu'elle n'a pas vérifié
+  plutôt que de laisser croire que le secteur est libre.
 
-  **`data/SOURCES.md` recense les jeux départementaux trouvés sur data.gouv.fr**,
-  leur format, leur licence et la marche à suivre pour les ajouter. À noter : le
-  jeu du Var, le plus pertinent pour le projet, est publié mais son service est
-  en panne côté serveur — le détail y est consigné, il est signalable à la DDTM.
+  Pour ajouter un département, il suffit d'une entrée dans le registre
+  `CADASTRES_CM` de `index.html` — voir `DOCUMENTATION_FONCTIONNELLE.md`
+  §4.3ter, qui détaille les flux, les pièges (ordre des axes de la BBOX,
+  absence de CQL, `ExceptionReport` en HTTP 200) et les départements encore
+  sans flux exploitable.
+
+  **`data/SOURCES.md`** garde la trace de la recherche faite sur data.gouv.fr
+  pour les ZMEL, les ports et les cultures marines : jeux départementaux
+  trouvés, formats, licences, et services en panne signalables aux DDTM.
 
 ## Sécurité et mentions
 
@@ -218,5 +234,19 @@ non-collision et n'engage pas l'administration.
 ## Ce qui est renvoyé à une version ultérieure
 
 Savoir **si un point tombe dans une zone** — et non seulement l'afficher —
-demande d'interroger les polygones et non des images. Cette fonction, qui porte
-la valeur pédagogique du produit, est prévue pour la V2.
+demande d'interroger les polygones et non des images. C'est fait : au clic, la
+carte interroge le trait terre-mer et les natures de fond du Shom, Natura 2000
+et les ZNIEFF via l'API Carto de l'IGN, les arrêtés de protection de biotope via
+la Géoplateforme, et le cadastre conchylicole des DDTM.
+
+Restent hors de cette vérification, faute de source interrogeable :
+
+- **Zones de baignade et zones réglementaires** — aucune source publique
+  identifiée à ce jour. L'entrée figure dans la légende, grisée, pour que le
+  sujet reste visible.
+- **Herbiers de posidonie et de zostère** — la couche affichée ne couvre que
+  Palavas et les Albères, et rien là où l'enjeu est le plus fort (Var,
+  Bouches-du-Rhône, Corse). Elle n'est pas interrogée au clic.
+- **Parcs naturels marins et aires marines protégées** — affichables, mais
+  aucune API d'identification au point n'a été trouvée.
+- **Cultures marines hors des trois départements branchés** — voir plus haut.
