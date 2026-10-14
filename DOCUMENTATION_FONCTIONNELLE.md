@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.21 (octobre 2026)  
+**Version:** 2.22 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -412,6 +412,48 @@ Affichée dans le bloc environnement **uniquement quand le mouillage n'est pas i
 - **Mention obligatoire:** « Shom, 2025. Natures de fond au 1/50 000, doi:10.17183/HOM_GEOL_NATURES_FOND_50 », Licence Ouverte Etalab v2.0, portée par l'attribution de la carte.
 - Voir `TESTS_FONCTIONNELS.md` §1, tests 16 à 23.
 
+### 4.4ter Rattachement départemental et règles locales de la DDTM *(v2.22)*
+
+**Pourquoi.** Les plaisanciers interrogés ne savent pas à quel service s'adresser, et les règles changent d'un département à l'autre — parfois radicalement. Les Côtes-d'Armor ne délivrent plus d'AOT de mouillage individuel ; le Var ne les délivre que sur certaines zones dédiées. Afficher ce que la zone *contient* sans dire ce que l'administration *autorise* laissait l'usager engager une démarche qui n'existe plus.
+
+**Méthode, et sa limite.** La couche du trait terre-mer du Shom (`LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones`, déjà utilisée au §4.4.2) porte un attribut `numdep`. Mais elle décrit des **surfaces terrestres** : au point cliqué, qui est en mer, il n'y a par construction aucun objet — c'est ainsi que la mer est détectée. On ne lit donc **jamais** le département au point. `interrogerDepartement` cherche la terre la plus proche par cercles successifs (`DWITHIN`), et retient le département de ce qu'elle trouve. C'est une inférence, pas la lecture d'un attribut, et aucune limite départementale ne s'étend en mer dans cette couche.
+
+Trois configurations la mettent en défaut : une limite départementale qui touche la mer, une île dont le département diffère de la côte en face, et un point au large à équidistance. D'où la ligne « Emplacement rattaché à … », affichée systématiquement à droite du titre de section : ce n'est pas un avertissement, mais elle rend l'erreur repérable par quelqu'un qui sait où il mouille.
+
+**Rayons progressifs, et pourquoi on s'arrête au premier qui répond.** Relevé réel du 14/10/2026 (objets retournés → départements trouvés) :
+
+| Point cliqué | 1 km | 2 km | 5 km |
+|---|---|---|---|
+| Rade de Brest | 6 → 29 | 8 → 29 | 31 → 29 |
+| Golfe du Morbihan | 2 → 56 | 6 → 56 | 33 → 56 |
+| Rade de Toulon | 38 → 83 | 43 → 83 | 50 → 83 |
+| Les Sept-Îles | 6 → 22 | 33 → 22 | 50 → 22 |
+| Baie de Saint-Brieuc | 0 | 0 | 14 → 22 |
+
+Un point au milieu d'une grande baie n'a aucune terre à 2 km : il faut pouvoir élargir. Mais au-delà de 5 km le plafond de `count` (50) est atteint, ce qui peut **masquer** un second département — le premier rayon qui répond est donc le seul dont le résultat soit sûr, et élargir au-delà dégraderait la réponse au lieu de l'affiner.
+
+**Deux départements au plus petit rayon** : on n'arbitre pas. Le bloc affiche « Ce point est proche de la limite entre … , qui n'appliquent pas les mêmes règles. » puis les messages des deux DDTM.
+
+**Affichage.** Un bloc « Règles locales » (`popup-entete-section`), placé **avant** « Contexte environnemental » : une règle départementale peut réorienter toute la démarche, la lire après la nature du fond n'aurait pas de sens. Le message lui-même réutilise `carteEnv`, dans une quatrième teinte `env-carte--ddtm` (orange DSFR `#b34000`). Orange et non rouge : le rouge reste l'interdiction au point précis (biotope, parcelle conchylicole), qui ferme l'emplacement ; une règle départementale réoriente la démarche, elle ne condamne pas le point. Un département connu mais sans message particulier (29, 56 à ce jour) n'affiche que la ligne de rattachement.
+
+**Source des messages : `data/ddtm-messages.json`.** Fichier **provisoire**. L'interface instructeur Grist prévue pour que les agents DDTM gèrent leurs bandeaux par périmètre n'existe pas encore ; en attendant, les messages vivent dans le dépôt, mais avec **les noms de champs de la future table DDTM de Grist** (`ddtm`, `message_titre`, `message_consequence`, `message_detail`, `liste`, `lien`, `libelle_lien`, `brouillon`), pour que le basculement soit un script d'export et non une réécriture de la carte.
+
+**Tous les champs sont du texte brut, jamais du HTML**, et la carte les échappe à l'affichage. Ce n'est pas une précaution théorique : ce fichier sera demain rédigé par des agents DDTM via Grist, et du HTML injecté dans la page serait une faille. Les liens sont en outre filtrés sur `https://` — une URL `javascript:` saisie par mégarde ne devient pas cliquable. Quatre tests couvrent ce point (`TESTS_FONCTIONNELS.md` §9).
+
+Le drapeau `brouillon: true` fait ajouter « Information provisoire, en cours de validation avec la DDTM … » sous le message. Il est actuellement posé sur le **83**, dont la liste de zones n'est pas renseignée (`À COMPLÉTER — nom de la zone 1` à `4`) : **à remplir avant toute communication publique.**
+
+**Secours hors ligne** volontairement **vide** (`SECOURS['data/ddtm-messages.json']`) : un message d'orientation périmé est pire que pas de message, et ce secours ne sert qu'à l'ouverture par double-clic.
+
+### 4.4quater Dégagement du point cliqué sous le popup *(v2.22)*
+
+Le popup est à position fixe, en bas à gauche (§2). Un clic qui tombe dessous place le marqueur sous le panneau : l'usager ne voit plus l'emplacement qu'il vient de choisir, au moment précis où le panneau lui en parle. C'est l'angle mort que la v2.21 avait assumé en déplaçant le popup du centre vers le bas-gauche.
+
+`degagerPointSousPopup` compare la position écran du marqueur au rectangle du popup et, s'il est recouvert, fait glisser la **carte** (`map.panBy`) — pas le popup. Déplacer le panneau du côté opposé au clic marcherait aussi, mais un panneau qui saute d'un bord à l'autre entre deux clics désoriente, surtout quand on compare deux emplacements voisins ; déplacer la carte garde l'interface immobile et le marqueur dans son contexte géographique.
+
+Le glissement est **horizontal** par défaut (le point sort par la droite du popup), ce qui préserve la latitude et donc la lecture de la côte. Il devient **vertical** quand il ne reste pas assez de place à droite — cas des fenêtres sous 700 px, où le popup occupe toute la largeur. Marge de 24 px. Aucune animation si le point n'est pas masqué, et durée nulle si le système demande de réduire les animations (`prefers-reduced-motion`).
+
+Appelé **deux fois** : dès la pose du marqueur, pour que le point soit visible tout de suite plutôt qu'au bout d'une seconde d'attente réseau ; puis après l'affichage des cartes, car le popup grandit vers le haut (il est ancré en bas) et peut recouvrir à nouveau un point dégagé verticalement. Sans effet dans le cas courant, le dégagement ayant été horizontal.
+
 ### 4.5 État des sources cartographiques
 Bandeau « Couches affichées » avec icônes:
 
@@ -481,6 +523,8 @@ const CONFIG = {
   delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
   rayonCouvertureShom: 20,  // rayon du test de couverture du trait terre-mer (km, v2.17, recalibré le 14/10/2026) — voir §4.4.2
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
+  delaiDepartement: 4000,   // délai max du rattachement départemental, interrogé en parallèle des zonages (ms, v2.22) — voir §4.4ter
+  rayonsDepartement: [1, 2, 5, 10], // rayons essayés dans l'ordre pour trouver la côte la plus proche (km, v2.22) — voir §4.4ter
   delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
   proximiteCulturesMarines: 40, // en deçà, une parcelle voisine est signalée sans bloquer (m, v2.21)
   blocageCulturesMarines: 5,  // en deçà, on considère être SUR la parcelle (m, v2.21)
@@ -750,6 +794,24 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ---
 
+### ✅ 19. Règles locales — rattachement départemental *(v2.22)*
+- [ ] Cliquer dans l'eau en rade de Brest → bloc « RÈGLES LOCALES », mention « Emplacement rattaché à : Finistère (29) » à **droite** du titre, et **aucune** carte orange
+- [ ] Cliquer en baie de Saint-Brieuc → rattachement « Côtes-d'Armor (22) » et carte orange « ne délivre plus de nouvelles AOT… »
+- [ ] Déplier la carte du 22 → le lien « S'inscrire sur la liste d'attente » ouvre bien la démarche, dans un nouvel onglet
+- [ ] Cliquer en rade de Toulon → rattachement « Var (83) », carte orange, liste des zones **et** mention « Information provisoire » (tant que les zones ne sont pas renseignées)
+- [ ] Le bloc « Règles locales » apparaît **au-dessus** de « Contexte environnemental »
+- [ ] Cliquer très au large (plus de 10 km de toute côte) → **aucun** bloc « Règles locales », et aucune erreur console
+- [ ] Couper le réseau puis cliquer → aucun bloc « Règles locales », le reste du popup fonctionne normalement
+
+### ✅ 20. Dégagement du point cliqué sous le popup *(v2.22)*
+- [ ] Cliquer dans le coin **bas-gauche** de la carte, là où le popup s'affiche → la carte glisse et le marqueur rouge reste visible à droite du panneau
+- [ ] Cliquer ailleurs sur la carte, loin du popup → **aucun** glissement
+- [ ] Réduire la fenêtre sous 700 px, cliquer sous le popup → le glissement se fait vers le **haut**, pas vers la droite
+- [ ] Activer « réduire les animations » dans le système → le glissement est instantané, sans transition
+- [ ] Après l'arrivée des cartes (le popup grandit), le marqueur est toujours visible
+
+---
+
 ## 10. Résolution de problèmes courants
 
 ### Les parcelles de cultures marines ne s'affichent pas, ou le clic ne les détecte pas *(v2.18)*
@@ -862,6 +924,19 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.22 — 14 octobre 2026
+**Le clic dit de quelle DDTM relève l'emplacement, et quelles règles y sont appliquées**
+- Demande de Nicolas : savoir, au clic dans l'eau, à quelle DDTm la zone se rattache — pour afficher le message propre à certains départements.
+- **Rien de nouveau à collecter** : la couche du trait terre-mer du Shom, déjà interrogée depuis la v2.14, porte un attribut `numdep` que le code demandait déjà (`propertyName=id,numdep`) et jetait. La V2 « interrogation des zonages » de la note cartographie n'avait pas vu que le département en faisait partie.
+- **Limite documentée plutôt que masquée** : la couche décrit des surfaces terrestres, donc le département n'est **jamais** lu au point cliqué (qui est en mer par définition) mais sur la terre la plus proche. C'est une inférence. D'où la ligne « Emplacement rattaché à … », qui n'est pas un avertissement mais rend l'erreur repérable. Voir §4.4ter pour les trois configurations qui la mettent en défaut.
+- Rayons progressifs 1 / 2 / 5 / 10 km, arrêt au premier qui répond : au-delà de 5 km le plafond de `count` peut masquer un second département. Relevé de calibrage (6 points, interrogation réelle du Shom le 14/10/2026) au §4.4ter.
+- Deux départements au plus petit rayon → les deux messages sont affichés, sans arbitrage.
+- Messages dans `data/ddtm-messages.json`, en **texte brut** échappé à l'affichage et liens filtrés sur `https://` : ce fichier viendra de Grist, rédigé par des agents DDTM. Noms de champs déjà alignés sur la future table DDTM.
+- Renseignés : **22** (plus d'AOT, redirection vers la liste d'attente départementale) et **83** (zones dédiées). **Les zones du Var restent à compléter** — drapeau `brouillon` posé, mention « information provisoire » affichée.
+- Bloc « Règles locales » placé **avant** « Contexte environnemental », teinte orange `env-carte--ddtm`.
+- **Deuxième correctif, indépendant** : `degagerPointSousPopup` fait glisser la carte quand le marqueur tombe sous le popup — l'angle mort que la v2.21 avait explicitement assumé. Voir §4.4quater.
+- Tests : **21/21** sur le nouveau bloc (`TESTS_FONCTIONNELS.md` §9), dont 4 d'injection HTML, plus exécution synchrone complète du script et non-régression `rayonEvitage` (16 / 21). Le glissement de carte n'est pas couvert par le harnais Node (il dépend de la géométrie réelle du rendu) : **à vérifier en navigateur** — checklist §9.20.
 
 ### v2.21 — 14 octobre 2026
 **Une parcelle de cultures marines à moins de 40 m est signalée, sans bloquer**

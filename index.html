@@ -72,11 +72,24 @@
       html.embed #bandeau { display:none; }
 
       /* ---------- Popup de coordonnées ---------- */
-      #coords-popup { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:#fff;
+      /* v2.21 : le popup était centré horizontalement et masquait l'emplacement
+         qu'on venait de cliquer — on ne voyait plus ce dont on parlait. Il est
+         désormais calé en bas à GAUCHE : la colonne de légende occupe déjà la
+         droite (.colonne, top/right 10px), et le bouton « ? » est en HAUT à
+         gauche, donc ce coin est le seul libre. L'angle mort qui subsistait —
+         un clic dans le coin bas-gauche, recouvert par le popup — est traité
+         depuis la v2.22 en faisant glisser la CARTE plutôt que le popup :
+         voir `degagerPointSousPopup`.
+         Sous 700px de large, le popup reprend toute la largeur disponible —
+         l'aligner à gauche n'aurait plus de sens, il n'y a pas d'ailleurs. */
+      #coords-popup { position:fixed; bottom:40px; left:16px; background:#fff;
                       border-radius:8px; padding:30px 16px 10px; box-shadow:0 2px 12px rgba(0,0,0,.25);
-                      font-size:14px; z-index:1000; max-width:min(460px, calc(100% - 40px));
+                      font-size:14px; z-index:1000; width:min(420px, calc(100% - 32px));
                       max-height:calc(100% - 80px); overflow-y:auto;
                       opacity:0; transition:opacity .2s; pointer-events:none; box-sizing:border-box; }
+      @media (max-width:700px) {
+        #coords-popup { left:16px; right:16px; width:auto; }
+      }
       #coords-popup.visible { opacity:1; pointer-events:auto; }
       /* Fermeture explicite du popup par l'usager : désélectionne le point. */
       #coords-fermer { position:absolute; top:8px; right:8px; display:flex; align-items:center;
@@ -113,6 +126,17 @@
       #env-block .env-carte--protection { background:#f0f4ff; border-left:3px solid #003189; }
       #env-block .env-carte--fond       { background:#fdf8ec; border-left:3px solid #c3992a; }
       #env-block .env-carte--usage      { background:#eef6f7; border-left:3px solid #00838f; }
+      /* v2.22 : l'orange DSFR pour la règle locale de la DDTM. Une quatrième
+         teinte se justifie parce que ce n'est PAS la même nature d'information
+         que les trois autres : les cartes bleues, sable et gris-bleu décrivent
+         ce que la zone contient, celle-ci dit ce que l'administration autorise.
+         Orange et non rouge : le rouge reste l'interdiction au point précis
+         (biotope, parcelle conchylicole), qui ferme l'emplacement. Une règle
+         départementale réoriente la démarche, elle ne condamne pas le point. */
+      #env-block .env-carte--ddtm       { background:#fff4ed; border-left:3px solid #b34000; }
+      #env-block .env-carte--ddtm .env-carte-resume { color:#8a3200; }
+      #env-block .env-liste { margin:0 0 6px; padding-left:18px; }
+      #env-block .env-liste li { margin-bottom:2px; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
@@ -134,6 +158,16 @@
          et ce qui est une action. */
       .popup-section { margin:0 0 6px; font-size:10px; font-weight:800; text-transform:uppercase;
                        letter-spacing:.06em; color:#666; text-align:left; }
+      /* v2.22 : titre de section et rattachement départemental sur la même
+         ligne. Le rattachement est une étiquette, pas une phrase : le mettre
+         au-dessus des cartes lui donnerait le poids d'un avertissement, alors
+         qu'il sert seulement à situer. À droite du titre, il se lit si on le
+         cherche et s'efface sinon. */
+      .popup-entete-section { display:flex; align-items:baseline; justify-content:space-between;
+                              gap:10px; margin:0 0 6px; }
+      .popup-entete-section .popup-section { margin:0; }
+      .popup-entete-section .popup-rattachement { flex-shrink:0; text-align:right; font-size:11px;
+                                                  font-style:italic; color:#666; }
       #report-block { text-align:left; }
       .report-cadre { border:1px solid #ddd; border-radius:6px; overflow:hidden; }
       .report-ligne { display:flex; align-items:center; gap:10px; padding:9px 10px; }
@@ -417,6 +451,8 @@
       delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
       rayonCouvertureShom: 20,  // km — rayon du test de couverture du trait terre-mer (v2.17, recalibré le 14/10/2026 : voir interrogerTraitTerreMer)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
+      delaiDepartement: 4000,   // ms — délai max du rattachement départemental, interrogé en parallèle des zonages (v2.22)
+      rayonsDepartement: [1, 2, 5, 10], // km — rayons essayés dans l'ordre pour trouver la côte la plus proche (v2.22 ; voir interrogerDepartement)
       delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
       proximiteCulturesMarines: 40, // m — en deçà, une parcelle voisine est signalée sans bloquer (v2.20, décision de Nicolas du 14/10/2026 : un rayon d'évitage ordinaire dépasse cette distance)
       blocageCulturesMarines: 5,  // m — en deçà, on considère être SUR la parcelle (marge pour les imprécisions de saisie du cadastre)
@@ -452,6 +488,10 @@
         {type:'Feature',properties:{nom_port_de_plaisance:'Port de Saint-Tropez',nom_commune:'Saint-Tropez',places_disponibles:3,contact:'la capitainerie de Saint-Tropez'},geometry:{type:'Point',coordinates:[6.6389,43.2725]}},
         {type:'Feature',properties:{nom_port_de_plaisance:'Port de Cavalaire',nom_commune:'Cavalaire-sur-Mer',places_disponibles:19,contact:'la capitainerie de Cavalaire'},geometry:{type:'Point',coordinates:[6.5333,43.1725]}}
       ]},
+      // v2.22 : messages DDTM en mode hors-ligne. Volontairement VIDE plutôt
+      // qu'une copie des vrais messages : un message d'orientation périmé est
+      // pire que pas de message, et ce secours ne sert qu'au double-clic local.
+      'data/ddtm-messages.json': { millesime:'secours', ddtm:[] },
       // Jeu reduit : la carte reste demonstrative meme ouverte par double-clic.
       'data/aot-existantes.geojson': { type:'FeatureCollection', features:[
         {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-3.12991,47.44856]}},
@@ -1631,6 +1671,157 @@
       } catch (e) { return null; } finally { clearTimeout(t); }
     }
 
+    /* ---------- Rattachement départemental et message de la DDTM — v2.22 ----------
+       OBJET : un plaisancier ne sait pas toujours de quel service relève
+       l'endroit où il veut mouiller — constat répété en recherche utilisateur.
+       Or les règles changent d'un département à l'autre, parfois radicalement :
+       les Côtes-d'Armor ne délivrent plus d'AOT individuelle du tout, le Var ne
+       les accepte que sur certaines zones. Un clic doit donc pouvoir dire quelle
+       règle locale s'applique, et pas seulement ce que la zone contient.
+
+       MÉTHODE, ET SA LIMITE, À LIRE AVANT DE TOUCHER À CE CODE.
+       La couche du trait terre-mer du Shom (déjà utilisée par
+       `interrogerTraitTerreMer`) porte un attribut `numdep`. Mais elle décrit
+       des SURFACES TERRESTRES : au point cliqué, qui est en mer, il n'y a par
+       construction aucun objet — c'est même ainsi que la mer est détectée.
+       On ne lit donc JAMAIS le département AU point. On lit celui de la terre
+       la plus proche, trouvée par cercles successifs. C'est une inférence
+       (« la côte la plus proche est en 22, donc cette eau regarde la DDTM 22 »),
+       pas la lecture d'un attribut, et aucune limite départementale ne s'étend
+       en mer dans cette couche. Elle se trompe dans trois configurations :
+       une limite départementale qui touche la mer, une île dont le département
+       diffère de la côte en face, et un point au large à équidistance.
+       D'où la ligne « Emplacement rattaché à … » affichée systématiquement :
+       elle n'est pas un avertissement, mais elle rend l'erreur repérable par
+       quelqu'un qui sait où il mouille.
+
+       RAYONS PROGRESSIFS, et pourquoi on s'arrête au premier qui répond.
+       Relevé réel du 14/10/2026 (objets retournés → départements trouvés) :
+                                   1 km          2 km       5 km
+         rade de Brest           6 → 29        8 → 29     31 → 29
+         golfe du Morbihan       2 → 56        6 → 56     33 → 56
+         rade de Toulon         38 → 83       43 → 83     50 → 83
+         Les Sept-Îles           6 → 22       33 → 22     50 → 22
+         baie de Saint-Brieuc    0             0          14 → 22
+       Deux enseignements. Un point au milieu d'une grande baie n'a aucune terre
+       à 2 km : il faut pouvoir élargir. Et au-delà de 5 km le plafond de
+       `count` est atteint, ce qui peut MASQUER un second département — le
+       premier rayon qui répond est donc le seul dont le résultat soit sûr, et
+       élargir au-delà dégraderait la réponse au lieu de l'affiner.
+
+       Renvoie { departements:[codes], rayonKm } — plusieurs codes signifient que
+       le point est près d'une limite, et la carte affiche alors les deux
+       messages sans arbitrer. Renvoie null si le service est muet, lent, ou si
+       aucune terre n'est trouvée au plus grand rayon (large, outre-mer) : la
+       carte n'affiche alors simplement rien, ce qui est le comportement sûr. */
+    const WFS_SHOM_DEP = 'https://services.data.shom.fr/INSPIRE/wfs?service=WFS&version=2.0.0' +
+                         '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326' +
+                         '&count=50&propertyName=numdep&typeNames=' +
+                         encodeURIComponent('LIMTM_2154_WFS:limite_terre_mer_france_metropolitaine_polygones');
+
+    async function interrogerDepartement(lngLat) {
+      const point = `SRID=4326;POINT(${lngLat.lng} ${lngLat.lat})`;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiDepartement);
+      try {
+        for (const rayon of CONFIG.rayonsDepartement) {
+          const filtre = `DWITHIN(geom,${point},${rayon},kilometers)`;
+          const rep = await fetch(WFS_SHOM_DEP + '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                  { signal: ctrl.signal })
+                            .then(r => r.ok ? r.json() : null)
+                            .catch(() => null);
+          if (!rep || !Array.isArray(rep.features)) return null;   // service muet
+          if (!rep.features.length) continue;                      // rien ici, on élargit
+          const codes = [...new Set(rep.features
+            .map(f => (f.properties || {}).numdep)
+            .filter(Boolean))].sort();
+          return codes.length ? { departements: codes, rayonKm: rayon } : null;
+        }
+        return null;                                               // aucune terre au plus grand rayon
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }
+
+    /* Messages par DDTM. Chargés une fois, gardés en mémoire. Le fichier est
+       provisoire : il sera régénéré depuis la table DDTM de Grist le jour où
+       l'interface instructeur permettra aux agents de gérer leurs bandeaux.
+       D'ici là ses noms de champs sont déjà ceux de cette table, pour que le
+       basculement soit un script d'export et non une réécriture de la carte.
+       Ses valeurs sont du TEXTE BRUT et sont échappées à l'affichage : un
+       message rédigé demain par un agent ne doit pas pouvoir injecter de
+       balises dans la page. */
+    let messagesDDTM = null;
+    async function chargerMessagesDDTM() {
+      if (messagesDDTM) return messagesDDTM;
+      try {
+        const rep = await fetch('data/ddtm-messages.json');
+        if (!rep.ok) throw new Error('absent');
+        const j = await rep.json();
+        messagesDDTM = Array.isArray(j.ddtm) ? j.ddtm : [];
+      } catch (e) {
+        messagesDDTM = (SECOURS['data/ddtm-messages.json'] || {}).ddtm || [];
+      }
+      return messagesDDTM;
+    }
+
+    /* Rend le bloc « Règles locales » : la ligne de rattachement, puis le
+       message de chaque DDTM concernée. Renvoie '' si le département est
+       inconnu — on ne devine pas. Un département connu mais sans message
+       particulier (29, 56 à ce jour) affiche uniquement la ligne de
+       rattachement : savoir de qui l'on relève a une valeur en soi. */
+    function blocReglesLocales(dep, messages) {
+      if (!dep || !dep.departements.length) return '';
+      const fiches = dep.departements.map(code =>
+        (messages || []).find(m => String(m.ddtm) === String(code)) || { ddtm: code });
+      const nommer = (f) => f.nom_departement
+        ? `${f.nom_departement} (${f.ddtm})` : `département ${f.ddtm}`;
+
+      // Un seul département : étiquette courte, à droite du titre de section.
+      // Deux départements : c'est une phrase, et elle porte une conséquence
+      // (les règles diffèrent) — elle passe donc sous le titre, en pleine
+      // largeur, où elle sera lue.
+      const titre = '<h2 class="popup-section">Règles locales</h2>';
+      let entete;
+      if (dep.departements.length > 1) {
+        entete = `<div class="popup-entete-section">${titre}</div>
+                  <p class="env-caveat">Ce point est proche de la limite entre
+                    ${fiches.map(f => echapper(nommer(f))).join(' et ')}, qui n'appliquent
+                    pas les mêmes règles.</p>`;
+      } else {
+        entete = `<div class="popup-entete-section">${titre}
+                    <span class="popup-rattachement">Emplacement rattaché à&nbsp;:
+                      ${echapper(nommer(fiches[0]))}</span>
+                  </div>`;
+      }
+
+      const cartes = fiches.filter(f => f.message_titre).map(f => {
+        const paragraphes = (f.message_detail || []).map(p => `<p>${echapper(p)}</p>`);
+        // La liste s'insère après le PREMIER paragraphe : elle énumère ce que
+        // celui-ci annonce, les suivants en tirent les conséquences.
+        if ((f.liste || []).length) {
+          const items = f.liste.map(z => `<li>${echapper(z)}</li>`).join('');
+          paragraphes.splice(1, 0, `<ul class="env-liste">${items}</ul>`);
+        }
+        // Lien : https uniquement. Le fichier viendra un jour de Grist, et une
+        // URL `javascript:` rédigée par mégarde ne doit pas devenir cliquable.
+        if (f.lien && /^https:\/\//i.test(f.lien)) {
+          paragraphes.push(`<p><a href="${echapper(f.lien)}" target="_blank" rel="noopener">${
+            echapper(f.libelle_lien || 'Accéder à la démarche')}</a></p>`);
+        }
+        if (f.brouillon) paragraphes.push(
+          `<p class="env-caveat">Information provisoire, en cours de validation
+             avec la DDTM ${echapper(f.nom_departement || f.ddtm)}.</p>`);
+        return carteEnv({
+          type: 'ddtm',
+          titre: f.message_titre,
+          consequence: f.message_consequence || '',
+          bouton: f.libelle_bouton || 'En savoir plus',
+          detail: paragraphes.join('')
+        });
+      });
+
+      return entete + cartes.join('');
+    }
+
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
        Couche WFS NDF_BDD_WLD_WGS84G_WFS:natures_fond_50000, interrogée au point.
        L'attribut `typelem` porte un code ; les libellés ci-dessous ne sont pas
@@ -2074,6 +2265,50 @@
       return mapTerrain.areTilesLoaded() ? false : null;
     }
 
+    /* ---------- Dégager le point cliqué de sous le popup — v2.22 ----------
+       PROBLÈME : le popup est à position fixe, en bas à gauche. Un clic qui
+       tombe dessous place le marqueur sous le panneau, et l'usager ne voit plus
+       l'emplacement qu'il vient de choisir — exactement au moment où il en a le
+       plus besoin, puisque le panneau lui parle de ce point.
+
+       POURQUOI ON DÉPLACE LA CARTE, ET NON LE POPUP. Déplacer le panneau du
+       côté opposé au clic marche aussi, mais un panneau qui saute d'un bord à
+       l'autre entre deux clics désoriente, surtout quand on compare deux
+       emplacements voisins. Déplacer la carte garde l'interface immobile : seul
+       le fond glisse, et le marqueur reste dans son contexte géographique.
+
+       On privilégie le glissement HORIZONTAL (le point sort par la droite du
+       popup) car il préserve la latitude, donc la lecture de la côte. Le
+       glissement VERTICAL ne sert que lorsque le popup est trop large pour
+       qu'il reste de la place à sa droite — c'est le cas sous 700 px, où il
+       occupe toute la largeur.
+
+       Ne fait rien si le point n'est pas masqué : aucune animation gratuite. */
+    const MARGE_DEGAGEMENT = 24;   // px entre le bord du popup et le marqueur
+
+    function degagerPointSousPopup() {
+      if (!position || !popup.classList.contains('visible')) return;
+      const zone = popup.getBoundingClientRect();
+      const toile = map.getCanvas().getBoundingClientRect();
+      const p = map.project(position);
+      const x = toile.left + p.x, y = toile.top + p.y;
+      // Hors du rectangle du popup : rien à faire.
+      if (x < zone.left || x > zone.right || y < zone.top || y > zone.bottom) return;
+
+      const placeADroite = zone.right + MARGE_DEGAGEMENT + 40 < toile.right;
+      const d = placeADroite
+        ? [-(zone.right + MARGE_DEGAGEMENT - x), 0]            // le point part vers la droite
+        : [0, y - (zone.top - MARGE_DEGAGEMENT)];              // le point remonte au-dessus
+      map.panBy(d, { duration: reduireAnimations() ? 0 : 400 });
+    }
+
+    // Respecte le réglage système « réduire les animations » : un glissement
+    // animé peut gêner les personnes sensibles au mouvement.
+    function reduireAnimations() {
+      try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+      catch (e) { return false; }
+    }
+
     // v2.14 : le clic comporte désormais une attente réseau AVANT l'avertissement
     // « à terre » (trait terre-mer). Ce jeton fait abandonner la vérification d'un
     // clic qu'un clic plus récent a remplacé.
@@ -2175,6 +2410,11 @@
       coordsText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
       popup.classList.add('visible');
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
+      // v2.22 : dégagement immédiat, avant même les vérifications réseau — le
+      // marqueur doit être visible tout de suite, pas au bout d'une seconde.
+      // Le popup grandira encore en recevant les cartes, mais vers le HAUT (il
+      // est ancré en bas) : un dégagement horizontal reste donc valable.
+      degagerPointSousPopup();
 
       // Rayon d'évitage : proposé uniquement si un mouillage existant est à
       // moins de 100 m — au-delà, le risque de chevauchement est négligeable
@@ -2198,9 +2438,14 @@
       // quelques dizaines de millisecondes et ne doit pas rallonger l'attente.
       // Elle n'est demandée QUE sur cette branche, c'est-à-dire quand le mouillage
       // n'est pas interdit (ni cultures marines, ni APB, ni terre, ni port/ZMEL).
-      const [{ natura, znieff, echec }, fond] = await Promise.all([
+      // v2.22 : le rattachement départemental part dans le même peloton. Il ne
+      // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
+      // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
+      const [{ natura, znieff, echec }, fond, dep, fiches] = await Promise.all([
         interrogerZonesProtegees(e.lngLat),
-        interrogerNatureFond(e.lngLat)
+        interrogerNatureFond(e.lngLat),
+        interrogerDepartement(e.lngLat),
+        chargerMessagesDDTM()
       ]);
       if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
 
@@ -2251,9 +2496,24 @@
       // v2.19 : plus aucune carte à montrer → pas de bloc du tout, pas même le
       // titre « Contexte environnemental », qui annoncerait un vide.
       const aMontrer = cartes.filter(Boolean);
-      afficherEnvironnement(aMontrer.length
+      // v2.22 : les règles locales passent DEVANT le contexte environnemental.
+      // Une règle départementale peut réorienter toute la démarche (les
+      // Côtes-d'Armor ne délivrent plus d'AOT du tout) : la lire après la nature
+      // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
+      // peut s'afficher sans l'autre.
+      const reglesLocales = blocReglesLocales(dep, fiches);
+      const contexte = aMontrer.length
         ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
-        : '', aMontrer.length ? 'cartes' : '');
+        : '';
+      afficherEnvironnement(reglesLocales + contexte,
+                            (reglesLocales || contexte) ? 'cartes' : '');
+
+      // v2.22 : second contrôle. Le popup vient de grandir en recevant les
+      // cartes ; comme il est ancré en bas, il s'étend vers le haut et peut
+      // recouvrir un point qui avait été dégagé par le haut (cas des fenêtres
+      // étroites). Sans effet dans le cas courant, où le dégagement a été
+      // horizontal : la fonction sort aussitôt si le point est déjà visible.
+      degagerPointSousPopup();
 
       recalculer();
     });

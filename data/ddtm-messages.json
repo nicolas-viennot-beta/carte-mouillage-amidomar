@@ -1,0 +1,40 @@
+{
+  "_lisez_moi": "Messages affichés sur la carte selon la DDTM dont relève l'emplacement cliqué. Fichier provisoire : il sera régénéré depuis la table DDTM de Grist quand l'interface instructeur existera, d'où les noms de champs ci-dessous, alignés sur ceux prévus pour cette table. TOUS LES CHAMPS SONT DU TEXTE BRUT, jamais du HTML : la carte échappe les valeurs et construit elle-même la mise en forme. N'y mettre aucune balise.",
+  "millesime": "2026-10-14",
+  "ddtm": [
+    {
+      "ddtm": "22",
+      "nom_departement": "Côtes-d'Armor",
+      "brouillon": false,
+      "message_titre": "La DDTM des Côtes-d'Armor ne délivre plus de nouvelles AOT de mouillage individuel",
+      "message_consequence": "inscription sur la liste d'attente départementale",
+      "libelle_bouton": "Ce que ça implique",
+      "message_detail": [
+        "Pour utiliser un mouillage individuel en dehors des ports ou d'une zone de mouillages et d'équipements légers (ZMEL) dans les Côtes-d'Armor, vous devez vous enregistrer sur la liste d'attente départementale, au moyen d'un formulaire dédié."
+      ],
+      "liste": [],
+      "lien": "https://demarche.numerique.gouv.fr/commencer/inscription-sur-liste-d-attente-mouillage",
+      "libelle_lien": "S'inscrire sur la liste d'attente"
+    },
+    {
+      "ddtm": "83",
+      "nom_departement": "Var",
+      "brouillon": true,
+      "message_titre": "La DDTM du Var ne délivre plus de nouvelles AOT en dehors de certaines zones dédiées",
+      "message_consequence": "identifier ces zones pour faire une demande",
+      "libelle_bouton": "Voir les zones",
+      "message_detail": [
+        "Les zones dédiées au mouillage individuel dans le Var sont les suivantes :",
+        "Si aucune de ces zones ne convient à votre projet, orientez-vous vers une zone de mouillages et d'équipements légers (ZMEL) ou vers une zone portuaire."
+      ],
+      "liste": [
+        "À COMPLÉTER — nom de la zone 1",
+        "À COMPLÉTER — nom de la zone 2",
+        "À COMPLÉTER — nom de la zone 3",
+        "À COMPLÉTER — nom de la zone 4"
+      ],
+      "lien": "",
+      "libelle_lien": ""
+    }
+  ]
+}

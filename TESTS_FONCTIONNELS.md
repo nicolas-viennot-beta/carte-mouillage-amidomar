@@ -1539,6 +1539,72 @@ suffirait plus à tester quoi que ce soit.
   distance au tracé décide. Pour tester le blocage, le tracé rejoué doit passer
   à moins de `CONFIG.blocageCulturesMarines` (5 m) du point.
 
+## 9. Règles locales — rattachement DDTM et dégagement du popup (v2.22)
+
+*Harnais : `harnais.mjs` (hors dépôt, dossier de travail de Claude). Il extrait le
+dernier bloc `<script>` d'`index.html`, l'exécute dans un contexte `vm` avec des
+globaux simulés, puis appelle directement `blocReglesLocales` avec le contenu réel
+de `data/ddtm-messages.json`.*
+
+*Dernière exécution : 14 oct. 2026 (v2.22) — 21/21, plus l'exécution synchrone
+complète du script sans exception et la non-régression `rayonEvitage` (16 / 21).*
+
+1. **Rattachement à un seul département**
+   - Action : `blocReglesLocales({departements:['22'],rayonKm:5}, fiches)`.
+   - Attendu : contient `popup-section">Règles locales`, un conteneur
+     `popup-entete-section` et un `popup-rattachement` portant « Côtes-d'Armor (22) ».
+     Le rattachement est **à droite du titre**, pas sur une ligne à part.
+   - Vérification : exécution (Node.js).
+
+2. **Message du 22 complet**
+   - Attendu : carte `env-carte--ddtm`, lien vers
+     `inscription-sur-liste-d-attente-mouillage`, **pas** de mention
+     « Information provisoire » (`brouillon: false`).
+
+3. **Message du 83, et son état de brouillon**
+   - Attendu : titre « …ne délivre plus de nouvelles AOT en dehors de certaines
+     zones dédiées », conséquence « identifier ces zones pour faire une demande »,
+     exactement **4** `<li>`, mention « Information provisoire » présente, et
+     **aucun** `<a href` (champ `lien` vide).
+   - *Ce test échouera volontairement le jour où les vraies zones du Var seront
+     saisies si leur nombre change : mettre à jour le compte attendu, et retirer
+     `brouillon` du fichier au même moment.*
+
+4. **Département connu sans message particulier (29, 56)**
+   - Attendu : la ligne de rattachement seule, **aucun** `env-carte`.
+
+5. **Deux départements au plus petit rayon**
+   - Action : `blocReglesLocales({departements:['22','29'],rayonKm:2}, fiches)`.
+   - Attendu : phrase « proche de la limite entre … » **sous** le titre (pas de
+     `popup-rattachement` à droite), et le message du 22 affiché malgré tout.
+
+6. **Absence de rattachement**
+   - Attendu : `blocReglesLocales(null, …)` et `{departements:[]}` renvoient la
+     chaîne vide — aucun bloc, aucun titre orphelin.
+
+7. **Échappement (4 contrôles) — ce fichier viendra de Grist**
+   - Action : passer une fiche piégée (`<script>`, `<img onerror>`, `<b>`,
+     `lien: "javascript:alert(1)"`).
+   - Attendu : aucune de ces balises dans la sortie, et le lien `javascript:`
+     **non rendu** (filtre `^https://`).
+   - **Ne jamais assouplir ce point** : les messages seront demain rédigés par des
+     agents DDTM dans Grist, pas par l'équipe.
+
+8. **`data/ddtm-messages.json` valide et sans balises**
+   - Attendu : parse JSON sans erreur, champs `ddtm`, `nom_departement`,
+     `message_titre`, `message_detail`, `lien` présents sur chaque fiche, et
+     **aucune balise HTML** dans tout le fichier.
+
+9. **Dégagement du point sous le popup — non couvert par le harnais**
+   - `degagerPointSousPopup` est bien exposée et s'initialise sans erreur, mais son
+     comportement dépend de la géométrie réelle du rendu (rectangle du popup,
+     projection du point) que le stub ne reproduit pas fidèlement.
+   - **À vérifier en navigateur**, checklist §9.20 de DOCUMENTATION_FONCTIONNELLE.md :
+     clic en bas-gauche → glissement horizontal ; fenêtre < 700 px → glissement
+     vertical ; clic hors du popup → aucun glissement.
+
+---
+
 ### Résultat de la dernière exécution
 
 14 octobre 2026, version 2.21 : **45/45** sur l'ensemble des suites
