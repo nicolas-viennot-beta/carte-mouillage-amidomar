@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.24 (octobre 2026)  
+**Version:** 2.25.1 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -26,7 +26,7 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 ## 2. Disposition de l'interface
 
 ### Gauche — Contrôles cartographiques
-- 🔍 **Recherche** — localisation par adresse
+- 🔍 **Recherche** — un seul champ pour localiser : commune, lieu-dit ou **coordonnées GPS** (voir §4.6)
 - 🔍 **Zoom** — agrandissement/réduction
 - 🧭 **Orientation** — rotation de la carte
 - 📍 **Géolocalisation** — position de l'usager
@@ -48,7 +48,7 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 ### Étape 0 — Orientation (modale d'accueil)
 - Modale « *Choisir un emplacement de mouillage en 4 étapes* » (v2.12 ; « Fonctionnement de la carte pour un choix d'emplacement de mouillage responsable » auparavant)
 - Quatre étapes numérotées, une seule phrase chacune, l'action en gras :
-  1. **Recherchez ou zoomez** sur le secteur qui vous intéresse.
+  1. **Recherchez ou zoomez** sur le secteur qui vous intéresse. Le champ de recherche accepte une commune, un lieu-dit ou des coordonnées GPS (ex. 43.267710, 6.622611).
   2. *(bloc vert)* **Regardez d'abord si un port ou une ZMEL vous convient** : c'est de loin l'option la moins dommageable pour les fonds marins. Cliquez dessus pour savoir comment faire une demande.
   - Intertitre : « Si aucun port ni ZMEL ne convient : »
   3. **Cliquez sur l'emplacement** où vous souhaitez mouiller : la carte vous indique les interdictions, les recommandations et les mouillages voisins trop proches.
@@ -59,7 +59,7 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 - Réouvrable via le bouton ❓
 
 ### Étape 1 — Cliquer sur la carte
-Un clic sur la carte déclenche désormais un **traitement unifié**, quel que soit l'endroit cliqué (voir §4.1 pour le détail de la cascade) :
+Un clic sur la carte déclenche désormais un **traitement unifié**, quel que soit l'endroit cliqué (voir §4.1 pour le détail de la cascade). **Depuis la v2.25**, saisir des coordonnées GPS dans le champ de recherche produit exactement le même traitement : la carte se centre sur le point, puis le clic est rejoué à cet endroit (voir §4.6). Tout ce qui suit vaut donc pour les deux gestes.
 
 1. **Clic sur un port ou une ZMEL** → la modale dédiée s'ouvre directement (comportement inchangé, voir §4.1.a). Pas de coordonnées, pas de popup d'environnement.
 2. **Clic à terre** → popup rouge « Vous êtes à terre », pas de coordonnées (inchangé, voir §4.4).
@@ -489,6 +489,62 @@ Bandeau « Couches affichées » avec icônes:
 
 Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces icônes : leur case à cocher est grisée et désactivée, et aucune requête n'est faite pour elles tant qu'aucune source interrogeable n'est disponible.
 
+### 4.6 Recherche par coordonnées GPS *(v2.25)*
+
+#### Pourquoi un seul champ, et non deux
+Le champ accepte à la fois les libellés de lieu (commune, lieu-dit) et les coordonnées. Deux champs auraient obligé l'usager à classer sa saisie **avant** de taper : se tromper de champ ne renvoie alors aucun résultat, sans rien dire du pourquoi — l'échec le plus difficile à récupérer. Ici la machine tranche seule, ce qu'elle peut faire sans ambiguïté : `43.267710, 6.622611` n'est pas un nom de commune.
+
+#### Mise en œuvre — un provider ajouté, aucun code de la librairie modifié
+Le champ est celui de carte-facile (`CarteFacile.SearchControl`, voir `vendor/VERSIONS.txt`). Ce contrôle accepte une liste de **providers** interrogés en parallèle, chacun disposant de son propre quota de résultats (`maxResults`, 5 par défaut) :
+
+```js
+map.addControl(new CarteFacile.SearchControl({
+  providers: [GpsGeocoder, CarteFacile.GeopfGeocoder]
+}), 'top-left');
+```
+
+`GpsGeocoder` est placé **en premier** : les entrées étant empilées dans l'ordre des providers, le point GPS arrive en tête de la liste déroulante. Aucun résultat « commune / lieu-dit » de la Géoplateforme n'est perdu au passage, et la librairie vendorisée n'est pas touchée (elle reste remplaçable par `npm install carte-facile`).
+
+#### Formats acceptés
+| Format | Exemple | Pourquoi |
+|--------|---------|----------|
+| Degrés décimaux | `43.267710, 6.622611` | Format des formulaires DN et de Grist |
+| Virgule décimale française | `43,267710, 6,622611` | Ce que donne un copier-coller depuis Excel ou Grist |
+| Séparateur espace ou `;` | `43.267710 6.622611` | Tolérance de saisie |
+| Degrés-minutes décimales | `43°16.063'N 6°37.357'E` | Cartes marines, arrêtés, GPS de bord |
+| Degrés-minutes-secondes | `43°16'03.8"N 6°37'21.4"E` | Variante rencontrée dans les arrêtés |
+
+Règle de désambiguïsation de la virgule : quatre groupes de chiffres séparés par des virgules ne peuvent être que deux paires à virgule décimale. Dans une saisie contenant un `°`, toute virgule entre deux chiffres est décimale. Les hémisphères `N/S` et `E/W/O` sont acceptés en suffixe et donnent le signe ; sans eux, le signe est celui du nombre.
+
+#### Garde-fou sur l'inversion latitude / longitude
+C'est l'erreur la plus courante sur des coordonnées recopiées. Si le couple saisi tombe **hors** de l'emprise France métropolitaine (`EMPRISE_FR` : 41,0–51,6 N / −5,6–9,8 E, Corse comprise) mais que le couple **inversé** y tombe, le point est corrigé et le résultat le dit : « Latitude et longitude semblaient inversées : remises dans l'ordre ». Un point réellement hors emprise reste accepté sans correction. `EMPRISE_FR` est à élargir si l'expérimentation gagne l'outre-mer.
+
+#### Ce qui s'affiche dans la liste déroulante
+- **Coordonnées reconnues** → une entrée épinglée, `Point GPS — 43.267710, 6.622611`, avec le format nautique correspondant en sous-titre (ou le message d'inversion le cas échéant). Rien ne bouge sur la carte avant que l'usager ne sélectionne l'entrée : il valide d'abord l'interprétation qui en est faite.
+- **Saisie faite de chiffres et de signes de coordonnées mais non interprétable** (ex. `43.26`) → une entrée d'aide donnant le format attendu, plutôt qu'un déroulant vide. Son libellé **reprend la saisie telle quelle** : le contrôle recopiant le libellé dans le champ quand on sélectionne une entrée, cliquer sur cette aide laisse la saisie intacte au lieu de l'effacer.
+- **Texte non numérique** (`Saint-Tropez`, `Le Pradic`) → le provider GPS ne renvoie rien et laisse la place à la Géoplateforme.
+
+#### Sélection d'un point : le clic carte est rejoué
+`onSelect` centre la carte (`jumpTo`, zoom 16 minimum), attend que la carte soit stable, puis **rejoue le clic** à cet endroit :
+
+```js
+map.fire('click', { lngLat, point: map.project(lngLat), originalEvent: null });
+```
+
+L'usager obtient donc d'emblée tout ce qu'un clic produit : terre/eau et arbitrage Shom (§4.4), cultures marines et APB (§4.1.c, c bis), zones protégées et nature du fond (§4.3, §4.4bis), règles locales et zone autorisée (§4.4ter), mouillages voisins et rayon d'évitage (§4.2), coordonnées reportables (§4.0 C5). Les écouteurs de couche (port, ZMEL) répondent également, comme à la souris.
+
+Le corps du gestionnaire de clic a été extrait dans une fonction nommée, `traiterPointCarte(lngLat, point)`, appelée par `map.on('click', …)` comme par la recherche : **un seul chemin de code**, donc aucune divergence possible entre les deux gestes. La fonctionnalité est le symétrique de l'étape 4 de la marche à suivre, où l'usager **copie** des coordonnées vers son formulaire ; elle sert surtout aux instructeurs DDTM, qui disposent d'une coordonnée (Ad'hoc, arrêté, signalement) et veulent savoir ce qu'il y a à cet endroit.
+
+**Attente avant le clic rejoué** — `attendreCarteStable()` scrute `isMoving()` et `areTilesLoaded()` sur la carte **et sur la carte fantôme** (§4.4.1), avec un plafond de 4 s. C'est nécessaire : `queryRenderedFeatures` et `estSurLEau` lisent la carte *rendue*, donc le point doit être dans la fenêtre et les tuiles chargées. Au-delà de 4 s le clic part quand même — `estSurLEau` renvoie alors `null` (« on ne sait pas »), qui est le cas non bloquant déjà prévu.
+
+#### Signalement des deux possibilités à l'usager
+Le label du `SearchControl` est **masqué visuellement** (`clip: rect(0,0,0,0)` dans `carte-facile.css`) et un contrôle flottant au-dessus de la carte n'offre pas de place pour un texte d'aide sous le champ : le `fr-hint-text` du DSFR n'est pas applicable ici. Trois signaux le remplacent :
+1. le **placeholder** — « Commune, lieu-dit ou coordonnées » (32 caractères, limite au-delà de laquelle le contrôle de 280 px tronque) ;
+2. l'**étape 1 de la marche à suivre**, qui porte l'exemple chiffré ;
+3. l'**entrée d'aide au format** dans le déroulant, affichée au moment exact où l'usager tâtonne.
+
+Le contrôle n'ouvre pas de déroulant champ vide (`minChars: 3`) : il n'y a donc pas de suggestions au focus.
+
 ---
 
 ## 5. Couches cartographiques
@@ -625,6 +681,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - Masque le bandeau institutionnel
 - Donne toute la hauteur à la carte
 - Utile pour intégration dans une démarche
+- **La marche à suivre s'ouvre sans prendre le focus** *(v2.25.1)*. Elle reste affichée au démarrage, mais plus aucun `focus()` n'est posé à l'initialisation : un focus posé dans une iframe fait défiler la page qui l'embarque jusqu'à celle-ci, et les pages d'amidomar.beta.gouv.fr s'ouvraient alors en plein milieu, à la hauteur de la carte. Les réouvertures au clic (bouton ❓, modale d'orientation) posent bien le focus, mais avec `preventScroll: true`, qui produit le même effet sans le saut.
 
 ---
 
@@ -811,6 +868,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Toutes les fonctionnalités restent accessibles
 - [ ] Modale d'orientation s'ouvre au démarrage
 - [ ] Bouton ❓ visible même en embed
+- [ ] *(v2.25.1)* Ouvrir une page d'amidomar.beta.gouv.fr qui embarque la carte (Première demande, Poursuite d'occupation, Renonciation) → la page s'affiche **en haut**, pas à la hauteur de l'iframe
+- [ ] *(v2.25.1)* Dans la carte embarquée, fermer puis rouvrir la marche à suivre avec ❓ → le bouton de fermeture reçoit bien le focus (navigation au clavier, `Échap` ferme) **sans** que la page parente ne défile
 
 ### ✅ 18. Sélecteur de fond de carte
 - [ ] Ouvrir le sélecteur de fond de carte (bas-gauche) → seuls les fonds **Simple** et **Aérien** sont proposés dans « Cartes »
@@ -846,9 +905,37 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Activer « réduire les animations » dans le système → le glissement est instantané, sans transition
 - [ ] Après l'arrivée des cartes (le popup grandit), le marqueur est toujours visible
 
+### ✅ 22. Recherche par coordonnées GPS *(v2.25)*
+- [ ] Saisir `43.267710, 6.622611` → une entrée épinglée « Point GPS — 43.267710, 6.622611 » **en tête** du déroulant, avec `43°16.063'N 6°37.357'E` en sous-titre
+- [ ] Rien ne bouge sur la carte tant que l'entrée n'est pas sélectionnée
+- [ ] Sélectionner l'entrée → la carte se centre, le marqueur rouge est posé et le popup s'ouvre comme pour un clic (coordonnées reportables, environnement, règles locales)
+- [ ] Saisir `43,267710, 6,622611` (virgule décimale, copie depuis Excel/Grist) → même point
+- [ ] Saisir `43°16.063'N 6°37.357'E` → même point
+- [ ] Saisir `43°16'03.8"N 6°37'21.4"E` → même point à ~1 m près
+- [ ] Saisir `6.622611, 43.267710` (inversé) → le point est corrigé et le sous-titre indique l'inversion
+- [ ] Saisir `43.26` → entrée d'aide « Format attendu : … » ; cliquer dessus **conserve** `43.26` dans le champ
+- [ ] Saisir `Saint-Tropez` → résultats de communes de la Géoplateforme, **aucune** entrée « Point GPS » parasite
+- [ ] Saisir une coordonnée en Bretagne (`47.4869, -3.0997`, Port-Haliguen) → le point tombe bien dans le Morbihan, longitude négative gérée
+- [ ] Le placeholder affiche « Commune, lieu-dit ou coordonnées » sans troncature
+
 ---
 
 ## 10. Résolution de problèmes courants
+
+### Une page qui embarque la carte s'ouvre au milieu au lieu du haut *(v2.25.1)*
+**À vérifier dans cet ordre :**
+1. **Un `focus()` est-il posé pendant l'initialisation du script ?** C'était la cause en octobre 2026 : `ouvrirGuide()` posait le focus sur `#guide-fermer` au démarrage, et le navigateur fait défiler la page porteuse jusqu'à l'iframe dont un élément prend le focus. Le correctif passe `{ sansFocus: true }` à l'ouverture automatique.
+2. **Un focus posé plus tard l'est-il avec `preventScroll: true` ?** `ouvrirGuide` et `ouvrirModale` doivent l'être — sans quoi le saut revient à la première réouverture.
+3. **Ce n'est pas une ancre.** L'URL de l'iframe n'a pas de `#`, et aucun paramètre d'URL ne pilote ce comportement : le seul paramètre lu est `embed`, qui masque le bandeau. Rien à corriger côté CMS du site porteur.
+4. **Mesurer plutôt que supposer :** sur la page porteuse, comparer `window.scrollY` au chargement avec la position de l'iframe (`iframe.getBoundingClientRect().top + window.scrollY`). Un écart de quelques dizaines de pixels signe un défilement vers l'iframe, pas une restauration de position ni une ancre.
+
+### Une coordonnée saisie n'ouvre pas le popup, ou tombe au mauvais endroit *(v2.25)*
+**À vérifier dans cet ordre :**
+1. **L'entrée a-t-elle été sélectionnée ?** Taper les coordonnées ne suffit pas : il faut cliquer l'entrée « Point GPS » (ou la valider au clavier). C'est volontaire — l'usager confirme l'interprétation avant que la carte bouge.
+2. **Le popup dit « vous êtes à terre » ?** Le point est pris en charge normalement ; c'est la détection terre/eau qui parle (§4.4). Si le fond de carte ne s'est pas chargé, la détection locale n'a rien à lire et l'arbitrage Shom ne peut pas répondre : vérifier d'abord le fond de plan.
+3. **Le point tombe à l'autre bout de la carte ?** Latitude et longitude sont probablement inversées *et* le couple inversé tombait lui aussi dans l'emprise France — le garde-fou ne peut alors pas trancher. Vérifier l'ordre : latitude d'abord.
+4. **Rien ne s'affiche dans le déroulant ?** La saisie fait-elle au moins 3 caractères (`minChars` du contrôle) ? Une saisie de chiffres non interprétable doit afficher l'entrée « Format attendu » — si même elle n'apparaît pas, le provider n'est pas branché : vérifier que `GpsGeocoder` figure bien dans `providers` au `map.addControl`.
+5. **Après une mise à jour de carte-facile :** le contrôle doit toujours exposer l'option `providers` et consommer `label`, `description`, `icon`, `center` et `data` d'un résultat. Une refonte de son API casserait la recherche GPS sans erreur de syntaxe.
 
 ### Les parcelles de cultures marines ne s'affichent pas, ou le clic ne les détecte pas *(v2.18)*
 **À vérifier dans cet ordre :**
@@ -960,6 +1047,28 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.25.1 — 14 octobre 2026
+**Les pages du site qui embarquent la carte s'ouvraient en plein milieu**
+- Constat de Nicolas : sur amidomar.beta.gouv.fr, cliquer « Première demande » ou « Poursuite d'occupation » dans le menu ouvrait la page à la hauteur de la carte, pas en haut.
+- **Ce n'était ni une ancre, ni l'URL renseignée dans le CMS** — piste suivie d'abord, et écartée par la mesure : au chargement, `location.hash` est vide et `window.scrollY` vaut la position de l'iframe à quelques dizaines de pixels près (19 771 px pour une iframe à 19 730 px sur « Première demande » ; 47 078 px pour 47 037 px sur « Poursuite d'occupation »). C'est la signature d'un défilement **vers** l'iframe.
+- **Cause réelle, dans la carte** : `ouvrirGuide()`, appelée à l'initialisation pour afficher la marche à suivre, posait le focus sur `#guide-fermer`. Un focus posé dans une iframe fait défiler la page porteuse jusqu'à cette iframe — comportement normal du navigateur, et d'autant plus spectaculaire que les pages du site sont longues (47 000 px).
+- **Correctif** : `ouvrirGuide(options)` accepte `{ sansFocus: true }`, passé au seul appel d'initialisation ; la marche à suivre s'affiche toujours, sans voler le focus. Les focus volontaires — réouverture par le bouton ❓, `ouvrirModale` — sont conservés pour la navigation au clavier, mais passent en `focus({ preventScroll: true })`, qui donne le focus sans faire défiler quoi que ce soit. L'écouteur du bouton ❓ devient `() => ouvrirGuide()` pour que l'objet `Event` du clic ne soit pas pris pour des options.
+- Aucune ligne du CMS à changer : l'URL `…/?embed` déjà renseignée reste la bonne.
+- Tests : harnais Node (syntaxe, exécution synchrone complète sans exception) plus deux vérifications ciblées — aucun focus posé pendant l'initialisation, et focus reposé avec `preventScroll` à la réouverture. Voir TESTS_FONCTIONNELS.md §6.1quinquies.
+
+### v2.25 — 14 octobre 2026
+**Le champ de recherche accepte les coordonnées GPS, pour les instructeurs**
+- Demande de Nicolas : pouvoir saisir `43.267710, 6.622611` dans la carte pour pointer l'endroit et en faire apparaître les informations — besoin d'instructeur, qui part d'une coordonnée (Ad'hoc, arrêté, signalement) et veut savoir ce qu'il y a là. C'est le symétrique de l'étape 4, où le plaisancier *copie* ses coordonnées vers son formulaire.
+- **Un seul champ, décidé sur le fond** : deux champs auraient obligé l'usager à classer sa saisie avant de taper, et se tromper de champ ne renvoie aucun résultat sans dire pourquoi. `43.267710, 6.622611` n'étant pas confondable avec un nom de commune, la machine tranche seule.
+- **Aucune ligne de la librairie modifiée** : le champ est le `SearchControl` de carte-facile, qui accepte une liste de *providers*. Un provider `GpsGeocoder` est ajouté **avant** `GeopfGeocoder` — il arrive donc en tête du déroulant sans retirer de place aux résultats de communes, et `vendor/carte-facile.js` reste remplaçable par un `npm install`.
+- Cinq formats acceptés, dont deux qui comptent vraiment ici : la **virgule décimale française** (`43,267710, 6,622611`, ce que donne un copier-coller depuis Excel ou Grist) et les **degrés-minutes nautiques** (`43°16.063'N 6°37.357'E`, format des cartes marines, des arrêtés et des GPS de bord).
+- **Garde-fou sur l'inversion latitude / longitude**, l'erreur la plus courante sur des coordonnées recopiées : si le couple saisi tombe hors de France mais que l'inverse y tombe, le point est corrigé et le résultat le dit.
+- **Le clic carte est rejoué au point, plutôt qu'une seconde popup écrite pour l'occasion.** Le corps du gestionnaire de clic est extrait dans `traiterPointCarte(lngLat, point)`, appelée par `map.on('click', …)` comme par la recherche. Un seul chemin de code : terre/eau, cultures marines, APB, zones protégées, nature du fond, règles locales, mouillages voisins et coordonnées reportables sortent tous du même endroit, et aucune divergence ne peut s'installer entre les deux gestes.
+- **Deux idées écartées après lecture de la librairie**, et c'est à retenir : le `fr-hint-text` du DSFR n'est pas applicable (le label du contrôle est masqué visuellement, et un contrôle flottant n'a pas de place pour un texte d'aide), et il n'y a pas de suggestions au focus (`minChars: 3` : rien ne s'ouvre champ vide). La découvrabilité passe donc par le placeholder (32 caractères au plus, au-delà le contrôle de 280 px tronque), l'étape 1 de la marche à suivre qui porte l'exemple chiffré, et une entrée d'aide au format dans le déroulant — affichée là où l'usager tâtonne. Cette entrée reprend la saisie comme libellé, parce que le contrôle recopie le libellé dans le champ : cliquer l'aide ne doit pas effacer ce qui a été tapé.
+- **Régression évitée, du même genre que celles de v2.2 et v2.23** : le renommage `e.lngLat` → `lngLat` lors de l'extraction de la fonction a d'abord touché la ligne de délégation elle-même (`traiterPointCarte(lngLat, …)`, variable inexistante à cet endroit). Attrapée par un comptage d'occurrences avant / après, pas par le test de syntaxe — qui passait.
+- Tests : **53/53** — 32 sur le harnais Node (parseur sur les 5 formats et leurs variantes, inversion, refus des libellés de lieu et des coordonnées hors bornes, contrat du provider) et 21 en Chromium headless (déroulant, épingle, sous-titres, aide au format, non-effacement de la saisie, absence de résultat parasite sur une commune), dont l'**équivalence démontrée entre le clic synthétique et un vrai clic** : même branche de la cascade, même message affiché.
+- **Limite connue** : les tests en navigateur tournent réseau coupé, donc sans fond de carte. La détection terre/eau n'a alors rien à lire et le pipeline part en branche « à terre » — les deux gestes y partant identiquement, l'équivalence est prouvée, mais la chaîne complète au-dessus de l'eau (zones protégées, nature du fond, coordonnées reportables) reste à vérifier en conditions réelles. Voir TESTS_FONCTIONNELS.md §10.
 
 ### v2.24 — 14 octobre 2026
 **Dans une zone autorisée, la règle locale passe au vert au lieu de s'accompagner d'un second bloc**
@@ -1336,4 +1445,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 13 octobre 2026
+**Dernière mise à jour:** 14 octobre 2026

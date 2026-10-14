@@ -758,7 +758,190 @@
     // Tous les outils de carte à droite : la gauche reste à l'usager.
     // Tous les contrôles à gauche : le haut-droite reste libre pour que la
     // colonne de panneaux remonte jusque sous l'en-tête.
-    map.addControl(new CarteFacile.SearchControl, 'top-left');
+
+    /* ========================================================================
+       Recherche par coordonnées GPS  (v2.25)
+
+       Le champ de recherche est celui de carte-facile (CarteFacile.SearchControl).
+       Il accepte plusieurs « providers » interrogés en parallèle, chacun avec son
+       quota de résultats : on en ajoute un, placé AVANT le géocodeur Géoplateforme
+       pour que le point GPS arrive en tête de la liste déroulante. Aucun des
+       résultats « commune / lieu-dit » n'est perdu au passage.
+
+       Un seul champ, et non deux : « 43.267710, 6.622611 » ne peut pas être
+       confondu avec une commune, donc la machine tranche seule — on n'impose pas
+       à l'usager de classer sa saisie avant de taper, au risque de se tromper de
+       champ et de n'obtenir aucun résultat sans comprendre pourquoi.
+
+       Sélectionner le point rejoue le clic carte à cet endroit (voir
+       traiterPointCarte) : interdictions, zones protégées, nature de fond,
+       mouillages voisins et coordonnées sortent du même chemin de code que pour
+       un clic à la souris. Coller des coordonnées, c'est le même geste à l'envers
+       que l'étape 4 de la marche à suivre, où l'usager les copie.
+       ======================================================================== */
+
+    /* Emprise France métropolitaine, Corse comprise. Sert uniquement au
+       garde-fou d'inversion latitude / longitude ci-dessous ; un point hors
+       emprise reste accepté. À élargir si l'expérimentation gagne l'outre-mer. */
+    const EMPRISE_FR = Object.freeze({ latMin:41.0, latMax:51.6, lonMin:-5.6, lonMax:9.8 });
+
+    /* Un agent qui copie depuis Excel ou Grist obtient « 43,267710, 6,622611 » :
+       la virgule décimale française. Quatre groupes de chiffres séparés par des
+       virgules ne peuvent être que deux paires à virgule décimale. Dans les
+       formats nautiques (repérables au signe °), toute virgule entre deux
+       chiffres est décimale. */
+    function normaliserSaisieGps(saisie) {
+      const t = String(saisie || '').trim();
+      const parties = t.split(',').map(x => x.trim());
+      if (parties.length === 4 && parties.every(x => /^-?\d+$/.test(x)))
+        return parties[0] + '.' + parties[1] + ', ' + parties[2] + '.' + parties[3];
+      if (t.indexOf('°') !== -1) return t.replace(/(\d),(\d)/g, '$1.$2');
+      return t;
+    }
+
+    function signeHemisphere(valeur, hemisphere) {
+      const h = (hemisphere || '').toUpperCase();
+      return (h === 'S' || h === 'W' || h === 'O') ? -Math.abs(valeur) : valeur;
+    }
+
+    /* Degrés décimaux : 43.267710, 6.622611  (virgule, point-virgule ou espace) */
+    const RE_GPS_DD  = /^(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([NSns])?\s*[,;\s]+\s*(-?\d{1,3}(?:\.\d+)?)\s*°?\s*([EWOewo])?$/;
+    /* Degrés-minutes décimales : 43°16.063'N 6°37.357'E — format des cartes
+       marines, des arrêtés et des GPS de bord, donc celui que les instructeurs
+       ont le plus souvent sous les yeux. */
+    const RE_GPS_DM  = /^(\d{1,3})\s*°\s*(\d{1,2}(?:\.\d+)?)\s*['′]?\s*([NSns])?\s*[,;\s]*\s*(\d{1,3})\s*°\s*(\d{1,2}(?:\.\d+)?)\s*['′]?\s*([EWOewo])?$/;
+    /* Degrés-minutes-secondes : 43°16'03.8"N 6°37'21.4"E */
+    const RE_GPS_DMS = /^(\d{1,3})\s*°\s*(\d{1,2})\s*['′]\s*(\d{1,2}(?:\.\d+)?)\s*["″]?\s*([NSns])?\s*[,;\s]*\s*(\d{1,3})\s*°\s*(\d{1,2})\s*['′]\s*(\d{1,2}(?:\.\d+)?)\s*["″]?\s*([EWOewo])?$/;
+
+    /* Rend { lat, lon, format, inverse } ou null si la saisie n'est pas des
+       coordonnées. Ne jette jamais : le champ reçoit du texte libre. */
+    function parserCoordonnees(saisie) {
+      const t = normaliserSaisieGps(saisie);
+      let lat, lon, format, m;
+
+      if ((m = t.match(RE_GPS_DMS))) {
+        lat = signeHemisphere(+m[1] + +m[2]/60 + +m[3]/3600, m[4]);
+        lon = signeHemisphere(+m[5] + +m[6]/60 + +m[7]/3600, m[8]);
+        format = 'DMS';
+      } else if ((m = t.match(RE_GPS_DM))) {
+        lat = signeHemisphere(+m[1] + +m[2]/60, m[3]);
+        lon = signeHemisphere(+m[4] + +m[5]/60, m[6]);
+        format = 'DM';
+      } else if ((m = t.match(RE_GPS_DD))) {
+        lat = signeHemisphere(+m[1], m[2]);
+        lon = signeHemisphere(+m[3], m[4]);
+        format = 'DD';
+      } else {
+        return null;
+      }
+      if (!isFinite(lat) || !isFinite(lon)) return null;
+      if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+
+      /* Inversion latitude / longitude : l'erreur la plus courante sur des
+         coordonnées recopiées. Si le couple saisi tombe hors de France mais que
+         le couple inverse y tombe, on corrige et on le dit dans le résultat. */
+      const dansEmprise = (a, b) =>
+        a >= EMPRISE_FR.latMin && a <= EMPRISE_FR.latMax &&
+        b >= EMPRISE_FR.lonMin && b <= EMPRISE_FR.lonMax;
+      if (!dansEmprise(lat, lon) && dansEmprise(lon, lat))
+        return { lat:lon, lon:lat, format, inverse:true };
+      return { lat, lon, format, inverse:false };
+    }
+
+    /* Restitution dans les deux formats affichés dans le résultat. */
+    function formaterCoordonnees(lat, lon) {
+      const dm = (v, pos, neg) => {
+        const d = Math.floor(Math.abs(v));
+        const m = (Math.abs(v) - d) * 60;
+        return d + '°' + m.toFixed(3) + "'" + (v >= 0 ? pos : neg);
+      };
+      return {
+        dd: lat.toFixed(6) + ', ' + lon.toFixed(6),
+        dm: dm(lat, 'N', 'S') + ' ' + dm(lon, 'E', 'W')
+      };
+    }
+
+    /* Saisie faite uniquement de chiffres et de signes de coordonnées : l'usager
+       visait des coordonnées sans y arriver. Répondre « aucun résultat » serait
+       un échec muet ; on lui montre le format attendu. */
+    function viseDesCoordonnees(saisie) {
+      const t = String(saisie || '');
+      return /\d/.test(t) && /^[\s\d.,;°'"′″NSEWOnsewo+-]+$/.test(t);
+    }
+
+    /* Le point doit être dans la fenêtre avant de rejouer le clic :
+       queryRenderedFeatures et estSurLEau lisent la carte RENDUE, et la carte
+       fantôme suit la carte principale sur 'move'. D'où le centrage, puis
+       l'attente des tuiles. */
+    function attendreCarteStable(delaiMaxMs) {
+      const limite = Date.now() + (delaiMaxMs || 4000);
+      return new Promise(resolve => {
+        const tic = () => {
+          const pret = !map.isMoving() && map.areTilesLoaded() && mapTerrain.areTilesLoaded();
+          if (pret || Date.now() > limite) resolve();
+          else setTimeout(tic, 100);
+        };
+        tic();
+      });
+    }
+
+    async function allerAuPointGps(coords) {
+      const lngLat = new maplibregl.LngLat(coords.lon, coords.lat);
+      map.jumpTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16) });
+      await attendreCarteStable();
+      /* Clic synthétique : tout le traitement d'un point est déjà écrit une
+         fois pour le clic souris, y compris les écouteurs de couche (port,
+         ZMEL). Le rejouer évite un second chemin de code à maintenir. */
+      map.fire('click', { lngLat, point: map.project(lngLat), originalEvent: null });
+    }
+
+    const GpsGeocoder = {
+      name: 'gps',
+      /* Le label du contrôle est masqué visuellement et il n'y a pas de place
+         pour un texte d'aide sous un contrôle flottant : le placeholder est le
+         seul signal permanent. L'exemple chiffré est porté par l'étape 1 de la
+         marche à suivre. 32 caractères au plus, au-delà c'est tronqué. */
+      placeholder: 'Commune, lieu-dit ou coordonnées',
+
+      async search(query) {
+        const coords = parserCoordonnees(query);
+        if (coords) {
+          const f = formaterCoordonnees(coords.lat, coords.lon);
+          return [{
+            label: 'Point GPS — ' + f.dd,
+            description: coords.inverse
+              ? 'Latitude et longitude semblaient inversées : remises dans l’ordre'
+              : f.dm,
+            icon: 'pin',
+            center: [coords.lon, coords.lat],
+            data: { gps: coords }
+          }];
+        }
+        if (viseDesCoordonnees(query)) {
+          /* Le libellé reprend la saisie telle quelle : le contrôle recopie le
+             libellé dans le champ quand on sélectionne une entrée, donc cliquer
+             sur cette aide laisse la saisie intacte au lieu de l'effacer. */
+          return [{
+            label: query,
+            description: 'Format attendu : 43.267710, 6.622611 — ou 43°16.063\'N 6°37.357\'E',
+            data: { aide: true }
+          }];
+        }
+        return [];
+      },
+
+      onClear() { /* le clic rejoué gère lui-même marqueur et popup */ },
+
+      async onSelect(result) {
+        const coords = result.data && result.data.gps;
+        if (!coords) return;            // entrée d'aide au format : rien à faire
+        await allerAuPointGps(coords);
+      }
+    };
+
+    map.addControl(new CarteFacile.SearchControl({
+      providers: [GpsGeocoder, CarteFacile.GeopfGeocoder]
+    }), 'top-left');
     map.addControl(new maplibregl.NavigationControl, 'top-left');
     map.addControl(new maplibregl.GeolocateControl, 'top-left');
     map.addControl(new CarteFacile.MapSelectorControl({ styles: ['simple', 'aerial'], overlays: [] }), 'bottom-left');
@@ -911,7 +1094,9 @@
         <li class="etape fixe">
           <span class="puce">1</span>
           <span class="etape-txt"><strong>Recherchez ou zoomez</strong> sur le
-            secteur qui vous intéresse.</span>
+            secteur qui vous intéresse. Le champ de recherche accepte une
+            commune, un lieu-dit ou des coordonnées GPS
+            (ex.&nbsp;43.267710,&nbsp;6.622611).</span>
         </li>
         <li class="etape fixe verte">
           <span class="puce">2</span>
@@ -1053,8 +1238,16 @@
 
     /* ---------- Ouverture et réouverture de la marche à suivre ---------- */
     const guide = document.getElementById('guide');
-    function ouvrirGuide()  { guide.classList.add('ouverte');
-                              document.getElementById('guide-fermer').focus(); }
+    /* Le focus n'est posé que lorsque l'usager ouvre lui-même le guide. À
+       l'ouverture automatique, le poser ferait défiler la page qui embarque la
+       carte en iframe jusqu'à celle-ci : le visiteur d'amidomar.beta.gouv.fr
+       atterrissait au milieu de la page au lieu du haut. preventScroll évite le
+       même saut lors d'une réouverture au clic. */
+    function ouvrirGuide(options) {
+      guide.classList.add('ouverte');
+      if (!(options && options.sansFocus))
+        document.getElementById('guide-fermer').focus({ preventScroll: true });
+    }
     function fermerGuide()  { guide.classList.remove('ouverte'); }
     document.getElementById('guide-fermer').addEventListener('click', fermerGuide);
     document.getElementById('guide-commencer').addEventListener('click', fermerGuide);
@@ -1066,7 +1259,7 @@
     rouvrir.textContent = '?';
     rouvrir.title = 'Revoir le fonctionnement de la carte';
     rouvrir.setAttribute('aria-label', 'Revoir le fonctionnement de la carte');
-    rouvrir.addEventListener('click', ouvrirGuide);
+    rouvrir.addEventListener('click', () => ouvrirGuide());
     wrap.appendChild(rouvrir);
     // Se place sous les contrôles de carte, mesurés plutôt que supposés.
     function placerRouvrir() {
@@ -1078,7 +1271,7 @@
     setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 400);
     setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 1500);
 
-    ouvrirGuide();   // la carte s'ouvre sur ses explications
+    ouvrirGuide({ sansFocus: true });   // la carte s'ouvre sur ses explications, sans voler le focus
 
     /* ---------- Géométrie : cercle en mètres ---------- */
     function cercle(lon, lat, rayonM, pts = 72) {
@@ -1426,7 +1619,7 @@
       document.getElementById('modale-texte').innerHTML = texte;
       document.getElementById('modale-note').textContent = note || '';
       modale.classList.add('ouverte');
-      document.getElementById('modale-fermer').focus();
+      document.getElementById('modale-fermer').focus({ preventScroll: true });
     }
     function fermerModale() { modale.classList.remove('ouverte'); }
     document.getElementById('modale-fermer').addEventListener('click', fermerModale);
@@ -2518,27 +2711,31 @@
     // clic qu'un clic plus récent a remplacé.
     let jetonClic = 0;
 
-    map.on('click', async e => {
-      const { lng, lat } = e.lngLat;
+    map.on('click', e => { traiterPointCarte(e.lngLat, e.point); });
+
+    /* Le corps du clic est une fonction nommée pour que la recherche par
+       coordonnées GPS (voir GpsGeocoder) emprunte exactement le même chemin. */
+    async function traiterPointCarte(lngLat, point) {
+      const { lng, lat } = lngLat;
       const jeton = ++jetonClic;
 
       // Un clic sur un port ou une ZMEL ouvre leur modale dédiée (gérée par les
       // écouteurs attachés à ces couches, plus haut) : ni AOT individuel, ni
       // marqueur, ni popup de coordonnées n'ont de sens sur ces zones.
       const ciblesOrientation = ['ports-pts-c','zmel-fill'].filter(l => map.getLayer(l));
-      if (ciblesOrientation.length && map.queryRenderedFeatures(e.point, { layers:ciblesOrientation }).length) return;
+      if (ciblesOrientation.length && map.queryRenderedFeatures(point, { layers:ciblesOrientation }).length) return;
 
       // La détection locale est instantanée mais classe plages, dunes et marais
       // comme de la terre. Elle ne vaut donc plus qu'en première instance : son
       // verdict « à terre » est soumis au trait terre-mer du Shom, qui place
       // l'estran du côté mer. Un point confirmé sur le DPM passe. L'appel réseau
       // n'a lieu QUE sur ce cas contesté : un clic en pleine eau n'attend rien.
-      if (estSurLEau(e.lngLat) === false) {
+      if (estSurLEau(lngLat) === false) {
         afficherEnvironnement('', '');
         boatBlock.style.display = 'none';
         popup.classList.add('visible', 'terre');
         hint.textContent = "Vérification de l'emplacement…";
-        const ttm = await interrogerTraitTerreMer(e.lngLat);
+        const ttm = await interrogerTraitTerreMer(lngLat);
         if (jeton !== jetonClic) return;          // un clic plus récent a pris la main
         if (!ttm || !ttm.surDPM) {
           // Terre confirmée par le Shom, ou service indisponible : on conserve le
@@ -2576,8 +2773,8 @@
       afficherEnvironnement('<p><em>Vérification de la zone…</em></p>', 'neutre');
 
       const [apb, cm] = await Promise.all([
-        interrogerAPB(e.lngLat),
-        interrogerCulturesMarines(e.lngLat)
+        interrogerAPB(lngLat),
+        interrogerCulturesMarines(lngLat)
       ]);
       if (jeton !== jetonClic) return;            // v2.14 : clic remplacé pendant l'attente
       if (apb.length) {
@@ -2646,9 +2843,9 @@
       // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
       // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
       const [{ natura, znieff, echec }, fond, dep, fiches, zones] = await Promise.all([
-        interrogerZonesProtegees(e.lngLat),
-        interrogerNatureFond(e.lngLat),
-        interrogerDepartement(e.lngLat),
+        interrogerZonesProtegees(lngLat),
+        interrogerNatureFond(lngLat),
+        interrogerDepartement(lngLat),
         chargerMessagesDDTM(),
         chargerZonesAOT()
       ]);
@@ -2706,7 +2903,7 @@
       // Côtes-d'Armor ne délivrent plus d'AOT du tout) : la lire après la nature
       // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
       // peut s'afficher sans l'autre.
-      const reglesLocales = blocReglesLocales(dep, fiches, zones, e.lngLat);
+      const reglesLocales = blocReglesLocales(dep, fiches, zones, lngLat);
       const contexte = aMontrer.length
         ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
         : '';
@@ -2721,7 +2918,7 @@
       degagerPointSousPopup();
 
       recalculer();
-    });
+    }
 
     /* ---------- Fermeture du popup de coordonnées ----------
        Fermer ne fait pas que masquer le panneau : ça désélectionne le point

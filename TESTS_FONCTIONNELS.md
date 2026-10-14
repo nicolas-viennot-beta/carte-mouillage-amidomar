@@ -14,7 +14,27 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 14 oct. 2026 — recalibrage du garde-fou de couverture.**
+**Dernière exécution : 14 oct. 2026 (v2.25) — recherche par coordonnées GPS.**
+- Harnais Node.js (`vm`, globaux simulés) sur le fichier courant : §6.1 (syntaxe
+  des deux blocs `<script>`) et §6.1bis (phase synchrone exécutée en entier, sans
+  exception) — OK. Puis 32 assertions ciblées, **32/32** : §10.1 à §10.4
+  (parseur sur les 5 formats et leurs variantes, inversion lat/lon, refus des
+  libellés de lieu et des coordonnées hors bornes, contrat du provider).
+- Chromium headless (Playwright, réseau externe coupé net par `page.route`),
+  21 assertions, **21/21** : §10.5 à §10.9, dont §10.8, l'équivalence entre le
+  clic synthétique et un vrai clic.
+- **Limite de cette exécution** : réseau coupé, donc aucun fond de carte. La
+  détection terre/eau n'a rien à lire et le pipeline part en branche « à terre »
+  pour les deux gestes — ce qui prouve l'équivalence mais laisse la chaîne
+  au-dessus de l'eau (zones protégées, nature du fond, coordonnées reportables)
+  à vérifier en conditions réelles. Voir §10.10.
+- **Non rejoué :** §1 à §5, §7, §8, §9. Le changement n'ajoute aucune donnée ni
+  couche, ne touche ni le contrat terre/eau ni le trait terre-mer, et le corps du
+  gestionnaire de clic est déplacé sans être modifié (renommage de `e.lngLat`
+  en `lngLat` et de `e.point` en `point`, vérifié par comptage d'occurrences).
+  Le chargement complet de la page ne lève aucune `pageerror`.
+
+**Exécution précédente : 14 oct. 2026 — recalibrage du garde-fou de couverture.**
 - Harnais Node.js sur le fichier courant (v2.19 + travaux v2.20 en cours) :
   §6.1 (syntaxe) et §6.1bis (phase synchrone complète, sans exception) — OK.
 - Chromium headless (Playwright, services rejoués), 26 assertions, **26/26** :
@@ -1262,8 +1282,45 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
      les fichiers territoriaux ne sont pas tous renommés.
    - Vérification : exécution (parse JSON) + lecture du code.
 
+1quinquies. **Aucun vol de focus à l'initialisation (embed en iframe, v2.25.1)**
+   - *Dernière exécution : 14 oct. 2026 (v2.25.1) — harnais Node.js : 0 focus
+     posé pendant la phase synchrone ; `ouvrirGuide()` rappelée à la main pose
+     bien 1 focus, avec `{ preventScroll: true }`.*
+   - Contexte : la carte est embarquée en iframe dans les pages de
+     amidomar.beta.gouv.fr. Un `focus()` posé dans une iframe fait défiler la
+     page porteuse jusqu'à cette iframe ; la page s'ouvrait donc au milieu.
+     Voir DOCUMENTATION_FONCTIONNELLE.md §11, v2.25.1.
+   - Action : dans le harnais Node (§6.1bis), instrumenter la méthode `focus`
+     du stub d'élément DOM pour enregistrer chaque appel **et son argument**,
+     puis exécuter le script et relever les appels survenus pendant la phase
+     synchrone. Rappeler ensuite `ouvrirGuide()` sans argument (chemin de la
+     réouverture au clic ❓) et relever le nouvel appel.
+   - Attendu :
+     - **zéro** appel à `focus()` pendant l'initialisation — l'appel
+       `ouvrirGuide({ sansFocus: true })` ne doit poser aucun focus ;
+     - l'appel issu de `ouvrirGuide()` sans argument doit exister (le focus
+       reste nécessaire à la navigation au clavier) et porter
+       `{ preventScroll: true }` ;
+     - `ouvrirModale` doit elle aussi poser son focus avec `preventScroll`
+       (lecture du code suffit).
+   - Piège à ne pas réintroduire : `rouvrir.addEventListener('click',
+     ouvrirGuide)` passerait l'objet `Event` du clic comme `options` — inoffensif
+     aujourd'hui, mais fragile si un drapeau est ajouté. L'écouteur doit rester
+     `() => ouvrirGuide()`.
+   - Vérification : exécution (Node.js). Vérification en conditions réelles
+     après déploiement : ouvrir une page du site qui embarque la carte et
+     contrôler que `window.scrollY` vaut 0 au chargement (une valeur proche de
+     `iframe.getBoundingClientRect().top + window.scrollY` signe la régression).
+
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 25 sept. 2026 (v2.5) — harnais Node.js (`vm`,
+   - *Dernière exécution : 14 oct. 2026 (v2.25) — harnais Node.js (`vm`, globaux
+     simulés, stub `CarteFacile.SearchControl` et `maplibregl.LngLat`) : phase
+     synchrone exécutée en entier, sans exception ; écouteurs `move`, `error` et
+     `click` bien enregistrés. Les fonctions de la recherche GPS étant en liaison
+     lexicale (`const`), elles ne sont pas visibles depuis le sandbox : le harnais
+     ajoute en fin de script une ligne de pont (`globalThis.__t = {…}`) pour les
+     tester. Puis chargement complet dans Chromium headless sans `pageerror`.*
+   - *Exécution précédente : 25 sept. 2026 (v2.5) — harnais Node.js (`vm`,
      globaux simulés) : phase synchrone exécutée en entier, sans erreur ; puis
      chargement complet dans Chromium headless sans `pageerror` (§5/17).*
    - *Exécution précédente : 23 sept. 2026 (v2.3) — chargement complet dans
@@ -1690,6 +1747,165 @@ toute côte) → aucun bloc, aucune erreur.*
    - Vérification : lecture du code, puis contrôle visuel — la carte orange doit se
      distinguer au premier coup d'œil des cartes bleue et sable, qui gardent leur
      filet gauche.
+
+---
+
+## 10. Recherche par coordonnées GPS dans le champ de recherche (v2.25)
+
+*Le champ est le `SearchControl` de carte-facile, alimenté par un provider
+`GpsGeocoder` placé avant `GeopfGeocoder`. Les tests 1 à 4 s'exécutent dans le
+harnais Node.js ; les tests 5 à 9 en Chromium headless sur le serveur local.
+Harnais : `executer.mjs` et `test_recherche_gps.mjs` (hors dépôt, dossier de
+travail de Claude).*
+
+**Note sur le harnais Node.js :** `parserCoordonnees`, `GpsGeocoder` et leurs
+voisines sont déclarées en `const` au niveau racine du script, donc en liaison
+lexicale et **non** sur l'objet global. Elles sont inaccessibles depuis le
+sandbox `vm` sans ajouter en fin de script une ligne de pont du type
+`globalThis.__t = { parserCoordonnees, GpsGeocoder, … }`. Sans ce pont, les
+tests échouent sur `Cannot read properties of undefined` et non sur le code.
+
+1. **Parseur — les cinq formats attendus**
+   - Action : appeler `parserCoordonnees` sur chaque saisie et comparer à la
+     valeur attendue (tolérance 2·10⁻⁴ degré, soit ~20 m).
+   - Attendu :
+
+     | Saisie | lat | lon | `format` |
+     |--------|-----|-----|----------|
+     | `43.267710, 6.622611` | 43.267710 | 6.622611 | `DD` |
+     | `43,267710, 6,622611` | 43.267710 | 6.622611 | `DD` |
+     | `43.267710 6.622611` | 43.267710 | 6.622611 | `DD` |
+     | `43.267710; 6.622611` | 43.267710 | 6.622611 | `DD` |
+     | `43°16.063'N 6°37.357'E` | 43.267717 | 6.622617 | `DM` |
+     | `43°16,063'N 6°37,357'E` | 43.267717 | 6.622617 | `DM` |
+     | `43°16'03.8"N 6°37'21.4"E` | 43.267722 | 6.622611 | `DMS` |
+     | `47.4869, -3.0997` | 47.4869 | −3.0997 | `DD` |
+     | `47°29.214'N 3°05.982'W` | 47.4869 | −3.0997 | `DM` |
+
+   - *Les deux derniers cas comptent autant que les autres* : la Bretagne est en
+     longitude **négative**, et l'hémisphère `W` doit produire ce signe aussi
+     bien que le `-` explicite. Un parseur testé seulement sur le Var passerait
+     en envoyant les points bretons en Asie centrale.
+   - Vérification : exécution (Node.js).
+
+2. **Parseur — ce qui doit être refusé**
+   - Action : appeler `parserCoordonnees` sur `Saint-Tropez`, `Le Pradic`,
+     `Quiberon`, `abc`, `''`, `'  '`, `91.5, 6.6`, `43.2, 200.1`, `43.26`.
+   - Attendu : `null` dans **tous** les cas. Les trois premiers sont des libellés
+     de lieu réels de la carte (ports, ZMEL) : un faux positif les empêcherait
+     d'être cherchés. Les deux suivants sortent des bornes ±90 / ±180. Le dernier
+     est une saisie incomplète, qui doit relever de l'aide au format (test 4) et
+     non d'un point.
+   - Vérification : exécution (Node.js).
+
+3. **Parseur — garde-fou d'inversion latitude / longitude**
+   - Action : appeler `parserCoordonnees('6.622611, 43.267710')`.
+   - Attendu : `{ lat: 43.26771, lon: 6.622611, inverse: true }` — le couple est
+     remis dans l'ordre et le drapeau `inverse` est posé pour que le résultat
+     puisse le dire.
+   - Attendu également : un point dont le couple saisi **et** le couple inversé
+     tombent tous deux dans `EMPRISE_FR` n'est **pas** corrigé (le garde-fou ne
+     peut pas trancher) ; un point hors emprise dont l'inverse est aussi hors
+     emprise est accepté tel quel, sans correction.
+   - Vérification : exécution (Node.js).
+
+4. **Contrat du provider `GpsGeocoder`**
+   - Action : lire `GpsGeocoder` et appeler `search()` sur quatre saisies.
+   - Attendu : `name === 'gps'` ; `placeholder` de **32 caractères au plus** (le
+     contrôle fait 280 px et tronque au-delà) ;
+     - coordonnées valides → **un** résultat, `icon === 'pin'`, libellé
+       `Point GPS — <DD>`, `center` au format **`[lon, lat]`** (et non l'inverse —
+       MapLibre attend cet ordre), `data.gps` renseigné ;
+     - couple inversé → `description` contenant « invers » ;
+     - saisie numérique incomplète (`43.26`) → un résultat `data.aide === true`
+       dont le **libellé est la saisie elle-même** (le contrôle recopie le libellé
+       dans le champ à la sélection : un autre libellé effacerait ce que l'usager
+       a tapé) ;
+     - libellé de lieu → **tableau vide**, pour ne pas polluer les résultats de la
+       Géoplateforme.
+   - Attendu aussi : `onSelect` sur une entrée d'aide ne fait rien et ne jette pas.
+   - Vérification : exécution (Node.js).
+
+5. **Déroulant — entrée GPS en tête, avec son sous-titre**
+   - Action : taper `43.267710, 6.622611` dans `.cartefacile-ctrl-search__input`,
+     attendre le debounce (300 ms, prévoir 700 ms).
+   - Attendu : un `.cartefacile-ctrl-search__result` en **première** position,
+     texte `Point GPS — 43.267710, 6.622611` avec `43°16.063'N 6°37.357'E` en
+     sous-titre, et la classe `cartefacile-ctrl-search__result--has-pin`.
+   - Attendu également : **rien n'a bougé sur la carte** à ce stade.
+   - Vérification : Chromium headless.
+
+6. **Sélection — la carte se centre et le popup s'ouvre**
+   - Action : cliquer l'entrée, attendre ~6 s (`attendreCarteStable` plafonne à
+     4 s, puis le pipeline s'exécute).
+   - Attendu : `#coords-popup` porte la classe `visible` ; le champ de recherche
+     affiche `Point GPS — 43.267710, 6.622611` ; aucune `pageerror`.
+   - Vérification : Chromium headless.
+
+7. **Variantes de saisie dans l'interface**
+   - Action : taper successivement `43,267710, 6,622611`,
+     `43°16.063'N 6°37.357'E`, `6.622611, 43.267710`.
+   - Attendu : les deux premières donnent le même point que le test 5 ; la
+     troisième affiche `Point GPS — 43.267710, 6.622611` **et** le message
+     d'inversion dans le sous-titre.
+   - Vérification : Chromium headless.
+
+8. **Équivalence entre le clic synthétique et un vrai clic — test central**
+   - Action : relever l'état de `#coords-popup` (classes `visible` et `terre`,
+     contenu de `#coords-text` et de `#coords-hint`) après une sélection GPS ;
+     fermer le popup ; faire un **vrai** clic souris au centre de `#map` ;
+     relever le même état.
+   - Attendu : **état identique** pour les deux gestes — même branche de la
+     cascade, même message. C'est la seule assertion qui vérifie la promesse de
+     conception (un seul chemin de code) ; tout le reste pourrait passer avec
+     deux implémentations divergentes.
+   - *Pourquoi ce test est formulé en comparaison et non en valeur absolue* :
+     réseau coupé, il n'y a pas de fond de carte, donc `estSurLEau` n'a rien à
+     lire et les deux gestes partent en branche « à terre » avec
+     `#coords-text` vide. Attendre une valeur absolue ferait échouer le test sur
+     l'environnement et non sur le code. Comparer les deux gestes reste valide
+     dans toutes les conditions.
+   - Vérification : Chromium headless.
+
+9. **Aide au format et absence de parasitage**
+   - Action : taper `43.26`, puis cliquer l'entrée proposée. Puis taper
+     `Saint-Tropez`.
+   - Attendu : `43.26` affiche une entrée contenant « Format attendu » ; cliquer
+     dessus laisse **`43.26`** dans le champ (et non le libellé de l'aide).
+     `Saint-Tropez` n'affiche **aucune** entrée « Point GPS » ni « Format
+     attendu ».
+   - Vérification : Chromium headless.
+
+10. **À vérifier en conditions réelles — non couvert par les harnais**
+   - Les harnais tournent réseau coupé : le fond de carte, le trait terre-mer du
+     Shom, l'API Carto et les flux de cultures marines ne répondent pas. La
+     chaîne complète déclenchée par une sélection GPS **au-dessus de l'eau**
+     n'est donc pas vérifiée de bout en bout.
+   - Action, dans un navigateur réel sur la version publiée : saisir
+     `43.267710, 6.622611` (golfe de Saint-Tropez, en mer) et sélectionner
+     l'entrée.
+   - Attendu : marqueur rouge posé, `#coords-text` renseigné avec
+     `43.267710, 6.622611`, bloc environnemental complété (Natura 2000 / ZNIEFF,
+     nature du fond), bloc de règles locales de la DDTM 83, et — le point étant
+     à quelques dizaines de mètres de mouillages du jeu de données — le bloc de
+     proximité avec le formulaire de rayon d'évitage.
+   - Attendu également : saisir `47.4869, -3.0997` (Port-Haliguen) ouvre la
+     **modale du port**, pas le popup de coordonnées — les écouteurs de couche
+     doivent répondre au clic rejoué comme à un clic souris.
+   - Vérification : navigateur réel. **Tant que ce test n'est pas passé, la
+     fonctionnalité est vérifiée dans sa logique mais pas dans son intégration
+     cartographique.**
+
+11. **Après une mise à jour de carte-facile**
+   - Action : à chaque `npm install carte-facile` suivi d'une recopie dans
+     `vendor/`, vérifier que `SearchControl` expose toujours l'option
+     `providers`, et qu'un résultat de provider est toujours consommé via
+     `label`, `locationSuffix`, `description`, `icon`, `center` et `data`.
+   - Attendu : contrat inchangé. Une refonte de cette API casserait la recherche
+     GPS **sans erreur de syntaxe ni erreur de console** — le déroulant
+     n'afficherait simplement plus l'entrée GPS.
+   - Vérification : lecture de `vendor/carte-facile.js` (`class SearchControl`,
+     `_createResultItem`, `_selectEntry`) + rejeu des tests 5 à 9.
 
 ---
 
