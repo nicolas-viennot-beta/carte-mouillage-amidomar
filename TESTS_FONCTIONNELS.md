@@ -14,7 +14,16 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 14 oct. 2026 (v2.25.2) — vérification sur la version publiée.**
+**Dernière exécution : 14 oct. 2026 (v2.25.3) — zoom d'arrivée, sur la version publiée.**
+- §10.4bis (plancher de zoom à 14) : **OK** en fenêtre 1440×900.
+- §10.12 rejoué à ce nouveau zoom : **OK** — la modale de Port-Haliguen s'ouvre
+  toujours, un cadrage plus large ne réduit pas la détection des entités.
+- Harnais Node : 32/32, inchangé.
+- Méthode : **juger un réglage visuel sur une fenêtre large**. Le volet de test
+  à 800 px fait écraser la carte par le popup et le panneau de légende à *tous*
+  les zooms — on y conclurait de travers.
+
+**Exécution précédente : 14 oct. 2026 (v2.25.2) — vérification sur la version publiée.**
 - §10.10 (chaîne complète au-dessus de l'eau) : **OK** sur `43.267710, 6.622611`.
 - §10.12 (arrivée de loin, écouteurs de couche) : **ÉCHEC d'abord**, bug réel
   trouvé et corrigé en v2.25.2 — l'attente avant le clic rejoué passe de
@@ -1847,6 +1856,13 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
    - Vérification : exécution (Node.js).
 
 4bis. **Niveau de zoom à l'arrivée (v2.25.3)**
+   - *Dernière exécution : 14 oct. 2026, sur la version publiée (2ce7fb3), en
+     fenêtre 1440×900 — arrivée depuis la vue France sur
+     `43.267710, 6.622611` : la baie de la Bouillabaisse, le littoral, la zone
+     AOT, le port de Saint-Tropez et les mouillages voisins sont tous lisibles,
+     et le popup ne masque plus la carte. **OK.** §10.12 rejoué dans la foulée à
+     ce zoom : la modale de Port-Haliguen s'ouvre toujours — dézoomer n'a pas
+     réduit la détection des entités au clic rejoué.*
    - Action : lire `allerAuPointGps` dans `index.html`.
    - Attendu : `Math.max(map.getZoom(), 14)` — un **plancher** à 14, pas un zoom
      fixe et pas 16.
