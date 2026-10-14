@@ -14,7 +14,19 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 14 oct. 2026 (v2.25) — recherche par coordonnées GPS.**
+**Dernière exécution : 14 oct. 2026 (v2.25.2) — vérification sur la version publiée.**
+- §10.10 (chaîne complète au-dessus de l'eau) : **OK** sur `43.267710, 6.622611`.
+- §10.12 (arrivée de loin, écouteurs de couche) : **ÉCHEC d'abord**, bug réel
+  trouvé et corrigé en v2.25.2 — l'attente avant le clic rejoué passe de
+  `isMoving()`/`areTilesLoaded()` à l'événement `idle` de MapLibre. Harnais Node
+  rejoué après correctif : 32/32. **§10.12 reste à rejouer sur la version
+  publiée après déploiement de la v2.25.2.**
+- Enseignement : le test d'équivalence du §10.8 passait au vert pour une
+  mauvaise raison (sans fond de carte, les deux gestes partent en branche
+  « à terre » avant `queryRenderedFeatures`). Un harnais headless sans réseau ne
+  peut pas couvrir ce qui dépend de ce que la carte a réellement peint.
+
+**Exécution précédente : 14 oct. 2026 (v2.25) — recherche par coordonnées GPS.**
 - Harnais Node.js (`vm`, globaux simulés) sur le fichier courant : §6.1 (syntaxe
   des deux blocs `<script>`) et §6.1bis (phase synchrone exécutée en entier, sans
   exception) — OK. Puis 32 assertions ciblées, **32/32** : §10.1 à §10.4
@@ -1876,7 +1888,13 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      attendu ».
    - Vérification : Chromium headless.
 
-10. **À vérifier en conditions réelles — non couvert par les harnais**
+10. **Chaîne complète au-dessus de l'eau — en conditions réelles**
+   - *Dernière exécution : 14 oct. 2026, sur la version publiée (v2.25) —
+     `43.267710, 6.622611` : marqueur posé, point reconnu sur l'eau (pas de
+     branche « à terre »), `#coords-text` = `43.267710, 6.622611`, rattachement
+     « Var (83) », règle locale au vert avec la zone « Saint-Tropez — La
+     Bouillabaisse, zone 1 », nature du fond et cultures marines renseignées.
+     **OK.***
    - Les harnais tournent réseau coupé : le fond de carte, le trait terre-mer du
      Shom, l'API Carto et les flux de cultures marines ne répondent pas. La
      chaîne complète déclenchée par une sélection GPS **au-dessus de l'eau**
@@ -1889,12 +1907,33 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      nature du fond), bloc de règles locales de la DDTM 83, et — le point étant
      à quelques dizaines de mètres de mouillages du jeu de données — le bloc de
      proximité avec le formulaire de rayon d'évitage.
-   - Attendu également : saisir `47.4869, -3.0997` (Port-Haliguen) ouvre la
-     **modale du port**, pas le popup de coordonnées — les écouteurs de couche
-     doivent répondre au clic rejoué comme à un clic souris.
    - Vérification : navigateur réel. **Tant que ce test n'est pas passé, la
      fonctionnalité est vérifiée dans sa logique mais pas dans son intégration
      cartographique.**
+
+12. **Arrivée de loin : les écouteurs de couche doivent répondre au clic rejoué (v2.25.2)**
+   - *Ce test a trouvé un vrai bug le 14/10/2026 — voir
+     DOCUMENTATION_FONCTIONNELLE.md §11, v2.25.2. Il n'est PAS reproductible en
+     harnais headless : sans fond de carte, les deux gestes partent en branche
+     « à terre » avant d'atteindre `queryRenderedFeatures`, et le test
+     d'équivalence du §10.8 passe au vert pour une mauvaise raison.*
+   - Action, dans un navigateur réel, **en deux temps et dans cet ordre** :
+     1. saisir d'abord `43.267710, 6.622611` (Var), pour que la carte soit loin
+        de la Bretagne ; fermer le popup ;
+     2. saisir ensuite `47.4869, -3.0997` (Port-Haliguen, Morbihan).
+   - Attendu : la **modale « Port de plaisance : Port-Haliguen — Commune :
+     Quiberon »** s'ouvre, et **pas** le popup de coordonnées. Les écouteurs de
+     couche (`ports-pts-c`, `zmel-fill`) doivent répondre au clic rejoué comme à
+     un clic souris.
+   - **L'ordre est le test** : enchaîner les deux saisies force un `jumpTo` de
+     longue distance, donc un repeinte complet du cadrage. Saisir la coordonnée
+     bretonne alors que la carte y est déjà ne prouve rien — c'était d'ailleurs
+     le cas qui fonctionnait pendant que l'autre échouait.
+   - Contre-épreuve si le test échoue : faire un **vrai clic** sur le point du
+     port au même endroit. Si le vrai clic ouvre la modale et pas la recherche,
+     le défaut est bien dans l'attente avant le clic rejoué
+     (`attendreCartePeinte`), pas dans le parseur ni dans le provider.
+   - Vérification : navigateur réel, sur la version publiée.
 
 11. **Après une mise à jour de carte-facile**
    - Action : à chaque `npm install carte-facile` suivi d'une recopie dans

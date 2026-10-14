@@ -760,7 +760,7 @@
     // colonne de panneaux remonte jusque sous l'en-tête.
 
     /* ========================================================================
-       Recherche par coordonnées GPS  (v2.25)
+       Recherche par coordonnées GPS  (v2.25, attente corrigée en v2.25.2)
 
        Le champ de recherche est celui de carte-facile (CarteFacile.SearchControl).
        Il accepte plusieurs « providers » interrogés en parallèle, chacun avec son
@@ -869,26 +869,53 @@
       return /\d/.test(t) && /^[\s\d.,;°'"′″NSEWOnsewo+-]+$/.test(t);
     }
 
-    /* Le point doit être dans la fenêtre avant de rejouer le clic :
-       queryRenderedFeatures et estSurLEau lisent la carte RENDUE, et la carte
-       fantôme suit la carte principale sur 'move'. D'où le centrage, puis
-       l'attente des tuiles. */
-    function attendreCarteStable(delaiMaxMs) {
-      const limite = Date.now() + (delaiMaxMs || 4000);
-      return new Promise(resolve => {
-        const tic = () => {
-          const pret = !map.isMoving() && map.areTilesLoaded() && mapTerrain.areTilesLoaded();
-          if (pret || Date.now() > limite) resolve();
-          else setTimeout(tic, 100);
-        };
-        tic();
-      });
+    /* Le point doit être PEINT avant de rejouer le clic : queryRenderedFeatures
+       et estSurLEau lisent la carte RENDUE, et la carte fantôme suit la carte
+       principale sur 'move'.
+
+       v2.25.2 — attendre `isMoving()` et `areTilesLoaded()` ne suffisait pas, et
+       le bug ne se voyait qu'en conditions réelles : `jumpTo` est instantané,
+       donc `isMoving()` est faux immédiatement, et `areTilesLoaded()` parle des
+       tuiles, pas des couches GeoJSON du projet. En arrivant de loin, le clic
+       partait sur un cadrage pas encore peint et `queryRenderedFeatures` ne
+       trouvait rien : un point saisi sur un port ouvrait le popup de
+       coordonnées au lieu de la modale du port, alors qu'un vrai clic au même
+       endroit l'ouvrait. D'où l'attente de l'événement `idle` de MapLibre, qui
+       garantit précisément « plus de transition de caméra, toutes les tuiles
+       chargées, tous les fondus terminés ».
+
+       Le plafond reste : au-delà, le clic part quand même et `estSurLEau`
+       renvoie `null` (« on ne sait pas »), cas non bloquant déjà prévu. */
+    function attendreCartePeinte(delaiMaxMs) {
+      const limite = setTimeout(() => terminer(), delaiMaxMs || 6000);
+      let fini = false, resoudre;
+      const promesse = new Promise(r => { resoudre = r; });
+      function terminer() {
+        if (fini) return;
+        fini = true;
+        clearTimeout(limite);
+        map.off('idle', surIdle);
+        resoudre();
+      }
+      function surIdle() {
+        // La carte fantôme sert à estSurLEau : attendre qu'elle suive aussi.
+        if (mapTerrain.areTilesLoaded()) terminer();
+      }
+      map.on('idle', surIdle);
+      return promesse;
     }
 
     async function allerAuPointGps(coords) {
       const lngLat = new maplibregl.LngLat(coords.lon, coords.lat);
-      map.jumpTo({ center: lngLat, zoom: Math.max(map.getZoom(), 16) });
-      await attendreCarteStable();
+      const zoomCible = Math.max(map.getZoom(), 16);
+      const centre = map.getCenter();
+      /* Caméra inchangée : la carte est déjà peinte à cet endroit, aucun `idle`
+         ne sera émis et attendre coûterait le plafond pour rien. */
+      const bouge = Math.abs(centre.lng - lngLat.lng) > 1e-9 ||
+                    Math.abs(centre.lat - lngLat.lat) > 1e-9 ||
+                    map.getZoom() !== zoomCible;
+      map.jumpTo({ center: lngLat, zoom: zoomCible });
+      if (bouge) await attendreCartePeinte();
       /* Clic synthétique : tout le traitement d'un point est déjà écrit une
          fois pour le clic souris, y compris les écouteurs de couche (port,
          ZMEL). Le rejouer évite un second chemin de code à maintenir. */

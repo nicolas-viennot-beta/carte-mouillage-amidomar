@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.25.1 (octobre 2026)  
+**Version:** 2.25.2 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -535,7 +535,9 @@ L'usager obtient donc d'emblée tout ce qu'un clic produit : terre/eau et arbitr
 
 Le corps du gestionnaire de clic a été extrait dans une fonction nommée, `traiterPointCarte(lngLat, point)`, appelée par `map.on('click', …)` comme par la recherche : **un seul chemin de code**, donc aucune divergence possible entre les deux gestes. La fonctionnalité est le symétrique de l'étape 4 de la marche à suivre, où l'usager **copie** des coordonnées vers son formulaire ; elle sert surtout aux instructeurs DDTM, qui disposent d'une coordonnée (Ad'hoc, arrêté, signalement) et veulent savoir ce qu'il y a à cet endroit.
 
-**Attente avant le clic rejoué** — `attendreCarteStable()` scrute `isMoving()` et `areTilesLoaded()` sur la carte **et sur la carte fantôme** (§4.4.1), avec un plafond de 4 s. C'est nécessaire : `queryRenderedFeatures` et `estSurLEau` lisent la carte *rendue*, donc le point doit être dans la fenêtre et les tuiles chargées. Au-delà de 4 s le clic part quand même — `estSurLEau` renvoie alors `null` (« on ne sait pas »), qui est le cas non bloquant déjà prévu.
+**Attente avant le clic rejoué** *(corrigée en v2.25.2)* — `attendreCartePeinte()` attend l'événement **`idle`** de MapLibre, qui garantit « plus de transition de caméra, toutes les tuiles chargées, tous les fondus terminés », et vérifie au passage que la carte fantôme (§4.4.1) a suivi, puisque `estSurLEau` la lit. Plafond de 6 s ; au-delà le clic part quand même, et `estSurLEau` renvoie alors `null` (« on ne sait pas »), cas non bloquant déjà prévu. Si la caméra ne bouge pas (point déjà à l'écran au même zoom), l'attente est **sautée** : aucun `idle` ne serait émis et on paierait le plafond pour rien.
+
+> **Pourquoi pas un simple `isMoving()` + `areTilesLoaded()`** — c'était la première version, et elle était fausse. `jumpTo` est instantané, donc `isMoving()` est faux immédiatement, et `areTilesLoaded()` parle des **tuiles**, pas des couches GeoJSON du projet. En arrivant de loin, le clic partait sur un cadrage pas encore peint et `queryRenderedFeatures` ne trouvait rien : une coordonnée saisie sur un port ouvrait le popup de coordonnées au lieu de la modale du port, alors qu'un vrai clic au même endroit l'ouvrait. Le défaut est invisible en harnais headless (sans fond de carte, les deux gestes partent en branche « à terre » avant d'atteindre `queryRenderedFeatures`) : il n'a été vu qu'en conditions réelles, sur la version publiée. Voir TESTS_FONCTIONNELS.md §10.10 et §10.12.
 
 #### Signalement des deux possibilités à l'usager
 Le label du `SearchControl` est **masqué visuellement** (`clip: rect(0,0,0,0)` dans `carte-facile.css`) et un contrôle flottant au-dessus de la carte n'offre pas de place pour un texte d'aide sous le champ : le `fr-hint-text` du DSFR n'est pas applicable ici. Trois signaux le remplacent :
@@ -1047,6 +1049,15 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.25.2 — 14 octobre 2026
+**Une coordonnée saisie sur un port n'ouvrait pas la modale du port**
+- Trouvé en vérifiant la v2.25 sur la version publiée, pas en harnais : saisir `47.4869, -3.0997` (Port-Haliguen) posait un marqueur et ouvrait le popup de coordonnées, alors qu'un **vrai clic au même endroit** ouvrait bien la modale du port. La promesse d'équivalence entre les deux gestes était donc fausse en production.
+- Cause : `attendreCarteStable()` surveillait `isMoving()` et `areTilesLoaded()`. Or `jumpTo` est instantané — `isMoving()` est faux tout de suite — et `areTilesLoaded()` parle des tuiles du fond, pas des couches GeoJSON du projet. En arrivant de loin, le clic synthétique partait sur un cadrage pas encore peint, et `queryRenderedFeatures` ne trouvait aucune entité : ni port, ni ZMEL.
+- Diagnostic confirmé par l'expérience inverse : la carte **déjà** positionnée sur le port, la même recherche ouvre bien la modale — le `jumpTo` ne bougeant alors rien, les entités étaient déjà peintes.
+- Correction : `attendreCartePeinte()` attend l'événement `idle` de MapLibre, dont la définition est exactement la garantie recherchée, et vérifie que la carte fantôme a suivi. Plafond porté à 6 s. L'attente est sautée quand la caméra ne bouge pas, puisque aucun `idle` ne serait émis.
+- **À retenir pour les prochaines évolutions** : un harnais headless sans réseau ne voit pas ce genre de défaut. Sans fond de carte, la détection terre/eau n'a rien à lire et les deux gestes partent en branche « à terre » **avant** d'atteindre `queryRenderedFeatures` — le test d'équivalence passait donc au vert pour une mauvaise raison. Tout ce qui dépend de ce que la carte a réellement peint se vérifie sur la version publiée.
+- Tests : harnais Node 32/32 inchangé, plus deux vérifications en conditions réelles sur la version publiée (§10.10 et §10.12).
 
 ### v2.25.1 — 14 octobre 2026
 **Les pages du site qui embarquent la carte s'ouvraient en plein milieu**
