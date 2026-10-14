@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.23 (octobre 2026)  
+**Version:** 2.24 (octobre 2026)  
 **Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -449,7 +449,15 @@ La liste **reste partielle et le texte le dit** : la DDTM 83 couvre toute la fa�
 **Les zones sont désormais des polygones : `data/zones-aot.geojson`.** Les quatre sommets de chaque zone, donnés en degrés-minutes décimales sur les cartes PDF, ont été convertis en décimal et versés dans un GeoJSON. Ce fichier sert **deux fois** : il dessine la couche `zones_aot` sur la carte, et il alimente la liste du message DDTM. Les zones ne sont donc pas recopiées dans `data/ddtm-messages.json` — une zone est une géométrie, et la dupliquer en texte garantirait de voir les deux listes diverger. Le lien entre les deux fichiers est la propriété `ddtm` portée par chaque entité.
 
 Trois conséquences pour l'usager :
-- **La carte répond elle-même à la question.** Si le point cliqué tombe dans une zone, le bloc affiche en vert « Cet emplacement est dans une zone où l'AOT reste délivrable : … », avant le message général. Lui faire déduire d'une liste de noms s'il est au bon endroit, alors que la carte sait le calculer, serait lui laisser le travail que l'outil existe pour faire.
+- **La carte répond elle-même à la question.** Si le point cliqué tombe dans une zone, la carte de règle locale **passe au vert** : elle n'annonce plus une restriction mais une autorisation. Lui faire déduire d'une liste de noms s'il est au bon endroit, alors que la carte sait le calculer, serait lui laisser le travail que l'outil existe pour faire.
+
+  *Pourquoi la carte change de couleur plutôt que de s'accompagner d'un second bloc (v2.24).* La première version ajoutait un bandeau vert au-dessus de la carte orange. L'usager lisait donc, l'un sous l'autre, « cet emplacement est autorisé » et « la DDTM ne délivre plus d'AOT en dehors de certaines zones » — à lui de faire la synthèse. Ce n'est pas une information de plus : c'est la **même** règle locale, dont la réponse change selon l'endroit. Une seule carte, deux états.
+
+  Mise en page de l'état vert, alignée sur celle de l'orange : première ligne = titre, complément, puis le **nom de la zone entre parenthèses** (ses propres tirets le rendraient illisible accolé au complément) ; seconde ligne = la conséquence, « identifier les autres zones autorisées » ; et le bouton garde le libellé « Voir les zones » dans les deux états, l'action étant la même — ouvrir la liste. Seule la réponse change.
+
+  Les textes de l'état « en zone » viennent du fichier de messages (`message_titre_zone`, `message_complement_zone`, `message_consequence_zone`, `message_detail_zone`), **pas du code** : « La DDTM du Var autorise… » est une phrase propre à un département, et la coder en dur obligerait à repasser par un développeur pour chaque DDTM qui rejoindra le dispositif. En l'absence de ces champs, une phrase neutre est utilisée.
+
+  La zone occupée **sort de la liste** dépliable, dont le bouton propose « les autres zones autorisées » : y faire figurer celle où l'on se trouve déjà contredirait son libellé.
 - **Les noms de zone sont cliquables** et recadrent la carte dessus (`cadrerSurZone`), avec une marge à gauche pour que la zone ne se retrouve pas sous le popup. La liste reste ouverte : on passe d'une zone à l'autre sans tout rouvrir.
 - **Les zones sont visibles** sur la carte, sous la case « Zones de mouillage autorisées (AOT) », dans le même orange que la carte de règle locale — c'est la même nature d'information.
 
@@ -823,9 +831,10 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 ### ✅ 21. Zones de mouillage autorisées *(v2.23)*
 - [ ] Rechercher « Saint-Tropez » → les 5 zones apparaissent en orange sur la carte (1 à La Bouillabaisse, 4 aux Canebiers)
 - [ ] Décocher « Zones de mouillage autorisées (AOT) » dans la légende → les polygones disparaissent ; recocher → ils reviennent
-- [ ] Cliquer **dans** une zone → ligne verte « Cet emplacement est dans une zone où l'AOT reste délivrable : … », **et** le parcours continue (marqueur posé, coordonnées affichées) — un clic en zone autorisée ne doit pas se comporter comme un clic sur un port
-- [ ] Cliquer dans le Var **hors** de toute zone → aucune ligne verte, le message général s'affiche normalement
-- [ ] Déplier « Voir les zones » → les 5 noms sont des liens soulignés
+- [ ] Cliquer **dans** une zone → la carte de règle locale est **verte**, première ligne « La DDTM du Var autorise les nouvelles AOT de mouillage individuel dans cette zone — sous réserve de places disponibles (Saint-Tropez — La Bouillabaisse, zone 1) », seconde ligne « identifier les autres zones autorisées », bouton « Voir les zones » ; **une seule** carte DDTM, aucun bandeau vert séparé ; et le parcours continue (marqueur posé, coordonnées affichées) — un clic en zone autorisée ne doit pas se comporter comme un clic sur un port
+- [ ] Dans une zone, déplier « Identifier les autres zones autorisées » → **4** zones listées, celle où l'on se trouve n'y figure pas
+- [ ] Cliquer dans le Var **hors** de toute zone → la carte est **orange**, titrée « ne délivre plus… », et les **5** zones sont listées sous « Voir les zones »
+- [ ] Déplier « Voir les zones » → les noms sont des liens soulignés
 - [ ] Cliquer un nom → la carte se recadre sur la zone, celle-ci n'est **pas** cachée par le popup, et la liste reste dépliée
 - [ ] Cliquer un second nom à la suite → le recadrage fonctionne aussi
 - [ ] Vérifier que la détection des parcelles conchylicoles marche toujours (§8) : les deux fonctionnalités partagent `pointDansAnneau`
@@ -951,6 +960,24 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.24 — 14 octobre 2026
+**Dans une zone autorisée, la règle locale passe au vert au lieu de s'accompagner d'un second bloc**
+- Demande de Nicolas, sur capture d'écran : ne pas ajouter de bloc pour la règle locale, mais faire basculer le bloc orange en vert.
+- Le motif est le bon : la v2.23 empilait « cet emplacement est autorisé » (vert) au-dessus de « la DDTM ne délivre plus d'AOT en dehors de certaines zones » (orange), et laissait l'usager faire la synthèse de deux messages qui se répondent. Ce n'est pas une information de plus, c'est la même règle dans un autre état.
+- Nouvelle teinte `env-carte--ddtm-ok` (vert `#18753c`, bordure complète comme l'orange). Titre, complément, libellé de bouton et détail de l'état « en zone » lus dans `data/ddtm-messages.json` (champs `*_zone`), **pas codés en dur** : la phrase nomme un département, elle doit rester modifiable sans développeur. Repli sur une phrase neutre si les champs sont absents.
+- La zone occupée sort de la liste dépliable, dont le bouton devient « Identifier les autres zones autorisées » — y laisser celle où l'on se trouve contredirait le libellé.
+- Correction de rédaction : « les nouvelles AOT mouillages individuelles » devient « les nouvelles AOT de mouillage individuel ». L'AOT est l'autorisation, le mouillage individuel en est l'objet ; c'est la formulation des formulaires DN.
+- Ajout : le détail de l'état « en zone » précise que la capacité affichée est le nombre d'emplacements de la zone et non le nombre de places libres. « Sous réserve de places » le laissait entendre sans le dire.
+
+**Correction d'un faux positif : « Fond de carte indisponible »**
+- Signalé par Nicolas : le message apparaissait puis disparaissait, alors que le fond IGN s'affichait parfaitement sur sa capture.
+- Cause : le compteur additionnait **toutes** les erreurs de tuiles de la carte, sans distinguer leur source. Les couches de superposition (Natura 2000, APB, posidonie, aires marines, cultures marines) renvoient des 404 en routine hors de leur emprise — plus de vingt relevés dans la console sur un simple chargement. Six suffisaient à accuser l'IGN à tort.
+- Correction : seuls comptent désormais les échecs d'une source **du style** (le fond de plan), relevées dans `demarrer()` avant que les couches du projet soient ajoutées. Tant que cette liste est inconnue, aucune conclusion n'est tirée.
+- **Régression évitée au passage** : `sourcesFond` était d'abord déclarée près de son usage, alors que `demarrer()` l'affecte et peut s'exécuter beaucoup plus haut quand le style est déjà en cache. Zone morte temporelle, script entier bloqué. Invisible au test de syntaxe, levée par le test d'exécution réelle — le même mécanisme qu'en septembre 2026 (§11, v2.2).
+- 6 tests ajoutés : gestionnaire enregistré, 12 échecs d'une couche de superposition sans alerte, échecs sans source identifiée sans alerte, seuil non atteint à 5, alerte au 6e échec du fond, contenu du message.
+
+- Tests : **43/43** — 37 sur le bloc de règles locales (7 nouveaux sur l'état « en zone » : carte verte et absence de bloc séparé, carte DDTM unique, titre d'autorisation, réserve de places, nom de zone affiché, libellé du bouton, exclusion de la zone occupée ; et 2 sur l'état hors zone : carte orange, 5 zones listées) et 6 sur l'alerte de fond de carte.
 
 ### v2.23 — 14 octobre 2026
 **La règle locale prend un cadre, et les cinq premières zones du Var remplacent les placeholders**

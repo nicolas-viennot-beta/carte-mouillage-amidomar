@@ -1546,7 +1546,7 @@ dernier bloc `<script>` d'`index.html`, l'exécute dans un contexte `vm` avec de
 globaux simulés, puis appelle directement `blocReglesLocales` avec le contenu réel
 de `data/ddtm-messages.json`.*
 
-*Dernière exécution : 14 oct. 2026 (v2.23) — 25/25, plus l'exécution synchrone
+*Dernière exécution : 14 oct. 2026 (v2.24) — 43/43, plus l'exécution synchrone
 complète du script sans exception et la non-régression `rayonEvitage` (16 / 21).*
 
 *Vérification en conditions réelles de la v2.22, 14 oct. 2026, sur la version
@@ -1625,7 +1625,17 @@ toute côte) → aucun bloc, aucune erreur.*
      glissement **vertical** (branche non empruntée) ; clic hors du popup →
      **aucun** glissement ; `prefers-reduced-motion` → glissement instantané.
 
-10. **Zones de mouillage autorisées — point dans / hors zone (v2.23)**
+10. **Zones de mouillage autorisées — point dans / hors zone (v2.23, revu v2.24)**
+   - *Depuis la v2.24, être dans une zone ne produit plus de bloc séparé : la carte
+     de la DDTM concernée passe au vert. Les attendus ci-dessous le reflètent.*
+   - **Dans une zone** : `env-carte--ddtm-ok` présent, **aucun** `env-zone-dedans`,
+     une **seule** carte DDTM, titre « autorise les nouvelles AOT de mouillage
+     individuel », complément « sous réserve de places disponibles », nom de la zone
+     affiché **entre parenthèses sur la première ligne**, conséquence
+     « identifier les autres zones autorisées » sur la **seconde** ligne (classe
+     `env-carte-consequence`, pas sur le bouton), bouton resté « Voir les zones »,
+     et **4** boutons de zone — celle où l'on se trouve est exclue de la liste.
+   - **Hors zone** : carte `env-carte--ddtm` (orange), **5** boutons de zone.
    - Action : `blocReglesLocales({departements:['83'],rayonKm:1}, fiches, zones, {lng:6.62295, lat:43.26785})`
      — point placé à l'intérieur de la zone 1 (La Bouillabaisse).
    - Attendu : la sortie contient `env-zone-dedans` et le nom du lieu.
@@ -1635,9 +1645,34 @@ toute côte) → aucun bloc, aucune erreur.*
      fonctionnalité puisse commettre.
    - Attendu aussi : le 22, qui n'a aucune zone cartographiée, ne produit **aucun**
      `env-zone-lien` — une DDTM sans zones ne doit pas afficher de liste vide.
+   - Attendu aussi : **un seul libellé de zone** dans tout le bloc. La liste et la
+     ligne verte passent toutes deux par `libelleZone`, donc « Saint-Tropez — La
+     Bouillabaisse, zone 1 » doit apparaître **exactement deux fois** et la forme
+     « — Zone 1 — » nulle part. Les deux libellés ont divergé en v2.23 et se sont
+     retrouvés côte à côte dans le même popup.
+   - Vérification : exécution (Node.js).
+   - **Piège du harnais, à ne pas reproduire** : ces quatre assertions ont d'abord
+     été écrites *après* la boucle qui compte et affiche les résultats. Elles
+     n'étaient jamais évaluées et le harnais annonçait « 25/25 » sans les inclure.
+     Le bilan doit rester le **dernier** bloc du fichier. Un compte qui passe ne
+     dit rien des tests qui ne tournent pas.
+
+11. **Alerte « Fond de carte indisponible » — ne doit pas accuser l'IGN à tort (v2.24)**
+   - Action : récupérer le gestionnaire `map.on('error')` du script exécuté sous
+     Node, puis lui envoyer des erreurs `AJAX: Failed to fetch` avec différents
+     `sourceId`, en comptant les éléments ajoutés à `document.body`.
+   - Attendu : **aucune** alerte après 12 échecs sur une couche de superposition
+     (`patrinat_apb`) ; **aucune** après 12 échecs sans `sourceId` ; **aucune** après
+     5 échecs du fond ; alerte au **6e** échec du fond (`plan-ign`), portant bien le
+     texte « Fond de carte indisponible ».
+   - *Pourquoi ce test existe* : les couches de superposition renvoient des 404 en
+     routine hors de leur emprise (plus de vingt sur un simple chargement). Le
+     compteur ne les distinguait pas et affichait une panne IGN inexistante. Un
+     message d'erreur faux sur un service de l'État coûte plus cher qu'une absence
+     de message : il envoie l'usager chercher un problème qui n'existe pas.
    - Vérification : exécution (Node.js).
 
-11. **`pointDansAnneau` n'existe qu'en un seul exemplaire**
+12. **`pointDansAnneau` n'existe qu'en un seul exemplaire**
    - Action : compter les occurrences de `function pointDansAnneau` dans `index.html`.
    - Attendu : **exactement 1**.
    - *Pourquoi ce test existe* : le 14/10/2026, une seconde implémentation a été
@@ -1648,7 +1683,7 @@ toute côte) → aucun bloc, aucune erreur.*
    - Vérification : lecture du code (`grep -c`), à rejouer après tout ajout de
      fonction géométrique.
 
-12. **Bordure complète de la carte de règle locale (v2.23)**
+13. **Bordure complète de la carte de règle locale (v2.23)**
    - Action : lire la règle `#env-block .env-carte--ddtm` dans `index.html`.
    - Attendu : `border` sur les quatre côtés (2 px), **pas** `border-left` seul, et
      `border-radius:4px` sur les quatre coins.

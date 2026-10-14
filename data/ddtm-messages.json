@@ -30,7 +30,15 @@
       "liste": [],
       "lien": "",
       "libelle_lien": "",
-      "_note_zones": "Les zones ne sont PAS listées ici : elles vivent dans data/zones-aot.geojson, qui sert à la fois à les dessiner sur la carte et à les énumérer dans ce message. Une zone est une géométrie — la recopier en texte créerait deux listes qui divergeraient."
+      "_note_zones": "Les zones ne sont PAS listées ici : elles vivent dans data/zones-aot.geojson, qui sert à la fois à les dessiner sur la carte et à les énumérer dans ce message. Une zone est une géométrie — la recopier en texte créerait deux listes qui divergeraient.",
+      "message_titre_zone": "La DDTM du Var autorise les nouvelles AOT de mouillage individuel dans cette zone",
+      "message_complement_zone": "sous réserve de places disponibles",
+      "message_detail_zone": [
+        "Les autres zones connues à ce jour. Cette liste est partielle : elle ne couvre pour l'instant que la commune de Saint-Tropez et sera complétée avec la DDTM du Var.",
+        "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres : rapprochez-vous de la DDTM du Var pour connaître la disponibilité réelle."
+      ],
+      "_note_variante_zone": "Les champs *_zone sont utilisés quand l'emplacement cliqué tombe DANS une zone de data/zones-aot.geojson : la carte de règle locale passe alors au vert et affiche ces textes à la place des textes par défaut. Le nom de la zone est ajouté automatiquement entre parenthèses après message_complement_zone — ne pas l'écrire ici. Sans libelle_bouton_zone, le bouton par défaut est conservé.",
+      "message_consequence_zone": "identifier les autres zones autorisées"
     }
   ]
 }

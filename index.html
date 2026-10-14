@@ -149,9 +149,14 @@
       #env-block .env-zone-lien { background:none; border:none; padding:0; font:inherit;
                                   color:#000091; text-decoration:underline; cursor:pointer; text-align:left; }
       #env-block .env-zone-lien:hover { color:#b34000; }
-      #env-block .env-zone-dedans { background:#e8f5ec; border-left:3px solid #18753c;
-                                    padding:6px 8px; border-radius:0 4px 4px 0; margin:0 0 8px;
-                                    font-size:12.5px; color:#1e1e1e; }
+      /* v2.24 : quand le point tombe DANS une zone autorisée, ce n'est pas une
+         information de plus à empiler — c'est la même règle locale, dont la
+         réponse change. La carte garde donc sa place et son cadre, et passe au
+         vert. Un bloc vert ajouté au-dessus d'un bloc orange disant l'inverse
+         demandait à l'usager de faire lui-même la synthèse. */
+      #env-block .env-carte--ddtm-ok    { background:#e8f5ec; border:2px solid #18753c;
+                                          border-radius:4px; }
+      #env-block .env-carte--ddtm-ok .env-carte-resume { color:#0f5629; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
@@ -1133,6 +1138,10 @@
        reprogramme tant qu'il n'est pas prêt plutôt que de forcer l'exécution. */
     let demarre = false;
     let tentativesDemarrage = 0;
+    // Déclarée ICI et non près de son usage : `demarrer()` l'affecte, et peut
+    // s'exécuter dès cette ligne quand le style est déjà en cache. Déclarée
+    // plus bas, elle mettait tout le script en zone morte temporelle.
+    let sourcesFond = null;
     function demarrer() {
       if (demarre) return;
       if (!map.isStyleLoaded()) {
@@ -1140,6 +1149,10 @@
         return;
       }
       demarre = true;
+      // v2.24 : on relève ici les sources du STYLE, c'est-à-dire le fond de
+      // plan seul — `initialiser()` n'a pas encore ajouté les nôtres. Cette
+      // liste sert à ne compter que les échecs du fond (voir plus bas).
+      sourcesFond = new Set(Object.keys((map.getStyle() || {}).sources || {}));
       initialiser();
     }
     if (map.isStyleLoaded()) demarrer();
@@ -1150,10 +1163,27 @@
     }
 
     /* Signaler visiblement un fond de carte indisponible plutôt que
-       de laisser l'usager devant un rectangle noir sans explication. */
+       de laisser l'usager devant un rectangle noir sans explication.
+
+       v2.24 — CORRECTION D'UN FAUX POSITIF signalé par Nicolas le 14/10/2026 :
+       le message « Fond de carte indisponible » apparaissait alors que le fond
+       IGN s'affichait parfaitement. Le compteur additionnait TOUTES les erreurs
+       de tuiles de la carte, sans distinguer leur source. Or les couches de
+       superposition (Natura 2000, APB, posidonie, aires marines, cultures
+       marines) renvoient des 404 en routine hors de leur emprise — plus de
+       vingt relevés dans la console sur un simple chargement. Six suffisaient
+       donc à accuser l'IGN à tort, et le message disparaissait au bout de ses
+       12 secondes, laissant l'usager avec un doute sans objet.
+
+       On ne compte désormais que les échecs provenant d'une source DU STYLE,
+       relevées dans `demarrer()` avant que nos propres couches soient ajoutées.
+       Tant que cette liste est inconnue (style pas encore chargé), on ne
+       conclut rien : une alerte prématurée serait du même ordre que celle
+       qu'on corrige. (`sourcesFond` est déclarée plus haut, avec `demarrer()`.) */
     let tuilesKo = 0;
     map.on('error', e => {
       if (!e || !e.error || !/AJAX|Failed to fetch/i.test(String(e.error))) return;
+      if (!sourcesFond || !e.sourceId || !sourcesFond.has(e.sourceId)) return;
       if (++tuilesKo !== 6) return;
       const d = document.createElement('div');
       // pointer-events:none — sans quoi ce message intercepterait les clics sur
@@ -1844,6 +1874,17 @@
     // Cadrage sur une zone depuis le popup. Conservé dans une table indexée
     // plutôt que sérialisé dans le DOM : les coordonnées n'ont rien à faire
     // dans un attribut HTML, et l'index suffit à retrouver l'entité.
+    /* Un seul libellé de zone pour toute l'interface. Il a d'abord été construit
+       à deux endroits — « Saint-Tropez — La Bouillabaisse, zone 1 » dans la
+       liste, « Saint-Tropez — Zone 1 — La Bouillabaisse » dans la ligne verte —
+       et les deux formes se sont retrouvées côte à côte dans le même popup.
+       La commune vient en premier : c'est elle qui situe l'usager quand
+       d'autres communes rejoindront la liste. */
+    function libelleZone(p) {
+      return [p.commune, p.lieu].filter(Boolean).join(' — ')
+           + (p.zone != null ? `, zone ${p.zone}` : '');
+    }
+
     let zonesListees = [];
     function cadrerSurZone(i) {
       const f = zonesListees[i];
@@ -1893,14 +1934,52 @@
                   </div>`;
       }
 
+      // v2.24 : la zone qui contient le point, calculée une fois pour toutes.
+      // Elle ne produit plus un bloc à part : elle fait basculer la carte de la
+      // DDTM concernée du rouge au vert.
+      const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
+
       const cartes = fiches.filter(f => f.message_titre).map(f => {
-        const paragraphes = (f.message_detail || []).map(p => `<p>${echapper(p)}</p>`);
+        // Dans une zone de CETTE DDTM : la règle locale devient une
+        // autorisation. Les textes de la variante viennent du fichier de
+        // messages (`*_zone`), pas du code : « La DDTM du Var autorise… » est
+        // une phrase propre à un département, et la coder en dur obligerait à
+        // repasser par un développeur pour chaque DDTM qui rejoindra le
+        // dispositif. Sans ces champs, on retombe sur une phrase neutre.
+        const enZone = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
+        // Le nom de la zone est accolé au complément, entre parenthèses. Il
+        // occupait la seconde ligne, qui porte désormais la conséquence
+        // (« identifier les autres zones autorisées »), comme sur la carte
+        // orange. Les parenthèses évitent de confondre le tiret du libellé
+        // (« Saint-Tropez — La Bouillabaisse ») avec celui qui le précède.
+        const nomZone = enZone ? libelleZone(zoneIci.properties || {}) : '';
+        const source = enZone
+          ? { titre: f.message_titre_zone
+                  || "Cet emplacement est dans une zone où l'AOT reste délivrable",
+              complement: [f.message_complement_zone, nomZone && `(${nomZone})`]
+                            .filter(Boolean).join(' '),
+              consequence: f.message_consequence_zone || '',
+              // Même libellé de bouton que l'état par défaut : l'action est la
+              // même (ouvrir la liste des zones), seule la réponse change.
+              bouton: f.libelle_bouton_zone || f.libelle_bouton || 'Voir les zones',
+              detail: f.message_detail_zone || f.message_detail || [] }
+          : { titre: f.message_titre, complement: '',
+              consequence: f.message_consequence || '',
+              bouton: f.libelle_bouton || 'En savoir plus',
+              detail: f.message_detail || [] };
+
+        const paragraphes = (source.detail).map(p => `<p>${echapper(p)}</p>`);
 
         // v2.23 : la liste des zones vient du GeoJSON, pas du fichier de
         // messages — une zone est une géométrie, la recopier en texte ferait
         // deux sources qui divergeraient. `f.liste` reste accepté pour une DDTM
         // dont les zones ne seraient pas (encore) cartographiées.
-        const sesZones = (zones || []).filter(z => String((z.properties||{}).ddtm) === String(f.ddtm));
+        // v2.24 : quand on EST dans une zone, elle sort de la liste — le bouton
+        // propose les « autres » zones, en afficher une qu'on occupe déjà
+        // contredirait son libellé.
+        const sesZones = (zones || [])
+          .filter(z => String((z.properties||{}).ddtm) === String(f.ddtm))
+          .filter(z => !enZone || z !== zoneIci);
         if (sesZones.length) {
           const items = sesZones.map(z => {
             const p = z.properties || {};
@@ -1911,11 +1990,7 @@
               (p.profondeur_min_m != null && p.profondeur_max_m != null)
                 ? `profondeur ${String(p.profondeur_min_m).replace('.', ',')} à ${String(p.profondeur_max_m).replace('.', ',')} m` : ''
             ].filter(Boolean).join(', ');
-            // « Saint-Tropez — Les Canebiers, zone 2 » : la commune d'abord,
-            // parce que c'est elle qui situe l'usager quand d'autres communes
-            // viendront s'ajouter à la liste.
-            const titre = [p.commune, p.lieu].filter(Boolean).join(' — ')
-                        + (p.zone != null ? `, zone ${p.zone}` : '');
+            const titre = libelleZone(p);
             return `<li><button type="button" class="env-zone-lien" data-zone="${i}"
                       >${echapper(titre)}</button>${detail ? ' : ' + echapper(detail) : ''}</li>`;
           }).join('');
@@ -1936,26 +2011,19 @@
           `<p class="env-caveat">Information provisoire, en cours de validation
              avec la DDTM ${echapper(f.nom_departement || f.ddtm)}.</p>`);
         return carteEnv({
-          type: 'ddtm',
-          titre: f.message_titre,
-          consequence: f.message_consequence || '',
-          bouton: f.libelle_bouton || 'En savoir plus',
+          type: enZone ? 'ddtm-ok' : 'ddtm',
+          titre: source.titre,
+          complement: source.complement,
+          consequence: source.consequence,
+          bouton: source.bouton,
           detail: paragraphes.join('')
         });
       });
 
-      // v2.23 : la réponse directe à la question que se pose l'usager, placée
-      // AVANT le message général. Lui faire déduire d'une liste de noms s'il
-      // est au bon endroit alors que la carte sait le calculer serait lui
-      // laisser le travail que l'outil existe pour faire.
-      const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
-      let dedans = '';
-      if (zoneIci) {
-        const p = zoneIci.properties || {};
-        dedans = `<p class="env-zone-dedans"><strong>Cet emplacement est dans une zone où
-                    l'AOT reste délivrable&nbsp;: ${echapper([p.commune, p.nom].filter(Boolean).join(' — '))}.</strong></p>`;
-      }
-      return entete + dedans + cartes.join('');
+      // v2.24 : plus de bloc séparé pour « vous êtes dans une zone ». Cette
+      // information est portée par la carte de la DDTM elle-même, passée au
+      // vert — voir plus haut.
+      return entete + cartes.join('');
     }
 
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
