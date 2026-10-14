@@ -19,8 +19,16 @@ fonctionnalité correspondante a réellement disparu.
 - §10.12 (arrivée de loin, écouteurs de couche) : **ÉCHEC d'abord**, bug réel
   trouvé et corrigé en v2.25.2 — l'attente avant le clic rejoué passe de
   `isMoving()`/`areTilesLoaded()` à l'événement `idle` de MapLibre. Harnais Node
-  rejoué après correctif : 32/32. **§10.12 reste à rejouer sur la version
-  publiée après déploiement de la v2.25.2.**
+  rejoué après correctif : 32/32. **Rejoué sur la version publiée après
+  déploiement du correctif (078757e, build Pages du 14/10 18 h 49) : OK** — la
+  saisie `47.4869, -3.0997` après un passage par le Var ouvre bien la modale
+  « Port de plaisance : Port-Haliguen — Commune : Quiberon », sans marqueur ni
+  popup de coordonnées.
+- Console de la version publiée : aucune erreur applicative. Les 404 relevés
+  (126 sur `data.geopf.fr/wmts`, 79 sur le GéoIDE) sont les tuiles de
+  superposition hors emprise, comportement documenté en v2.24 ; le bandeau
+  « Fond de carte indisponible » ne s'affiche pas, ce qui vérifie au passage le
+  correctif v2.24 en production — il n'avait jamais été déployé jusqu'ici.
 - Enseignement : le test d'équivalence du §10.8 passait au vert pour une
   mauvaise raison (sans fond de carte, les deux gestes partent en branche
   « à terre » avant `queryRenderedFeatures`). Un harnais headless sans réseau ne
@@ -1912,6 +1920,11 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      cartographique.**
 
 12. **Arrivée de loin : les écouteurs de couche doivent répondre au clic rejoué (v2.25.2)**
+   - *Dernière exécution : 14 oct. 2026, sur la version publiée (078757e) —
+     après un passage par `43.267710, 6.622611`, la saisie `47.4869, -3.0997`
+     ouvre la modale « Port de plaisance : Port-Haliguen — Commune : Quiberon »,
+     sans marqueur ni popup de coordonnées. **OK.** Avant correctif, le même
+     enchaînement posait un marqueur et ouvrait le popup de coordonnées.*
    - *Ce test a trouvé un vrai bug le 14/10/2026 — voir
      DOCUMENTATION_FONCTIONNELLE.md §11, v2.25.2. Il n'est PAS reproductible en
      harnais headless : sans fond de carte, les deux gestes partent en branche
