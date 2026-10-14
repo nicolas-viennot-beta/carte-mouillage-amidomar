@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.17 (octobre 2026)  
-**Dernière mise à jour:** 13 octobre 2026  
+**Version:** 2.19 (octobre 2026)  
+**Dernière mise à jour:** 14 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -94,9 +94,9 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 | C1 | Port de plaisance (point sur la carte ou pictogramme de la légende) | Modale centrale avec fond grisé |
 | C2 | ZMEL (surface sur la carte ou pictogramme de la légende) | Modale centrale avec fond grisé |
 | C3 | Terre | Popup rouge, sans coordonnées |
-| C4 | Cultures marines | Popup rouge, sans marqueur ni coordonnées |
+| C4 | Parcelle de cultures marines (cadastre conchylicole d'une DDTM) | Popup rouge, sans marqueur ni coordonnées *(donnée réelle depuis v2.18)* |
 | C4 bis | Arrêté de protection de biotope (APB) | Popup rouge, sans marqueur ni coordonnées |
-| C5 | Tout autre point sur l'eau | Marqueur, puis popup en deux parties *(v2.16)* : « Contexte environnemental » (une carte repliable par information) et « À reporter dans le formulaire de demande » (nom de la zone et coordonnées, chacun avec son bouton « Copier ») |
+| C5 | Tout autre point sur l'eau *(v2.19 : une information absente n'affiche plus rien — pas de carte « aucun zonage détecté », et pas de bloc du tout si aucune carte n'a lieu d'être)* | Marqueur, puis popup en deux parties *(v2.16)* : « Contexte environnemental » (une carte repliable par information) et « À reporter dans le formulaire de demande » (nom de la zone et coordonnées, chacun avec son bouton « Copier ») |
 | C6 | Point C5 situé à moins de 100 m d'une AOT existante | Même popup que C5, plus un bloc de proximité, qui se réduit au résultat une fois le calcul fait (v2.7), avec repli différé automatique après une pause de frappe (v2.8) |
 
 #### C1 — Port de plaisance
@@ -116,8 +116,11 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 #### C3 — Clic à terre
 - Popup rouge : « Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau. » Pas de coordonnées, pas de marqueur. Détection : voir §4.4.
 
-#### C4 — Cultures marines
-- Popup rouge : « **Vous êtes dans une zone de cultures marines — {nom}.** » puis « Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement. » (`{nom}` : propriété `nom` de `data/cultures-marines.geojson`, « cette zone » à défaut).
+#### C4 — Parcelle de cultures marines *(réécrit en v2.18)*
+- Popup rouge : « **Vous êtes sur une parcelle de cultures marines — parcelle {parcelle}.** » puis, si le département publie ces champs, « {commune}, {espece}. » puis « Cette parcelle du domaine public maritime est déjà concédée : aucun mouillage individuel n'y est autorisable. Veuillez sélectionner un autre emplacement. » et enfin, en petit : « Source : cadastre conchylicole de la DDTM {departement} ({millesime}). »
+- Variables lues dans le cadastre conchylicole de la DDTM, au clic : `{parcelle}` = `CM1PAR`, `{commune}` = `COMMUNE` (absent en Charente-Maritime), `{espece}` = `ESPECE`. `{departement}` et `{millesime}` viennent du registre `CADASTRES_CM` du code.
+- Jusqu'en v2.17, ce cas reposait sur un **polygone fictif** de `data/cultures-marines.geojson` : l'interdiction s'affichait sur une zone inventée en rade d'Hyères, et nulle part ailleurs. Fichier supprimé en v2.18. Mécanisme : voir §4.3ter.
+- Trois autres issues, qui ne bloquent pas le clic et s'affichent en carte repliable dans le contexte environnemental (C5) : parcelle absente → rien n'est dit ; secteur sans cadastre publié → « Cultures marines : non vérifiées ici » ; flux injoignable → « Cultures marines : vérification impossible ».
 
 #### C4 bis — Arrêté de protection de biotope (APB)
 - Pendant la vérification réseau : « *Vérification de la zone…* » (teinte neutre).
@@ -129,14 +132,15 @@ Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil 
 
 **Partie 1 — « Contexte environnemental ».** Une carte par information, **toutes repliées au départ** (décision de Nicolas, 13/10/2026). Chaque carte montre un titre, une ligne de conséquence et un bouton qui déplie le détail. La ligne repliée porte déjà l'essentiel : c'est ce qui rend le repli acceptable, un bandeau replié qui ne dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
 
-Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. Le vert reste réservé au « rien de détecté », le rouge aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc.
+Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. **Gris-bleu** pour les usages de la mer *(v2.18)*. Le rouge est réservé aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc. Plus de vert depuis la v2.19 : « rien de détecté » ne s'affiche plus du tout.
 
 | Carte | Couleur | Ligne repliée | Bouton | Détail déplié |
 |---|---|---|---|---|
 | Natura 2000 | bleu | « **Site Natura 2000** — {noms des sites} » / « étude d'incidence à prévoir » | « Ce que ça implique » | « Une étude d'incidence sera réalisée suite à votre demande. Le nom de la zone est à reporter dans le formulaire : il est repris ci-dessous, avec un bouton pour le copier. » |
 | ZNIEFF | bleu | « **ZNIEFF** — zone naturelle sensible » / « rien à reporter dans le formulaire » | « Ce que ça implique » | « Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. » |
-| Aucun zonage | vert | « **Aucun zonage de protection détecté ici** » / « Natura 2000 et ZNIEFF vérifiés » | aucun | — |
+| Aucun zonage | — | **rien n'est affiché** *(v2.19)* : l'absence de carte dit déjà qu'il n'y a rien. Si aucune carte n'a lieu d'être, le bloc entier disparaît, titre compris | — | — |
 | Vérification impossible | bleu | « **Zonages de protection : vérification impossible** » / « service distant momentanément injoignable » | aucun | — |
+| Cultures marines non vérifiées ou injoignables | gris-bleu | voir §4.3ter | « Que faire ici » | voir §4.3ter |
 | Nature du fond | sable | voir §4.4bis | « Comment mouiller ici » ou « Que faire ici » | voir §4.4bis |
 
 Le bouton reprend son libellé d'origine quand on replie ; déplié, il affiche « Masquer ». Les libellés nomment une **action** et non un contenu (« Ce que ça implique » plutôt que « Détails ») : un verbe appelle le clic, un nom ne l'appelle pas.
@@ -258,8 +262,60 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 - **Bloquant, contrairement à Natura 2000/ZNIEFF :** l'APB interdit le mouillage, alors que Natura 2000/ZNIEFF ne font que signaler une sensibilité. La vérification est donc faite **avant** tout affichage (marqueur, coordonnées), pas après coup — voir §4.1.c bis. Délai borné à 4 secondes (plus court que les 6-8 s des autres appels : ce service a répondu en quelques dizaines à quelques centaines de ms lors des tests, et il conditionne l'affichage de chaque clic, contrairement aux vérifications faites après coup)
 - **Défaut non bloquant :** en cas d'échec ou de dépassement du délai, la vérification est considérée négative (comme si aucun APB n'était détecté) et le clic se poursuit normalement — la carte ne doit jamais empêcher l'accès aux coordonnées GPS pour une raison technique
 - **Testé en réel le 22 septembre 2026** (requête directe, hors clic sur la carte publiée — voir `TESTS_FONCTIONNELS.md`, 5septies) : au centre approximatif de l'APB « Ile Dumet et ses abords » (-2,6214 / 47,4112, Loire-Atlantique), le WFS renvoie bien ce nom. Un point pris exactement sur un sommet du contour peut en revanche ne rien renvoyer (comportement du service, déjà rencontré sur `znieff2_mer` en v1.9) : ce n'est pas un point de test fiable, préférer un point net à l'intérieur du polygone
+- **Menée en parallèle des cultures marines depuis la v2.18** (§4.3ter) : deux interdictions, un seul temps d'attente
 - **Message affiché :** popup rouge (même traitement que les cultures marines), nommant l'arrêté : « Vous êtes dans un arrêté de protection de biotope — *nom*. Cette zone est interdite au mouillage. »
 - **Non vérifié :** aucun clic réel sur la carte publiée n'a encore été fait dans un véritable APB (le test ci-dessus interroge directement le service, pas la carte) ; à confirmer après déploiement
+
+### 4.3ter Cultures marines — cadastre conchylicole des DDTM *(v2.18)*
+
+Vérification **bloquante**, en réseau, menée **en parallèle de l'APB** (§4.3bis) : les deux sont des interdictions, l'une n'a pas à attendre l'autre. Une parcelle de cultures marines est une parcelle du domaine public maritime déjà concédée à un tiers : aucune AOT individuelle n'y est autorisable.
+
+**Pourquoi pas de source nationale — relevés du 13 octobre 2026.**
+
+| Source | Volume | Interrogeable depuis un navigateur ? |
+|---|---|---|
+| Couche « fermes marines » (MARCUL) du Shom | 747 polygones, aucun nom de parcelle | oui, mais ce sont les installations portées sur la carte marine, pas le cadastre administratif |
+| Cadastre aquacole national, Cerema/Géolittoral | 37 612 polygones, 6 792 linéaires, 65 points — soit 50 fois le Shom | **non** : aucun en-tête CORS, aucune géométrie renvoyée, ni WMS ni WFS sur ce service |
+| Flux WMS national de Géolittoral | 207 couches interrogeables | oui, mais **ne contient pas** le cadastre (seulement le schéma départemental des structures) |
+| Cadastres départementaux des DDTM, sur GéoIDE | 1 406 à 13 391 parcelles selon le département | **oui** : WFS 2.0.0 et WMS, en-têtes CORS présents, Licence ouverte 2.0 — c'est la source retenue |
+
+Le cadastre aquacole national du Cerema est bien la version harmonisée des fichiers DDTM (téléchargeable : `cadastre_2026.zip` sur Géolittoral), mais il n'est pas appelable depuis une page web. Les cadastres départementaux le sont : c'est donc eux que la carte interroge, département par département.
+
+**Registre `CADASTRES_CM`** (dans `index.html`, déclaré **avant** le tableau `COUCHES` qui s'en sert — ordre à conserver, sous peine d'erreur d'initialisation) :
+
+| Dép. | Couche | Entités | Millésime | Champs lus |
+|---|---|---|---|---|
+| 29 Finistère | `L_CADASTRE_CONCHYLICOLE_S_029` | 1 406 | juin 2026 | `CM1PAR`, `COMMUNE`, `ESPECE`, `NATURE_EXP` |
+| 35 Ille-et-Vilaine | `L_CADASTRE_CONCHYLICOLE_S_035` | 2 194 | mars 2024 | idem |
+| 17 Charente-Maritime (surfaces) | `L_CADASTRE_CONCH_S_017` | 13 391 | février 2023 | `CM1PAR`, `ESPECE` seulement |
+| 17 Charente-Maritime (linéaires) | `L_CADASTRE_CONCH_L_017` | 1 254 | février 2023 | `CM1PAR`, `ESPECE` seulement |
+
+Chaque entrée porte son `emprise` WGS84, telle que déclarée par le `GetCapabilities` du flux : un clic hors de cette emprise n'engendre **aucune requête**. Un clic en Charente-Maritime en engendre deux (surfacique et linéaire), menées en parallèle.
+
+**Mécanique de la requête.**
+- `BBOX` et non `INTERSECTS` : MapServer ne gère pas `CQL_FILTER` (propre à GeoServer)
+- **Ordre des axes :** en WFS 1.1.0 et `EPSG:4326`, la `BBOX` attend **latitude puis longitude** — vérifié sur ces flux le 13/10/2026. Même piège que celui déjà relevé sur `patrinat_apb:apb` (§4.3bis)
+- `tolerance` : rayon en mètres de la boîte envoyée. **5 m** pour une couche surfacique (le test vaut un point) ; **25 m** pour une couche linéaire, qui n'a pas de surface et qu'un point ne toucherait jamais
+- Le WFS 1.1.0 ne répond qu'en GML (`application/json` renvoie une erreur) : la réponse est lue au `DOMParser`, champs repérés par nom local, sans dépendre du préfixe `ms:`
+- Délai borné par `CONFIG.delaiCulturesMarines` = 4 000 ms. Latences mesurées : **147 ms** sur un point sans parcelle, **736 ms** au premier appel sur une parcelle
+
+**Quatre issues, à ne pas confondre** — c'est le point important de cette fonctionnalité :
+
+| Issue | Condition | Conséquence |
+|---|---|---|
+| `parcelle` | une parcelle au point | popup rouge, clic refusé (C4) |
+| `aucune` | le flux a répondu, rien au point | rien n'est dit : le silence vaut mieux qu'une ligne de plus |
+| `horsFlux` | aucune emprise ne contient le point | carte « Cultures marines : non vérifiées ici » |
+| `indisponible` | le flux n'a pas répondu, ou a renvoyé un `ExceptionReport` | carte « Cultures marines : vérification impossible » |
+
+Un `ExceptionReport` est traité comme une **panne**, jamais comme une absence de parcelle : MapServer répond en HTTP 200 avec ce document, et le prendre pour un vide reviendrait à déclarer un secteur libre alors qu'on n'en sait rien. C'est exactement ce que renvoie aujourd'hui la DDTM 50 (voir plus bas).
+
+**Départements sans flux exploitable, au 13 octobre 2026.**
+- **Manche (50)** : le flux existe et répond au `GetCapabilities`, mais tout `GetFeature` plante — `msGetEncodedString(): Unknown identifier. Encoding not supported by libiconv (8859part1)`. Bug serveur côté GéoIDE, à signaler à la DDTM 50 : une fois corrigé, le département s'ajoute en une ligne du registre
+- **Morbihan (56)** (mise à jour avril 2026), **Vendée (85)**, **Loire-Atlantique (44)**, **Gironde (33)** : fichier à télécharger seulement, pas de flux. Pour les intégrer, il faudrait héberger le fichier converti en GeoJSON dans `data/` et le remettre à jour à la main
+- **Méditerranée** : la donnée nationale ne recense que 51 parcelles sur le Var et les Alpes-Maritimes réunis, et 7 en Corse. L'absence de flux y est donc peu gênante — mais la carte le dit quand même (issue `horsFlux`)
+
+**Affichage.** Les mêmes quatre flux sont affichés en WMS sous l'unique case « Cultures marines » de la légende (`GetMap`, `EPSG:3857`, `image/png`, en-têtes CORS vérifiés le 13/10/2026). Le tableau `COUCHES` accepte depuis la v2.18 une **liste** de flux dans `tiles` : une source et une couche sont créées par flux, la case de légende les bascule ensemble.
 
 ### 4.4 Détection terre/eau
 
@@ -358,7 +414,7 @@ Les couches marquées **« À venir »** (voir §5) n'affichent aucune de ces ic
 ### Usages de la mer
 - 🟢 **Informations portuaires** — couche SHOM (image de symboles : sans nom de port, gestionnaire ni limites)
 - 🟢 **ZMEL** — fichier local `data/zmel.geojson` *(v2.10)* : vraies données (647 ZMEL, Cerema/CACEM, France entière et Antilles, converties depuis un shapefile Lambert-93 fourni par Nicolas — copie de référence dans `data/zmel-reel.geojson`) ; capacité d'accueil réelle, contact (`mailto`) resté sans donnée (absent de la source)
-- 🔵 **Cultures marines** — fichier local `data/cultures-marines.geojson` — un clic dans cette zone déclenche désormais un popup d'interdiction (voir §4.1.c)
+- 🟢 **Cultures marines** *(v2.18)* — cadastre conchylicole des DDTM, en WMS sur GéoIDE, quatre flux sous une seule case : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime surfacique (13 391) et linéaire (1 254, février 2023). Un clic sur une parcelle déclenche un popup d'interdiction, sur la donnée réelle de la DDTM (§4.3ter). Pas de flux ailleurs : Manche (WFS en panne côté serveur), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement). Remplace le polygone fictif de `data/cultures-marines.geojson`, supprimé
 
 ### Habitats sensibles
 - 🟣 **Herbiers de posidonie et de zostère** — couche WMS (couverture partielle : presque uniquement l'Occitanie, Palavas et Albères ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère annoncée mais absente), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
@@ -400,6 +456,7 @@ const CONFIG = {
   delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
   rayonCouvertureShom: 5,   // rayon du test de couverture du trait terre-mer (km, v2.17) — voir §4.4.2
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
+  delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
 };
@@ -416,7 +473,7 @@ const GRIST = {
 
 #### `COUCHES`
 Tableau des sources cartographiques affichées — chaque entrée peut être:
-- **Couche WMTS/WMS:** `tiles: WMTS(couche, format)`
+- **Couche WMTS/WMS:** `tiles: WMTS(couche, format)` — `tiles` accepte depuis la v2.18 une **liste** d'URL : une source et une couche sont créées par flux (`id`, `id-1`, `id-2`…), et la case de légende les bascule ensemble. Utilisé pour les quatre flux du cadastre conchylicole (§4.3ter)
 - **Fichier GeoJSON local:** `geojson: 'data/fichier.geojson'`
 - **Couche de mouillages:** `aot: true` + `geojson`
 - **Couche « à venir » (non chargée, case grisée):** `aVenir: true` — aucune source, aucun écouteur, aucune requête ; utilisé uniquement pour l'entrée combinée « Zone de baignade / zone réglementaire » (créée en v1.2 sous le nom « APB / zone de baignade / zone réglementaire », scindée en v1.8). Les couches Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère, qui portaient temporairement ce marquage en cours d'itération, ont été **repassées en affichage normal** : seule leur absence de vérification automatique au clic est documentée (§4.1.d, §5), pas leur affichage.
@@ -426,6 +483,10 @@ Si une source ne charge pas:
 1. Vérifier la présence dans `SECOURS` (dictionnaire embarqué)
 2. Si présente → données de secours utilisées (marquées ≈)
 3. Si absente → statut ✗, fichier non affiché
+
+L'entrée `data/cultures-marines.geojson` a été retirée de `SECOURS` en v2.18 : le fichier n'existe plus, la couche est désormais servie en WMS par les DDTM (§4.3ter).
+
+Les flux du cadastre conchylicole n'ont **volontairement pas** de données de secours : une parcelle de secours périmée affirmerait une interdiction qui n'a plus cours, ou l'inverse. En cas de panne, la carte dit qu'elle ne sait pas (issue `indisponible`).
 
 ---
 
@@ -554,11 +615,15 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Copier le **nom de la zone** ne coche pas l'étape 4 de la marche à suivre ; copier les **coordonnées** la coche
 - [ ] Cliquer sur un point en Natura 2000 **et** en ZNIEFF → deux cartes bleues empilées, puis la carte sable du fond
 - [ ] Cliquer à terre → tout le bloc « À reporter » disparaît
-- [ ] Vérifier sur téléphone que le popup reste lisible avec trois cartes (Natura, ZNIEFF, fond)
+- [ ] Vérifier sur téléphone que le popup reste lisible avec quatre cartes (Natura, ZNIEFF, fond, cultures marines non vérifiées) — cas d'un clic en rade d'Hyères depuis la v2.18
 
-### ✅ 9. Cultures marines — interdiction
-- [ ] Cliquer dans une zone de cultures marines → popup rouge d'interdiction
-- [ ] Aucun marqueur ni coordonnées GPS n'apparaissent
+### ✅ 9. Cultures marines — cadastre conchylicole *(réécrit en v2.18)*
+- [ ] Activer « Cultures marines » dans la légende, puis zoomer sur la rivière de Morlaix (environ 48,63 N / -3,86 E) → les parcelles s'affichent ; même chose à Cancale (35) et à Marennes-Oléron (17)
+- [ ] Décocher la case → **les quatre flux** disparaissent ensemble ; recocher → tous reviennent
+- [ ] Cliquer sur une parcelle affichée → popup rouge nommant la parcelle (`CM1PAR`), la commune et l'espèce, avec la mention de la DDTM source
+- [ ] Aucun marqueur ni coordonnées GPS n'apparaissent, et les étapes 3 et 4 du guide repassent à zéro
+- [ ] Cliquer juste à côté de la parcelle, sur l'eau libre → le parcours reprend normalement et **rien** n'est dit des cultures marines
+- [ ] Cliquer en rade d'Hyères → carte repliée « Cultures marines : non vérifiées ici » (aucun cadastre publié sur ce secteur)
 - [ ] Pas d'erreur console
 
 ### ✅ 10. Interrogation Natura 2000 / ZNIEFF (API Carto)
@@ -659,6 +724,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ## 10. Résolution de problèmes courants
 
+### Les parcelles de cultures marines ne s'affichent pas, ou le clic ne les détecte pas *(v2.18)*
+**À vérifier dans cet ordre :**
+1. **Le secteur est-il couvert ?** Seuls le Finistère, l'Ille-et-Vilaine et la Charente-Maritime publient un flux. Partout ailleurs, c'est normal : le popup affiche « Cultures marines : non vérifiées ici ».
+2. **Le flux répond-il ?** Ouvrir dans un navigateur le `GetCapabilities` du flux concerné (URL dans `CADASTRES_CM`). S'il répond mais que le clic ne détecte rien, tester un `GetFeature` : un `ExceptionReport` signale une panne serveur côté GéoIDE — c'est le cas de la DDTM 50 depuis au moins le 13/10/2026 (encodage `8859part1`).
+3. **Ordre des axes :** si une requête construite à la main ne renvoie jamais rien, vérifier que la `BBOX` est bien en **latitude, longitude** (WFS 1.1.0 + `EPSG:4326`) et non l'inverse.
+4. **Emprise :** une parcelle visible mais non détectée au clic peut être hors de l'`emprise` enregistrée dans `CADASTRES_CM` (emprises relevées le 13/10/2026 ; à rafraîchir si une DDTM étend sa couche).
+5. **Une seule couche s'affiche sur quatre :** vérifier que `tiles` est bien une liste et que les couches `cultures-1-layer`, `cultures-2-layer`, `cultures-3-layer` existent (`map.getLayer(...)` en console).
+
 ### Ports/ZMEL ne réagissent pas au clic
 **Diagnostic:**
 1. Ouvrir F12 → Console
@@ -758,6 +831,26 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ## 11. Historique des corrections
 
+### v2.19 — 14 octobre 2026
+**« Aucun zonage de protection détecté ici » ne s'affiche plus**
+- Demande de Nicolas, sur une capture d'un clic au large de Flamanville : quand rien n'est détecté, ne rien afficher plutôt que d'annoncer l'absence. Une bonne nouvelle n'a pas besoin d'une ligne — l'absence de carte le dit déjà, et chaque ligne de moins rend les lignes restantes plus lisibles.
+- La carte verte `env-carte--ok` est supprimée, ainsi que sa teinte : plus aucun emploi du vert dans le contexte environnemental.
+- **Ce qui reste affiché, et pourquoi :** la carte « Zonages de protection : vérification impossible ». « On ne sait pas » n'est pas « il n'y a rien » : la taire reviendrait à faire passer une panne pour une absence de zonage.
+- Si plus aucune carte n'a lieu d'être, le bloc entier disparaît — y compris le titre « Contexte environnemental », qui annoncerait un vide.
+- Tests : 41/41 après mise à jour de l'assertion correspondante. Au passage, le harnais « nature du fond » lisait le popup trop tôt depuis que le cadastre conchylicole part en parallèle : attente portée de 2 800 à 3 600 ms (deux échecs intermittents observés avant correction, puis trois exécutions consécutives à 8/8).
+
+### v2.18 — 13 octobre 2026
+**Cultures marines : le polygone fictif cède la place au cadastre conchylicole des DDTM**
+- Jusqu'ici, la seule règle bloquante « cultures marines » en production reposait sur **un polygone inventé** en rade d'Hyères (`data/cultures-marines.geojson`). Fichier supprimé du dépôt, entrée retirée de `SECOURS`.
+- Recherche de source menée le 13/10/2026, tous les chiffres mesurés (voir §4.3ter) : le cadastre aquacole national du Cerema est bien la version harmonisée des fichiers DDTM — **37 612 parcelles**, soit 50 fois la couche « fermes marines » du Shom (747) — mais il n'a **aucun en-tête CORS**, ne renvoie aucune géométrie et n'expose ni WMS ni WFS : inappelable depuis une page web. Le flux WMS national de Géolittoral ne contient pas le cadastre.
+- Source retenue : les **cadastres départementaux des DDTM sur GéoIDE**, en WFS 2.0.0 et WMS, avec les en-têtes CORS, en Licence ouverte 2.0. Quatre flux branchés : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime surfacique (13 391) et linéaire (1 254, février 2023).
+- Interrogation au clic en `BBOX` (MapServer ne gère pas `CQL_FILTER`), **axes en latitude puis longitude**, tolérance de 5 m pour les surfaces et 25 m pour les linéaires. Menée **en parallèle de l'APB** : deux interdictions, un seul temps d'attente. Latences mesurées : 147 ms sans parcelle, 736 ms au premier appel sur une parcelle.
+- Quatre issues distinctes plutôt que deux : parcelle trouvée (interdiction), absence confirmée (silence), secteur sans cadastre publié, flux injoignable. Un `ExceptionReport` de MapServer est traité comme une **panne**, jamais comme une absence de parcelle.
+- Affichage : les quatre flux en WMS sous une seule case de légende. `COUCHES` accepte désormais une liste d'URL dans `tiles`, avec bascule groupée.
+- Nouvelle teinte de carte `env-carte--usage` (#00838f, la couleur de la couche dans la légende) pour les cartes « non vérifiées ici » et « vérification impossible ».
+- **Tests : 41/41.** 15 nouveaux tests (`TESTS_FONCTIONNELS.md` §8) et les 26 tests existants rejoués. Les trois harnais antérieurs ont dû être remis à jour sur le contrat de la v2.17 : ils simulaient l'eau par « aucun objet terrestre », ce qui vaut désormais « pas de preuve d'eau » — ils déclaraient donc tous les points à terre et ne protégeaient plus rien.
+- **Reste à faire :** signaler le bug d'encodage à la DDTM 50 ; décider si Morbihan, Vendée, Loire-Atlantique et Gironde justifient d'héberger leurs fichiers dans `data/` faute de flux ; `README.md` (ligne 175) cite encore le fichier supprimé.
+
 ### v2.17 — 13 octobre 2026
 **Correction de bug : la détection terre/mer laissait passer la plupart des points terrestres**
 - Signalé par Nicolas sur deux captures (un champ au sud de Caen, `49.095841 / -0.022765` ; un point à l'intérieur des terres au cap Blanc-Nez, `50.930565 / 1.762662`) : le popup affichait coordonnées et contexte environnemental sans aucun avertissement « Vous êtes à terre », à tous les zooms testés.
@@ -774,7 +867,7 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 - Deux couleurs porteuses de sens : bleu pour les zonages de protection quel que soit leur nombre, sable pour la nature du fond. **Pas de pictogramme d'alerte** : un fond de sable est une bonne nouvelle, et tout signaler comme une alerte userait le symbole avant les vrais cas (mouillage interdit, cultures marines)
 - Nouveau bloc « À reporter dans le formulaire de demande » : le nom de la zone Natura 2000 sort du paragraphe pour devenir une valeur copiable, à côté des coordonnées, chacune avec son bouton. Seule la copie des coordonnées valide l'étape 4
 - La ligne « nom de la zone » est masquée hors Natura 2000 : les ZNIEFF n'ont pas de nom dans la source
-- Nouveau cas visible : « Aucun zonage de protection détecté ici » (vert) et « Zonages de protection : vérification impossible » (service injoignable) — trois issues distinctes là où deux se confondaient
+- Nouveau cas visible : « Aucun zonage de protection détecté ici » (vert) et « Zonages de protection : vérification impossible » (service injoignable) — trois issues distinctes là où deux se confondaient *(la carte verte a été retirée en v2.19)*
 - Le rappel sur les herbiers est désormais présent aussi dans le cas « nature du fond à vérifier »
 - **Retiré** : la mention « D'autres zonages […] vérifiez-les visuellement », et le mode « bloc environnement réduit à une ligne » de la v2.5, sans objet désormais
 - Ajouts dans le code : `#report-block` et sa ligne `#zone-row`, `carteEnv()`, `carteNatureFond()`, `majLigneZone()`, `brancherCopie()`, écouteur délégué sur `#env-block`, styles `.popup-section`, `.report-*`, `.env-carte*`

@@ -100,8 +100,10 @@
          zonages de protection (quel que soit leur nombre — Natura 2000 et
          ZNIEFF sont de même nature, les distinguer par la teinte ferait croire
          à deux choses différentes), le sable pour la nature du fond, qui est un
-         conseil et non une contrainte. Le vert reste réservé à « rien de
-         détecté », le rouge aux interdictions (bloc entier, pas une carte).
+         conseil et non une contrainte, le gris-bleu (v2.18) pour les usages de
+         la mer. Le rouge est réservé aux interdictions (bloc entier, pas une
+         carte). Plus de vert depuis la v2.19 : « rien de détecté » ne s'affiche
+         plus du tout — l'absence de carte le dit déjà.
          Volontairement PAS de pictogramme d'alerte : un fond de sable est une
          bonne nouvelle, et tout signaler comme une alerte userait le symbole
          avant les vrais cas (mouillage interdit, cultures marines). */
@@ -110,12 +112,11 @@
       #env-block .env-carte:last-child { margin-bottom:0; }
       #env-block .env-carte--protection { background:#f0f4ff; border-left:3px solid #003189; }
       #env-block .env-carte--fond       { background:#fdf8ec; border-left:3px solid #c3992a; }
-      #env-block .env-carte--ok         { background:#e8f5ec; border-left:3px solid #18753c; }
+      #env-block .env-carte--usage      { background:#eef6f7; border-left:3px solid #00838f; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
       #env-block .env-carte--fond .env-carte-resume       { color:#6b5212; }
-      #env-block .env-carte--ok .env-carte-resume         { color:#0d3d20; }
       #env-block .env-carte-consequence { font-weight:400; }
       #env-block .env-toggle-bloc { flex-shrink:0; background:#fff; border:1px solid currentColor;
                                     border-radius:4px; padding:3px 8px; font-size:12px; cursor:pointer;
@@ -416,6 +417,7 @@
       delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
       rayonCouvertureShom: 5,   // km — rayon du test de couverture du trait terre-mer (v2.17, calibré le 13/10/2026 : voir interrogerTraitTerreMer)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
+      delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
 
@@ -490,11 +492,81 @@
       // Jeu réduit (3 vraies ZMEL, v2.9) : la carte reste démonstrative même ouverte par
       // double-clic, avec de vraies données plutôt qu'un exemple fictif.
       'data/zmel.geojson': {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"nom_zmel":"Etel","lieu_dit_s":"Le Pradic","commune":"Etel","nb_postes_":"Non renseigné"},"geometry":{"type":"Polygon","coordinates":[[[-3.206288971473486,47.65325767949805],[-3.2073207107002433,47.65327039512765],[-3.207761156783054,47.6560921935558],[-3.206288971473486,47.65325767949805]]]}},{"type":"Feature","properties":{"nom_zmel":"Anse du Croûton","lieu_dit_s":"Anse du Croûton","commune":"Antibes","nb_postes_":"7"},"geometry":{"type":"Polygon","coordinates":[[[7.117000000594633,43.552300000748644],[7.119433333808966,43.55196666781681],[7.11794999973281,43.55075000093052],[7.117000000594633,43.552300000748644]]]}},{"type":"Feature","properties":{"nom_zmel":"Baie de L'Île-Rousse","lieu_dit_s":"Baie de l'Ile Rousse","commune":"Ile Rousse","nb_postes_":"18"},"geometry":{"type":"Polygon","coordinates":[[[8.939899999819742,42.636533330513004],[8.941116667565081,42.6384333312011],[8.944216666357681,42.63795000100421],[8.943199999660507,42.63578333139147],[8.939899999819742,42.636533330513004]]]}}]},
-      'data/cultures-marines.geojson': { type:'FeatureCollection', features:[{
-        type:'Feature', properties:{ nom:'EXEMPLE FICTIF — zone à remplacer' },
-        geometry:{ type:'Polygon', coordinates:[[[6.163,43.058],[6.178,43.058],
-                   [6.178,43.066],[6.163,43.066],[6.163,43.058]]] } }]}
     };
+
+    /* ---------- v2.18 : cultures marines — le cadastre conchylicole des DDTM ----------
+       Jusqu'en v2.17, la couche « Cultures marines » reposait sur un unique
+       polygone FICTIF de data/cultures-marines.geojson : une interdiction de
+       mouiller s'affichait donc sur une zone inventée en rade d'Hyères, et
+       nulle part ailleurs. Ce fichier est supprimé.
+
+       La source qui fait foi est le cadastre conchylicole, tenu par le service
+       Cultures marines de chaque DDTM/DML : il immatricule les parcelles du DPM
+       concédées aux cultures marines. Un mouillage individuel n'y est pas
+       autorisable — la parcelle est déjà concédée à un tiers.
+
+       Il n'existe pas de flux national interrogeable. Vérifié le 13/10/2026 :
+         - le cadastre aquacole national du Cerema (Géolittoral) est bien la
+           version harmonisée des fichiers DDTM (37 612 parcelles contre 747
+           pour la couche « fermes marines » du Shom, soit 50 fois plus), son
+           service est interrogeable au point, MAIS il ne renvoie aucun en-tête
+           CORS : un navigateur ne peut pas l'appeler. Il ne renvoie pas non
+           plus de géométrie, et n'expose ni WMS ni WFS. Le flux WMS national de
+           Géolittoral, lui, ne contient pas le cadastre.
+         - les cadastres départementaux publiés par les DDTM sur GéoIDE
+           (data.gouv.fr, Licence ouverte 2.0) sont en WFS 2.0.0 ET en WMS, avec
+           les en-têtes CORS : ce sont eux qui sont utilisés ici, pour l'affichage
+           comme pour l'interrogation au clic.
+       Départements sans flux exploitable à ce jour : Manche (50) — le WFS répond
+       au GetCapabilities mais plante au GetFeature (encodage « 8859part1 »
+       inconnu de libiconv, à signaler à la DDTM 50) ; Morbihan (56), Vendée (85),
+       Loire-Atlantique (44), Gironde (33) — téléchargement de fichier seulement.
+       En Méditerranée, la donnée nationale ne recense que 51 parcelles sur le Var
+       et les Alpes-Maritimes réunis, et 7 en Corse.
+
+       `emprise` est l'emprise WGS84 déclarée par le GetCapabilities du flux : elle
+       évite d'interroger un flux pour un clic hors de son département. `tolerance`
+       est le rayon en mètres de la BBOX envoyée : quelques mètres pour une couche
+       surfacique (le test vaut un point), davantage pour une couche linéaire, qui
+       n'a pas de surface et qu'un point ne toucherait jamais. */
+    const CADASTRES_CM = [
+      { dep:'29', departement:'Finistère',
+        base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37996/a11abacc-fd1d-441a-baa9-ad747d8d706b.internet.map',
+        couche:'L_CADASTRE_CONCHYLICOLE_S_029',
+        emprise:[-5.1379, 47.6593, -3.5227, 48.7479], tolerance:5,
+        millesime:'mise à jour juin 2026', entites:1406,
+        champs:{ parcelle:'CM1PAR', commune:'COMMUNE', espece:'ESPECE', technique:'NATURE_EXP' } },
+
+      { dep:'35', departement:'Ille-et-Vilaine',
+        base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38012/22ac0c15-ef7f-44f1-a842-055eab09ba18.internet.map',
+        couche:'L_CADASTRE_CONCHYLICOLE_S_035',
+        emprise:[-2.0503, 48.5492, -1.6053, 48.6990], tolerance:5,
+        millesime:'mise à jour mars 2024', entites:2194,
+        champs:{ parcelle:'CM1PAR', commune:'COMMUNE', espece:'ESPECE', technique:'NATURE_EXP' } },
+
+      { dep:'17', departement:'Charente-Maritime',
+        base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37974/ad176225-fbeb-4fc9-b56e-fb3c29c41e57.internet.map',
+        couche:'L_CADASTRE_CONCH_S_017',
+        emprise:[-1.5061, 45.6682, -0.9733, 46.3034], tolerance:5,
+        millesime:'mise à jour février 2023', entites:13391,
+        champs:{ parcelle:'CM1PAR', espece:'ESPECE' } },
+
+      // Couche linéaire : les concessions sur estacades et filières y sont des
+      // lignes, sans surface. Tolérance plus large, sinon jamais touchée.
+      { dep:'17', departement:'Charente-Maritime', lineaire:true,
+        base:'https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_37974/2c695a34-2604-4413-bbfe-3f8dd13682fa.internet.map',
+        couche:'L_CADASTRE_CONCH_L_017',
+        emprise:[-1.3593, 45.8487, -1.0793, 46.2976], tolerance:25,
+        millesime:'mise à jour février 2023', entites:1254,
+        champs:{ parcelle:'CM1PAR', espece:'ESPECE' } }
+    ];
+
+    // Tuiles WMS d'un flux du cadastre, pour l'affichage de la couche.
+    // GetMap testé le 13/10/2026 : EPSG:3857, image/png, en-têtes CORS présents.
+    const tuilesCM = (c) => c.base +
+      '&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=' + c.couche +
+      '&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}' +
+      '&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE';
 
     /* --- 3. COUCHES --------------------------------------------------------- */
     // statut : 'verifie'   = source testée et fonctionnelle
@@ -573,9 +645,10 @@
 
       { groupe:'Usages de la mer',
         id:'cultures', label:'Cultures marines', couleur:'#00838f',
-        picto:'polygone', statut:'local',
-        geojson:'data/cultures-marines.geojson', visible:true,
-        note:"Aucune couche nationale identifiée. À compléter territoire par territoire." },
+        picto:'polygone', statut:'verifie', visible:true,
+        tiles: CADASTRES_CM.map(tuilesCM),
+        attribution: 'Cadastre conchylicole : DDTM 29, 35 et 17 (GéoIDE, Licence ouverte 2.0)',
+        note:"Cadastre conchylicole des DDTM, en WFS et WMS sur GéoIDE : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime (13 391 surfaciques et 1 254 linéaires, février 2023). Une parcelle au point cliqué interdit le mouillage. Pas de flux exploitable ailleurs : Manche (WFS en panne), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement)." },
 
       { groupe:'Usages de la mer',
         id:'restrictions_diverses', label:'Zone de baignade / zone réglementaire',
@@ -1127,11 +1200,18 @@
             continue;
           }
         } else {
-          map.addSource(c.id, { type:'raster', tiles:[c.tiles], tileSize:256, attribution:c.attribution });
-          map.addLayer({ id:c.id+'-layer', type:'raster', source:c.id,
-            layout:{ visibility: c.visible ? 'visible':'none' },
-            paint:{ 'raster-opacity':0.7 } });
-          testerSource(c.tiles).then(ok => {
+          // v2.18 : `tiles` peut être une liste — une case de légende peut
+          // recouvrir plusieurs flux (un par département, pour le cadastre
+          // conchylicole). Une source et une couche par flux, bascule groupée.
+          const flux = Array.isArray(c.tiles) ? c.tiles : [c.tiles];
+          flux.forEach((u, i) => {
+            const idSrc = i ? c.id + '-' + i : c.id;
+            map.addSource(idSrc, { type:'raster', tiles:[u], tileSize:256, attribution:c.attribution });
+            map.addLayer({ id:idSrc+'-layer', type:'raster', source:idSrc,
+              layout:{ visibility: c.visible ? 'visible':'none' },
+              paint:{ 'raster-opacity':0.7 } });
+          });
+          testerSource(flux[0]).then(ok => {
             st.textContent = ok ? '✓' : '✗';
             st.className = 'layer-status ' + (ok ? 'st-ok' : 'st-ko');
             st.title = ok ? 'Source joignable' : 'Source injoignable depuis ce navigateur';
@@ -1144,7 +1224,8 @@
           const ids = c.aot        ? ['aot-cercles-fill','aot-cercles-line','aot-points-c']
                     : c.id==='ports' ? ['ports-layer','ports-pts-halo','ports-pts-c']
                     : c.geojson    ? [c.id+'-fill', c.id+'-line']
-                    : [c.id+'-layer'];
+                    : (Array.isArray(c.tiles) ? c.tiles : [c.tiles])
+                        .map((u,i) => (i ? c.id+'-'+i : c.id) + '-layer');
           ids.forEach(i => { if (map.getLayer(i)) map.setLayoutProperty(i,'visibility',v); });
           // Masquer les AOT retire aussi l'analyse de recoupement, pour ne pas
           // signaler un conflit avec des mouillages invisibles à l'écran.
@@ -1658,6 +1739,89 @@
       });
     }
 
+    // Flux dont l'emprise contient le point : zéro, un, ou deux (17, surfacique + linéaire).
+    const fluxCMCouvrant = (lngLat) => CADASTRES_CM.filter(c =>
+      lngLat.lng >= c.emprise[0] && lngLat.lng <= c.emprise[2] &&
+      lngLat.lat >= c.emprise[1] && lngLat.lat <= c.emprise[3]);
+
+    /* Interroge un flux. Renvoie la parcelle trouvée, ou null si le flux a
+       répondu sans rien au point. Lève si le flux n'a pas répondu : l'appelant
+       distingue « rien ici » de « on ne sait pas ».
+       ATTENTION : en WFS 1.1.0 et EPSG:4326, l'ordre des axes de la BBOX est
+       lat,lon (et non lon,lat) — vérifié sur ces flux le 13/10/2026. */
+    async function interrogerUnCadastreCM(c, lngLat, signal) {
+      const dLat = c.tolerance / 111320;
+      const dLon = c.tolerance / (111320 * Math.cos(lngLat.lat * Math.PI / 180));
+      const bbox = [lngLat.lat - dLat, lngLat.lng - dLon,
+                    lngLat.lat + dLat, lngLat.lng + dLon, 'EPSG:4326'].join(',');
+      const rep = await fetch(c.base +
+        '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&SRSNAME=EPSG:4326&MAXFEATURES=1' +
+        '&TYPENAME=' + encodeURIComponent('ms:' + c.couche) +
+        '&BBOX=' + encodeURIComponent(bbox), { signal });
+      if (!rep.ok) throw new Error('HTTP ' + rep.status);
+      const txt = await rep.text();
+      // MapServer répond 200 avec un ExceptionReport : c'est une panne, pas un vide.
+      if (txt.indexOf('ExceptionReport') !== -1) throw new Error('exception WFS');
+      const doc = new DOMParser().parseFromString(txt, 'text/xml');
+      const f = doc.getElementsByTagNameNS('*', c.couche)[0];
+      if (!f) return null;
+      const lire = (nom) => {
+        if (!nom) return '';
+        const el = f.getElementsByTagNameNS('*', nom)[0];
+        return el ? (el.textContent || '').trim() : '';
+      };
+      return { etat:'parcelle', dep:c.dep, departement:c.departement,
+               millesime:c.millesime, lineaire:!!c.lineaire,
+               parcelle:lire(c.champs.parcelle), commune:lire(c.champs.commune),
+               espece:lire(c.champs.espece), technique:lire(c.champs.technique) };
+    }
+
+    /* Quatre issues, à ne pas confondre :
+         { etat:'parcelle', … }  une parcelle concédée au point → mouillage impossible
+         { etat:'aucune' }       le flux a répondu, rien au point → terrain libre
+         { etat:'horsFlux' }     aucun cadastre publié pour ce secteur → on ne sait pas
+         { etat:'indisponible' } le flux n'a pas répondu → on ne sait pas */
+    async function interrogerCulturesMarines(lngLat) {
+      const flux = fluxCMCouvrant(lngLat);
+      if (!flux.length) return { etat:'horsFlux' };
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiCulturesMarines);
+      try {
+        const res = await Promise.all(flux.map(c =>
+          interrogerUnCadastreCM(c, lngLat, ctrl.signal).catch(() => undefined)));
+        const trouvee = res.find(r => r);
+        if (trouvee) return trouvee;
+        if (res.every(r => r === undefined)) return { etat:'indisponible' };
+        return { etat:'aucune' };
+      } catch (e) { return { etat:'indisponible' };
+      } finally { clearTimeout(t); }
+    }
+
+    /* Carte repliable. Rien à afficher quand le cadastre a répondu qu'il n'y a
+       pas de parcelle (cas général : le silence vaut mieux qu'une ligne de plus),
+       ni quand une parcelle a été trouvée — ce cas-là est une interdiction, et
+       s'affiche en rouge sur tout le bloc, pas en carte. */
+    function carteCulturesMarines(cm) {
+      if (!cm || cm.etat === 'aucune' || cm.etat === 'parcelle') return '';
+      const commun = `<p>Les parcelles de cultures marines sont des parcelles du domaine
+        public maritime déjà concédées : un mouillage individuel n'y est pas autorisable.
+        Repérez-les sur la carte en activant « Cultures marines » dans la légende, et
+        vérifiez auprès de la DDTM de votre département.</p>`;
+      if (cm.etat === 'indisponible') return carteEnv({
+        type:'usage', titre:'Cultures marines : vérification impossible',
+        consequence:'cadastre conchylicole momentanément injoignable',
+        bouton:'Que faire ici', detail:commun
+      });
+      return carteEnv({
+        type:'usage', titre:'Cultures marines : non vérifiées ici',
+        consequence:'aucun cadastre conchylicole publié pour ce secteur',
+        bouton:'Que faire ici',
+        detail:`<p>Seuls le Finistère, l'Ille-et-Vilaine et la Charente-Maritime
+          publient aujourd'hui leur cadastre conchylicole sous une forme
+          interrogeable automatiquement.</p>` + commun
+      });
+    }
+
     async function interrogerZonesProtegees(lngLat) {
       /* Codes de couche de l'API Carto IGN, module « nature », TESTÉS EN RÉEL
          le 21 septembre 2026 depuis un navigateur :
@@ -1842,32 +2006,15 @@
       }
       popup.classList.remove('terre');
 
-      // Interdiction stricte, vérifiée localement (données déjà chargées, pas
-      // d'attente réseau) : Cultures marines. L'APB, interdiction elle aussi,
-      // est vérifiée juste après, en réseau (voir plus bas). Zone de baignade /
-      // zone réglementaire : à venir, voir la légende. Comme pour ports/ZMEL,
-      // aucun AOT individuel n'y est possible : pas de marqueur, pas de
-      // coordonnées.
-      const cibleInterdite = map.getLayer('cultures-fill')
-        ? map.queryRenderedFeatures(e.point, { layers:['cultures-fill'] }) : [];
-      if (cibleInterdite.length) {
-        const nomZone = cibleInterdite[0].properties.nom || 'cette zone';
-        afficherEnvironnement(
-          `<p><strong>Vous êtes dans une zone de cultures marines — ${nomZone}.</strong></p>
-           <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
-          'rouge');
-        boatBlock.style.display = 'none';
-        if (marker) { marker.remove(); marker = null; }
-        position = null;
-        copieFaite = false; majEtapes();   // v2.13 : clic refusé → étapes 3 et 4 remises à zéro
-        reportBlock.style.display = 'none';
-        hint.textContent = '';
-        popup.classList.remove('info', 'alerte');
-        popup.classList.add('visible');
-        return;
-      }
-      // Vérification APB : interdiction, donc contrôlée AVANT d'afficher quoi
-      // que ce soit (contrairement à Natura 2000/ZNIEFF, vérifiées après coup).
+      // Interdictions, donc contrôlées AVANT d'afficher quoi que ce soit
+      // (contrairement à Natura 2000/ZNIEFF, vérifiées après coup) : arrêté de
+      // protection de biotope et cultures marines. Les deux partent en parallèle
+      // — l'une n'a pas à attendre l'autre. Zone de baignade / zone
+      // réglementaire : à venir, voir la légende. Comme pour ports/ZMEL, aucune
+      // AOT individuelle n'y est possible : pas de marqueur, pas de coordonnées.
+      // v2.18 : les cultures marines étaient jusqu'ici vérifiées localement, sur
+      // un polygone fictif ; elles le sont désormais sur le cadastre conchylicole
+      // des DDTM, en réseau — d'où leur passage dans cette branche.
       // Le marqueur précédent est retiré pendant l'attente pour ne pas laisser
       // de coordonnées d'un point différent affichées pendant la vérification.
       if (marker) { marker.remove(); marker = null; }
@@ -1882,12 +2029,30 @@
       popup.classList.add('visible');
       afficherEnvironnement('<p><em>Vérification de la zone…</em></p>', 'neutre');
 
-      const apb = await interrogerAPB(e.lngLat);
+      const [apb, cm] = await Promise.all([
+        interrogerAPB(e.lngLat),
+        interrogerCulturesMarines(e.lngLat)
+      ]);
       if (jeton !== jetonClic) return;            // v2.14 : clic remplacé pendant l'attente
       if (apb.length) {
         afficherEnvironnement(
           `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.join(', ')}.</strong></p>
            <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
+          'rouge');
+        return;
+      }
+      if (cm.etat === 'parcelle') {
+        // Le détail vient du cadastre : numéro de parcelle toujours présent,
+        // commune et espèce selon le département (la Charente-Maritime ne
+        // publie que le numéro et l'espèce).
+        const precisions = [cm.commune, cm.espece].filter(Boolean).join(', ');
+        afficherEnvironnement(
+          `<p><strong>Vous êtes sur une parcelle de cultures marines${cm.parcelle ? ' — parcelle ' + echapper(cm.parcelle) : ''}.</strong></p>` +
+          (precisions ? `<p>${echapper(precisions)}.</p>` : '') +
+          `<p>Cette parcelle du domaine public maritime est déjà concédée : aucun mouillage
+             individuel n'y est autorisable. Veuillez sélectionner un autre emplacement.</p>
+           <p class="env-caveat">Source : cadastre conchylicole de la DDTM
+             ${echapper(cm.departement)} (${echapper(cm.millesime)}).</p>`,
           'rouge');
         return;
       }
@@ -1958,23 +2123,29 @@
       }));
       // Trois issues distinctes, à ne pas confondre : service en panne, zone
       // vérifiée et vide, ou zonages trouvés (cartes ci-dessus).
+      // v2.19 : une zone vérifiée et vide n'affiche PLUS rien (décision de
+      // Nicolas, 14/10/2026). Une bonne nouvelle n'a pas besoin d'une ligne :
+      // l'absence de carte dit déjà qu'il n'y a rien. La panne, elle, reste
+      // annoncée — « on ne sait pas » n'est pas « il n'y a rien ».
       if (echec) cartes.push(carteEnv({
         type: 'protection',
         titre: 'Zonages de protection : vérification impossible',
         consequence: 'service distant momentanément injoignable'
       }));
-      else if (!natura.length && !znieff.length) cartes.push(carteEnv({
-        type: 'ok',
-        titre: 'Aucun zonage de protection détecté ici',
-        consequence: 'Natura 2000 et ZNIEFF vérifiés'
-      }));
       cartes.push(carteNatureFond(fond));
+      // v2.18 : en dernier, et seulement quand le cadastre conchylicole n'a pas
+      // pu répondre — une parcelle trouvée est une interdiction (rouge, plus
+      // haut), et une absence confirmée ne mérite pas une ligne.
+      cartes.push(carteCulturesMarines(cm));
       // v2.5 : si un mouillage est proche, le bloc environnement (vert, ou neutre
       // Natura 2000 / ZNIEFF) est réduit à une ligne de titre, avec un bouton pour
       // déplier le détail (replié par défaut) — la modale reste concise.
-      afficherEnvironnement(
-        '<h2 class="popup-section">Contexte environnemental</h2>' + cartes.join(''),
-        'cartes');
+      // v2.19 : plus aucune carte à montrer → pas de bloc du tout, pas même le
+      // titre « Contexte environnemental », qui annoncerait un vide.
+      const aMontrer = cartes.filter(Boolean);
+      afficherEnvironnement(aMontrer.length
+        ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
+        : '', aMontrer.length ? 'cartes' : '');
 
       recalculer();
     });

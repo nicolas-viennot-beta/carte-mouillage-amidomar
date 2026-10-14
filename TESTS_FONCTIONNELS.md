@@ -1281,10 +1281,13 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
 réponses du Shom et de l'API Carto rejouées. Harnais : `test_popup.mjs` (hors
 dépôt, dans le dossier de travail de Claude).*
 
-1. **Deux cartes, toutes repliées au départ**
+1. **Cartes toutes repliées au départ**
    - Action : cliquer sur l'eau, Natura 2000 présent, fond de sable.
-   - Attendu : deux cartes — `env-carte--protection` puis `env-carte--fond` —, et
-     **aucun** `.env-detail-bloc` visible.
+   - Attendu : `env-carte--protection` puis `env-carte--fond`, et **aucun**
+     `.env-detail-bloc` visible.
+   - *Depuis la v2.18*, une troisième carte `env-carte--usage` s'ajoute quand le
+     point est hors de toute emprise du cadastre conchylicole — c'est le cas en
+     rade d'Hyères, le point de test habituel (voir §8).
    - **Test de non-régression prioritaire** : le repli par défaut est une
      décision de Nicolas (13/10/2026) ; il ne tient que si le test 2 passe aussi.
 
@@ -1318,16 +1321,167 @@ dépôt, dans le dossier de travail de Claude).*
      le second. Les deux boutons affichent « Copié ! » 2 s.
 
 7. **Natura 2000 + ZNIEFF**
-   - Attendu : trois cartes — deux `env-carte--protection` (**même bleu**, ce
-     sont deux zonages de même nature) puis `env-carte--fond`. La carte ZNIEFF
-     porte « rien à reporter dans le formulaire ».
+   - Attendu : deux `env-carte--protection` (**même bleu**, ce sont deux zonages
+     de même nature) puis `env-carte--fond`. La carte ZNIEFF porte « rien à
+     reporter dans le formulaire ». Depuis la v2.18, `env-carte--usage` suit en
+     quatrième position sur un point hors cadastre conchylicole.
 
-8. **Aucun zonage : carte verte et ligne « nom de la zone » masquée**
-   - Attendu : une carte `env-carte--ok` « Aucun zonage de protection détecté
-     ici », et `#zone-row` masquée — les ZNIEFF n'ayant pas de nom dans la
+8. **Aucun zonage : rien n'est affiché, et ligne « nom de la zone » masquée**
+   - Attendu *(révisé en v2.19)* : **aucune** carte de zonage — ni verte, ni
+     bleue —, et `#zone-row` masquée ; les ZNIEFF n'ayant pas de nom dans la
      source, une ligne vide serait pire que son absence.
+   - Et si aucune autre carte n'a lieu d'être (ni fond, ni cultures marines),
+     `#env-block` est entièrement vide : pas même le titre « Contexte
+     environnemental ».
+   - **Ne pas confondre avec la panne** : « Zonages de protection : vérification
+     impossible » doit, elle, continuer de s'afficher. La taire ferait passer un
+     service injoignable pour une absence de zonage.
 
 9. **Clic à terre : le bloc « à reporter » disparaît**
    - Action : détection locale « terre » confirmée par le trait terre-mer.
    - Attendu : `#report-block` en `display:none` (et non seulement ses lignes).
 
+---
+
+## 8. Cultures marines — cadastre conchylicole des DDTM (v2.18)
+
+*Harnais : `test_cm.mjs` (hors dépôt, dans le dossier de travail de Claude),
+Chromium headless sur le serveur local. Les réponses du cadastre rejouées sont
+les **réponses réelles** relevées le 13/10/2026 sur
+`ogc.geo-ide.developpement-durable.gouv.fr` : parcelle `MX01000956`
+(Locquénolé, commune de Taulé, DDTM 29), réponse vide sur un point en pleine
+mer, et `ExceptionReport` tel que le renvoie la DDTM 50.*
+
+Contrat testé (voir `DOCUMENTATION_FONCTIONNELLE.md` §4.3ter) : quatre issues
+distinctes — parcelle trouvée (interdiction), absence confirmée (silence),
+secteur sans cadastre publié, flux injoignable.
+
+1. **Parcelle trouvée en Finistère — interdiction complète**
+   - Action : clic sur −3,86382 / 48,63412, le cadastre renvoyant `MX01000956`.
+   - Attendu : `#env-block` en classe `env-rouge`, contenant « parcelle
+     MX01000956 », « TAULE », « Divers Huître/Coquillage », « déjà concédée », et
+     « Source : cadastre conchylicole de la DDTM Finistère ».
+
+2. **Clic refusé — aucune coordonnée délivrée**
+   - Attendu : aucun marqueur, `#report-block` masqué, étapes 3 et 4 du guide
+     remises à zéro.
+   - **Piège du harnais** : la teinte rouge est portée par `#env-block`
+     (`afficherEnvironnement`), **pas** par `#coords-popup`. Une assertion posée
+     sur le popup échoue à tort.
+
+3. **Ordre des axes et tolérance de la BBOX**
+   - Attendu : `BBOX=<lat_min>,<lon_min>,<lat_max>,<lon_max>,EPSG:4326`
+     — **latitude d'abord** — et une demi-hauteur de 5 m ± 1,5 m pour une couche
+     surfacique.
+   - Ne jamais « corriger » cet ordre en lon,lat : en WFS 1.1.0 + EPSG:4326 ces
+     flux attendent bien lat,lon, et l'inversion renvoie silencieusement zéro
+     parcelle — donc un secteur déclaré libre à tort.
+
+4. **Emprises respectées — pas de requête inutile**
+   - Attendu : un clic en Finistère n'interroge **qu'un** flux ; les trois autres
+     ne sont pas appelés.
+
+5. **APB et cultures marines en parallèle**
+   - Attendu : sur un même clic, le WFS `patrinat_apb:apb` **et** le cadastre
+     sont tous deux interrogés.
+   - **Piège du harnais** : l'APB passe par `data.geopf.fr` avec la couche
+     `patrinat_apb:apb`, pas par `apicarto.ign.fr` — compter les appels sur
+     « biotope » dans l'URL d'API Carto ne voit jamais rien.
+
+6. **Absence confirmée — la carte se tait**
+   - Action : clic dans l'emprise du Finistère, le cadastre renvoyant une
+     collection vide.
+   - Attendu : le parcours continue (marqueur, coordonnées, bloc à reporter), et
+     **aucune** mention des cultures marines dans le popup.
+
+7. **Hors emprise — « non vérifiées ici »**
+   - Action : clic en rade d'Hyères (6,13 / 43,03).
+   - Attendu : **aucune** requête au cadastre, et une carte `env-carte--usage`
+     « Cultures marines : non vérifiées ici », mention « aucun cadastre
+     conchylicole publié pour ce secteur ».
+
+8. **Flux injoignable — « vérification impossible »**
+   - Action : clic dans l'emprise du Finistère, le flux répondant HTTP 500.
+   - Attendu : le mouillage **n'est pas** bloqué (marqueur et coordonnées
+     délivrés), et une carte « Cultures marines : vérification impossible ».
+
+9. **`ExceptionReport` traité comme une panne, pas comme un vide**
+   - Action : même clic, le flux répondant HTTP 200 avec l'`ExceptionReport`
+     d'encodage de la DDTM 50.
+   - Attendu : « Cultures marines : vérification impossible ».
+   - **Test le plus important de la section** : MapServer répond en 200, et lire
+     ce document comme une absence de parcelle déclarerait libre un secteur dont
+     on ne sait rien.
+
+10. **Charente-Maritime — deux couches sur le même point**
+    - Action : clic sur −1,20 / 46,00, la couche linéaire renvoyant la parcelle
+      `MO07200031` (Moule), la surfacique rien.
+    - Attendu : les **deux** flux (`L_CADASTRE_CONCH_S_017` et
+      `L_CADASTRE_CONCH_L_017`) interrogés, et la parcelle linéaire suffit à
+      bloquer le clic.
+
+11. **Couche linéaire — tolérance élargie**
+    - Attendu : demi-hauteur de BBOX de 25 m ± 3 m sur le flux linéaire.
+    - Motif : une ligne n'a pas de surface, un point ne la toucherait jamais.
+
+12. **Affichage — quatre flux sous une seule case**
+    - Attendu : les sources `cultures`, `cultures-1`, `cultures-2`, `cultures-3`
+      et les couches `cultures-layer`, `cultures-1-layer`, `cultures-2-layer`,
+      `cultures-3-layer` existent et sont visibles ; `cultures-fill` (l'ancienne
+      couche GeoJSON) n'existe plus.
+
+13. **Bascule groupée de la légende**
+    - Action : décocher puis recocher « Cultures marines ».
+    - Attendu : les quatre couches passent à `none` ensemble, puis reviennent à
+      `visible` ensemble.
+
+14. **Plus aucune référence fonctionnelle au polygone fictif**
+    - Attendu : le code source ne contient ni `geojson: 'data/cultures-marines…`,
+      ni la clé `'data/cultures-marines.geojson':` dans `SECOURS`, ni
+      `EXEMPLE FICTIF`.
+    - Le commentaire de code qui **raconte** la suppression a le droit de nommer
+      le fichier : l'assertion doit viser les références fonctionnelles, pas la
+      chaîne de caractères.
+
+15. **Intégrité — aucune erreur JavaScript sur tout le parcours**
+    - Attendu : aucun `pageerror` ni `console.error`, hors bruit habituel
+      (favicon, WebGL/swiftshader, ressources interceptées).
+
+### Résultat de la dernière exécution
+
+14 octobre 2026, version 2.19 : **41/41** sur l'ensemble des suites
+(estran 7/7, nature du fond 8/8, popup 11/11, cultures marines 15/15),
+rejouées après le retrait de la carte verte. Vérification de syntaxe des deux
+blocs `<script>` : OK.
+
+Le harnais « nature du fond » s'est révélé **intermittent** le 14/10 : il lisait
+le popup 2 800 ms après le clic, délai devenu trop court depuis que le cadastre
+conchylicole part en parallèle. Deux exécutions sur trois échouaient sur un test
+différent à chaque fois, avec un popup resté sur « Vérification des zonages
+environnementaux… ». Attente portée à 3 600 ms, puis trois exécutions
+consécutives à 8/8. **Un test qui échoue sur un message d'attente est un
+problème de délai du harnais, pas du code** — le vérifier avant de chercher une
+régression.
+
+Les quatre premiers échecs rencontrés venaient des **assertions du harnais**, pas
+du code : classe rouge cherchée sur le mauvais élément, mauvaise couche pour
+l'APB, et chaîne du fichier supprimé présente dans un commentaire.
+
+### Dette relevée en rejouant les sections antérieures
+
+Les harnais des sections 1 (estran), nature du fond et popup simulaient l'eau par
+« `queryRenderedFeatures` ne renvoie aucun objet ». Depuis la **v2.17**, cela
+signifie « aucune preuve d'eau » et le point est tenu pour terrestre : les trois
+suites déclaraient donc tous les clics « à terre » et ne vérifiaient plus rien.
+Remises à jour le 13/10/2026 :
+
+- preuve d'eau explicite (`[{ sourceLayer:'hydro_surf' }]`) ;
+- deux réponses LIMTM par clic contesté (`INTERSECTS` au point, puis `DWITHIN`
+  pour le test de couverture), et comptage d'appels porté de 1 à 2 ;
+- attente portée de 1 200 à 2 200 ms sur le harnais estran, le verdict arrivant
+  après deux requêtes.
+
+**À retenir pour la prochaine évolution :** tout changement du contrat terre/eau
+ou du trait terre-mer casse silencieusement ces trois harnais — ils passent alors
+au vert pour de mauvaises raisons, ou au rouge en bloc. Rejouer les quatre
+suites, pas seulement celle de la fonctionnalité touchée.
