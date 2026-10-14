@@ -650,7 +650,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - [ ] Cliquer sur une parcelle affichée → popup rouge nommant la parcelle (`CM1PAR`), la commune et l'espèce, avec la mention de la DDTM source
 - [ ] Aucun marqueur ni coordonnées GPS n'apparaissent, et les étapes 3 et 4 du guide repassent à zéro
 - [ ] Cliquer juste à côté de la parcelle, sur l'eau libre → le parcours reprend normalement et **rien** n'est dit des cultures marines
-- [ ] Cliquer dans un couloir entre deux blocs de bouchots en baie du Mont-Saint-Michel (environ 48,6499 N / −1,6841 E) → **pas** de blocage, mais une carte « Parcelle de cultures marines à 36 m » *(v2.21)*
+- [ ] Cliquer dans un couloir entre deux blocs de bouchots en baie du Mont-Saint-Michel (48,649899 N / −1,684100 E) → **pas** de blocage, mais une carte « Parcelle de cultures marines à 10 m » *(v2.21 ; vérifié en ligne le 14/10/2026)*
 - [ ] Cliquer en rade d'Hyères → carte repliée « Cultures marines : non vérifiées ici » (aucun cadastre publié sur ce secteur)
 - [ ] Pas d'erreur console
 
@@ -865,7 +865,8 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ### v2.21 — 14 octobre 2026
 **Une parcelle de cultures marines à moins de 40 m est signalée, sans bloquer**
-- Déclencheur : un clic de Nicolas en baie du Mont-Saint-Michel, entre deux blocs de bouchots. La carte ne disait rien, à juste titre — vérification faite sur le cadastre de la DDTM 35, la parcelle la plus proche (12000844, Saint-Broladre, moules) est à **36 m**, et il y en a 18 dans un rayon de 200 m. Mais ne rien dire à 36 m d'un parc à moules est trompeur : le seul rayon d'évitage d'un voilier de 10 m dépasse cette distance.
+- Déclencheur : un clic de Nicolas en baie du Mont-Saint-Michel, entre deux blocs de bouchots. La carte ne disait rien, alors que la parcelle la plus proche (12000944, Saint-Broladre, moules) est à **10 m** — vérifié sur le cadastre de la DDTM 35, et 18 parcelles dans un rayon de 200 m. Ne rien dire à cette distance est trompeur : le seul rayon d'évitage d'un voilier de 10 m la dépasse largement.
+- **Erreur de mesure à ne pas refaire.** La première vérification manuelle annonçait 36 m : elle ne lisait que le **premier** `<gml:posList>` de chaque entité. Or ces parcelles sont des `MultiSurface` de 3 à 5 polygones — un parc à moules est fait de plusieurs rangées de pieux. Le code, lui, lit tous les anneaux et trouve 10 m : c'est la mesure à la main qui était fausse. Toute vérification manuelle du cadastre doit parcourir **tous** les `posList` d'une entité.
 - Troisième voie retenue : signaler sans bloquer. Élargir le blocage aurait été refuser un emplacement qui n'est pas sur une parcelle concédée, ce que rien ne justifie juridiquement.
 - Carte : « **Parcelle de cultures marines à {n} m** » / « votre rayon d'évitage peut l'atteindre », détail « Il serait préférable d'envisager un autre emplacement. » Seuil (40 m) et texte choisis par Nicolas.
 - La requête passe d'un rayon de 5 m (25 m en linéaire) à **40 m pour toutes les couches**, et jusqu'à 20 entités : la carte lit désormais la géométrie renvoyée et **mesure** la distance au contour, au lieu de se contenter d'un oui/non. Blocage à 5 m ou à l'intérieur du polygone, information jusqu'à 40 m. Quand deux flux couvrent le point, la parcelle la plus proche l'emporte.

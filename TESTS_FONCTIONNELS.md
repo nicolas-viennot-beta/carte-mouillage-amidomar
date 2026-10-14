@@ -1520,6 +1520,16 @@ suffirait plus à tester quoi que ce soit.
 - Action : clic dans l'emprise, cadastre répondant vide.
 - Attendu : aucune mention des cultures marines.
 
+**49. Entités multi-polygones : tous les anneaux comptent (vérification en réel)**
+- Action : sur la version publiée, cliquer en baie du Mont-Saint-Michel à
+  48,649899 / −1,684100.
+- Attendu : « Parcelle de cultures marines à **10 m** », sans blocage.
+- **Piège de vérification** : ces parcelles sont des `MultiSurface` de 3 à 5
+  polygones (un parc à moules compte plusieurs rangées de pieux). Une mesure à
+  la main qui ne lit que le premier `<gml:posList>` d'une entité annonce 36 m au
+  lieu de 10 m — c'est l'erreur commise le 14/10/2026 avant de regarder le
+  détail. Toute vérification manuelle doit parcourir **tous** les `posList`.
+
 **Deux pièges du harnais, rencontrés le 14/10/2026 :**
 - Les géométries rejouées doivent être **cohérentes avec le point cliqué**. La
   parcelle linéaire de Charente-Maritime avait gardé des coordonnées du
