@@ -173,9 +173,13 @@ et cultures marines (cadastres conchylicoles des DDTM).
 
 Deux réserves :
 
-- **Herbiers de posidonie** — la source appelée ne couvre que Palavas et les
-  Albères. Elle n'affiche rien sur le Var, les Bouches-du-Rhône et la Corse,
-  là où l'enjeu est le plus fort. Une source à couverture nationale reste à trouver.
+- **Herbiers de posidonie et de zostère** — la source appelée aujourd'hui ne
+  couvre que Palavas et les Albères. Elle n'affiche rien sur le Var, les
+  Bouches-du-Rhône et la Corse, là où l'enjeu est le plus fort. Une source
+  nationale a été trouvée le 14/10/2026 — les couches OFB issues du Life
+  intégré Marha, posidonie et zostères réunies, interrogeables au point en
+  moins de 100 ms — mais **elle n'est pas encore branchée**. Voir
+  `data/SOURCES.md` §4.
 - **Cultures marines** — il n'existe pas de flux national interrogeable. Le
   cadastre aquacole national du Cerema est bien la version harmonisée des
   fichiers DDTM (37 612 parcelles, soit 50 fois la couche « fermes marines » du
@@ -192,9 +196,11 @@ Deux réserves :
   absence de CQL, `ExceptionReport` en HTTP 200) et les départements encore
   sans flux exploitable.
 
-  **`data/SOURCES.md`** garde la trace de la recherche faite sur data.gouv.fr
-  pour les ZMEL, les ports et les cultures marines : jeux départementaux
-  trouvés, formats, licences, et services en panne signalables aux DDTM.
+  **`data/SOURCES.md`** est le **document de référence unique sur les données**
+  de la carte : une section par source, avec son état, ses flux, ses pièges et
+  ses limites d'usage, plus la liste de ce qui manque et à qui le demander.
+  Toute source nouvelle, tout test, tout flux cassé s'y consigne. En cas de
+  divergence avec une note datée, c'est lui qui fait foi.
 
 ## Sécurité et mentions
 
