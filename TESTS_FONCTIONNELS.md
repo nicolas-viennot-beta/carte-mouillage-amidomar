@@ -26,10 +26,22 @@ fonctionnalité correspondante a réellement disparu.
   `fetch` simulés. Les deux premiers échecs venaient des **assertions du
   harnais**, pas du code : la branche de vérification testait `search ===
   '?vue=existant'` et ne reconnaissait donc pas `?embed&vue=existant`.
-- **Non vérifié en conditions réelles** : aucun navigateur n'était disponible
-  dans cette session pour ouvrir la version publiée. La saisie d'une coordonnée
-  et le passage au ✓ de l'étape 2 restent à contrôler dans un vrai navigateur
-  (§9.23 de DOCUMENTATION_FONCTIONNELLE.md).
+- **Vérifié ensuite sur la version publiée** (navigateur réel, même jour) :
+  §11.8 et §11.9 **OK**. `?vue=existant` affiche bien les 3 étapes ; la saisie de
+  `43.267710, 6.622611` dans le champ de recherche centre la carte, ouvre le
+  popup (règles locales Var 83, nature du fond, cultures marines, coordonnées
+  reportables) et fait passer **l'étape 2 au ✓ pendant que l'étape 3 garde son
+  numéro 3** — la numérotation `guideDecalage` tient en conditions réelles. Le
+  bouton ❓ rouvre bien la modale « mouillage existant ». L'URL sans paramètre
+  affiche toujours 4 étapes et le bouton « Commencer ». `window.scrollY` à 0 dans
+  les deux vues. Seules erreurs de console : des 404 de tuiles, déjà connus.
+- **Piège de déploiement rencontré** : juste après le push, GitHub Pages servait
+  encore la version de la veille (`Last-Modified` du 14/10, `vueExistant` absent
+  du fichier servi) alors que `git ls-remote origin main` correspondait déjà au
+  commit local. Republication effective ~1 min plus tard. **Comparer le commit
+  distant au commit local avant de conclure à une régression**, puis réessayer :
+  un `fetch(location.pathname + '?cachebust=' + Date.now(), {cache:'reload'})`
+  suivi d'un test sur le contenu servi tranche en une ligne.
 
 **Exécution précédente : 14 oct. 2026 (v2.25.3) — zoom d'arrivée, sur la version publiée.**
 - §10.4bis (plancher de zoom à 14) : **OK** en fenêtre 1440×900.
@@ -2086,14 +2098,14 @@ le DOM `#guide-titre`, `#guide-commencer`, les `.etape` et les `.puce` de
      v2.25.1 ne doit pas revenir par cette porte.
    - Vérification : exécution (Node.js + jsdom).
 
-8. **Réouverture par le bouton ❓** *(à vérifier en navigateur)*
+8. **Réouverture par le bouton ❓** — *vérifié en navigateur le 15/10/2026*
    - Action : dans la vue existant, cliquer le bouton ❓.
    - Attendu : rouvre « Visualiser votre mouillage actuel », pas la modale par
      défaut (le corps n'est construit qu'une fois, à l'initialisation).
    - Vérification : lecture du code (suffisante : `ouvrirGuide()` ne reconstruit
      rien) + contrôle visuel en conditions réelles.
 
-9. **Chaîne complète de la vue existant** *(à vérifier en navigateur)*
+9. **Chaîne complète de la vue existant** — *vérifié en navigateur le 15/10/2026*
    - Action : ouvrir `?vue=existant` sur la version publiée, coller
      `43.267710, 6.622611` dans le champ de recherche, valider.
    - Attendu : la carte se centre, le popup s'ouvre (même traitement que §10),
