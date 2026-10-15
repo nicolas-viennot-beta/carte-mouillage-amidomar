@@ -29,7 +29,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | ZNIEFF marines type 1 — IGN/INPN | ✅ | ✅ apicarto | en service |
 | Arrêtés de protection de biotope — IGN/INPN | ✅ | ✅ WFS | en service, **bloquant** |
 | Aires marines protégées — OFB | ✅ | — | en service |
-| **Herbiers posidonie + zostères — OFB** | ❌ | ❌ | **source trouvée le 14/10, pas encore branchée** |
+| **Herbiers posidonie + zostères — OFB** | ❌ | ❌ | **source qualifiée, intégration ajournée** (décision du 15/10, §4) |
 | Herbiers — Ifremer (couche actuelle) | ⚠️ | — | **à remplacer** : Occitanie seulement |
 | Trait terre-mer (DPM) — Shom | — | ✅ WFS | en service |
 | Natures de fond — Shom | — | ✅ WFS | en service, **couverture très inégale** |
@@ -221,8 +221,38 @@ comme fournisseur du `SearchControl` après `GpsGeocoder`.
 
 ## 4. Herbiers — posidonie et zostères (OFB, vérifié le 14 octobre 2026)
 
-**C'est la lacune la plus coûteuse de la carte, et elle est levée côté donnée :
-la source nationale existe. Elle n'est pas encore branchée.**
+**La source nationale existe et elle est qualifiée. Son intégration est
+ajournée — décision du 15/10/2026.**
+
+> **Ce qui est fait** : la source est identifiée, testée, et tout ce qu'il faut
+> pour la brancher est écrit ci-dessous — endpoints, identifiants de couches,
+> attribut géométrique, latences, limites, mentions obligatoires. Il n'y a plus
+> de recherche à refaire.
+>
+> **Ce qui ne l'est pas** : rien n'est branché dans `index.html`. La couche
+> affichée reste la couche Ifremer partielle.
+>
+> **Pourquoi on attend.** Trois points restent à trancher, et aucun n'est
+> technique :
+> 1. **quelle couche afficher** — la Nav&Co porte le message usager mais n'est
+>    pas tuilée (WMS classique, moins fluide au zoom) ; la détaillée 2022 est
+>    tuilée mais muette. Afficher l'une et interroger l'autre est possible,
+>    c'est déjà le schéma des cultures marines, mais cela fait deux sources
+>    sous une case de légende ;
+> 2. **ce que le clic dit** — reprendre le `subtitle` de l'OFB tel quel, ou
+>    l'encadrer d'un avertissement sur le caractère indicatif. La carte
+>    montrera du sable là où un procès-verbal pourra constater un herbier :
+>    c'est un sujet de rédaction autant que de responsabilité ;
+> 3. **si un herbier bloque le clic** — aujourd'hui seuls les APB et le
+>    cadastre conchylicole bloquent. Un polygone d'herbier n'est pas opposable,
+>    ce qui plaide pour signaler sans bloquer, comme pour les concessions
+>    linéaires (§7). Mais la posidonie est protégée depuis 1988 et l'arrêté
+>    PREMAR 123/2019 encadre le mouillage : l'argument inverse est ici plus
+>    fort que pour les bouchots.
+>
+> **Ce qui lèverait l'attente** : une réponse de l'OFB sur la mise en cache de
+> la couche Nav&Co (§12) réglerait le point 1 et rendrait les deux autres
+> moins coûteux à trancher.
 
 Ce qui est affiché aujourd'hui est la couche Ifremer
 `BIOMED_POSI_PALAVAS_P,BIOMED_POSI_ALBERES_P`
