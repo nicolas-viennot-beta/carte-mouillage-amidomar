@@ -610,6 +610,47 @@ plus un rayon de requête mais le seuil de blocage. Délai
 `CONFIG.delaiCulturesMarines` = 4 s. La vérification tourne **en parallèle de
 celle des APB** — deux interdictions, un seul temps d'attente.
 
+#### Les concessions linéaires ne bloquent jamais au-delà de 5 m — par choix
+
+Décision du 15/10/2026, à ne pas défaire sans la relire.
+
+Une concession sur filière ou estacade est une **ligne** dans le cadastre :
+`pointDansAnneau` ne lui est pas appliqué, seule la distance au trait décide.
+Or son emprise latérale réelle — pieux, tables — n'est pas dans la donnée.
+Bloquer plus large que 5 m reviendrait donc à **affirmer une interdiction que
+le cadastre ne porte pas**, sur une donnée d'inventaire non opposable. Le
+signalement dit la vérité disponible sans la dépasser.
+
+Ce qu'on accepte : un dossier peut être déposé à 8 m d'un bouchot. Il arrivera
+chez l'instructeur avec la trace de l'avertissement, donc motivable en deux
+lignes plutôt qu'en un aller-retour.
+
+Ce qu'on refuse, et pourquoi : bloquer une bande de 20 à 25 m de part et
+d'autre de 1 254 lignes interdirait des emplacements légaux. Et l'erreur
+serait **invisible** — un usager bloqué à tort n'écrit pas, il abandonne ou
+dépose hors de la carte, ce qui rend l'outil inutile sans qu'on l'apprenne.
+Un dossier déposé à tort, lui, remonte. Le signalement préserve le signal
+d'apprentissage, et il alimente l'indicateur « 30 % des usagers modifient leur
+projet », qu'un blocage ne produit pas : un blocage produit une sortie du
+parcours.
+
+À noter enfin que l'ancien comportement était plus pauvre, pas plus sûr : avec
+une BBOX à 25 m sur le linéaire, la carte bloquait ou se taisait, sans état
+intermédiaire — elle ne signalait **rien** au-delà de 25 m. La v2.21 informe
+jusqu'à 40 m.
+
+Ce choix se révise **sur une base**, pas sur une intuition. Trois pistes ont
+été vérifiées le 15/10/2026 et **aucune ne porte la largeur d'emprise** :
+
+| Piste | Verdict |
+|---|---|
+| Attributs du flux linéaire du 17 | **fermée.** `DescribeFeatureType` ne renvoie que `CM1PAR` et `ESPECE` — deux champs, là où la couche surfacique du Finistère en a 18, dont `SURFACE_M2` |
+| Schéma départemental des structures comme couche géographique | **fermée.** Le Cerema le présente comme un cadre de planification, pas comme une donnée diffusée. C'est un **arrêté préfectoral en PDF**, par département : il fixe des règles dimensionnelles en texte, pas en géométrie |
+| Flux Géolittoral depuis la page | **fermée.** `geolittoral-data.cerema.fr`, `geolittoral.cerema.fr` et `www.geolittoral.developpement-durable.gouv.fr` échouent tous les trois en CORS depuis l'origine de déploiement — même constat que pour le cadastre national (§7) |
+
+**Il n'y a donc pas de réponse technique à aller chercher** : la question est à
+poser à un humain (§12).
+
 Point de vérification réelle : 48,649899 / −1,684100 → « parcelle de cultures
 marines à 10 m », signalée sans blocage. Parcelles de référence : `MX01000956`
 (Locquénolé, commune de Taulé, DDTM 29) ; `MO07200031` (moules, 17 linéaire) ;
@@ -795,6 +836,7 @@ quelques sites avant de bouger.
 | **Flux conchylicole cassé** | DDTM 50 | bug d'encodage `8859part1` ; une fois corrigé, le département s'ajoute en une ligne de registre |
 | **Flux ZMEL cassé** | DDTM 83 | même bug, sur le jeu le plus pertinent du projet |
 | Cadastre conchylicole sans flux | DDTM 56 Morbihan en premier | donnée fraîche (avril 2026) et bassin dense (1 999 parcelles) — publier sur GéoIDE, ou héberger le fichier converti |
+| **Emprise latérale d'une concession linéaire** | service Cultures marines de la DDTM/DML qui instruit les concessions — la 17 en premier, seul flux linéaire branché | quelle largeur occupe réellement une concession sur filière ou estacade, de part et d'autre du trait du cadastre ? Est-elle normée par le schéma départemental des structures, ou propre à chaque concession ? Demander le schéma des structures du département (arrêté préfectoral, en PDF). **Les trois pistes techniques sont fermées** (§7) : la largeur n'est dans aucun flux. C'est pourtant la seule réponse qui permettrait de bloquer sur l'emprise réelle au lieu d'arbitrer entre sur-bloquer et sous-bloquer |
 | CORS sur le cadastre national | Cerema, `geolittoral-data.cerema.fr` | un réglage de serveur donnerait la couverture nationale d'un coup |
 | **Zones de baignade et zones réglementaires** | — | aucune source publique ne permet de les représenter ni de les identifier au clic. Confirmé absent du Shom. Les API de prédiction de marée du Shom sont par ailleurs **payantes** |
 | Messages DDTM : 2 départements sur une centaine | DDTM pilotes | `ddtm-messages.json` ne porte que les DDTM **22** (Côtes-d'Armor : plus d'AOT individuelle délivrée, redirection vers une liste d'attente) et **83** (encore en `brouillon`). C'est le fichier qui fait parler la carte au niveau local |

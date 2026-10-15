@@ -1545,11 +1545,18 @@ secteur sans cadastre publié, flux injoignable.
 
 3. **Ordre des axes et tolérance de la BBOX**
    - Attendu : `BBOX=<lat_min>,<lon_min>,<lat_max>,<lon_max>,EPSG:4326`
-     — **latitude d'abord** — et une demi-hauteur de 5 m ± 1,5 m pour une couche
-     surfacique.
+     — **latitude d'abord** — et une demi-hauteur de
+     `CONFIG.proximiteCulturesMarines` (40 m) ± 5 m, **sur toutes les couches,
+     surfaciques comme linéaires** (v2.21).
    - Ne jamais « corriger » cet ordre en lon,lat : en WFS 1.1.0 + EPSG:4326 ces
      flux attendent bien lat,lon, et l'inversion renvoie silencieusement zéro
      parcelle — donc un secteur déclaré libre à tort.
+   - **Ne pas confondre avec le seuil de blocage**, resté à
+     `CONFIG.blocageCulturesMarines` (5 m) : la BBOX dit ce qu'on va chercher,
+     les 5 m disent ce qui interdit. Un test qui vérifie 5 m sur la BBOX teste
+     l'architecture d'avant la v2.21 — et laisse passer la régression qui
+     consisterait à ne plus rien chercher au-delà de 5 m, donc à se taire sur
+     une parcelle voisine.
 
 4. **Emprises respectées — pas de requête inutile**
    - Attendu : un clic en Finistère n'interroge **qu'un** flux ; les trois autres
@@ -1591,12 +1598,35 @@ secteur sans cadastre publié, flux injoignable.
     - Action : clic sur −1,20 / 46,00, la couche linéaire renvoyant la parcelle
       `MO07200031` (Moule), la surfacique rien.
     - Attendu : les **deux** flux (`L_CADASTRE_CONCH_S_017` et
-      `L_CADASTRE_CONCH_L_017`) interrogés, et la parcelle linéaire suffit à
-      bloquer le clic.
+      `L_CADASTRE_CONCH_L_017`) interrogés, et la parcelle linéaire remontée.
+    - **L'issue dépend de la distance, pas de la couche** (v2.21) : à 5 m ou
+      moins du trait, `etat:'parcelle'` et le clic est bloqué ; entre 5 et 40 m,
+      `etat:'proximite'` — la parcelle est signalée, le clic **n'est pas**
+      bloqué, et le marqueur comme les coordonnées sont délivrés. Vérifier les
+      deux cas en faisant varier la distance du point au trait, et non en
+      supposant qu'une couche linéaire bloque par nature.
 
-11. **Couche linéaire — tolérance élargie**
-    - Attendu : demi-hauteur de BBOX de 25 m ± 3 m sur le flux linéaire.
-    - Motif : une ligne n'a pas de surface, un point ne la toucherait jamais.
+11. **Couche linéaire — jamais bloquante au-delà de 5 m, par choix**
+    - Attendu : sur un flux `lineaire:true`, `pointDansAnneau` **n'est pas**
+      appelé (une ligne n'a pas d'intérieur) : seule la distance au trait
+      décide. Donc aucun blocage au-delà de `CONFIG.blocageCulturesMarines`
+      (5 m), quelle que soit la proximité.
+    - **C'est une décision de produit, pas un effet de bord** (15/10/2026).
+      L'emprise latérale réelle d'une concession sur filière ou estacade n'est
+      pas dans la donnée : bloquer plus large affirmerait une interdiction que
+      le cadastre ne porte pas, sur une donnée d'inventaire non opposable.
+      Signaler dit la vérité disponible sans la dépasser.
+    - Conséquence à accepter : un dossier peut être déposé à 8 m d'un bouchot.
+      Il arrivera chez l'instructeur avec la trace de l'avertissement.
+    - **Ne pas rétablir un seuil large sans base.** La largeur d'emprise n'est
+      dans aucun flux : trois pistes vérifiées et fermées le 15/10/2026 (voir
+      `data/SOURCES.md` §7). La question est posée au service Cultures marines
+      qui instruit les concessions ; si une emprise normée est obtenue, le
+      blocage se recalibre dessus et ce test change.
+    - Pour mémoire, l'ancien comportement — BBOX à 25 m sur le linéaire, qui
+      bloquait ou se taisait, sans état intermédiaire — ne signalait **rien**
+      au-delà de 25 m. La v2.21 informe jusqu'à 40 m : la couverture
+      d'information est plus large, pas plus étroite.
 
 12. **Affichage — quatre flux sous une seule case**
     - Attendu : les sources `cultures`, `cultures-1`, `cultures-2`, `cultures-3`
