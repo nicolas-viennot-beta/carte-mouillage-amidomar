@@ -14,7 +14,24 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 14 oct. 2026 (v2.25.3) — zoom d'arrivée, sur la version publiée.**
+**Dernière exécution : 15 oct. 2026 (v2.26) — vue « mouillage existant », harnais Node/jsdom.**
+- §11 (nouvelle section) : **9/9** sur les cinq formes d'URL — sans paramètre,
+  `?vue=existant`, `?vue=nimportequoi`, `?embed`, `?embed&vue=existant`.
+- §6.1 (syntaxe) et §6.1bis (exécution réelle) : **OK** sur les cinq formes —
+  phase synchrone exécutée en entier, aucune exception.
+- §6.1quinquies (vol de focus) : **OK** — 0 focus posé à l'initialisation dans
+  chaque vue.
+- Harnais : jsdom plutôt que des stubs DOM à la main (le test porte sur le
+  contenu réellement construit dans le DOM), `maplibregl` / `CarteFacile` /
+  `fetch` simulés. Les deux premiers échecs venaient des **assertions du
+  harnais**, pas du code : la branche de vérification testait `search ===
+  '?vue=existant'` et ne reconnaissait donc pas `?embed&vue=existant`.
+- **Non vérifié en conditions réelles** : aucun navigateur n'était disponible
+  dans cette session pour ouvrir la version publiée. La saisie d'une coordonnée
+  et le passage au ✓ de l'étape 2 restent à contrôler dans un vrai navigateur
+  (§9.23 de DOCUMENTATION_FONCTIONNELLE.md).
+
+**Exécution précédente : 14 oct. 2026 (v2.25.3) — zoom d'arrivée, sur la version publiée.**
 - §10.4bis (plancher de zoom à 14) : **OK** en fenêtre 1440×900.
 - §10.12 rejoué à ce nouveau zoom : **OK** — la modale de Port-Haliguen s'ouvre
   toujours, un cadrage plus large ne réduit pas la détection des entités.
@@ -1991,6 +2008,99 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      n'afficherait simplement plus l'entrée GPS.
    - Vérification : lecture de `vendor/carte-facile.js` (`class SearchControl`,
      `_createResultItem`, `_selectEntry`) + rejeu des tests 5 à 9.
+
+---
+
+## 11. Vue « mouillage existant » — paramètre d'URL `?vue=existant` *(v2.26)*
+
+*Dernière exécution : 15 oct. 2026 (v2.26) — harnais Node/jsdom, 9/9 sur cinq
+formes d'URL. Voir le bandeau en tête de document.*
+
+Contexte : depuis la v2.26, la carte a **deux portes d'entrée** (§3 Étape 0 et
+0bis de DOCUMENTATION_FONCTIONNELLE.md). Seule la modale d'accueil change ; tout
+le reste du code est commun. Les tests ci-dessous vérifient donc surtout **que
+la vue par défaut n'a pas bougé** et que la bascule ne tient qu'au paramètre.
+
+Méthode commune : charger `index.html` dans jsdom avec une URL portant le
+paramètre à tester, exécuter le dernier bloc `<script>` avec `maplibregl`,
+`CarteFacile` et `fetch` simulés (même principe que §6.1bis), puis relever dans
+le DOM `#guide-titre`, `#guide-commencer`, les `.etape` et les `.puce` de
+`#guide-corps`.
+
+1. **Vue par défaut inchangée (non-régression)**
+   - Action : charger sans paramètre.
+   - Attendu : titre « Choisir un emplacement de mouillage en 4 étapes », bouton
+     « Commencer », 4 étapes, puces `1/2/3/4`, `et-0` **et** `et-1` présents,
+     l'étape verte « port ou une ZMEL » toujours là.
+   - Vérification : exécution (Node.js + jsdom).
+
+2. **Vue « mouillage existant »**
+   - Action : charger avec `?vue=existant`.
+   - Attendu : titre « Visualiser votre mouillage actuel », bouton « Visualiser
+     mon mouillage », **3** étapes, puces `1/2/3`, `et-0` présent et `et-1`
+     **absent**, aucune mention de « port ou une ZMEL ».
+   - Vérification : exécution (Node.js + jsdom).
+
+3. **Texte des trois étapes**
+   - Action : lire le texte de `#guide-corps` dans la vue existant.
+   - Attendu : y figurent « formulaire de demande de poursuite », « arrêté
+     d'AOT », « format décimal », « champ de recherche » et « données
+     contextuelles ». Ce libellé a été arrêté avec Nicolas le 15/10/2026 : ne
+     pas le reformuler sans lui.
+   - Vérification : exécution (Node.js + jsdom).
+
+4. **Valeur de paramètre inconnue → vue par défaut**
+   - Action : charger avec `?vue=nimportequoi`.
+   - Attendu : exactement le résultat du test 1. La comparaison doit rester
+     stricte (`=== 'existant'`) : toute autre valeur retombe sur l'historique.
+   - Vérification : exécution (Node.js + jsdom).
+
+5. **Cumul avec `?embed`**
+   - Action : charger avec `?embed` seul, puis `?embed&vue=existant`.
+   - Attendu : `?embed` seul → vue par défaut ; `?embed&vue=existant` → vue
+     existant. Les deux paramètres sont lus indépendamment, dans deux blocs
+     `<script>` différents.
+   - Piège du harnais : une assertion écrite `search === '?vue=existant'` ne
+     reconnaît pas `?embed&vue=existant` et produit six faux échecs. Comparer
+     par inclusion.
+   - Vérification : exécution (Node.js + jsdom).
+
+6. **`majEtapes()` tolérante à l'étape absente**
+   - Contexte : `majEtapes()` écrivait en dur `i + 3` sur la puce et supposait
+     `et-0` **et** `et-1` présents. Dans la vue existant, `et-1` n'existe pas :
+     sans garde, la fonction lèverait un `TypeError` au premier clic sur la
+     carte, c'est-à-dire **après** la phase synchrone — invisible au test
+     d'exécution du §6.1bis.
+   - Action : dans les deux vues, appeler `majEtapes()` et relever les puces et
+     les classes des `.etape`.
+   - Attendu : aucune exception ; vue par défaut → puces `1/2/3/4`, classes
+     `fixe / fixe verte / encours / etape` ; vue existant → puces `1/2/3`,
+     classes `fixe / encours / fixe`. En particulier la puce de `et-0` garde son
+     numéro **2** dans la vue existant (`guideDecalage`), pas 3.
+   - Vérification : exécution (Node.js + jsdom).
+
+7. **Aucun focus volé à l'initialisation, dans les deux vues**
+   - Action : rejouer §6.1quinquies sur `?vue=existant`.
+   - Attendu : 0 appel à `focus()` pendant la phase synchrone. La vue existant
+     passe par le même `ouvrirGuide({ sansFocus: true })` — la régression
+     v2.25.1 ne doit pas revenir par cette porte.
+   - Vérification : exécution (Node.js + jsdom).
+
+8. **Réouverture par le bouton ❓** *(à vérifier en navigateur)*
+   - Action : dans la vue existant, cliquer le bouton ❓.
+   - Attendu : rouvre « Visualiser votre mouillage actuel », pas la modale par
+     défaut (le corps n'est construit qu'une fois, à l'initialisation).
+   - Vérification : lecture du code (suffisante : `ouvrirGuide()` ne reconstruit
+     rien) + contrôle visuel en conditions réelles.
+
+9. **Chaîne complète de la vue existant** *(à vérifier en navigateur)*
+   - Action : ouvrir `?vue=existant` sur la version publiée, coller
+     `43.267710, 6.622611` dans le champ de recherche, valider.
+   - Attendu : la carte se centre, le popup s'ouvre (même traitement que §10),
+     et l'étape 2 de la modale passe au ✓ en gardant son numéro 2.
+   - Vérification : **navigateur réel uniquement**. Comme noté en v2.25.2, un
+     harnais sans réseau part en branche « à terre » avant d'atteindre
+     `queryRenderedFeatures` : il validerait ce test pour une mauvaise raison.
 
 ---
 

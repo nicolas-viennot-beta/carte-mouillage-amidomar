@@ -1120,9 +1120,50 @@
 
     /* La marche à suivre s'ouvre en modale au chargement : elle explique avant
        que l'usager n'agisse, puis lui rend l'écran. Une phrase par étape,
-       l'action en gras. Les étapes 1 et 2 sont des consignes fixes ; les
-       étapes 3 et 4 (et-0, et-1) suivent l'état réel du parcours — rouvrir la
-       modale en cours de route montre où l'on en est. */
+       l'action en gras. Les étapes fixes sont des consignes ; l'étape et-0 (et
+       et-1 dans la vue par défaut) suit l'état réel du parcours — rouvrir la
+       modale en cours de route montre où l'on en est.
+
+       Deux portes d'entrée, une seule carte et un seul index.html :
+       - URL sans paramètre : « Choisir un emplacement de mouillage en 4 étapes »,
+         pour l'usager qui cherche un nouvel emplacement ;
+       - URL ?vue=existant : « Visualiser votre mouillage actuel », pour l'usager
+         qui occupe déjà un emplacement et vient vérifier son dispositif.
+       Toute autre valeur, ou l'absence de paramètre, retombe sur la vue par
+       défaut : le comportement historique de la carte est inchangé. Le
+       paramètre reste dans la barre d'adresse après fermeture de la modale,
+       l'URL est donc partageable telle quelle dans un document de démarche. */
+    const vueExistant = new URLSearchParams(location.search).get('vue') === 'existant';
+    /* Numéro affiché sur la puce de l'étape et-0 : 3ᵉ étape dans la vue par
+       défaut, 2ᵉ dans la vue « mouillage existant ». */
+    const guideDecalage = vueExistant ? 2 : 3;
+
+    if (vueExistant) {
+      document.getElementById('guide-titre').textContent = 'Visualiser votre mouillage actuel';
+      document.getElementById('guide-commencer').textContent = 'Visualiser mon mouillage';
+      document.getElementById('guide-corps').innerHTML = `
+      <ol class="etapes">
+        <li class="etape fixe">
+          <span class="puce">1</span>
+          <span class="etape-txt"><strong>Récupérez les coordonnées GPS</strong> de
+            votre mouillage actuel (dans le formulaire de demande de poursuite ou
+            dans votre arrêté d'AOT), au format décimal
+            (ex.&nbsp;43.267710,&nbsp;6.622611).</span>
+        </li>
+        <li class="etape" id="et-0">
+          <span class="puce">2</span>
+          <span class="etape-txt"><strong>Collez-les dans le champ de recherche</strong>
+            en haut de la carte, puis validez : la carte se centre sur votre
+            emplacement.</span>
+        </li>
+        <li class="etape fixe">
+          <span class="puce">3</span>
+          <span class="etape-txt"><strong>Vérifiez les données contextuelles</strong>
+            affichées — interdictions, recommandations, mouillages voisins — pour
+            savoir si votre dispositif actuel est adapté au site.</span>
+        </li>
+      </ol>`;
+    } else {
     document.getElementById('guide-corps').innerHTML = `
       <ol class="etapes">
         <li class="etape fixe">
@@ -1154,6 +1195,7 @@
             collez-les dans votre formulaire de demande d'AOT mouillage.</span>
         </li>
       </ol>`;
+    }
 
     colonneD.appendChild(layerPanel);
 
@@ -1165,13 +1207,16 @@
        décorent pas. */
     let copieFaite = false;
     function majEtapes() {
-      // et-0 = étape 3 affichée (emplacement choisi), et-1 = étape 4 (coordonnées copiées).
-      const etats = [ !!position, copieFaite ];
+      // et-0 = emplacement choisi (clic ou recherche), et-1 = coordonnées copiées.
+      // La vue ?vue=existant s'arrête à la vérification : pas d'étape et-1, et la
+      // puce de et-0 porte le numéro 2 au lieu de 3 (guideDecalage).
+      const etats = vueExistant ? [ !!position ] : [ !!position, copieFaite ];
       const encours = etats.indexOf(false);
       etats.forEach((fait, i) => {
         const li = document.getElementById('et-' + i);
+        if (!li) return;
         li.className = 'etape' + (fait ? ' faite' : (i === encours ? ' encours' : ''));
-        li.querySelector('.puce').textContent = fait ? '✓' : (i + 3);
+        li.querySelector('.puce').textContent = fait ? '✓' : (i + guideDecalage);
       });
     }
 

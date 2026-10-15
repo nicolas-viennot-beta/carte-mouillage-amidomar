@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.25.3 (octobre 2026)  
-**Dernière mise à jour:** 14 octobre 2026  
+**Version:** 2.26 (octobre 2026)  
+**Dernière mise à jour:** 15 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -16,9 +16,11 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 - Afficher les zones protégées et régulations applicables
 - Guider les usagers vers des zones moins sensibles
 - Faciliter la collecte de données GPS précises
+- Permettre à un titulaire d'AOT de **retrouver son mouillage existant** et d'en vérifier le contexte réglementaire et environnemental *(v2.26)*
 
 ### Public cible
 - **Principal:** Plaisanciers non experts cherchant un mouillage
+- **Principal également *(v2.26)*:** Plaisanciers **déjà titulaires** d'une AOT, qui viennent vérifier si leur dispositif est adapté au site — notamment avant une demande de poursuite d'occupation. La carte les accueille par une marche à suivre dédiée, accessible à l'URL `?vue=existant` (voir §3 et §8)
 - **Secondaire:** Instructeurs DDTM consultants l'outil
 
 ---
@@ -45,6 +47,8 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 
 ## 3. Parcours utilisateur
 
+> **Deux portes d'entrée, une seule carte *(v2.26)*.** L'URL sans paramètre s'adresse à l'usager qui **cherche** un emplacement ; l'URL `?vue=existant` à celui qui en **occupe déjà un** et vient le vérifier. Seule la modale d'accueil change — tout le reste de la carte (clic, popup, couches, copie des coordonnées) est identique dans les deux cas. Voir §8 pour les URL et §3 Étape 0bis pour le contenu de la seconde modale.
+
 ### Étape 0 — Orientation (modale d'accueil)
 - Modale « *Choisir un emplacement de mouillage en 4 étapes* » (v2.12 ; « Fonctionnement de la carte pour un choix d'emplacement de mouillage responsable » auparavant)
 - Quatre étapes numérotées, une seule phrase chacune, l'action en gras :
@@ -57,6 +61,21 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 - Bouton « Commencer » en bas de la modale
 - Se ferme par « Commencer », ✕, Échap, ou clic extérieur
 - Réouvrable via le bouton ❓
+
+### Étape 0bis — Orientation « mouillage existant » *(v2.26)*
+
+Affichée **à la place** de la modale ci-dessus quand l'URL porte `?vue=existant`. Elle s'adresse à l'usager qui occupe déjà un emplacement : l'étape « port ou ZMEL » n'a pas de sens pour lui, et son point de départ n'est pas la carte mais une coordonnée qu'il possède déjà.
+
+- Titre : « *Visualiser votre mouillage actuel* »
+- Trois étapes numérotées, même gabarit visuel que la modale par défaut (puce, action en gras) :
+  1. **Récupérez les coordonnées GPS** de votre mouillage actuel (dans le formulaire de demande de poursuite ou dans votre arrêté d'AOT), au format décimal (ex. 43.267710, 6.622611).
+  2. **Collez-les dans le champ de recherche** en haut de la carte, puis validez : la carte se centre sur votre emplacement.
+  3. **Vérifiez les données contextuelles** affichées — interdictions, recommandations, mouillages voisins — pour savoir si votre dispositif actuel est adapté au site.
+- Les étapes 1 et 3 sont des consignes fixes ; **l'étape 2 est la seule étape suivie** (elle porte l'identifiant `et-0` et passe au ✓ dès qu'un emplacement est défini, par recherche ou par clic). Il n'y a pas d'étape « copier les coordonnées » : l'usager arrive avec les siennes, le parcours s'arrête à la vérification.
+- Bouton « Visualiser mon mouillage » (au lieu de « Commencer »), mêmes fermetures (✕, Échap, clic extérieur) et même réouverture par le bouton ❓.
+- Aucun lien de bascule vers l'autre parcours n'est proposé dans la modale : les deux portes d'entrée sont indépendantes, chacune diffusée dans son propre contexte (document de démarche, page du site).
+
+> **Pourquoi l'étape 2 passe par le champ de recherche et non par un clic** : la coordonnée de l'arrêté est précise au dix-millionième de degré. La retrouver à l'œil sur la carte produirait un point voisin mais faux ; la saisir dans le champ de recherche rejoue exactement le traitement du clic à la bonne position (voir §4.6).
 
 ### Étape 1 — Cliquer sur la carte
 Un clic sur la carte déclenche désormais un **traitement unifié**, quel que soit l'endroit cliqué (voir §4.1 pour le détail de la cascade). **Depuis la v2.25**, saisir des coordonnées GPS dans le champ de recherche produit exactement le même traitement : la carte se centre sur le point, puis le clic est rejoué à cet endroit (voir §4.6). Tout ce qui suit vaut donc pour les deux gestes.
@@ -689,6 +708,17 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 - Utile pour intégration dans une démarche
 - **La marche à suivre s'ouvre sans prendre le focus** *(v2.25.1)*. Elle reste affichée au démarrage, mais plus aucun `focus()` n'est posé à l'initialisation : un focus posé dans une iframe fait défiler la page qui l'embarque jusqu'à celle-ci, et les pages d'amidomar.beta.gouv.fr s'ouvraient alors en plein milieu, à la hauteur de la carte. Les réouvertures au clic (bouton ❓, modale d'orientation) posent bien le focus, mais avec `preventScroll: true`, qui produit le même effet sans le saut.
 
+### Vue « mouillage existant » *(v2.26)*
+```
+https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
+```
+- Remplace la modale d'accueil par « Visualiser votre mouillage actuel » (voir §3 Étape 0bis)
+- **Seule la modale change** : couches, clic, popup, recherche GPS et copie des coordonnées sont rigoureusement identiques à la vue par défaut
+- URL destinée à être diffusée dans les documents et formulaires de la démarche de **poursuite d'occupation**, pour ne pas renvoyer un titulaire d'AOT vers un guide de choix d'emplacement
+- **Comportement par défaut préservé** : paramètre absent, mal orthographié ou porteur d'une autre valeur (`?vue=nimportequoi`) → la modale historique à 4 étapes s'affiche. Aucune redirection entre les deux URL.
+- Cumulable avec `?embed` (`?embed&vue=existant`) : les deux paramètres sont lus indépendamment
+- Le paramètre reste dans la barre d'adresse après fermeture de la modale : l'URL est partageable et peut être collée telle quelle dans un document de démarche
+
 ---
 
 ## 9. Checklist de test complet
@@ -926,6 +956,18 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?embed
 
 ---
 
+### ✅ 23. Vue « mouillage existant » *(v2.26)*
+- [ ] Ouvrir la carte **sans paramètre** → modale « Choisir un emplacement de mouillage en 4 étapes », 4 étapes, bouton « Commencer »
+- [ ] Ouvrir la carte avec **`?vue=existant`** → modale « Visualiser votre mouillage actuel », 3 étapes, bouton « Visualiser mon mouillage »
+- [ ] Dans cette vue, l'étape « port ou ZMEL » (bloc vert) et l'étape « copier les coordonnées » sont **absentes**
+- [ ] Coller une coordonnée (ex. `43.267710, 6.622611`) dans le champ de recherche → la carte se centre, le popup s'ouvre, et **l'étape 2 passe au ✓** en gardant son numéro 2 (pas 3)
+- [ ] Cliquer directement sur la carte dans cette vue → même traitement que dans la vue par défaut (marqueur, popup, couches), l'étape 2 passe au ✓
+- [ ] Bouton ❓ → rouvre bien la modale « Visualiser votre mouillage actuel », pas celle par défaut
+- [ ] Ouvrir avec **`?vue=nimportequoi`** → modale par défaut à 4 étapes (aucune régression du comportement historique)
+- [ ] Ouvrir avec **`?embed&vue=existant`** → bandeau masqué **et** modale « mouillage existant »
+
+---
+
 ## 10. Résolution de problèmes courants
 
 ### Une page qui embarque la carte s'ouvre au milieu au lieu du haut *(v2.25.1)*
@@ -1053,6 +1095,16 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.26 — 15 octobre 2026
+**Seconde porte d'entrée : la vue « mouillage existant » (`?vue=existant`)**
+- Demande de Nicolas : la modale d'accueil s'adresse exclusivement à quelqu'un qui **cherche** un emplacement. Un titulaire d'AOT qui vient vérifier le sien — notamment au moment d'une demande de poursuite d'occupation — y lit une marche à suivre qui ne le concerne pas, à commencer par l'étape « regardez d'abord si un port ou une ZMEL vous convient ».
+- Choix retenu : **une seule page, deux URL**. `?vue=existant` remplace la modale d'accueil par « Visualiser votre mouillage actuel » (3 étapes : récupérer la coordonnée dans le formulaire de poursuite ou l'arrêté d'AOT → la coller dans le champ de recherche → vérifier les données contextuelles). Le reste de la carte est strictement identique. Un seul `index.html` à maintenir, et deux adresses distinctes à diffuser sans risque de les confondre.
+- Forme de l'URL arbitrée avec Nicolas : paramètre de requête `?vue=existant` plutôt qu'une ancre `#` (invisible côté statistiques de fréquentation) ou un fichier séparé (duplication de code).
+- Source des coordonnées formulée à sa demande comme « dans le formulaire de demande de poursuite ou dans votre arrêté d'AOT » : les deux documents circulent, et tous les arrêtés ne portent pas la coordonnée.
+- Implémentation : `vueExistant` lit `?vue` une seule fois à l'initialisation ; le corps de la modale est construit dans l'une ou l'autre branche, et `majEtapes()` devient tolérante — elle ignore une étape absente du DOM et numérote la puce de `et-0` avec `guideDecalage` (2 dans la vue existant, 3 dans la vue par défaut) au lieu d'un 3 en dur. Toute valeur inconnue du paramètre retombe sur la vue par défaut.
+- Point laissé ouvert, à trancher avec Nicolas : l'étape 1 suppose que l'usager dispose d'une coordonnée en **degrés décimaux**. Les arrêtés anciens n'en portent pas toujours, et certains sont en degrés-minutes-secondes — le champ de recherche n'accepte aujourd'hui que le décimal (§4.6). Une porte de sortie (« Pas de coordonnées sur votre arrêté ? Cliquez directement sur votre emplacement ») reste à arbitrer.
+- Tests : harnais Node/jsdom rejoué sur les quatre formes d'URL (sans paramètre, `?vue=existant`, valeur inconnue, `?embed`) — exécution synchrone sans exception, aucun focus posé à l'initialisation, titre/bouton/puces/étapes conformes dans chaque cas, et `majEtapes()` exécutée dans les deux vues sans erreur ni renumérotation parasite. Voir TESTS_FONCTIONNELS.md §11.
 
 ### v2.25.3 — 14 octobre 2026
 **Arrivée sur un point GPS trop zoomée**
@@ -1469,4 +1521,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 14 octobre 2026
+**Dernière mise à jour:** 15 octobre 2026
