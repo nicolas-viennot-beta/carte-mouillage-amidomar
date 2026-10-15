@@ -14,7 +14,22 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 15 oct. 2026 (v2.26) — vue « mouillage existant », harnais Node/jsdom.**
+**Dernière exécution : 15 oct. 2026 (v2.27) — réduction du popup, harnais Node/jsdom.**
+- §12 (nouvelle section) : **22/22** — contrat d'accessibilité (ordre du DOM,
+  nom accessible de la barre, `aria-expanded` sur les deux boutons), repli,
+  redéploiement, accord singulier/pluriel, priorité de l'alerte de recoupement,
+  libellés des états sans carte, « Effacer le point » et Échap depuis l'état réduit.
+- Écriture reprise le même jour après une relecture UX/DSFR indépendante : trois
+  défauts d'accessibilité, un avertissement perdu et un recadrage parasite.
+  Les tests 12.2, 12.6, 12.10 et 12.17 gardent ces régressions — ne pas les retirer.
+- §6.1 (syntaxe) et §6.1bis (exécution réelle) : **OK** — phase synchrone
+  exécutée en entier, aucune exception.
+- Rendu des deux états contrôlé en Chromium headless (900 px, 420 px, et à
+  200 % d'agrandissement de texte).
+- Non couvert par le harnais, à reprendre en réel : redéploiement au clic et
+  absence de vol de focus — voir §12, dernière rubrique.
+
+**Exécution précédente : 15 oct. 2026 (v2.26) — vue « mouillage existant », harnais Node/jsdom.**
 - §11 (nouvelle section) : **9/9** sur les cinq formes d'URL — sans paramètre,
   `?vue=existant`, `?vue=nimportequoi`, `?embed`, `?embed&vue=existant`.
 - §6.1 (syntaxe) et §6.1bis (exécution réelle) : **OK** sur les cinq formes —
@@ -2151,6 +2166,145 @@ Remises à jour le 13/10/2026 :
   pour le test de couverture), et comptage d'appels porté de 1 à 2 ;
 - attente portée de 1 200 à 2 200 ms sur le harnais estran, le verdict arrivant
   après deux requêtes.
+
+---
+
+## 12. Réduction du popup de coordonnées — « Réduire » / « Effacer le point » *(v2.27)*
+
+*Dernière exécution : 15 oct. 2026 (v2.27) — harnais Node/jsdom, 22/22, après
+reprise de l'écriture initiale suite à une relecture UX/DSFR. §6.1 (syntaxe),
+§6.1bis (exécution réelle) et §6.1quinquies (vol de focus) rejoués : OK.*
+
+Contexte : le popup a désormais **deux issues qui ne font pas la même chose**
+(DOCUMENTATION_FONCTIONNELLE.md §4.2). Toute la valeur de l'évolution tient à ce
+que « Réduire » ne touche **rien** de l'état applicatif là où « Effacer le
+point » remet tout à zéro. **Les tests 12.2, 12.6 et 12.10 ci-dessous gardent
+chacun une régression d'accessibilité réellement commise le 15/10/2026 :** ne
+les retirer sous aucun prétexte, ce sont des pièges à ne pas réintroduire.
+
+Méthode commune : charger `index.html` dans jsdom (même harnais que §6.1bis,
+`maplibregl` / `CarteFacile` / `fetch` simulés), exécuter le script, garnir
+`#env-block` du nombre voulu de `.env-carte`, puis `dispatchEvent` d'un `click`
+sur `#coords-reduire`, `#coords-resume` et `#coords-fermer` et relever la classe
+`.reduit` de `#coords-popup`, `aria-expanded`, et le texte de
+`#coords-resume-compte` / `#coords-resume-coords`.
+
+### Structure et contrat d'accessibilité
+
+1. **Les trois commandes existent** — `#coords-reduire`, `#coords-fermer`,
+   `#coords-resume`, plus le conteneur `#coords-contenu`.
+
+2. **Ordre du DOM : la barre AVANT les actions.** `#coords-resume` doit précéder
+   `#coords-actions` (vérification par `compareDocumentPosition`).
+   *Piège réellement commis :* l'ordre inverse, rétabli visuellement par `order`
+   en CSS. La tabulation suit le DOM et **pas** `order` : la première touche Tab
+   tombait, dans l'état réduit, sur l'action destructrice (WCAG 2.4.3 / 1.3.2).
+
+3. **Aucune règle `order`** dans les sélecteurs `#coords-popup.reduit` —
+   corollaire du test 2, vérifié par expression régulière sur la feuille de
+   style : l'ordre visuel doit venir du DOM.
+
+4. **Tout ce qui se replie est dans `#coords-contenu`** — `#env-block`,
+   `#boat-block` (tous deux injectés par le script), `#coords-hint`,
+   `#report-block`. Sinon `aria-expanded` annoncerait le repli d'une zone qui
+   n'est pas celle qui disparaît.
+
+5. **`aria-controls` des deux boutons** pointe vers `#coords-contenu`, et non
+   vers un ancêtre.
+
+6. **La barre n'a pas d'`aria-label`**, et contient un `<span class="sr-only">`.
+   *Piège réellement commis :* un `aria-label` sur `#coords-resume`. Il
+   **remplace** le contenu dans le calcul du nom accessible — le lecteur d'écran
+   n'entendait ni le compte, ni les coordonnées, c'est-à-dire tout ce pour quoi
+   la barre existe (WCAG 2.5.3, pilotage vocal cassé).
+
+7. **Libellé destructeur explicite** — « Effacer le point » dans le texte visible
+   **et** dans l'`aria-label` (pour que 2.5.3 reste satisfait). Ne pas revenir à
+   « Fermer » : le bouton détruit la sélection et il est le jumeau visuel de
+   « Réduire ».
+
+8. **`type="button"`** sur les deux commandes (le panneau contient un champ de
+   saisie : sans l'attribut, un `<form>` futur les ferait soumettre).
+
+### Comportement
+
+9. **« Réduire » replie** — la classe `.reduit` apparaît sur `#coords-popup`.
+
+10. **`aria-expanded` sur LES DEUX boutons** — `"false"` une fois réduit sur
+    `#coords-reduire` **et** `#coords-resume`.
+    *Piège réellement commis :* l'attribut n'était porté que par
+    `#coords-reduire`, mis en `display:none` au moment même du repli — la valeur
+    était écrite sur un élément sorti de l'arbre d'accessibilité.
+
+11. **Compte au pluriel** — trois `.env-carte` → « 3 points à vérifier ».
+    Ne pas revenir à « recommandations » : le compte inclut la carte des règles
+    locales, qui énonce une **obligation**, et des cartes qui constatent une
+    **absence de donnée**.
+
+12. **Le texte visible est dans le nom accessible** — corollaire du test 6.
+
+13. **Pas de coordonnées sans point sélectionné** — `position` nulle →
+    `#coords-resume-coords` vide (la ligne est masquée par `:empty`).
+
+14. **Clic sur la barre → redéploiement**, `aria-expanded="true"`.
+
+15. **Accord singulier** — une seule `.env-carte` → « 1 point à vérifier ».
+    Piège à ne pas réintroduire : un `+ 's'` systématique.
+
+16. **Le compte suit le contenu réel** — `afficherEnvironnement()` rafraîchit la
+    barre quand le panneau est déjà réduit (cartes arrivant du réseau).
+
+17. **L'alerte de recoupement prime sur le compte** — classe `.alerte` sur le
+    popup → « Recoupement possible ».
+    *Piège réellement commis :* l'avertissement d'évitage vit dans
+    `#coords-hint`, qui n'est pas une carte. Replier le faisait disparaître
+    pendant que la barre annonçait sereinement « 2 points à vérifier ».
+
+18. **Aucune carte → libellé neutre** — « Emplacement sélectionné », classe
+    `.rien`. **Jamais « 0 point à vérifier ».**
+
+19. **Bloc rouge → « Mouillage interdit ici »** (classe `.interdit`). Un APB ou
+    une parcelle conchylicole n'affiche aucune `.env-carte` : sans ce cas
+    particulier, l'interdiction se résumerait à « rien à signaler » — c'est la
+    régression la plus coûteuse de cette fonctionnalité.
+
+20. **État « à terre »** — classe `.terre` → « Vous êtes à terre », et **aucune
+    coordonnée** (cohérent avec le panneau déplié, qui masque `#report-block`).
+
+21. **« Effacer le point » depuis l'état réduit** — ferme ET redéplie :
+    `.visible` et `.reduit` retirées, `aria-expanded` remis à `true` sur les deux
+    boutons. L'état réduit vaut pour l'emplacement abandonné, pas pour le suivant.
+
+22. **Échap depuis l'état réduit** — même issue que « Effacer le point ».
+    *Signalé à arbitrer par la relecture UX* : détruire la sélection depuis une
+    barre d'une ligne, sans confirmation ni annulation, est surprenant. Si le
+    comportement change, c'est ce test qu'il faut réécrire, pas supprimer.
+
+### Ce que le harnais ne peut pas vérifier — à reprendre sur la version publiée
+
+- **Maintien de l'état réduit au clic, et redéploiement sur verdict bloquant** :
+  `deplierSiReduit()` n'est appelée que sur les branches « à terre » et
+  « interdit ». Le harnais ne peint pas de carte, donc `queryRenderedFeatures`
+  ne renvoie rien et les branches eau / port / terre ne se distinguent pas
+  (même piège qu'en v2.25.2, §10). À vérifier dans un navigateur : un clic sur
+  l'eau **laisse** la barre réduite en la mettant à jour, un clic sur un port
+  ouvre la modale du port sans y toucher, un clic à terre ou sur une parcelle
+  conchylicole redéploie.
+- **Absence de vol de focus au redéploiement automatique** : `opts.focus` vaut
+  `false` sur ce chemin. Contrôler en réel que le focus ne saute pas (cf.
+  §6.1quinquies, enjeu iframe : `window.scrollY` doit rester à 0).
+- **Absence de double recadrage** : `opts.degager` vaut `false` sur ce chemin,
+  parce que `position` y contient encore l'ancien point. Vérifier que la carte
+  ne glisse qu'une fois.
+- **Signal visuel de mise à jour** (classe `.maj`, 700 ms) : perceptible
+  seulement à l'œil.
+- **Mise en page** : vérifiée en Chromium headless à 900 px, 420 px et à 200 %
+  d'agrandissement de texte, mais sur une page de test reconstruite à partir du
+  vrai CSS, pas sur la carte complète.
+- **Lecteur d'écran réel** : jsdom vérifie la présence des attributs, pas ce
+  qu'un lecteur d'écran énonce. À écouter une fois avec VoiceOver ou NVDA.
+
+---
 
 **À retenir pour la prochaine évolution :** tout changement du contrat terre/eau
 ou du trait terre-mer casse silencieusement ces trois harnais — ils passent alors

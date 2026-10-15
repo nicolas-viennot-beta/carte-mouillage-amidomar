@@ -83,7 +83,7 @@
          Sous 700px de large, le popup reprend toute la largeur disponible —
          l'aligner à gauche n'aurait plus de sens, il n'y a pas d'ailleurs. */
       #coords-popup { position:fixed; bottom:40px; left:16px; background:#fff;
-                      border-radius:8px; padding:30px 16px 10px; box-shadow:0 2px 12px rgba(0,0,0,.25);
+                      border-radius:8px; padding:8px 16px 10px; box-shadow:0 2px 12px rgba(0,0,0,.25);
                       font-size:14px; z-index:1000; width:min(420px, calc(100% - 32px));
                       max-height:calc(100% - 80px); overflow-y:auto;
                       opacity:0; transition:opacity .2s; pointer-events:none; box-sizing:border-box; }
@@ -92,12 +92,107 @@
       }
       #coords-popup.visible { opacity:1; pointer-events:auto; }
       /* Fermeture explicite du popup par l'usager : désélectionne le point. */
-      #coords-fermer { position:absolute; top:8px; right:8px; display:flex; align-items:center;
-                        gap:3px; background:none; border:none; color:#3a3a3a; font-size:12px;
-                        font-weight:500; line-height:1; cursor:pointer; padding:5px 7px;
-                        border-radius:4px; }
-      #coords-fermer:hover { background:#f0f0f0; color:#000; }
+      /* v2.27 : les deux issues du popup sont regroupees dans un meme bandeau
+         d'actions, en haut a droite. Les positionner separement en absolu
+         obligeait a coder en dur la largeur de « Fermer » pour caler
+         « Reduire » a sa gauche : un simple changement de libelle les aurait
+         fait se chevaucher. */
+      /* v2.27 : écart de 8 px et non 2 px entre les deux commandes. 2 px était
+         hors de l'échelle d'espacement DSFR (multiples de 4) et, surtout, c'était
+         l'écart séparant une action anodine d'une action destructrice — sur
+         écran tactile, un générateur de fautes de frappe au coût asymétrique.
+         `min-height:32px` aligne les cibles sur le plus petit bouton du DSFR
+         (`fr-btn--sm`, 2rem) ; elles faisaient 22 et 27 px. */
+      /* v2.27 : dans le flux, et non plus en absolu. En absolu, la place du
+         bandeau était réservée par un `padding-top` figé de 30 px sur le popup,
+         alors que le bandeau, lui, grandit avec le texte : à 200 % d'agrandissement
+         de texte seul, les boutons recouvraient la première carte (RGAA 10.4). */
+      #coords-actions { display:flex; align-items:center; justify-content:flex-end;
+                        flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+      #coords-fermer, #coords-reduire { display:flex; align-items:center; min-height:32px;
+                        gap:4px; background:none; border:none; color:#3a3a3a; font-size:12px;
+                        font-weight:500; line-height:1; cursor:pointer; padding:4px 10px;
+                        border-radius:4px; font-family:inherit; }
+      #coords-reduire:hover { background:#f0f0f0; color:#000; }
+      /* Survol distinct pour l'action destructrice : même à libellés explicites,
+         deux boutons strictement identiques se lisent comme deux variantes d'un
+         même geste. Teinte d'avertissement DSFR, pas d'erreur : effacer son point
+         n'est pas une faute, c'est une perte. */
+      #coords-fermer:hover { background:#ffe9e6; color:#b34000; }
+      /* Le DSFR pose un anneau de focus sur tous ses éléments interactifs ; il n'y
+         en avait aucun ici, on retombait sur celui du navigateur — fin, variable
+         selon l'OS, peu lisible sur un panneau blanc posé sur une carte. D'autant
+         plus nécessaire que le focus est déplacé par programme à chaque bascule. */
+      #coords-fermer:focus-visible, #coords-reduire:focus-visible,
+      #coords-resume:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
       #coords-fermer .coords-fermer-croix { font-size:17px; line-height:1; }
+      #coords-reduire .coords-chevron { font-size:11px; line-height:1; }
+      /* Équivalent de `fr-sr-only` : visible des seuls lecteurs d'écran. */
+      .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+                 overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+      /* ---------- v2.27 : reduction du popup ----------
+         PROBLEME (retour UX de Nicolas) : fermer etait la seule issue, et fermer
+         DESELECTIONNE le point. L'usager qui veut simplement regarder la carte
+         sous le panneau — verifier la cote, situer l'emplacement par rapport a
+         un amer — devait donc perdre son point et tout recommencer.
+         « Reduire » separe les deux intentions : masquer le panneau sans rien
+         perdre (marqueur, coordonnees, cercle d'evitage et saisies restent en
+         place), ou effacer le point, qui continue de tout remettre a zero.
+         La barre reduite n'est pas muette, et c'est ce qui la rend utilisable :
+         elle garde sous les yeux les coordonnees — la valeur a recopier dans le
+         formulaire — et annonce au-dessus le nombre d'informations detectees sur
+         ce point. « 3 points a verifier » donne une raison de rouvrir ; un bandeau
+         vide n'en donnerait aucune.
+         Volontairement PAS de repli automatique : c'est une action de l'usager,
+         jamais de la carte. */
+      /* flex:0 1 auto + marge automatique : le chevron reste collé au texte (il
+         en fait partie, c'est le même bouton) et c'est la marge qui repousse
+         « Fermer » au bord. Avec flex:1, sur écran étroit où la barre prend toute
+         la largeur, le chevron se retrouvait seul au milieu du vide, loin du
+         texte qu'il commande. */
+      #coords-resume { display:none; align-items:center; gap:8px; flex:0 1 auto; min-width:0;
+                       margin-right:auto; text-align:left; background:none; border:none;
+                       font-family:inherit; cursor:pointer; padding:4px 6px; border-radius:4px;
+                       color:#1e1e1e; }
+      #coords-resume:hover { background:#f0f4ff; }
+      #coords-resume .coords-resume-texte { flex:0 1 auto; min-width:0; }
+      #coords-resume .coords-resume-compte { display:block; font-size:12px; font-weight:700;
+                                             color:#000091; line-height:1.3; }
+      /* Rien a signaler : le compte passe en gris et perd son gras — il informe
+         encore (le point EST selectionne) sans appeler a rouvrir pour rien. */
+      #coords-resume .coords-resume-compte.rien { color:#595959; font-weight:500; }
+      #coords-resume .coords-resume-compte.interdit { color:#c9191e; }
+      #coords-resume .coords-resume-coords { display:block; font-family:monospace; font-size:13px;
+                                             font-weight:700; overflow-wrap:anywhere; }
+      #coords-resume .coords-resume-coords:empty { display:none; }
+      #coords-resume .coords-chevron { flex-shrink:0; font-size:12px; color:#3a3a3a; }
+      /* v2.27 : la barre reste en place quand l'usager clique un nouveau point,
+         et son contenu change sans que rien ne bouge à l'écran — l'usager peut
+         douter d'avoir cliqué. Un bref fond coloré signale la mise à jour.
+         Respecte « réduire les animations ». */
+      #coords-resume.maj { background:#e8edff; }
+      @media (prefers-reduced-motion: no-preference) {
+        #coords-resume { transition:background-color .25s; }
+      }
+      /* Etat reduit : le popup devient une barre d'une ligne, posee au meme
+         endroit (bas a gauche) pour que l'usager retrouve son panneau la ou il
+         l'a laisse. Tout le contenu est masque sauf la barre et les actions. */
+      #coords-popup.reduit { display:flex; align-items:center; gap:6px;
+                             padding:4px 8px 4px 12px; width:auto;
+                             max-width:min(420px, calc(100% - 32px)); overflow:visible; }
+      #coords-popup.reduit > *:not(#coords-resume):not(#coords-actions) { display:none !important; }
+      /* Filet séparateur : sans lui, le chevron de la barre et le bouton
+         destructeur se lisent comme un seul groupe, alors qu'ils font deux
+         choses opposées (rouvrir / abandonner le point).
+         v2.27 : `#e5e5e5` ne donnait que 1,26:1 sur blanc — le trait chargé de
+         distinguer la commande destructrice était en pratique invisible, et sous
+         les 3:1 exigés d'un élément porteur d'information (WCAG 1.4.11).
+         Plus de `order` : l'ordre visuel vient désormais de l'ordre du DOM, pour
+         que la tabulation et l'œil suivent le même chemin. */
+      #coords-popup.reduit #coords-actions { flex-shrink:0; margin-bottom:0;
+                                             border-left:1px solid #929292; padding-left:8px; }
+      #coords-popup.reduit #coords-reduire { display:none; }
+      #coords-popup.reduit #coords-resume { display:flex; }
       /* ---------- Bloc « environnement » (contraintes de zone au clic) ---------- */
       #env-block { display:none; text-align:left; font-size:12.5px; line-height:1.45;
                    padding:8px 10px; border-radius:4px; margin-bottom:8px; }
@@ -423,8 +518,44 @@
       </div>
     </div>
 
-    <div id="coords-popup">
-      <button id="coords-fermer" aria-label="Fermer">Fermer <span class="coords-fermer-croix" aria-hidden="true">&times;</span></button>
+    <div id="coords-popup" role="region" aria-label="Emplacement sélectionné">
+      <!-- v2.27 : barre affichée à la place du panneau lorsqu'il est réduit.
+           Cliquer dessus le redéploie.
+           PLACÉE AVANT LES ACTIONS DANS LE DOM, et non à côté d'elles comme dans la
+           première écriture : la tabulation suit l'ordre du DOM et **pas** la
+           propriété `order` du flex. Avec l'ordre inverse, la première tabulation
+           dans l'état réduit tombait sur « Effacer le point » — l'action
+           destructrice — alors que l'œil voit la barre en premier (WCAG 2.4.3).
+           Dans l'état déplié la barre est en `display:none`, sa place dans le DOM
+           n'a donc aucun effet visuel.
+           Pas d'`aria-label` sur ce bouton : il REMPLACERAIT le contenu dans le
+           calcul du nom accessible, et un lecteur d'écran n'entendrait ni le
+           compte ni les coordonnées — c'est-à-dire tout ce que la barre existe
+           pour dire. Le préfixe `.sr-only` complète le texte visible au lieu de
+           l'écraser, et le nom accessible contient donc bien le libellé visible
+           (WCAG 2.5.3, et pilotage vocal fonctionnel). -->
+      <button id="coords-resume" type="button" aria-expanded="false" aria-controls="coords-contenu">
+        <span class="sr-only">Rouvrir le panneau — </span>
+        <span class="coords-resume-texte">
+          <span class="coords-resume-compte" id="coords-resume-compte"></span>
+          <span class="coords-resume-coords" id="coords-resume-coords"></span>
+        </span>
+        <span class="coords-chevron" aria-hidden="true">&#9652;</span>
+      </button>
+      <div id="coords-actions">
+        <button id="coords-reduire" type="button" aria-expanded="true" aria-controls="coords-contenu"
+                aria-label="Réduire le panneau sans perdre l'emplacement">Réduire <span class="coords-chevron" aria-hidden="true">&#9662;</span></button>
+        <!-- v2.27 : « Fermer » est devenu « Effacer le point ». Le bouton ne masque
+             pas un panneau, il détruit la sélection (marqueur, position, cercle
+             d'évitage) sans confirmation ni annulation. Tant qu'il était seul,
+             « Fermer » passait ; posé à côté de « Réduire », qui est anodin et de
+             même apparence, il devenait un piège. Le DSFR applique la même règle
+             dans ses alertes, où le bouton de fermeture dit « Masquer le
+             message » : le libellé nomme l'effet, pas le geste. -->
+        <button id="coords-fermer" type="button"
+                aria-label="Effacer le point et désélectionner l'emplacement">Effacer le point <span class="coords-fermer-croix" aria-hidden="true">&times;</span></button>
+      </div>
+      <div id="coords-contenu">
       <!-- #env-block et #boat-block sont injectés en tête de ce conteneur par le script -->
       <p id="coords-hint"></p>
       <!-- v2.16 : ce qu'il faut recopier dans le formulaire est séparé du contexte
@@ -447,6 +578,7 @@
             <button id="copy-btn" type="button" class="copy-btn">Copier</button>
           </div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -1114,9 +1246,14 @@
           <p class="note-colonne" id="note-colonne"></p>
         </div>
       </div>`;
-    const popupEl = document.getElementById('coords-popup');
-    popupEl.insertBefore(boatBlock, popupEl.firstChild);
-    popupEl.insertBefore(envBlock, boatBlock);
+    // v2.27 : les deux blocs sont injectés dans #coords-contenu, et non plus
+    // directement dans le popup : ce conteneur est la zone que `aria-controls`
+    // désigne et que l'état réduit masque, il doit donc contenir TOUT ce qui se
+    // replie — sinon `aria-expanded` annoncerait le repli d'une zone qui n'est
+    // pas celle qui disparaît.
+    const contenuPopup = document.getElementById('coords-contenu');
+    contenuPopup.insertBefore(boatBlock, contenuPopup.firstChild);
+    contenuPopup.insertBefore(envBlock, boatBlock);
 
     /* La marche à suivre s'ouvre en modale au chargement : elle explique avant
        que l'usager n'agisse, puis lui rend l'écran. Une phrase par étape,
@@ -1780,6 +1917,100 @@
     const zoneText  = document.getElementById('zone-text');
     const copyZone  = document.getElementById('copy-zone');
 
+    /* ---------- v2.27 : réduire le popup sans perdre l'emplacement ----------
+       « Réduire » et « Fermer » ne font PAS la même chose, et c'est tout
+       l'intérêt : fermer désélectionne le point (voir fermerPopupCoordonnees),
+       réduire ne touche à rien — marqueur, position, cercle d'évitage, longueur
+       saisie et estimation de colonne d'eau restent en l'état. Seul l'affichage
+       change. Rouvrir redonne donc exactement le panneau quitté. */
+    const btnReduire    = document.getElementById('coords-reduire');
+    const barreResume   = document.getElementById('coords-resume');
+    const resumeCompte  = document.getElementById('coords-resume-compte');
+    const resumeCoords  = document.getElementById('coords-resume-coords');
+    let verifEnCours = false;   // une vérification réseau est en cours sur le point
+    let majTimer = null;        // minuteur du signal visuel de mise à jour
+
+    /* Contenu de la barre réduite. Le compte porte sur les cartes réellement
+       affichées dans #env-block (contexte environnemental ET règles locales) :
+       c'est ce que l'usager retrouvera en rouvrant, donc ce qu'on peut lui
+       promettre sans mentir.
+       « Points à vérifier » et non « recommandations » (v2.27, arbitrage de
+       Nicolas après relecture UX) : le compte inclut la carte des règles locales,
+       qui énonce une OBLIGATION, et des cartes qui constatent une absence de
+       donnée (« nature du fond non cartographiée ici »). Les appeler
+       « recommandations » promettait un conseil là où il y a une règle ou un
+       trou — inacceptable sur un produit dont l'objet est la compréhension
+       réglementaire. « À vérifier » reste vrai dans les trois cas.
+       Les états sans carte ont chacun leur libellé : « 0 point à vérifier » se
+       lirait « rien à signaler », ce qui est faux sur une interdiction. */
+    function majResumeReduit() {
+      const nb = envBlock.querySelectorAll('.env-carte').length;
+      let texte, classe = '';
+      if (popup.classList.contains('terre')) {
+        texte = 'Vous êtes à terre'; classe = 'interdit';
+      } else if (envBlock.classList.contains('env-rouge')) {
+        texte = 'Mouillage interdit ici'; classe = 'interdit';
+      } else if (popup.classList.contains('alerte')) {
+        // L'avertissement de recoupement d'évitage vit dans #coords-hint, qui
+        // n'est pas une carte : sans ce cas, replier le panneau faisait
+        // disparaître l'alerte et la barre annonçait sereinement « 2 points à
+        // vérifier ». Elle prime sur le compte.
+        texte = 'Recoupement possible'; classe = 'interdit';
+      } else if (verifEnCours) {
+        texte = 'Vérification en cours…'; classe = 'rien';
+      } else if (nb > 0) {
+        texte = nb + (nb > 1 ? ' points à vérifier' : ' point à vérifier');
+      } else {
+        texte = 'Emplacement sélectionné'; classe = 'rien';
+      }
+      const change = resumeCompte.textContent !== texte;
+      resumeCompte.textContent = texte;
+      resumeCompte.className = 'coords-resume-compte' + (classe ? ' ' + classe : '');
+      // Pas de coordonnées à terre : le panneau déplié n'en montre pas non plus
+      // (#coords-popup.terre #report-block { display:none }).
+      resumeCoords.textContent = (position && !popup.classList.contains('terre'))
+        ? coordsText.textContent : '';
+      // La barre ne bouge pas quand l'usager clique un nouveau point : sans
+      // signal, il doute d'avoir cliqué.
+      if (change && popup.classList.contains('reduit')) {
+        barreResume.classList.add('maj');
+        clearTimeout(majTimer);
+        majTimer = setTimeout(() => barreResume.classList.remove('maj'), 700);
+      }
+    }
+
+    /* opts.focus : déplacer le focus est juste quand c'est l'usager qui a cliqué
+       sur « Réduire » ou sur la barre, mais le vol serait intrusif quand c'est la
+       carte qui redéploie le panneau.
+       opts.degager : rappeler `degagerPointSousPopup()` n'a de sens que lorsque le
+       panneau reprend sa taille autour d'un point DÉJÀ connu. Sur le chemin du
+       clic carte, `position` contient encore l'ANCIEN point — la carte glissait
+       donc une première fois pour rien, avant de glisser pour le bon point.
+       aria-expanded est porté par les DEUX boutons : celui qui replie disparaît
+       dans l'état replié, son attribut sortait donc de l'arbre d'accessibilité
+       au moment précis où il avait quelque chose à dire. */
+    function reduirePopup(reduit, opts) {
+      const o = opts || {};
+      const focus = o.focus !== false, degager = o.degager !== false;
+      popup.classList.toggle('reduit', !!reduit);
+      btnReduire.setAttribute('aria-expanded', reduit ? 'false' : 'true');
+      barreResume.setAttribute('aria-expanded', reduit ? 'false' : 'true');
+      if (reduit) {
+        majResumeReduit();
+        if (focus) barreResume.focus();
+      } else {
+        if (focus) btnReduire.focus();
+        if (degager) degagerPointSousPopup();   // le panneau peut recouvrir le marqueur
+      }
+    }
+    // Redéploiement commandé par la carte et non par l'usager : ni focus, ni
+    // dégagement (la nouvelle position n'est pas encore connue).
+    function deplierSiReduit() {
+      if (popup.classList.contains('reduit')) reduirePopup(false, { focus:false, degager:false });
+    }
+    btnReduire.addEventListener('click', () => reduirePopup(true));
+    barreResume.addEventListener('click', () => reduirePopup(false));
+
     // Affiche (ou efface, avec html='') le bloc « environnement » du popup.
     // v2.16 : le mode « réduit à une ligne » de la v2.5 (`titreCompact`) a été
     // retiré — il n'avait plus d'objet, le contexte étant désormais présenté en
@@ -1787,6 +2018,9 @@
     function afficherEnvironnement(html, teinte) {
       envBlock.className = teinte ? 'env-' + teinte : '';
       envBlock.innerHTML = html;
+      // v2.27 : les cartes arrivent après des appels réseau. Si l'usager a
+      // réduit le panneau entre-temps, le compte de la barre doit suivre.
+      if (popup.classList.contains('reduit')) majResumeReduit();
     }
 
     /* ---------- v2.16 : le contexte environnemental en cartes repliables ----------
@@ -2804,6 +3038,17 @@
       const ciblesOrientation = ['ports-pts-c','zmel-fill'].filter(l => map.getLayer(l));
       if (ciblesOrientation.length && map.queryRenderedFeatures(point, { layers:ciblesOrientation }).length) return;
 
+      // v2.27 : le panneau réduit RESTE réduit quand l'usager clique un nouveau
+      // point, et seule la barre se met à jour. Première écriture : il se
+      // redéployait à chaque clic — défendable pour un primo-usager, mais contre
+      // l'usager qui a précisément réduit POUR pouvoir cliquer ailleurs, et qui
+      // compare trois emplacements candidats en repliant trois fois.
+      // Deux exceptions, plus bas, via deplierSiReduit() : point à terre et point
+      // interdit (APB, parcelle conchylicole). Ce sont des verdicts, pas des
+      // détails — les laisser derrière une barre d'une ligne serait les cacher.
+      // (arbitrage de Nicolas, 15/10/2026, après relecture UX)
+      verifEnCours = true;
+
       // La détection locale est instantanée mais classe plages, dunes et marais
       // comme de la terre. Elle ne vaut donc plus qu'en première instance : son
       // verdict « à terre » est soumis au trait terre-mer du Shom, qui place
@@ -2820,6 +3065,8 @@
           // Terre confirmée par le Shom, ou service indisponible : on conserve le
           // comportement d'avant, qui est le comportement prudent.
           hint.textContent = "Attention, vous êtes à terre. Positionnez votre mouillage sur une étendue d'eau.";
+          verifEnCours = false;
+          deplierSiReduit();   // verdict : ne pas le laisser derrière une barre d'une ligne
           return;
         }
         // Le point est sur le DPM : l'avertissement est levé et le clic se
@@ -2857,10 +3104,12 @@
       ]);
       if (jeton !== jetonClic) return;            // v2.14 : clic remplacé pendant l'attente
       if (apb.length) {
+        verifEnCours = false;
         afficherEnvironnement(
           `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.join(', ')}.</strong></p>
            <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
           'rouge');
+        deplierSiReduit();   // interdiction : verdict, pas détail
         return;
       }
       if (cm.etat === 'parcelle') {
@@ -2868,6 +3117,7 @@
         // commune et espèce selon le département (la Charente-Maritime ne
         // publie que le numéro et l'espèce).
         const precisions = [cm.commune, cm.espece].filter(Boolean).join(', ');
+        verifEnCours = false;
         afficherEnvironnement(
           `<p><strong>Vous êtes sur une parcelle de cultures marines${cm.parcelle ? ' — parcelle ' + echapper(cm.parcelle) : ''}.</strong></p>` +
           (precisions ? `<p>${echapper(precisions)}.</p>` : '') +
@@ -2876,6 +3126,7 @@
            <p class="env-caveat">Source : cadastre conchylicole de la DDTM
              ${echapper(cm.departement)} (${echapper(cm.millesime)}).</p>`,
           'rouge');
+        deplierSiReduit();   // interdiction : verdict, pas détail
         return;
       }
 
@@ -2986,6 +3237,7 @@
       const contexte = aMontrer.length
         ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
         : '';
+      verifEnCours = false;
       afficherEnvironnement(reglesLocales + contexte,
                             (reglesLocales || contexte) ? 'cartes' : '');
 
@@ -2997,6 +3249,9 @@
       degagerPointSousPopup();
 
       recalculer();
+      // recalculer() peut poser la classe `alerte` (recoupement d'évitage) :
+      // la barre doit la refléter, elle prime sur le compte de cartes.
+      if (popup.classList.contains('reduit')) majResumeReduit();
     }
 
     /* ---------- Fermeture du popup de coordonnées ----------
@@ -3021,6 +3276,14 @@
       boatBlock.style.display = 'none';
       afficherEnvironnement('', '');
       popup.classList.remove('visible', 'info', 'alerte', 'terre');
+      // v2.27 : le panneau repart déplié à la prochaine ouverture — l'état
+      // réduit vaut pour l'emplacement qu'on vient d'abandonner, pas pour le
+      // suivant. aria-expanded est remis à jour sans passer par reduirePopup(),
+      // qui rappellerait degagerPointSousPopup() sur un popup déjà masqué.
+      popup.classList.remove('reduit');
+      btnReduire.setAttribute('aria-expanded', 'true');
+      barreResume.setAttribute('aria-expanded', 'true');
+      verifEnCours = false;
       recalculer();
     }
     document.getElementById('coords-fermer').addEventListener('click', fermerPopupCoordonnees);

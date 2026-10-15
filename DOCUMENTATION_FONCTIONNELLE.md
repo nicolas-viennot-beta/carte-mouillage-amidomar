@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.26 (octobre 2026)  
+**Version:** 2.27 (octobre 2026)  
 **Dernière mise à jour:** 15 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -42,6 +42,7 @@ Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au p
 
 ### Centre
 - **Carte interactive** — affichage des couches, clics pour saisir un emplacement
+- **Popup de coordonnées** (bas à gauche) — deux commandes en haut à droite depuis la **v2.27** : « Réduire ▾ » et « Effacer le point ✕ » (anciennement « Fermer »). Réduit, le popup devient une barre d'une ligne, au même endroit, portant le nombre de points à vérifier et les coordonnées ; cliquer dessus le redéploie. Voir §4.2
 
 ---
 
@@ -89,7 +90,8 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
      - Interrogation des zones Natura 2000 / ZNIEFF au point cliqué (API Carto IGN, avec repli sur le WFS de la Géoplateforme, voir §4.3) → popup vert (« pas de contre-indication identifiée ») ou neutre/orange (zone(s) trouvée(s), listées) selon le résultat, avec dans tous les cas une mention rappelant que certaines zones (parcs naturels marins, aires marines protégées, herbiers, baignade, zones réglementaires...) ne sont pas détectables automatiquement et doivent être vérifiées par ailleurs.
    - Si le point cliqué est à **moins de 100 m d'une AOT existante** — vérification silencieuse, indépendante de la case « AOT de mouillage existantes » —, la modale devient plus concise *(v2.5)* : le bloc environnement est réduit à une ligne avec un bouton « Détails » (replié par défaut), et un bloc orange « D'autres mouillages sont enregistrés à proximité » intègre les deux champs du calcul ; le résultat vert ou rouge s'affiche dessous (voir §4.0 C6 et §4.2). Au-delà de 100 m, rien ne s'affiche : le risque de conflit avec un mouillage existant est jugé négligeable et on ne complexifie pas inutilement le parcours.
 5. Bouton « Copier » dans le popup pour copier les coordonnées
-6. Bouton « Fermer » en haut à droite du popup *(v2.1)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage) ; les valeurs du calcul d'évitage sont **conservées** *(v2.3)* — voir §4.2
+6. Bouton « Réduire » en haut à droite du popup *(v2.27)* : masque le contenu sans rien perdre — le marqueur, les coordonnées et les saisies restent en place — et laisse une barre résumant ce qui a été détecté ; un clic sur cette barre redéploie le panneau. Cliquer un autre point laisse la barre réduite et la met à jour — voir §4.2
+7. Bouton « Effacer le point » en haut à droite du popup *(v2.1, renommé en v2.27 — il s'appelait « Fermer »)* : désélectionne entièrement le point (marqueur, coordonnées, cercle d'évitage) ; les valeurs du calcul d'évitage sont **conservées** *(v2.3)* — voir §4.2
 
 ### Étape 2 — Copier ce qu'il faut reporter *(revu en v2.16)*
 1. Le bas du popup porte un bloc « À reporter dans le formulaire de demande », distinct du contexte environnemental
@@ -250,6 +252,34 @@ Le formulaire ne comporte que **deux champs** : « Longueur de mon navire (m) »
 **Sous-titre affiché à l'usager** *(v2.2 ; libellé v2.3 : « Estimation indicative qui ne remplace pas une vérification sur place. », intégré aux messages vert/rouge)* : auparavant « Estimation indicative : le rayon d'évitage ne remplace pas une vérification sur place. » Les limites détaillées auparavant (profondeur saisie non mesurée, longueur des autres navires supposée, vent/courant/nature du fond non pris en compte) restent vraies **techniquement** mais ne sont plus énumérées à l'usager dans le popup — décision de Nicolas (22/09/2026) pour raccourcir un popup jugé trop chargé ; ces limites restent documentées ici et dans le code (commentaires `CONFIG`).
 
 **Fermeture du popup** *(v2.1)* : un bouton « Fermer » (croix + libellé, `aria-label="Fermer"`) en haut à droite du popup, ainsi que la touche Échap (uniquement quand le popup est visible), appellent `fermerPopupCoordonnees()`. Cette fonction ne se contente pas de masquer le popup : elle **désélectionne entièrement** le point choisi — retire le marqueur, vide `position`, efface le cercle d'évitage (via `recalculer()`), et remet le bouton « Copier » à son état initial. Contrairement à la modale ports/ZMEL (§4.1.a), il n'y a **pas de fermeture au clic en dehors** : le popup de coordonnées n'a pas d'overlay, la carte reste cliquable derrière, et un clic ailleurs sur l'eau a déjà son propre sens (choisir un autre point) — ajouter une fermeture au clic extérieur entrerait en conflit avec ce comportement existant. *(v2.3)* Les valeurs du formulaire d'évitage ne sont **plus effacées** à la fermeture : elles restent en place pour la session (champs de la modale depuis v2.5), de sorte qu'un clic suivant près d'une AOT affiche directement le résultat.
+
+**Réduction du popup** *(v2.27)* : un bouton « Réduire ▾ » est placé à gauche de « Effacer le point ✕ », dans un bandeau d'actions commun (`#coords-actions`). Les deux commandes ne font **pas** la même chose, et c'est l'objet de l'évolution : effacer désélectionne le point, réduire ne touche à rien. L'usager qui voulait seulement **regarder la carte sous le panneau** — vérifier la côte, situer son emplacement — n'avait d'autre issue que de fermer, donc de perdre son point et de tout recommencer (demande de Nicolas, 15/10/2026).
+
+- **Mécanisme** : `reduirePopup(reduit, opts)` pose ou retire la classe `.reduit` sur `#coords-popup`. Aucun état applicatif n'est modifié — `position`, `marker`, le cercle d'évitage, la longueur du navire saisie et l'estimation de colonne d'eau restent intacts. Rouvrir redonne exactement le panneau quitté. `opts.focus` (déplacer le focus) et `opts.degager` (rappeler `degagerPointSousPopup()`) valent `true` par défaut et sont mis à `false` sur le chemin piloté par la carte — voir plus bas.
+- **Rendu réduit** : en CSS, `.reduit` masque tous les enfants du popup sauf la barre `#coords-resume` et le bandeau d'actions, et fait passer le popup en `display:flex` sur une seule ligne, à la même ancre (bas à gauche) — l'usager retrouve son panneau là où il l'a laissé. Un filet sépare la barre du bouton destructeur, qui reste accessible sans redéployer.
+- **Contenu de la barre** (`majResumeReduit()`) : une première ligne compte les informations détectées — « **3 points à vérifier** », accord singulier à 1 — en comptant les `.env-carte` réellement présentes dans `#env-block` (contexte environnemental **et** règles locales : c'est ce que l'usager retrouvera en rouvrant). Dessous, les coordonnées du point, en monospace : c'est la valeur à recopier dans le formulaire, donc celle qu'on veut garder sous les yeux. **Un bandeau qui annonce ce qu'il cache donne une raison de le rouvrir** ; un bandeau muet n'en donne aucune.
+- **Pourquoi « points à vérifier » et non « recommandations »** *(arbitrage de Nicolas après relecture UX, 15/10/2026)* : le compte inclut la carte des règles locales, qui énonce une **obligation**, et des cartes qui constatent une **absence de donnée** (« nature du fond non cartographiée ici »). Les appeler « recommandations » promettait un conseil là où il y a une règle ou un trou — inacceptable sur un produit dont l'objet est la compréhension réglementaire. « À vérifier » reste vrai dans les trois cas.
+- **États sans carte** : « 0 point à vérifier » se lirait comme « rien à signaler ». Chacun a donc son libellé — « Mouillage interdit ici » (bloc rouge : APB, parcelle conchylicole), « Vous êtes à terre » (classe `.terre`, sans coordonnées, comme le panneau déplié), « Vérification en cours… » pendant les appels réseau (drapeau `verifEnCours`), et « Emplacement sélectionné » en gris lorsqu'il n'y a effectivement rien à signaler.
+- **L'alerte de recoupement prime sur le compte** : l'avertissement « votre rayon d'évitage en recoupe d'autres » vit dans `#coords-hint` (classe `.alerte` sur le popup), qui n'est pas une carte. Sans traitement particulier, replier le panneau le faisait disparaître et la barre annonçait sereinement « 2 points à vérifier ». La barre affiche donc « Recoupement possible » dès que cette classe est posée. Comme `recalculer()` peut la poser **après** l'affichage des cartes, `majResumeReduit()` est rappelée en fin de `traiterPointCarte`.
+- **Mise à jour différée** : les cartes arrivent après des appels réseau. `afficherEnvironnement()` rafraîchit donc la barre si le panneau a été réduit entre-temps.
+- **Un nouveau clic laisse le panneau réduit** *(arbitrage de Nicolas après relecture UX, 15/10/2026 — la première écriture redéployait à chaque clic)* : seule la barre se met à jour. Redéployer à chaque clic est défendable pour un primo-usager, mais va contre celui qui a précisément réduit **pour pouvoir cliquer ailleurs** et compare trois emplacements candidats. **Deux exceptions** (`deplierSiReduit()`) : point **à terre** et point **interdit** (APB, parcelle conchylicole) — ce sont des verdicts, pas des détails, et les laisser derrière une barre d'une ligne reviendrait à les cacher. Le redéploiement commandé par la carte ne déplace **pas** le focus (ce serait un vol en plein geste, enjeu iframe du §11 v2.25.1) et n'appelle **pas** `degagerPointSousPopup()` : à cet instant `position` contient encore l'ancien point, la carte glissait donc une première fois pour rien.
+- **Signal de mise à jour** : la barre ne bougeant pas quand l'usager clique ailleurs, un bref fond `#e8edff` (classe `.maj`, 700 ms) signale qu'elle a changé — sans lui, l'usager doute d'avoir cliqué. Transition désactivée sous `prefers-reduced-motion`.
+- **Pas de repli automatique** : réduire reste une action de l'usager, jamais de la carte.
+- **Échap et « Effacer le point »** sont inchangés depuis l'état réduit : les deux ferment le popup et désélectionnent. `fermerPopupCoordonnees()` retire aussi `.reduit`, pour que la prochaine ouverture reparte dépliée — l'état réduit vaut pour l'emplacement qu'on vient d'abandonner, pas pour le suivant.
+
+**Pourquoi « Fermer » est devenu « Effacer le point »** *(v2.27, suite à une relecture UX/DSFR)* : le bouton ne masque pas un panneau, il détruit la sélection (marqueur, position, cercle d'évitage, saisies) sans confirmation ni annulation. Tant qu'il était seul, « Fermer » passait ; posé à côté de « Réduire », qui est anodin et de même apparence, il devenait un piège — pour un plaisancier qui a saisi la longueur de son navire et obtenu une estimation, une chance sur deux de tout perdre. Le DSFR applique la même règle dans ses alertes, où le bouton de fermeture dit « Masquer le message » : **le libellé nomme l'effet, pas le geste.** Le survol du bouton destructeur passe en teinte d'avertissement (`#ffe9e6` / `#b34000`) et non d'erreur : effacer son point n'est pas une faute, c'est une perte.
+
+**Accessibilité de la réduction** *(corrections issues de la relecture UX/DSFR du 15/10/2026 — trois défauts de la première écriture)* :
+- **Ordre du DOM = ordre visuel.** `#coords-resume` est placée **avant** `#coords-actions` dans le HTML, sans propriété `order`. La première écriture faisait l'inverse et réordonnait en CSS : la tabulation suivant le DOM et non `order`, la première tabulation dans l'état réduit tombait sur l'action destructrice (WCAG 2.4.3 / 1.3.2). Dans l'état déplié, la barre est en `display:none` : sa place dans le DOM n'a aucun effet visuel.
+- **Pas d'`aria-label` sur la barre.** Un `aria-label` **remplace** le contenu dans le calcul du nom accessible : un lecteur d'écran n'entendait ni le compte, ni les coordonnées — tout ce que la barre existe pour dire. Le préfixe `<span class="sr-only">Rouvrir le panneau — </span>` complète le texte visible au lieu de l'écraser, et le nom accessible contient donc le libellé visible (WCAG 2.5.3 ; pilotage vocal fonctionnel).
+- **`aria-expanded` sur les deux boutons**, et `aria-controls` pointant vers `#coords-contenu`, nouveau conteneur qui enveloppe tout ce qui se replie (`#env-block`, `#boat-block`, `#coords-hint`, `#report-block` — les deux premiers y sont injectés par le script). Dans la première écriture, seul `#coords-reduire` portait l'attribut, et il passait en `display:none` au moment même du repli : la valeur `"false"` était écrite sur un élément sorti de l'arbre d'accessibilité, l'état replié n'existait donc pas pour un lecteur d'écran.
+- **Anneau de focus explicite** (`:focus-visible`, `2px solid #0a76f6` avec `outline-offset:2px`, comme le DSFR) sur les trois commandes : le focus étant déplacé par programme à chaque bascule, l'anneau par défaut du navigateur — fin et variable selon l'OS — ne suffisait pas sur un panneau blanc posé sur une carte.
+- **Cibles et espacement** : `min-height:32px` (le plus petit bouton DSFR, `fr-btn--sm`) là où elles faisaient 22 et 27 px, et `gap:8px` au lieu de 2 px — 2 px était hors de l'échelle d'espacement DSFR et, surtout, c'était l'écart séparant une action anodine d'une action destructrice sur écran tactile.
+- **Bandeau d'actions dans le flux** et non plus en positionnement absolu : sa place était réservée par un `padding-top` figé de 30 px, alors que le bandeau grandit avec le texte — à 200 % d'agrandissement de texte seul, les boutons recouvraient la première carte (RGAA 10.4). `flex-wrap` permet au bandeau de passer sur deux lignes plutôt que de déborder.
+- **Filet séparateur lisible** : `#929292` (3,1:1) au lieu de `#e5e5e5` (1,26:1). Le trait chargé de distinguer la commande destructrice était en pratique invisible, et sous le seuil de 3:1 d'un élément porteur d'information (WCAG 1.4.11).
+- **`type="button"`** sur les deux commandes, et `role="region" aria-label="Emplacement sélectionné"` sur le popup, qui devient un repère retrouvable — utile en iframe.
+
+> **Points relevés par la relecture UX/DSFR et volontairement laissés de côté** (hors périmètre de la v2.27, à traiter dans un passage DSFR dédié) : `.copy-btn` en `#1a73e8` (bleu Google) et `#2e7d32` (vert Material) au lieu de Bleu France `#000091` / `#18753c`, alors que c'est le bouton qui mène au formulaire DN ; tailles de texte à 10 et 11 px sous le plancher DSFR de 12 px, et en px plutôt qu'en rem ; six teintes « presque DSFR » (`#f0f4ff`, `#e8f5ec`, `#fff4ed`, `#00838f`, `#595959`, `#1e1e1e`) ; absence de `:focus-visible` sur les autres éléments interactifs du panneau ; absence de message de statut (`aria-live`) à la copie et à l'ouverture du panneau ; `.env-toggle-bloc { color:inherit }` sans effet, la teinte étant posée sur `.env-carte-resume` et non sur un ancêtre du bouton. Restent aussi à arbitrer : Échap qui détruit la sélection depuis la barre réduite, les coordonnées de la barre non sélectionnables à la souris (elles sont dans un `<button>`), et « Vous êtes à terre » qui décrit l'usager plutôt que le point.
 
 **Bloc de résultat fusionné** *(v2.2 — textes remplacés en v2.3, voir plus haut)* : le rayon d'évitage estimé et le résultat du recoupement, auparavant deux blocs séparés (`.result-box` puis `.warn-box`/`.ok-box`), tiennent désormais dans un seul message, injecté dans `#out-conflict` par `recalculer()` :
 - Chevauchement détecté (rouge, classe `.evitage-resultat.chevauche`) : « Le rayon d'évitage de votre navire, estimé à **{r} m**, chevauche le rayon d'évitage estimé d'autres navires. Veuillez vérifier sur site ou modifier l'emplacement par précaution. »
@@ -868,6 +898,29 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Cliquer ailleurs sur l'eau (hors du popup) → **ne ferme pas** le popup : un nouveau point est sélectionné normalement (comportement volontairement différent de la modale ports/ZMEL)
 - [ ] Pas d'erreur console
 
+### ✅ 12ter. Réduction du popup de coordonnées *(v2.27)*
+- [ ] Cliquer sur l'eau → « Réduire ▾ » est visible à gauche de « Effacer le point ✕ », nettement séparés, sans chevauchement avec la première carte
+- [ ] Cliquer sur « Réduire » → le panneau devient une barre d'une ligne, au même endroit (bas à gauche)
+- [ ] Le **marqueur reste sur la carte** et la carte sous le panneau redevient visible
+- [ ] La barre affiche le nombre de points à vérifier (« 3 points à vérifier », « 1 point à vérifier » au singulier) et les coordonnées du point
+- [ ] Cliquer sur la barre → le panneau se redéploie **à l'identique** : mêmes cartes, mêmes coordonnées, mêmes valeurs saisies dans le formulaire d'évitage, cercle d'évitage toujours affiché
+- [ ] Panneau réduit → cliquer un **nouveau point sur l'eau** → le panneau **reste réduit**, la barre se met à jour (compte et coordonnées) et marque brièvement le changement par un fond bleu pâle
+- [ ] Panneau réduit → cliquer un point **à terre** → le panneau se redéploie tout seul sur l'avertissement
+- [ ] Panneau réduit → cliquer un point **interdit** (parcelle conchylicole ou APB) → le panneau se redéploie tout seul sur l'interdiction
+- [ ] Panneau réduit → cliquer sur un **port ou une ZMEL** → la modale du port/ZMEL s'ouvre, le popup reste réduit et inchangé
+- [ ] Panneau réduit → cliquer un nouveau point → **le focus ne saute pas** (en iframe : `window.scrollY` reste à 0)
+- [ ] Panneau réduit → cliquer un nouveau point → la carte ne glisse **qu'une fois**, vers le nouveau point (pas de double recadrage)
+- [ ] Panneau réduit → « Effacer le point » → le popup disparaît et le marqueur est retiré ; le clic suivant rouvre un panneau **déplié**
+- [ ] Panneau réduit → Échap → même effet que « Effacer le point » *(comportement conservé, signalé comme à arbitrer)*
+- [ ] Point à moins de 100 m d'une AOT avec **recoupement d'évitage** détecté, puis réduire → la barre dit « Recoupement possible », l'avertissement ne disparaît pas silencieusement
+- [ ] Réduire **pendant** « Vérification des zonages… » → la barre dit « Vérification en cours… », puis le compte apparaît tout seul
+- [ ] Au clavier dans l'état **réduit** : la **première** tabulation atteint la barre, la seconde « Effacer le point » (jamais l'inverse)
+- [ ] Au clavier : chaque commande reçoit un anneau de focus bleu nettement visible ; Entrée replie, le focus passe sur la barre, Entrée redéploie
+- [ ] Au lecteur d'écran : la barre annonce « Rouvrir le panneau — 3 points à vérifier 45.8… » (le compte et les coordonnées sont bien lus) et son état replié/déplié
+- [ ] Agrandissement du texte à 200 % (zoom texte seul) → les boutons ne recouvrent pas la première carte
+- [ ] Fenêtre étroite (< 700 px) → la barre réduite tient sur une ligne, texte et chevron restés groupés à gauche, « Effacer le point » à droite derrière un filet visible
+- [ ] Pas d'erreur console
+
 ### ✅ 13. Visibilité des couches
 - [ ] Décocher une couche dans la légende → disparaît de la carte
 - [ ] Recocher → réapparaît
@@ -1095,6 +1148,27 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.27 — 15 octobre 2026
+**Réduire le popup de coordonnées, en plus de l'effacer**
+- Demande de Nicolas (UX) : le popup n'avait qu'une seule issue, « Fermer » — et fermer **désélectionne le point**. L'usager qui veut simplement regarder la carte sous le panneau devait donc perdre son emplacement et tout refaire.
+- « Réduire ▾ » sépare les deux intentions : masquer l'affichage sans toucher à l'état (marqueur, coordonnées, cercle d'évitage, saisies), contre effacer, qui continue de tout remettre à zéro.
+- **La barre réduite n'est pas muette**, et c'est ce qui la rend utile : « 3 points à vérifier » au-dessus des coordonnées, avec les libellés dédiés des états sans carte (« Mouillage interdit ici », « Vous êtes à terre », « Recoupement possible », « Vérification en cours… », « Emplacement sélectionné »).
+- Un nouveau clic sur l'eau **laisse le panneau réduit** et met la barre à jour ; seuls un point à terre ou interdit le redéploient.
+
+**Relecture UX / DSFR le même jour, et reprise de l'écriture initiale.** Une relecture indépendante (profil UX service public, DSFR v1.14 et RGAA vérifiés à la source) a validé le parti pris et relevé cinq défauts réels, tous corrigés avant commit :
+- **Ordre de tabulation inversé** : la barre était après les actions dans le DOM et réordonnée par `order` en CSS. La tabulation suivant le DOM, la première touche Tab tombait dans l'état réduit sur l'action **destructrice** (WCAG 2.4.3 / 1.3.2). Corrigé par l'ordre du DOM, sans `order`.
+- **`aria-label` qui masquait le contenu de la barre** : un lecteur d'écran n'entendait ni le compte, ni les coordonnées (WCAG 2.5.3, pilotage vocal cassé). Remplacé par un préfixe `.sr-only`.
+- **État replié jamais annoncé** : `aria-expanded` n'était porté que par le bouton « Réduire », mis en `display:none` au moment même du repli. Porté désormais par les deux boutons, avec `aria-controls` vers un vrai conteneur `#coords-contenu`.
+- **Avertissement de recoupement perdu** : `#coords-hint`/`.alerte` n'étant pas une carte, replier le panneau faisait disparaître l'alerte pendant que la barre annonçait « 2 points à vérifier ». L'alerte prime désormais sur le compte.
+- **Recadrage parasite** : le redéploiement au clic appelait `degagerPointSousPopup()` alors que `position` contenait encore l'ancien point. Chemin carte désormais sans dégagement (`opts.degager`).
+- **« Fermer » renommé « Effacer le point »** : le bouton détruit la sélection sans confirmation et était l'exact jumeau visuel de « Réduire ». Le DSFR applique la même règle dans ses alertes (« Masquer le message ») — le libellé nomme l'effet, pas le geste. Survol en teinte d'avertissement, `gap` porté de 2 à 8 px, cibles à 32 px (plancher `fr-btn--sm`).
+- **« Recommandations » → « points à vérifier »** : le compte inclut une règle DDTM (obligation) et des constats d'absence de donnée. Promettre un conseil là où il y a une règle n'est pas tenable sur ce produit.
+- **Redéploiement au clic abandonné** au profit du maintien de l'état réduit, avec signal visuel de mise à jour : l'usager qui réduit le fait souvent pour comparer plusieurs emplacements.
+- Ajouts d'accessibilité : anneau `:focus-visible` DSFR sur les trois commandes, `type="button"`, `role="region"` sur le popup, bandeau d'actions dans le flux (il recouvrait la première carte à 200 % d'agrandissement de texte, RGAA 10.4), filet séparateur porté de 1,26:1 à 3,1:1 (WCAG 1.4.11).
+- Écarts DSFR **antérieurs** relevés par la même relecture et laissés hors périmètre (voir l'encadré en fin de §4.2) : bouton « Copier » en bleu Google, tailles de texte sous 12 px, teintes « presque DSFR », pas de `aria-live`.
+- Tests : harnais Node/jsdom — syntaxe, exécution réelle et absence de vol de focus OK, plus **22 tests dédiés** (TESTS_FONCTIONNELS.md §12), tous au vert. Vérification visuelle des deux états à 900 px et 420 px, et à 200 % d'agrandissement de texte (Chromium headless).
+- Reste à vérifier en conditions réelles après déploiement : le maintien de l'état réduit au clic, le redéploiement sur verdict bloquant, et le comportement du dégagement du marqueur — le harnais ne peint pas de carte, donc ne distingue pas un clic sur l'eau d'un clic sur un port (même piège qu'en v2.25.2).
 
 ### v2.26 — 15 octobre 2026
 **Seconde porte d'entrée : la vue « mouillage existant » (`?vue=existant`)**
