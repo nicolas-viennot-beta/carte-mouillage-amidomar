@@ -8,8 +8,10 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 15 octobre 2026, après relecture croisée de
-`DOCUMENTATION_FONCTIONNELLE.md`, `TESTS_FONCTIONNELS.md` et `index.html`.*
+*Dernière consolidation : 26 octobre 2026 — versement de la campagne bathymétrie du
+15 octobre (§5 prépaquets, §6 EMODnet, §12). Consolidation précédente : 15 octobre 2026,
+après relecture croisée de `DOCUMENTATION_FONCTIONNELLE.md`, `TESTS_FONCTIONNELS.md` et
+`index.html`.*
 
 ---
 
@@ -35,7 +37,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | Natures de fond — Shom | — | ✅ WFS | en service, **couverture très inégale** |
 | Informations portuaires — Shom | ✅ | — | en service |
 | Marées par port — Shom (fichier local) | — | ✅ | en service |
-| Profondeur — EMODnet | — | ✅ | en service |
+| Profondeur — EMODnet (levés Shom, EDMO 540) | — | ✅ | en service, **maille ~115 m** |
 | Cultures marines — cadastres DDTM | ✅ | ✅ WFS | en service, **bloquant** |
 | ZMEL — Cerema/CACEM (fichier local) | ✅ | ✅ local | en service |
 | Zones de mouillage autorisées — DDTM 83 | ✅ | ✅ local | 5 zones sur 1 commune |
@@ -374,7 +376,7 @@ Fiches : [posidonie](https://www.data.gouv.fr/datasets/inventaire-des-donnees-di
 
 ---
 
-## 5. Shom — services INSPIRE (vérifié le 12 octobre 2026)
+## 5. Shom — services INSPIRE (vérifié le 12 octobre 2026, bathymétrie le 15 octobre)
 
 Quatre services, aucune clé, aucun compte, **CORS autorisé** depuis l'origine
 de déploiement (voir §2). La grille de tuiles WMTS `3857` est la grille web
@@ -519,7 +521,7 @@ le seul nom de la couche — ne pas tenter d'interpréter le code.
 
 | Besoin | Verdict testé |
 |---|---|
-| **Profondeur au point** | **Impossible.** Les couches MNT et Litto3D répondent `LayerNotQueryable` (testé sur `MNT_ATL100m`, `MNT_MED100m_GDL_CA`, `LITTO3D_FINISTR_2014`, `BATHYELLI`), et il n'y a **pas de service WCS** (404). EMODnet reste la bonne solution |
+| **Profondeur au point** | **Impossible, et prouvé — dossier clos (15/10/2026).** Les 40 couches de bathymétrie du WMS raster sont des **images déjà colorisées**, pas des rasters de valeurs : le GeoTIFF 1×1 renvoie `BitsPerSample [8,8,8,8]`, `SamplesPerPixel 4`, `PhotometricInterpretation 2` (RVB), et `image/x-bil;bits=32` renvoie 4 octets qui **sont le pixel**, réinterprétés en flottant — d'où les « valeurs incohérentes » du 25/09 : ce n'est pas un défaut de parsing, la valeur n'est pas là. `GetFeatureInfo` complet (avec `STYLES=` et `FORMAT=`) → `LayerNotQueryable` sur `MNT_COTIER_MORBIHAN_TANDEM_20m`, `MNT_ATL100m`, `BATHYELLI_ZH`, `LITTO3D_BZH`. **Pas de WCS** : 404 sur `/INSPIRE/wcs`, `/wcs`, `/INSPIRE/wcs/r`, `/INSPIRE/ows`. Même l'inversion de la rampe de couleurs est fermée : `GetLegendGraphic` → **403**. Seule voie vers une valeur fine : les prépaquets, ci-dessous |
 | Isobathes et sondes en vecteur | absentes des 182 types d'objets |
 | Fond de carte marine raster | pas dans le service INSPIRE ouvert — accès avec clé, à demander |
 | Zones de baignade | confirmé absent |
@@ -529,7 +531,45 @@ le seul nom de la couche — ne pas tenter d'interpréter le code.
 
 ---
 
-## 6. Profondeur — EMODnet
+### Les prépaquets — la seule voie vers du 20 m ou du 1 m
+
+*Vérifié le 15 octobre 2026.*
+
+`https://services.data.shom.fr/INSPIRE/telechargement/prepackageGroup?request=GetCapabilities`
+— **public, sans clé**, `Fees: none`, `AccessConstraints: none`. 119 ressources, dont tous
+les MNT, chacun en deux variantes `PBMA` et `NM`.
+
+**Convention de nommage du Shom**, lisible dans les noms de couches comme de prépaquets :
+`_PBMA_` = plus basses mers astronomiques, **soit le zéro hydrographique** ; `_NM_` =
+niveau moyen ; `ZNEG` = profondeurs comptées négativement. Pour un mouillage, la bonne
+variante est **`PBMA`** — le cas le plus défavorable.
+
+| Prépaquet | Résolution | Poids de l'archive 7z (mesuré) |
+|---|---|---|
+| `MNT_FACADE_ATLANTIQUE_HOMONIM_PBMA` | 100 m | 463 729 279 o ≈ **442 Mio** |
+| `MNT_COTIER_MORBIHAN_TANDEM_PBMA` | 20 m | 105 627 341 o ≈ **101 Mio** |
+
+Les requêtes `Range` fonctionnent (HTTP 206), mais sur une archive 7z c'est sans usage :
+il faut tout prendre et tout décompresser.
+
+**Couverture fine, par territoire** — 20 m : Morbihan, Pertuis Charentais, Gironde amont et
+aval, Arcachon, golfe normand-breton, détroit du Pas-de-Calais, Saint-Jean-de-Luz. 10 m :
+port de Boulogne. 5 m : île de Ré, port de Saint-Malo. 1–5 m (Litto3D) : Bretagne,
+Finistère, PACA, Nouvelle-Aquitaine, Languedoc-Roussillon, Corse. **Les territoires
+pilotes sont couverts au 20 m et mieux.**
+
+> **Non retenu pour l'instant — ce n'est pas un ajout de couche, c'est un choix
+> d'architecture.** Télécharger, décompresser, reprojeter, convertir en tuiles
+> terrain-RGB ou en COG, héberger et décoder côté client : c'est une chaîne de
+> prétraitement et un volume d'hébergement, contre la propriété « un seul fichier HTML,
+> sans chaîne de compilation » tenue depuis le début. À instruire **si** les DDTM pilotes
+> montrent que les 115 m d'EMODnet font prendre de mauvaises décisions — pas avant. Et sur
+> les secteurs où le Shom a produit un MNT fin, **EMODnet le sert déjà** (§6) : le gain se
+> limiterait à s'affranchir du rééchantillonnage.
+
+---
+
+## 6. Profondeur — EMODnet et levés Shom (vérifié les 15 et 26 octobre 2026)
 
 `https://rest.emodnet-bathymetry.eu/depth_sample?geom=POINT(lng lat)`, champ
 **`avg`**. Interrogation au point, sans clé, CORS accepté, **60 à 370 ms**.
@@ -551,6 +591,200 @@ astronomiques sur les côtes à marée et au niveau moyen ailleurs ; port de mar
 de référence choisi à vol d'oiseau, donc parfois de l'autre côté d'une pointe ;
 marée de vives-eaux moyenne, et non celle du jour. La grille européenne intègre
 les levés du Shom.
+
+### Ce que la réponse contient d'autre — et qu'on ne lit pas encore
+
+*Tests du 15 octobre 2026, sept sites de mouillage.* La réponse de `depth_sample` porte
+bien plus que `avg`, et **tout est déjà payé** : aucun appel supplémentaire, aucune
+dépendance, aucun hébergement.
+
+| Site | `avg` | `min` | `max` | `stdev` | surfaces | levé (`reference`) |
+|---|---|---|---|---|---|---|
+| Pen Hat (29) | −16,51 | −17,68 | −15,41 | 0,32 | 1181 | `S201207000-005` |
+| Golfe du Morbihan, Er Lannic | −8,15 | −10,38 | −5,43 | 0,95 | 5600 | `S200504300` |
+| Baie de Quiberon (56) | −10,20 | −10,20 | −10,20 | 0,03 | 1 | `S199206700` |
+| Rade d'Hyères (83) | −5,15 | −5,15 | −5,15 | 0 | 1 | `S201300200-002` |
+| Porquerolles nord (83) | −14,70 | −14,70 | −14,70 | 0 | 1 | `S196800800-1` |
+| Large de Saint-Malo (35) | −1,27 | −1,27 | −1,27 | 0 | 1 | **`DTM_GNB_20m`** |
+| Chenal d'Arcachon (33) | −2,47 | −5,00 | −0,10 | 0,22 | 5 | `S192900800` |
+
+**La source de vérité est le Shom, et nous la consommons déjà.** Les sept réponses portent
+`reference.organisation_id = 540`, et l'**EDMO 540 est le Shom**. À Saint-Malo la
+provenance est `DTM_GNB_20m`, c'est-à-dire **le MNT côtier 20 m du golfe normand-breton du
+Shom lui-même** — le même produit que le prépaquet `MNT_COTIER_GNB_PAPI_SM_20m_PACK_DL`
+(§5). EMODnet n'est pas une alternative au Shom : c'est le véhicule de diffusion
+interrogeable de ses levés.
+
+**`min` et `max` donnent l'étendue du fond dans la maille — mais elle est souvent nulle.**
+Au Morbihan le fond varie de −10,38 à −5,43 m là où `avg` donne −8,15, et au chenal
+d'Arcachon de −5,00 à −0,10 m ; en revanche, sur deux points réels de la baie de Quiberon,
+`min = max = avg`. Les cas à forte étendue sont ceux qui **agrègent beaucoup de surfaces
+élémentaires** (5 600 au Morbihan, 1 181 à Pen Hat) : c'est l'exception, pas la règle.
+**L'étendue de la maille ne peut donc pas porter le discours sur l'incertitude** — c'est le
+millésime du levé qui le porte (ci-dessous). Quant à `stdev`, voir plus bas : ce n'est pas
+une donnée du Shom.
+
+Deux pièges mesurés :
+
+- **un point à terre renvoie un `avg` positif**, avec `elementarySurfaces: 1` et **aucun**
+  `min`/`max`/`reference`. L'absence de `reference` est d'ailleurs un bon test « valeur
+  marine ou pas » — et un `avg` positif ne doit **jamais** être lu comme une profondeur ;
+- **`smoothed` diverge franchement de `avg`** : −2,66 contre −1,27 à Saint-Malo, −0,99
+  contre −2,47 à Arcachon, −5,72 contre −8,15 au Morbihan. Le code lit `avg` : c'est le bon
+  choix, ne pas s'en écarter sans raison.
+
+**Maille confirmée par la mesure** : cinq points espacés d'environ 50 m sur le même axe
+renvoient 14,79 / 14,79 / 14,76 / 14,76 / 11,96 — constant sur ~150 m, puis saut.
+
+### Le millésime du levé : ne pas l'inférer, l'interroger (26/10/2026)
+
+**La lecture de l'année dans le code CDI est une fausse piste — abandonnée.** Le Shom
+publie les **emprises de ses levés bathymétriques en WFS**, avec leurs vraies dates. Quatre
+couches, découpées par période, à interroger toutes les quatre :
+
+| Type d'objet WFS | Période |
+|---|---|
+| `LEVES_BATHY_AVANT_1970_WFS:leves_bathy_avant_1970` | avant 1970 |
+| `LEVES_BATHY_1970-1990_WFS:leves_bathy_1970_1990` | 1970–1990 |
+| `LEVES_BATHY_1990-2005_WFS:leves_bathy_1990_2005` | 1990–2005 |
+| `LEVES_BATHY_APRES_2005_WFS:leves_bathy_apres_2005` | après 2005 |
+
+Attribut géométrique : **`geometry`**. Champs lus : `sursta` et `surend` (début et fin du
+levé, en `AAAAMMJJ`), `instrument`, `tecsou` (technique de sondage), `sonde` (nombre de
+sondes), `zmin`/`zmax` (plage de profondeurs du levé), `id_md`. Latence mesurée le
+26/10/2026 : **31 à 89 ms** pour les quatre couches.
+
+**La jointure avec EMODnet fonctionne** : `id_md` contient le code CDI que `depth_sample`
+renvoie dans `reference.identifier`. Exemple :
+`LEVES_BATHY_AVANT_1970_PACK_DL/`**`S189800200`**`_LEVE_BATHY`. On peut donc rattacher la
+valeur affichée **à son levé d'origine**, et en lire les vraies dates.
+
+**Piège — le code CDI ne porte pas l'année du levé.** C'est ce qui rendait l'inférence
+dangereuse : `S199206700` a pour dates réelles `sursta 19900512` → `surend 19910531`, soit
+un levé **de 1990-1991**, pas de 1992. L'inférence tombait juste sur `S189800200` (1898) et
+faux ici. **Ne jamais lire l'année dans le code.**
+
+Mesures du 26/10/2026, sur deux points réels :
+
+| Point | Levés qui le couvrent (`sursta`–`surend`) | Instrument |
+|---|---|---|
+| 47.447524 / −3.049958 (baie de Quiberon) | **1906**, 1898, 1820, 1819 | plomb de sonde |
+| 47.478745 / −3.029089 (la Teignouse) | **1990-1991**, 1906, 1819-1820 | sondeurs DESO 20, LENNERMOR, latéral |
+
+Au premier point, le levé le plus récent du secteur date de **1906**, et la valeur servie
+par EMODnet vient de celui de **1898**, au plomb de sonde. C'est l'information qui mérite
+d'être dite à l'usager — bien plus que la fourchette.
+
+**Règle d'affichage retenue** : rattacher la valeur à son levé par `id_md`, afficher
+`surend` et `instrument` ; à défaut de jointure, afficher le levé le plus récent couvrant
+le point (`max(surend)`). Trois issues, comme ailleurs : levé trouvé, aucun levé ici,
+service muet.
+
+### Ce que le champ `stdev` d'EMODnet n'est pas
+
+Le descriptif du produit « Levés bathymétriques » du Shom **ne publie aucun attribut
+d'incertitude verticale** — seule une `Uncertainty_Horizontal` existe. La précision
+verticale n'y est donnée qu'en prose : **30 cm à 1 m jusqu'à 50 m de fond**, puis 1 à 2 %
+de la profondeur ; les levés postérieurs à 1968 suivent la norme OHI S-44 en vigueur à
+leur date. Le `stdev` renvoyé par `depth_sample` est donc **un calcul d'EMODnet, pas une
+donnée du Shom** : ne rien afficher à partir de lui sans en avoir établi la sémantique
+auprès d'EMODnet. `sursta`/`surend` et `instrument` disent la même chose en mieux, et de
+source primaire.
+
+> **Référence verticale, par la spécification** : les sondes sont ramenées au « zéro de
+> réduction des sondages », qui correspond généralement au zéro hydrographique local.
+> Au-delà de 200 m les sondes ne sont pas réduites de la marée. Une valeur **négative**
+> désigne une sonde d'estran ou une donnée topographique — ce qui confirme le traitement
+> déjà en place du cas « fond découvrant ».
+> Source : [Descriptif du contenu du produit externe « Levés Bathymétriques »](https://services.data.shom.fr/static/specifications/Descriptif_Contenu_ProduitExterne_LEVES_BATHY.pdf), lu le 26/10/2026.
+
+### Les deux prudences opposées du rayon d'évitage
+
+`min` et `max` ouvrent un choix que `avg` masquait, et il faut l'assumer explicitement :
+
+- **prudence anti-collision** (l'objet affiché du produit) : plus le fond est profond, plus
+  la chaîne filée est longue, plus le cercle d'évitage est grand. Le cas défavorable est
+  donc **le plus profond de la maille**, soit `min` → rayon plus grand, recoupement signalé
+  plus tôt ;
+- **prudence anti-échouage** : le cas défavorable est **le moins profond**, soit `max`.
+
+**Arbitré le 26 octobre 2026 (Nicolas) : `min`**, le plus profond de la maille, alimente la
+colonne d'eau — à la condition expresse que le choix soit **dit** et non subi. La note sous
+le champ annonce donc l'estimation comme prudente, nomme le fond le plus bas de la maille,
+et **donne aussi la colonne au fond moyen** : l'usager qui connaît son coin corrige en une
+saisie. `max` a sa place ailleurs, dans le conseil d'ancrage.
+
+> **Portée réelle de cet arbitrage : faible.** Mesuré le 26/10/2026 sur deux points réels —
+> 47.447524 / −3.049958 et 47.478745 / −3.029089 — `min = max = avg`, donc la colonne
+> retenue est **identique dans les deux options**. L'arbitrage ne joue que sur les mailles à
+> forte étendue, minoritaires. Il reste la bonne règle ; il ne faut pas en attendre un effet
+> visible au quotidien. Le contenu de la note sous le champ est désormais régi par la règle
+> des deux bornes de marée (ci-dessous), qui a remplacé la mention du « fond moyen ».
+
+**L'intitulé « Colonne d'eau à marée haute » est conservé.** Il nomme une grandeur de la mer,
+la même que l'usager la saisisse ou non ; la prudence est une propriété de *notre
+estimation*, pas de la grandeur, et elle appartient donc à la note. « Colonne d'eau retenue »
+parlerait de notre calcul et ferait hésiter celui qui veut entrer sa propre sonde.
+
+> **Le champ est l'entrée du calcul**, et c'est ce qui rend l'arbitrage honnête :
+> `lireSaisieEvitage()` lit `#in-depth`, donc la valeur prudente est **visible et
+> abaissable en un geste**, au lieu d'être appliquée en coulisse.
+
+### Affichage dans la popup — au-dessus de la nature du fond
+
+**Pas encore branché — maquette arbitrée le 26/10/2026, code à écrire.** Trois décisions de
+Nicolas ce jour-là : la carte profondeur **s'affiche toujours** (elle ne relève pas de la
+règle v2.19 « une bonne nouvelle n'a pas besoin d'une ligne » : une profondeur n'est jamais
+une simple bonne nouvelle, c'est le chiffre qui dimensionne la chaîne) ; **six états**, dont
+deux distincts pour ne pas savoir — « non renseignée à cet endroit » (absence confirmée) et
+« vérification impossible » (service injoignable, sans bouton, même motif que les zonages de
+protection) ; **seuil de levé ancien à 1980**, à porter dans `CONFIG`. Ce point
+n'est **plus suspendu** : les dates réelles viennent du WFS Levés bathymétriques
+(ci-dessus), et non plus d'une lecture du code CDI.
+
+Le vocabulaire est arrêté : **« au plus bas de la marée »** et non « zéro hydrographique »,
+qui reste dans le détail dépliable et dans ce fichier — **sauf en Méditerranée**, où la
+formule est fausse (piège détaillé plus bas). Points d'insertion repérés dans
+`index.html` : `interrogerProfondeur(lngLat)` dans le peloton `Promise.all` qui lance déjà
+zonages, nature du fond, département, fiches DDTM et zones AOT, et
+`cartes.push(carteProfondeur(prof))` **juste avant** `cartes.push(carteNatureFond(fond))`.
+La profondeur répond en **28 à 80 ms** (mesuré le 15/10) : le bloc continue de s'afficher
+d'un coup.
+
+**Gain collatéral** : EMODnet n'est aujourd'hui appelée **que** si le point est à moins de
+100 m d'une AOT, pour préremplir le champ d'évitage. La faire entrer dans le peloton la
+rend inconditionnelle **et** permet au calcul de réutiliser la même réponse — une
+interrogation au lieu de deux.
+
+**La carte porte les deux bornes de la marée, pas la seule sonde** (arbitrage du
+26/10/2026). La sonde est rapportée au zéro hydrographique, le champ d'évitage demande une
+colonne à marée haute : afficher l'une à côté de l'autre sans les relier donne deux nombres
+distants du marnage, pour le même point, sans explication. La carte annonce donc
+« **Profondeur : 13,7 à 19,1 m selon la marée** », et le chiffre du champ redevient
+reconnaissable. **Au dixième partout**, comme le champ : la cohérence prime, puisque c'est
+la lecture croisée qui posait problème.
+
+> **Piège — « au plus bas de la marée » est faux en Méditerranée.** La référence verticale
+> d'EMODnet est aux plus basses mers astronomiques **sur les côtes à marée**, et **au niveau
+> moyen ailleurs** ; le marnage méditerranéen est par ailleurs négligeable. La carte doit
+> brancher sur le même test que la note d'évitage — `est.port.ref === 'PMVE-PBMA'` — et
+> n'afficher **ni fourchette ni qualificatif tidal** en Méditerranée : un seul nombre, suivi
+> de « la marée ne change pratiquement rien ici ».
+
+Conséquence technique : la borne haute vient de `ram-ports.json`, donc **`chargerPortsRAM`
+doit être appelée hors du seul cas « AOT à moins de 100 m »**. Elle hérite aussi de
+l'approximation du port de référence choisi à vol d'oiseau — d'où le « environ », et le nom
+du port gardé dans le détail dépliable. **Repli** : table non chargée ou aucun port proche
+→ un seul nombre, sans qualificatif tidal, jamais une borne haute inventée.
+
+Le reste de ce qui s'affiche : le millésime et l'instrument du levé, pris du WFS Levés
+bathymétriques (ci-dessus), pas d'une inférence. Et les trois issues, comme partout
+ailleurs — **`null` n'est pas une profondeur nulle** : service muet, hors couverture, ou
+`avg` positif sans `reference` → pas d'estimation, et non « fond inconnu donc libre ».
+
+**Cas du fond découvrant** : une sonde négative désigne l'estran (confirmé par la
+spécification Shom, ci-dessus). La carte dit alors « à sec aux basses mers, environ X m
+d'eau à pleine mer » — l'information utile étant que le navire se posera.
 
 ---
 
@@ -862,6 +1096,7 @@ quelques sites avant de bouger.
 | Herbiers : reprise des libellés `title`/`subtitle` | OFB | pour que les deux services de l'État tiennent le même discours |
 | **Découpage DDTM/DML en mer, en polygones** | Shom, Eric Le Guen | question posée le 2/10, toujours sans réponse. Aucune couche surfacique ne la couvre. **Plus bloquant** : le rattachement départemental est livré depuis la v2.22 par inférence `DWITHIN` sur la terre la plus proche (§5), avec trois configurations de mise en défaut documentées. Un vrai découpage les supprimerait |
 | Fond de carte marine raster | Shom | absent du service INSPIRE ouvert — quelles conditions ? |
+| **Sémantique du champ `stdev`** | EMODnet Bathymetry | 4,3 m sur un point où `min = max`, 0,05 m sur un point voisin. Dispersion des sondes dans la maille, ou incertitude reportée du levé ? Le Shom ne publie pas d'incertitude verticale (§6), donc c'est un calcul d'EMODnet. **Rien à afficher tant que ce n'est pas établi** — et `sursta`/`instrument` du WFS Levés le remplacent avantageusement |
 | Table de correspondance S-57 | Shom | `restrn`, `catrea`, `catach`, `catmfa`, `typelem` — nécessaire avant d'afficher autre chose que `ninfom` |
 | **Flux conchylicole cassé** | DDTM 50 | bug d'encodage `8859part1` ; une fois corrigé, le département s'ajoute en une ligne de registre |
 | **Flux ZMEL cassé** | DDTM 83 | même bug, sur le jeu le plus pertinent du projet |
@@ -1009,3 +1244,4 @@ reprise dans ce fichier.
 | 13 oct. 2026 | `AMIDOMAR_Cadastre_conchylicole_sources_et_integration.md` | 4 sources candidates, registre départemental |
 | 14 oct. 2026 | `AMIDOMAR_Herbiers_sources_nationales.md` | couches OFB, WFS Géoplateforme |
 | 15 oct. 2026 | — | consolidation dans ce fichier, puis relecture croisée avec la spec, les tests et le code : correction de la règle de lecture du trait terre-mer, des cinq issues du cadastre, du rayon de requête à 40 m, de l'origine de test du CORS, et du statut du rattachement départemental |
+| 15 oct. 2026 | `AMIDOMAR_Bathymetrie_flux_Shom_et_integration.md` | bathymétrie : les quatre voies Shom fermées avec preuves, prépaquets et poids mesurés, provenance et dispersion EMODnet |
