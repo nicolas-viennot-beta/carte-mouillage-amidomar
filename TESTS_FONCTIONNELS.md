@@ -1868,7 +1868,18 @@ sandbox `vm` sans ajouter en fin de script une ligne de pont du type
 `globalThis.__t = { parserCoordonnees, GpsGeocoder, … }`. Sans ce pont, les
 tests échouent sur `Cannot read properties of undefined` et non sur le code.
 
-1. **Parseur — les cinq formats attendus**
+**Trois lacunes de stub arrêtent la phase synchrone** si on les oublie, et
+chacune ressemble à un bug du code alors qu'elle n'en est pas une (relevé le
+26/10/2026, à reproduire tel quel au prochain harnais) :
+`element.querySelector()` doit rendre un élément inerte et non `null` (sinon
+`replier()` échoue sur `body.style`) ; `window` doit porter
+`addEventListener` / `removeEventListener` (un `window` qui ne fait que
+pointer sur le sandbox ne les a pas) ; et `parentElement` / `parentNode`
+doivent rendre un parent inerte créé paresseusement. Une exception **après**
+la phase synchrone imputable au stub (`parentElement` d'un nœud non monté,
+par exemple) n'est pas bloquante : la relever sans arrêter le harnais.
+
+1. **Parseur — les formats attendus**
    - Action : appeler `parserCoordonnees` sur chaque saisie et comparer à la
      valeur attendue (tolérance 2·10⁻⁴ degré, soit ~20 m).
    - Attendu :
@@ -1884,11 +1895,34 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      | `43°16'03.8"N 6°37'21.4"E` | 43.267722 | 6.622611 | `DMS` |
      | `47.4869, -3.0997` | 47.4869 | −3.0997 | `DD` |
      | `47°29.214'N 3°05.982'W` | 47.4869 | −3.0997 | `DM` |
+     | `43,267710 6,622611` | 43.267710 | 6.622611 | `DD` | *(v2.31)*
+     | `43,267710; 6,622611` | 43.267710 | 6.622611 | `DD` | *(v2.31)*
+     | `43,2677N 6,6226E` | 43.2677 | 6.6226 | `DD` | *(v2.31)*
+     | `43,26, 6,62` | 43.26 | 6.62 | `DD` |
+     | `43°16'03,8"N 6°37'21,4"E` | 43.267722 | 6.622611 | `DMS` |
 
    - *Les deux derniers cas comptent autant que les autres* : la Bretagne est en
      longitude **négative**, et l'hémisphère `W` doit produire ce signe aussi
      bien que le `-` explicite. Un parseur testé seulement sur le Var passerait
      en envoyant les points bretons en Asie centrale.
+   - Vérification : exécution (Node.js).
+
+1bis. **Parseur — lecture de la virgule, les cas certains (v2.31)**
+   - Action : appeler `parserCoordonnees` sur chaque saisie à virgule dont la
+     lecture ne fait aucun doute.
+   - Attendu : le point du golfe de Saint-Tropez (43.267710 / 6.622611,
+     tolérance 2·10⁻⁴ degré) pour `43,267710, 6,622611`, `43,267710 6,622611`,
+     `43,267710;6,622611` et `43,267710; 6,622611` ; le même point à ~20 m près
+     pour `43,2677N 6,6226E` et `43,26 N, 6,62 E` ; 43.26 / 6.62 pour
+     `43,26, 6,62` ; le point nautique habituel pour `43°16,063'N 6°37,357'E`.
+   - Attendu aussi : `44,6683 -1,1703` → 44.6683 / −1.1703. Virgule décimale,
+     séparateur espace **et** longitude négative : la combinaison atlantique qui
+     casse le plus facilement, et que le `44,6683` seul ne couvre pas.
+   - *Pourquoi* : trois signaux seulement rendent la virgule certainement
+     décimale — un `°` dans la saisie, un autre séparateur déjà présent (espace,
+     `;`, lettre d'hémisphère), ou quatre groupes d'entiers. Chacun des trois
+     doit être couvert ici ; l'espace et le `;` étaient refusés avant la v2.31,
+     alors que ce sont eux qui arrivent dans un copier-coller de deux cellules.
    - Vérification : exécution (Node.js).
 
 2. **Parseur — ce qui doit être refusé**
@@ -1899,6 +1933,32 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      d'être cherchés. Les deux suivants sortent des bornes ±90 / ±180. Le dernier
      est une saisie incomplète, qui doit relever de l'aide au format (test 4) et
      non d'un point.
+   - Vérification : exécution (Node.js).
+
+2bis. **Parseur — la virgule indécidable est refusée, pas devinée (v2.31)**
+   - Action : appeler `parserCoordonnees` sur `43,16`, `44,1`, `1,5`, `-1,16`,
+     `43, 6` et `43,267710,6`.
+   - Attendu : `{ ambigu:true }` dans **tous** les cas — jamais un point, et
+     jamais `null` (ce qui rendrait la main à la Géoplateforme au lieu
+     d'afficher les deux lectures à l'usager).
+   - Attendu aussi : `lecturesAmbigues('43,16')` → `{ decimale:'43.16',
+     couple:'43 16' }` — les deux lectures sont rendues sous la forme **déjà
+     corrigée**, et chacune doit être elle-même acceptée par `parserCoordonnees`
+     (c'est ce qui rend le message actionnable : l'usager recopie) ;
+     `lecturesAmbigues('43,267710,6')` → `null` (au-delà
+     de deux nombres il n'y a plus deux lectures à opposer, seulement une saisie
+     à reprendre).
+   - Attendu enfin : les **noms de lieux à virgule** ne tombent pas dedans —
+     `Gruissan, Aude`, `Port-Camargue, Gard` → `null`. La détection exige des
+     groupes d'entiers ; si elle se relâchait, le champ répondrait « Virgule
+     ambiguë » à une recherche de commune.
+   - *Pourquoi ce test existe* : avant la v2.31, `43,16` était accepté **en
+     silence** comme le couple 43 / 16, et le sous-titre de l'entrée en affichait
+     l'équivalent `43°16.000'N` — soit exactement la lecture degrés-minutes que
+     la saisie n'avait pas voulu dire. Le point pouvait se poser à des centaines
+     de kilomètres du mouillage sans que rien ne le signale. Un test qui
+     vérifierait seulement que `43,16` « donne un résultat » ferait repasser ce
+     bug : c'est le refus qui est l'assertion.
    - Vérification : exécution (Node.js).
 
 3. **Parseur — garde-fou d'inversion latitude / longitude**
@@ -1924,6 +1984,12 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
        dont le **libellé est la saisie elle-même** (le contrôle recopie le libellé
        dans le champ à la sélection : un autre libellé effacerait ce que l'usager
        a tapé) ;
+     - virgule indécidable (`43,16`) *(v2.31)* → **un** résultat avec
+       `data.aide === true`, libellé **égal à la saisie**, `description` égale à
+       « Écrivez 43.16 ou 43 16 — virgule ambiguë » et **d'au plus 40
+       caractères** (voir le test 9bis : au-delà, le déroulant tronque et la
+       consigne se perd), et **aucun** `data.gps` — une sélection ne doit poser
+       aucun point ;
      - libellé de lieu → **tableau vide**, pour ne pas polluer les résultats de la
        Géoplateforme.
    - Attendu aussi : `onSelect` sur une entrée d'aide ne fait rien et ne jette pas.
@@ -2001,6 +2067,28 @@ tests échouent sur `Cannot read properties of undefined` et non sur le code.
      dessus laisse **`43.26`** dans le champ (et non le libellé de l'aide).
      `Saint-Tropez` n'affiche **aucune** entrée « Point GPS » ni « Format
      attendu ».
+   - Vérification : Chromium headless.
+
+9bis. **Virgule indécidable dans l'interface (v2.31)**
+   - Action : fermer la marche à suivre (`#guide-fermer`) — ouverte au
+     chargement, elle est `aria-modal` et **intercepte tous les clics** du
+     harnais —, taper `43,16`, attendre le debounce (prévoir 700 ms), lire le
+     déroulant, cliquer l'entrée proposée. Puis taper `43,267710 6,622611`.
+   - Attendu : `43,16` affiche une entrée « Écrivez 43.16 ou 43 16 — virgule
+     ambiguë », **sans points de suspension** (le sous-titre du déroulant est
+     tronqué au-delà d'environ 40 caractères), et **aucune** entrée
+     « Point GPS » ; cliquer dessus laisse **`43,16`** dans le champ et ne bouge
+     pas la carte ; `43,267710 6,622611` affiche au contraire l'entrée
+     `Point GPS — 43.267710, 6.622611`.
+   - *Ce test a trouvé un vrai défaut le 26/10/2026* : le message d'origine
+     (« 43.16 ou 43 / 16 ? Virgule ambiguë — écrivez la décimale avec un
+     point : 43.267710, 6.622611 ») s'affichait « …Virgule ambiguë — écri… ».
+     Les assertions du harnais Node, qui lisent la chaîne et non le rendu,
+     passaient toutes au vert. **La longueur d'un libellé ne se vérifie qu'au
+     rendu.**
+   - *Les deux saisies vont ensemble* : l'une vérifie le refus, l'autre qu'il ne
+     s'est pas étendu aux virgules dont la lecture est certaine. Tester le refus
+     seul laisserait passer un parseur devenu trop strict.
    - Vérification : Chromium headless.
 
 10. **Chaîne complète au-dessus de l'eau — en conditions réelles**
@@ -2162,6 +2250,24 @@ le DOM `#guide-titre`, `#guide-commencer`, les `.etape` et les `.puce` de
 ---
 
 ### Résultat de la dernière exécution
+
+26 octobre 2026, version 2.31 : **77/77** sur les suites rejouées pour la
+lecture de la virgule dans le champ de recherche — §6 intégrité (syntaxe des
+deux blocs `<script>` + exécution réelle avec globaux simulés, aucune exception
+en phase synchrone) et §10.1, 1bis, 2, 2bis, 3, 4 au harnais Node (51/51), puis
+§10.5 à 10.9bis en Chromium headless, réseau externe coupé, sur la version du
+dossier (26/26). Aucune `pageerror` sur toute la session.
+
+Deux pièges de harnais relevés ce jour-là, tous deux à reproduire :
+la **marche à suivre ouverte au chargement intercepte les clics** (la fermer par
+`#guide-fermer` avant toute interaction), et le format nautique ne redonne pas
+la chaîne DD au chiffre près (43°16.063' = 43.267717, ~80 cm) — comparer le
+point, pas la chaîne.
+
+Les suites des autres sections (estran, nature du fond, popup, cultures
+marines) **n'ont pas été rejouées** le 26/10 : leurs harnais vivaient dans le
+dossier de travail d'une session précédente et sont perdus. Le changement du
+jour ne touche que le parseur de coordonnées et le provider de recherche.
 
 14 octobre 2026, version 2.21 : **45/45** sur l'ensemble des suites
 (estran 7/7, nature du fond 8/8, popup 11/11, cultures marines 19/19), rejouées

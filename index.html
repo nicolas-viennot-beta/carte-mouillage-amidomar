@@ -937,18 +937,61 @@
        emprise reste accepté. À élargir si l'expérimentation gagne l'outre-mer. */
     const EMPRISE_FR = Object.freeze({ latMin:41.0, latMax:51.6, lonMin:-5.6, lonMax:9.8 });
 
-    /* Un agent qui copie depuis Excel ou Grist obtient « 43,267710, 6,622611 » :
-       la virgule décimale française. Quatre groupes de chiffres séparés par des
-       virgules ne peuvent être que deux paires à virgule décimale. Dans les
-       formats nautiques (repérables au signe °), toute virgule entre deux
-       chiffres est décimale. */
+    /* Dans une saisie GPS, la virgule a deux rôles incompatibles : séparateur
+       décimal à la française (« 43,267710 », ce que produisent un téléphone,
+       Excel et Grist en locale FR) et séparateur entre latitude et longitude
+       (« 43.267710, 6.622611 »). Refuser toute virgule serait de la friction
+       pure pour un plaisancier ou un instructeur français ; la deviner, c'est
+       risquer de placer le point à des centaines de kilomètres du mouillage
+       sans le dire. On ne tranche donc que quand la lecture est certaine :
+
+         — un ° est présent (formats nautiques) : toute virgule entre deux
+           chiffres y est forcément décimale ;
+         — un autre séparateur sépare déjà les deux coordonnées (espace,
+           point-virgule, lettre d'hémisphère) : les virgules qui restent ne
+           peuvent être que décimales — c'est la copie de deux cellules
+           voisines, « 43,267710 6,622611 » ;
+         — quatre groupes d'entiers séparés par des virgules : deux paires à
+           virgule décimale, aucune autre lecture possible.
+
+       Reste un cas indécidable : deux ou trois entiers, des virgules pour seuls
+       séparateurs, aucun point. « 43,16 » se lit 43.16 aussi bien que 43 / 16.
+       On rend null, et parserCoordonnees le traduit en refus explicite plutôt
+       qu'en point silencieusement faux. */
     function normaliserSaisieGps(saisie) {
       const t = String(saisie || '').trim();
-      const parties = t.split(',').map(x => x.trim());
-      if (parties.length === 4 && parties.every(x => /^-?\d+$/.test(x)))
+      const virguleDecimale = s => s.replace(/(\d),(\d)/g, '$1.$2');
+
+      if (t.indexOf('°') !== -1) return virguleDecimale(t);
+      if (t.indexOf(',') === -1) return t;
+
+      /* Les espaces qui entourent une virgule ou un point-virgule ne séparent
+         rien : ce sont ceux de la frappe. Les retirer avant de chercher un
+         séparateur autre que la virgule, sinon l'espace de « 43,26, 6,62 »
+         ferait croire que les deux coordonnées sont déjà séparées. */
+      const compact = t.replace(/\s*([,;])\s*/g, '$1');
+      if (/[\s;NSEWOnsewo]/.test(compact)) return virguleDecimale(t);
+
+      const parties = compact.split(',');
+      const entiers = parties.every(x => /^-?\d+$/.test(x));
+      if (parties.length === 4 && entiers)
         return parties[0] + '.' + parties[1] + ', ' + parties[2] + '.' + parties[3];
-      if (t.indexOf('°') !== -1) return t.replace(/(\d),(\d)/g, '$1.$2');
+      if (parties.length <= 3 && entiers) return null;   // indécidable
       return t;
+    }
+
+    /* Les deux lectures d'une saisie indécidable, rendues sous la forme qui
+       lève le doute : « 43,16 » donne « 43.16 » et « 43 16 », deux saisies que
+       le parseur accepte telles quelles. Montrer les lectures plutôt que d'en
+       choisir une, et les montrer déjà corrigées plutôt que de décrire la
+       correction, c'est ce qui tient dans la largeur du déroulant. Rend null
+       au-delà de deux nombres : il n'y a alors plus deux lectures à opposer,
+       seulement une saisie à reprendre. */
+    function lecturesAmbigues(saisie) {
+      const parties = String(saisie || '').trim().replace(/\s*,\s*/g, ',').split(',');
+      if (parties.length !== 2) return null;
+      return { decimale: parties[0] + '.' + parties[1],
+               couple:   parties[0] + ' ' + parties[1] };
     }
 
     function signeHemisphere(valeur, hemisphere) {
@@ -969,6 +1012,7 @@
        coordonnées. Ne jette jamais : le champ reçoit du texte libre. */
     function parserCoordonnees(saisie) {
       const t = normaliserSaisieGps(saisie);
+      if (t === null) return { ambigu:true };
       let lat, lon, format, m;
 
       if ((m = t.match(RE_GPS_DMS))) {
@@ -1091,6 +1135,26 @@
 
       async search(query) {
         const coords = parserCoordonnees(query);
+        /* Saisie dont la virgule est indécidable : on ne propose aucun point,
+           on montre les deux lectures et le format qui lève le doute. Le
+           libellé reprend la saisie telle quelle pour que la sélectionner ne
+           l'efface pas (même raison que l'aide au format ci-dessous). */
+        if (coords && coords.ambigu) {
+          /* Le contrôle tronque la description autour de 40 caractères : le
+             message doit tenir avant les points de suspension, sinon l'usager
+             lit « Virgule ambiguë — écri… » et reste sans la solution. D'où
+             une consigne qui porte les deux lectures sous leur forme déjà
+             corrigée — « 43.16 » et « 43 16 » sont l'une et l'autre des
+             saisies valides, il n'y a qu'à recopier celle qu'il visait. */
+          const l = lecturesAmbigues(query);
+          return [{
+            label: query,
+            description: l
+              ? 'Écrivez ' + l.decimale + ' ou ' + l.couple + ' — virgule ambiguë'
+              : 'Format attendu : 43.267710, 6.622611',
+            data: { aide: true }
+          }];
+        }
         if (coords) {
           const f = formaterCoordonnees(coords.lat, coords.lon);
           return [{

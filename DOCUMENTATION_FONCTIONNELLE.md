@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.30 (octobre 2026)  
+**Version:** 2.31 (octobre 2026)  
 **Dernière mise à jour:** 26 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -586,12 +586,31 @@ map.addControl(new CarteFacile.SearchControl({
 | Format | Exemple | Pourquoi |
 |--------|---------|----------|
 | Degrés décimaux | `43.267710, 6.622611` | Format des formulaires DN et de Grist |
-| Virgule décimale française | `43,267710, 6,622611` | Ce que donne un copier-coller depuis Excel ou Grist |
+| Virgule décimale, séparateur virgule | `43,267710, 6,622611` | Ce que donne un copier-coller depuis Excel ou Grist |
+| Virgule décimale, séparateur espace ou `;` | `43,267710 6,622611` | Copie de deux cellules voisines, le cas le plus courant chez un instructeur *(v2.31)* |
 | Séparateur espace ou `;` | `43.267710 6.622611` | Tolérance de saisie |
+| Hémisphères en suffixe | `43,2677N 6,6226E` | Les lettres séparent les deux coordonnées à elles seules *(v2.31)* |
 | Degrés-minutes décimales | `43°16.063'N 6°37.357'E` | Cartes marines, arrêtés, GPS de bord |
 | Degrés-minutes-secondes | `43°16'03.8"N 6°37'21.4"E` | Variante rencontrée dans les arrêtés |
 
-Règle de désambiguïsation de la virgule : quatre groupes de chiffres séparés par des virgules ne peuvent être que deux paires à virgule décimale. Dans une saisie contenant un `°`, toute virgule entre deux chiffres est décimale. Les hémisphères `N/S` et `E/W/O` sont acceptés en suffixe et donnent le signe ; sans eux, le signe est celui du nombre.
+Les hémisphères `N/S` et `E/W/O` sont acceptés en suffixe et donnent le signe ; sans eux, le signe est celui du nombre.
+
+#### Règle de lecture de la virgule *(v2.31)*
+Dans une saisie GPS, la virgule a deux rôles incompatibles : **séparateur décimal** à la française (`43,267710`, ce que produisent un téléphone, Excel et Grist en locale FR) et **séparateur entre latitude et longitude** (`43.267710, 6.622611`). Refuser toute virgule serait de la friction pure pour un plaisancier ou un instructeur français ; la deviner, c'est risquer de poser le point à des centaines de kilomètres du mouillage sans le dire. La virgule est donc lue comme décimale dans les trois cas où c'est la **seule** lecture possible :
+
+| Cas | Exemple | Pourquoi la lecture est certaine |
+|-----|---------|----------------------------------|
+| La saisie contient un `°` | `43°16,063'N` | Le format est nautique : toute virgule entre deux chiffres y est forcément décimale |
+| Un autre séparateur sépare déjà les deux coordonnées | `43,267710 6,622611`, `43,267710; 6,622611`, `43,2677N 6,6226E` | L'espace, le `;` ou la lettre d'hémisphère joue déjà le rôle de séparateur ; les virgules restantes ne peuvent être que décimales |
+| Quatre groupes d'entiers séparés par des virgules | `43,267710, 6,622611` | Deux paires à virgule décimale, aucune autre lecture possible |
+
+Les espaces qui entourent une virgule ou un `;` sont retirés avant d'y chercher un séparateur : sans cela, l'espace de `43,26, 6,62` ferait croire que les deux coordonnées sont déjà séparées.
+
+**Le cas indécidable est refusé, pas deviné.** Deux ou trois entiers séparés par des seules virgules, sans aucun point : `43,16` se lit 43.16 aussi bien que 43 / 16, et il en va de même de `44,1`, `-1,16` ou `43, 6`. Aucun point n'est proposé ; le déroulant montre les deux lectures et le format qui lève le doute.
+
+Conséquence assumée : une paire de **degrés entiers** (`43, 6`) n'est plus acceptée telle quelle. Un degré vaut environ 111 km de côté — une précision sans usage pour un mouillage — et l'usager est invité à écrire `43.0, 6.0` s'il la voulait vraiment.
+
+Avant la v2.31, `43,16` était accepté **en silence** comme le couple 43 / 16, et le sous-titre de l'entrée en affichait l'équivalent nautique `43°16.000'N` — soit exactement la lecture degrés-minutes que la saisie n'avait pas voulu dire. Un point pouvait ainsi se poser à plusieurs centaines de kilomètres du mouillage sans que rien ne le signale, et les saisies à virgule séparées par un espace ou un `;` — les plus fréquentes dans un copier-coller de deux cellules — étaient refusées alors que leur lecture ne faisait aucun doute.
 
 #### Garde-fou sur l'inversion latitude / longitude
 C'est l'erreur la plus courante sur des coordonnées recopiées. Si le couple saisi tombe **hors** de l'emprise France métropolitaine (`EMPRISE_FR` : 41,0–51,6 N / −5,6–9,8 E, Corse comprise) mais que le couple **inversé** y tombe, le point est corrigé et le résultat le dit : « Latitude et longitude semblaient inversées : remises dans l'ordre ». Un point réellement hors emprise reste accepté sans correction. `EMPRISE_FR` est à élargir si l'expérimentation gagne l'outre-mer.
@@ -599,6 +618,8 @@ C'est l'erreur la plus courante sur des coordonnées recopiées. Si le couple sa
 #### Ce qui s'affiche dans la liste déroulante
 - **Coordonnées reconnues** → une entrée épinglée, `Point GPS — 43.267710, 6.622611`, avec le format nautique correspondant en sous-titre (ou le message d'inversion le cas échéant). Rien ne bouge sur la carte avant que l'usager ne sélectionne l'entrée : il valide d'abord l'interprétation qui en est faite.
 - **Saisie faite de chiffres et de signes de coordonnées mais non interprétable** (ex. `43.26`) → une entrée d'aide donnant le format attendu, plutôt qu'un déroulant vide. Son libellé **reprend la saisie telle quelle** : le contrôle recopiant le libellé dans le champ quand on sélectionne une entrée, cliquer sur cette aide laisse la saisie intacte au lieu de l'effacer.
+- **Virgule indécidable** (`43,16`) *(v2.31)* → **aucune** entrée « Point GPS » : une entrée d'aide « **Écrivez 43.16 ou 43 16 — virgule ambiguë** ». Les deux lectures sont calculées depuis la saisie et données **déjà corrigées** : `43.16` et `43 16` sont l'une et l'autre des saisies que le parseur accepte, l'usager n'a qu'à recopier celle qu'il visait. Même mécanique de libellé que l'aide au format : la saisie reste dans le champ si l'on clique dessus.
+  - **Le sous-titre du déroulant est tronqué au-delà d'environ 40 caractères**, comme le placeholder l'est au-delà de 32. Une consigne plus explicite (« écrivez la décimale avec un point : 43.267710, 6.622611 ») s'affichait « Virgule ambiguë — écri… » : l'usager lisait le diagnostic et perdait la solution. Mesuré au rendu le 26/10/2026 ; toute reformulation de ce message doit être revérifiée dans le déroulant, pas seulement dans le code.
 - **Texte non numérique** (`Saint-Tropez`, `Le Pradic`) → le provider GPS ne renvoie rien et laisse la place à la Géoplateforme.
 
 #### Sélection d'un point : le clic carte est rejoué
@@ -1051,6 +1072,13 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Saisir `43°16'03.8"N 6°37'21.4"E` → même point à ~1 m près
 - [ ] Saisir `6.622611, 43.267710` (inversé) → le point est corrigé et le sous-titre indique l'inversion
 - [ ] Saisir `43.26` → entrée d'aide « Format attendu : … » ; cliquer dessus **conserve** `43.26` dans le champ
+- [ ] *(v2.31)* Saisir `43,267710 6,622611` (virgule décimale, séparateur espace — copie de deux cellules voisines) → même point
+- [ ] *(v2.31)* Saisir `43,267710; 6,622611` → même point
+- [ ] *(v2.31)* Saisir `43,2677N 6,6226E` → même point à une dizaine de mètres près
+- [ ] *(v2.31)* Saisir `43°16,063'N 6°37,357'E` (virgule nautique) → même point que la version à point décimal
+- [ ] *(v2.31)* Saisir `43,16` → **aucune** entrée « Point GPS » ; une entrée « Écrivez 43.16 ou 43 16 — virgule ambiguë », **affichée en entier** (non tronquée), et cliquer dessus **conserve** `43,16` dans le champ
+- [ ] *(v2.31)* Saisir `44,1`, puis `-1,16`, puis `43, 6` → même refus explicite à chaque fois, jamais de point posé
+- [ ] *(v2.31)* Saisir `Gruissan, Aude` → résultats de communes, **aucune** entrée « Virgule ambiguë » parasite
 - [ ] Saisir `Saint-Tropez` → résultats de communes de la Géoplateforme, **aucune** entrée « Point GPS » parasite
 - [ ] Saisir une coordonnée en Bretagne (`47.4869, -3.0997`, Port-Haliguen) → le point tombe bien dans le Morbihan, longitude négative gérée
 - [ ] Le placeholder affiche « Commune, lieu-dit ou coordonnées » sans troncature
@@ -1085,6 +1113,15 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 3. **Le point tombe à l'autre bout de la carte ?** Latitude et longitude sont probablement inversées *et* le couple inversé tombait lui aussi dans l'emprise France — le garde-fou ne peut alors pas trancher. Vérifier l'ordre : latitude d'abord.
 4. **Rien ne s'affiche dans le déroulant ?** La saisie fait-elle au moins 3 caractères (`minChars` du contrôle) ? Une saisie de chiffres non interprétable doit afficher l'entrée « Format attendu » — si même elle n'apparaît pas, le provider n'est pas branché : vérifier que `GpsGeocoder` figure bien dans `providers` au `map.addControl`.
 5. **Après une mise à jour de carte-facile :** le contrôle doit toujours exposer l'option `providers` et consommer `label`, `description`, `icon`, `center` et `data` d'un résultat. Une refonte de son API casserait la recherche GPS sans erreur de syntaxe.
+
+### Une saisie à virgule affiche « Virgule ambiguë » au lieu du point *(v2.31)*
+C'est volontaire, et ce n'est pas un refus de la virgule : `43,16` peut se lire 43.16 (décimale française) comme 43 / 16 (latitude, longitude), et la carte ne choisit pas à la place de l'usager. Lever le doute suffit :
+- recopier l'une des deux saisies que le message propose — `43.16` ou `43 16` ;
+- écrire la décimale avec un point — `43.16, 6.37` ;
+- ou séparer les deux coordonnées autrement que par une virgule — `43,16 6,37`, `43,16; 6,37` ;
+- ou garder le format nautique — `43°16.063'N 6°37.357'E`.
+
+Si à l'inverse une saisie à virgule dont la lecture est certaine (`43,267710 6,622611`, `43,267710, 6,622611`) affiche ce message, c'est un vrai défaut : vérifier `normaliserSaisieGps` et rejouer le jeu de cas du §4.6 des TESTS_FONCTIONNELS.md.
 
 ### Les parcelles de cultures marines ne s'affichent pas, ou le clic ne les détecte pas *(v2.18)*
 **À vérifier dans cet ordre :**
@@ -1197,6 +1234,14 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ## 11. Historique des corrections
 
+### v2.31 — 26 octobre 2026
+**La virgule du champ de recherche n'est plus devinée**
+- Demande de Nicolas : une saisie à virgule ne doit pas être acceptée quand elle est comprise comme des degrés-minutes décimales. En l'état, `43,16` était accepté en silence comme le couple 43 / 16 et le sous-titre en affichait l'équivalent `43°16.000'N`, pouvant poser un point à des centaines de kilomètres du mouillage.
+- Arbitrage retenu : la virgule est acceptée **partout où sa lecture est certaine**, et **jamais devinée** quand elle ne l'est pas (voir §4.6, « Règle de lecture de la virgule »). Refuser toute virgule aurait pénalisé les usagers français, dont téléphone, Excel et Grist produisent tous des virgules.
+- Nouvelles saisies acceptées : virgule décimale séparée par un espace (`43,267710 6,622611`, la copie de deux cellules voisines) ou par un `;`, et hémisphères en suffixe (`43,2677N 6,6226E`) — toutes refusées avant.
+- Nouveau refus explicite : deux ou trois entiers séparés par des seules virgules, sans point (`43,16`, `44,1`, `-1,16`, `43, 6`). Le déroulant affiche les deux lectures possibles et le format qui lève le doute, au lieu de poser un point.
+- `normaliserSaisieGps` rend `null` dans ce cas, `parserCoordonnees` le traduit en `{ ambigu:true }`, et `lecturesAmbigues` calcule les deux lectures affichées, sous leur forme déjà corrigée pour tenir dans les ~40 caractères du sous-titre (mesure faite au rendu, voir §4.6). Les noms de lieux à virgule (`Gruissan, Aude`) ne sont pas concernés : la détection exige des groupes d'entiers.
+
 ### v2.30 — 26 octobre 2026
 **Le bloc d'évitage prend un titre et remonte d'un cran**
 - Intitulé **« Mouillages voisins »** (demande de Nicolas). Écarté : « radar proximité AOT mouillage » — il n'y a pas de radar, et « AOT » est un sigle administratif que le popup évite devant un plaisancier, dont le bloc lui-même dit « D'autres mouillages sont enregistrés à proximité ».
@@ -1284,7 +1329,7 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 - Demande de Nicolas : pouvoir saisir `43.267710, 6.622611` dans la carte pour pointer l'endroit et en faire apparaître les informations — besoin d'instructeur, qui part d'une coordonnée (Ad'hoc, arrêté, signalement) et veut savoir ce qu'il y a là. C'est le symétrique de l'étape 4, où le plaisancier *copie* ses coordonnées vers son formulaire.
 - **Un seul champ, décidé sur le fond** : deux champs auraient obligé l'usager à classer sa saisie avant de taper, et se tromper de champ ne renvoie aucun résultat sans dire pourquoi. `43.267710, 6.622611` n'étant pas confondable avec un nom de commune, la machine tranche seule.
 - **Aucune ligne de la librairie modifiée** : le champ est le `SearchControl` de carte-facile, qui accepte une liste de *providers*. Un provider `GpsGeocoder` est ajouté **avant** `GeopfGeocoder` — il arrive donc en tête du déroulant sans retirer de place aux résultats de communes, et `vendor/carte-facile.js` reste remplaçable par un `npm install`.
-- Cinq formats acceptés, dont deux qui comptent vraiment ici : la **virgule décimale française** (`43,267710, 6,622611`, ce que donne un copier-coller depuis Excel ou Grist) et les **degrés-minutes nautiques** (`43°16.063'N 6°37.357'E`, format des cartes marines, des arrêtés et des GPS de bord).
+- Sept formats acceptés *(v2.31)*, dont deux qui comptent vraiment ici : la **virgule décimale française** (`43,267710, 6,622611`, ce que donne un copier-coller depuis Excel ou Grist) et les **degrés-minutes nautiques** (`43°16.063'N 6°37.357'E`, format des cartes marines, des arrêtés et des GPS de bord).
 - **Garde-fou sur l'inversion latitude / longitude**, l'erreur la plus courante sur des coordonnées recopiées : si le couple saisi tombe hors de France mais que l'inverse y tombe, le point est corrigé et le résultat le dit.
 - **Le clic carte est rejoué au point, plutôt qu'une seconde popup écrite pour l'occasion.** Le corps du gestionnaire de clic est extrait dans `traiterPointCarte(lngLat, point)`, appelée par `map.on('click', …)` comme par la recherche. Un seul chemin de code : terre/eau, cultures marines, APB, zones protégées, nature du fond, règles locales, mouillages voisins et coordonnées reportables sortent tous du même endroit, et aucune divergence ne peut s'installer entre les deux gestes.
 - **Deux idées écartées après lecture de la librairie**, et c'est à retenir : le `fr-hint-text` du DSFR n'est pas applicable (le label du contrôle est masqué visuellement, et un contrôle flottant n'a pas de place pour un texte d'aide), et il n'y a pas de suggestions au focus (`minChars: 3` : rien ne s'ouvre champ vide). La découvrabilité passe donc par le placeholder (32 caractères au plus, au-delà le contrôle de 280 px tronque), l'étape 1 de la marche à suivre qui porte l'exemple chiffré, et une entrée d'aide au format dans le déroulant — affichée là où l'usager tâtonne. Cette entrée reprend la saisie comme libellé, parce que le contrôle recopie le libellé dans le champ : cliquer l'aide ne doit pas effacer ce qui a été tapé.
@@ -1667,4 +1712,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 15 octobre 2026
+**Dernière mise à jour:** 26 octobre 2026
