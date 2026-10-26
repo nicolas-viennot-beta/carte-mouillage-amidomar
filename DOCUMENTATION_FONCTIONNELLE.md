@@ -536,7 +536,9 @@ Appelé **deux fois** : dès la pose du marqueur, pour que le point soit visible
 
 > **En Méditerranée, pas de fourchette.** La référence verticale d'EMODnet y est le **niveau moyen** et non les plus basses mers, et le marnage est négligeable : « au plus bas de la marée » y serait faux. La bascule se fait sur `port.ref === 'PMVE-PBMA'`, le même test que la note du §4.2. Troisième cas, distinct : **aucun port de référence disponible** — un seul nombre également, mais le texte dit que la pleine mer n'a pas pu être estimée, au lieu d'affirmer que la marée ne change rien.
 
-**Le millésime s'affiche toujours, sans seuil** *(décision de Nicolas, 26/10/2026)*. « Sondé en 2013 (lidar bathymétrique) » et « sondé en 1898 (plomb de sonde) » se passent de commentaire : l'instrument raconte l'histoire mieux qu'une année comparée à un seuil, et un seuil serait une règle de plus à tenir.
+**Le millésime s'affiche toujours, sans seuil** *(décision de Nicolas, 26/10/2026)*. « Sondé en 2013 au lidar » et « sondé en 1898 au plomb de sonde » se passent de commentaire : la technique raconte l'histoire mieux qu'une année comparée à un seuil, et un seuil serait une règle de plus à tenir.
+
+**La technique de sondage vient de `tecsou`, pas de `instrument`** *(v2.29, après relecture de Nicolas)*. `tecsou` est un vocabulaire contrôlé du Shom, combinable par « | » ; `TECHNIQUES_SONDAGE` ne retient que la **première** technique citée, la principale, et la rend par un libellé court **préposition comprise** (« au plomb de sonde », « au sondeur multifaisceaux », « au lidar ») pour éviter les accords hasardeux. Même principe que `NATURES_FOND` : un code inconnu n'affiche **rien** plutôt qu'un terme incompréhensible. Le champ `instrument` est volontairement ignoré — il porte le modèle de l'appareil, sans accents (« sondeur multifaisceaux simrad em2040 »), sans intérêt pour un plaisancier.
 
 **Sources, et pourquoi deux.**
 - **La valeur** vient d'EMODnet Bathymetry (`depth_sample`). C'est la seule profondeur interrogeable au point, et la grille européenne diffuse les levés du Shom : les valeurs marines portent `reference.organisation_id = 540`, l'EDMO du Shom. Le WMS « MNT » du Shom n'est pas interrogeable au point et il n'existe pas de WCS — vérifié les 25/09, 12/10 et 15/10/2026, voir `data/SOURCES.md` §5.
@@ -858,7 +860,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Cliquer sur l'eau en Bretagne → carte « Profondeur : X à Y m selon la marée », **avant** « Nature du fond »
 - [ ] Le détail nomme la valeur haute comme celle qui sert au rayon d'évitage, et le port de référence
 - [ ] Cliquer en Méditerranée → **un seul nombre**, « la marée ne change pratiquement rien ici », aucune mention de « plus bas de la marée »
-- [ ] Le millésime et l'instrument du levé apparaissent dans le détail, quel que soit leur âge
+- [ ] Le millésime et la technique de sondage apparaissent dans le détail, quel que soit leur âge
+- [ ] Aucun modèle d'appareil n'apparaît (« simrad », « deso », « hawkeye »…) : seul le libellé court
 - [ ] Le chiffre du champ « Colonne d'eau à marée haute » est bien la borne haute annoncée par la carte
 
 ### ✅ 8quater. Deux groupes de cartes *(v2.28)*
@@ -1192,9 +1195,9 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 - Une carte sable, première du contexte environnemental, avant « Nature du fond ». Elle s'affiche toujours.
 - **Les deux bornes de la marée** et non la seule sonde : « Profondeur : 13,7 à 19,1 m selon la marée ». Remarque de Nicolas — la sonde est au zéro hydrographique, le champ d'évitage demande une colonne à marée haute ; côte à côte sans lien, ce sont deux nombres distants du marnage pour le même point.
 - **Méditerranée** : ni fourchette ni mention de marée, la référence y étant le niveau moyen. Troisième cas distinct : aucun port de référence, où l'on ne promet pas de borne haute.
-- **Millésime et instrument du levé, toujours affichés, sans seuil** (décision de Nicolas) : nouvelles couches WFS « Levés bathymétriques » du Shom, quatre périodes, jointes à la valeur EMODnet par `id_md`. L'identifiant de levé ne porte pas l'année — seuls `sursta`/`surend` font foi.
+- **Millésime et technique de sondage, toujours affichés, sans seuil** (décision de Nicolas) : nouvelles couches WFS « Levés bathymétriques » du Shom, quatre périodes, jointes à la valeur EMODnet par `id_md`. L'identifiant de levé ne porte pas l'année — seuls `sursta`/`surend` font foi. La technique est normalisée depuis `tecsou` (vocabulaire contrôlé) vers un libellé court ; `instrument`, qui porte le modèle de l'appareil, est ignoré.
 - **Une interrogation au lieu de deux** : la même promesse sert la carte et l'estimation de colonne d'eau. `chargerPortsRAM` sort de sa condition.
-- Ajouts : `CONFIG.delaiLevesBathy`, `WFS_LEVES`, `COUCHES_LEVES`, `levesBathy()`, `leveRetenu()`, `portLePlusProche()`, `interrogerProfondeur()`, `carteProfondeur()`. `profondeurEMODnet()` renvoie désormais `{ alt, identifiant }` et `estimerColonneEau()` accepte une profondeur déjà obtenue.
+- Ajouts : `CONFIG.delaiLevesBathy`, `WFS_LEVES`, `COUCHES_LEVES`, `levesBathy()`, `leveRetenu()`, `portLePlusProche()`, `interrogerProfondeur()`, `carteProfondeur()`, `TECHNIQUES_SONDAGE`, `techniqueSondage()`. `profondeurEMODnet()` renvoie désormais `{ alt, identifiant }` et `estimerColonneEau()` accepte une profondeur déjà obtenue.
 - Tests : harnais Node 33/33 (§6.1bis et §14 de TESTS_FONCTIONNELS.md).
 
 ### v2.28 — 26 octobre 2026

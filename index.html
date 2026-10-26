@@ -1439,7 +1439,7 @@
        pas de WCS (vérifié les 25/09, 12/10 et 15/10/2026). */
     const WFS_LEVES = 'https://services.data.shom.fr/INSPIRE/wfs?service=WFS&version=2.0.0' +
                       '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326' +
-                      '&count=20&propertyName=sursta,surend,instrument,id_md&typeNames=';
+                      '&count=20&propertyName=sursta,surend,tecsou,id_md&typeNames=';
     const COUCHES_LEVES = [
       'LEVES_BATHY_AVANT_1970_WFS:leves_bathy_avant_1970',
       'LEVES_BATHY_1970-1990_WFS:leves_bathy_1970_1990',
@@ -1468,6 +1468,30 @@
       } catch (e) { return null; } finally { clearTimeout(t); }
     }
 
+    /* `tecsou` est un vocabulaire contrôlé du Shom, combinable par « | » : on ne
+       garde que la PREMIÈRE technique citée, qui est la principale, et on la rend
+       par un libellé court — préposition comprise, pour éviter les accords
+       hasardeux. Même principe que NATURES_FOND : un code inconnu n'affiche RIEN
+       plutôt qu'un terme technique incompréhensible.
+       Le champ `instrument` n'est pas utilisé : il porte le modèle de l'appareil
+       (« sondeur multifaisceaux simrad em2040 »), sans accents et sans intérêt
+       pour un plaisancier. Vocabulaire relevé le 26/10/2026 sur 1 600 levés. */
+    const TECHNIQUES_SONDAGE = {
+      'plummets':                 'au plomb de sonde',
+      'single-beam echosounders': 'au sondeur',
+      'multi-beam echosounders':  'au sondeur multifaisceaux',
+      'bathymetric lidars':       'au lidar',
+      'sidescan sonars':          'au sonar latéral',
+      'water pressure sensors':   'au capteur de pression',
+      'levels and staffs':        'au nivellement',
+      'cameras':                  'par photographie',
+      'wire drags':               'à la drague à fil'
+    };
+    function techniqueSondage(tecsou) {
+      const premier = String(tecsou || '').split('|')[0].trim().toLowerCase();
+      return TECHNIQUES_SONDAGE[premier] || null;
+    }
+
     /* Le levé qui a produit la valeur, retrouvé par jointure sur `id_md`, qui
        contient l'identifiant renvoyé par EMODnet. À défaut, le levé le plus
        récent couvrant le point.
@@ -1479,9 +1503,8 @@
       const joint = identifiant && leves.find(p => String(p.id_md || '').indexOf(identifiant) !== -1);
       const p = joint || leves.slice().sort((a, b) => (b.surend || 0) - (a.surend || 0))[0];
       const annee = String(p.surend || p.sursta || '').slice(0, 4);
-      const instrument = String(p.instrument || '').split('|')[0].trim().toLowerCase();
       return { annee: /^\d{4}$/.test(annee) ? annee : null,
-               instrument: instrument || null,
+               technique: techniqueSondage(p.tecsou),
                joint: Boolean(joint) };
     }
 
@@ -1553,7 +1576,7 @@
         // relevé lidar de 2013 ne se valent pas, et rien d'autre ne le dirait.
         const prov = est.leve && est.leve.annee
           ? ` Sonde du levé de ${est.leve.annee}` +
-            (est.leve.instrument ? ` (${est.leve.instrument})` : '') + ', Shom.'
+            (est.leve.technique ? `, ${est.leve.technique}` : '') + ' (Shom).'
           : '';
         note.textContent = (est.prof >= 0
           ? `Estimation : profondeur ≈ ${fmt1(est.prof)} m (EMODnet) + ${maree} ≈ ` +
@@ -2790,7 +2813,7 @@
 
       const l = prof.leve;
       const provenance = l && l.annee
-        ? `sondé en ${l.annee}${l.instrument ? ` (${l.instrument})` : ''}`
+        ? `sondé en ${l.annee}${l.technique ? ' ' + l.technique : ''}`
         : null;
       const phraseLeve = provenance
         ? `<p>Fond ${provenance}, d'après le Shom.</p>`

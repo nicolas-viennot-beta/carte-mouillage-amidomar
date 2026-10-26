@@ -2414,9 +2414,12 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
    - Entrée : `id_md` contenant `S199206700`, `sursta 19900512`, `surend 19910531`.
    - Attendu : année **1991**, lue dans `surend`. **Vérifié.** Ce test est le
      garde-fou du piège qui a failli faire afficher « levé de 1992 ».
-   - L'instrument est le premier élément d'une liste séparée par `|`, en
-     minuscules : « Sondeur DESO 20 | Sondeur lateral » → `sondeur deso 20`.
-     **Vérifié.**
+   - La technique vient de `tecsou`, vocabulaire contrôlé, dont on ne garde que
+     la **première** valeur : « single-beam echosounders | sidescan sonars » →
+     « au sondeur ». **Vérifié.** Un `tecsou` inconnu ou absent ne produit
+     **rien** — jamais de jargon affiché. **Vérifié.** « bathymetric LiDARs » →
+     « au lidar », « multi-beam echosounders | unknown » → « au sondeur
+     multifaisceaux ». **Vérifié.**
 
 3. **`carteProfondeur` — les trois issues ne se confondent pas**
    - `null` → carte **incertaine** « vérification impossible ». **Vérifié.**
@@ -2427,7 +2430,9 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
 
 4. **Côte à marée : les deux bornes**
    - Attendu : titre « Profondeur : 13,7 à 19,1 m selon la marée », carte **non**
-     incertaine, millésime et instrument présents. **Vérifié.**
+     incertaine, millésime et technique courte présents (« sondé en 1991 au
+     sondeur »), et **aucun modèle d'appareil** — ni simrad, ni deso, ni hawkeye.
+     **Vérifié.**
    - Un levé de 1898 s'affiche comme un levé de 1991 : **aucun seuil**. **Vérifié.**
 
 5. **Méditerranée**
@@ -2467,13 +2472,15 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
    - Console : aucune erreur JavaScript. Les 404 restent les tuiles WMTS
      `data.geopf.fr` hors emprise, antérieures.
 
-9. **Défaut relevé par ce test, non corrigé** : l'attribut `instrument` du Shom
-   est livré sans accents et avec le modèle de l'appareil. Affiché tel quel en
-   minuscules, il donne « sondé en 2013 (lidar bathymetrique hawkeye iia) » —
-   illisible pour un plaisancier, et fautif en orthographe. À normaliser vers un
-   vocabulaire court (plomb de sonde, sondeur, sondeur multifaisceaux, lidar),
-   sur le modèle de `NATURES_FOND`. En attente d'arbitrage de Nicolas, la
-   formulation étant du texte usager.
+9. **Défaut relevé par ce test, corrigé le jour même.** L'attribut `instrument`
+   du Shom est livré sans accents et avec le modèle de l'appareil : affiché tel
+   quel, il donnait « sondé en 2013 (lidar bathymetrique hawkeye iia) ».
+   Remplacé par `tecsou`, vocabulaire contrôlé relevé sur 1 600 levés (dix
+   techniques distinctes), normalisé par `TECHNIQUES_SONDAGE` vers un libellé
+   court préposition comprise. Arbitrage de Nicolas : vocabulaire court, pas de
+   détail complet. **Reste à revérifier en navigateur réel après le prochain
+   push** : que la carte affiche « sondé en 2013 au lidar » et plus aucun modèle
+   d'appareil.
 
 > **Piège pour la prochaine évolution** : `carteProfondeur` lit `prof.port.h` pour
 > la phrase du détail. Si `aMaree` est vrai, `port` ne peut pas être nul par

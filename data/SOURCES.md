@@ -650,7 +650,12 @@ couches, découpées par période, à interroger toutes les quatre :
 | `LEVES_BATHY_APRES_2005_WFS:leves_bathy_apres_2005` | après 2005 |
 
 Attribut géométrique : **`geometry`**. Champs lus : `sursta` et `surend` (début et fin du
-levé, en `AAAAMMJJ`), `instrument`, `tecsou` (technique de sondage), `sonde` (nombre de
+levé, en `AAAAMMJJ`), **`tecsou`** (technique de sondage — vocabulaire contrôlé,
+combinable par « | », dix valeurs relevées sur 1 600 levés : `plummets`,
+`single-beam echosounders`, `multi-beam echosounders`, `bathymetric LiDARs`,
+`sidescan sonars`, `water pressure sensors`, `Levels and staffs`, `cameras`,
+`Wire drags`, `unknown`), `instrument` (**à ne pas afficher** : modèle de
+l'appareil, sans accents), `sonde` (nombre de
 sondes), `zmin`/`zmax` (plage de profondeurs du levé), `id_md`. Latence mesurée le
 26/10/2026 : **31 à 89 ms** pour les quatre couches.
 
@@ -676,7 +681,7 @@ par EMODnet vient de celui de **1898**, au plomb de sonde. C'est l'information q
 d'être dite à l'usager — bien plus que la fourchette.
 
 **Règle d'affichage retenue** : rattacher la valeur à son levé par `id_md`, afficher
-`surend` et `instrument` ; à défaut de jointure, afficher le levé le plus récent couvrant
+`surend` et la technique de sondage ; à défaut de jointure, afficher le levé le plus récent couvrant
 le point (`max(surend)`). Trois issues, comme ailleurs : levé trouvé, aucun levé ici,
 service muet.
 
@@ -688,7 +693,7 @@ verticale n'y est donnée qu'en prose : **30 cm à 1 m jusqu'à 50 m de fond**, 
 de la profondeur ; les levés postérieurs à 1968 suivent la norme OHI S-44 en vigueur à
 leur date. Le `stdev` renvoyé par `depth_sample` est donc **un calcul d'EMODnet, pas une
 donnée du Shom** : ne rien afficher à partir de lui sans en avoir établi la sémantique
-auprès d'EMODnet. `sursta`/`surend` et `instrument` disent la même chose en mieux, et de
+auprès d'EMODnet. `sursta`/`surend` et `tecsou` disent la même chose en mieux, et de
 source primaire.
 
 > **Référence verticale, par la spécification** : les sondes sont ramenées au « zéro de
@@ -738,7 +743,7 @@ règle v2.19 « une bonne nouvelle n'a pas besoin d'une ligne » : une profondeu
 une simple bonne nouvelle, c'est le chiffre qui dimensionne la chaîne) ; **six états**, dont
 deux distincts pour ne pas savoir — « non renseignée à cet endroit » (absence confirmée) et
 « vérification impossible » (service injoignable, sans bouton, même motif que les zonages de
-protection) ; **le millésime et l'instrument du levé affichés TOUJOURS, sans
+protection) ; **le millésime et la technique de sondage affichés TOUJOURS, sans
 seuil** (arbitrage du 26/10/2026, qui a remplacé le seuil de 1980 d'abord
 envisagé) : « sondé en 2013 (lidar bathymétrique) » et « sondé en 1898 (plomb de
 sonde) » se passent de commentaire, et un seuil serait une règle de plus à tenir
@@ -780,7 +785,7 @@ l'approximation du port de référence choisi à vol d'oiseau — d'où le « en
 du port gardé dans le détail dépliable. **Repli** : table non chargée ou aucun port proche
 → un seul nombre, sans qualificatif tidal, jamais une borne haute inventée.
 
-Le reste de ce qui s'affiche : le millésime et l'instrument du levé, pris du WFS Levés
+Le reste de ce qui s'affiche : le millésime et la technique du levé, pris du WFS Levés
 bathymétriques (ci-dessus), pas d'une inférence. Et les trois issues, comme partout
 ailleurs — **`null` n'est pas une profondeur nulle** : service muet, hors couverture, ou
 `avg` positif sans `reference` → pas d'estimation, et non « fond inconnu donc libre ».
