@@ -2486,3 +2486,29 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
 > la phrase du détail. Si `aMaree` est vrai, `port` ne peut pas être nul par
 > construction — mais toute modification de `interrogerProfondeur` qui casserait
 > cette invariance ferait planter la carte. Le test 6 couvre le cas `port: null`.
+
+---
+
+## 15. Bloc « Mouillages voisins » — titre et place *(v2.30)*
+
+**Exécution : 26 oct. 2026 — harnais Node, 41/41.** Le placement se joue sur de
+vrais nœuds DOM : le harnais ne peut en vérifier que la présence des accroches,
+le reste est à voir en navigateur.
+
+1. **Le gabarit porte le titre** — « Mouillages voisins » présent dans le script.
+   **Vérifié.**
+2. **`placerBlocEvitage` existe et s'ancre sur le bon sélecteur** —
+   `h2.popup-section--incertain`. **Vérifié.** Si ce nom de classe change,
+   l'ancrage casse **silencieusement** : le bloc repasserait à la fin, sans
+   erreur. Le test 2 est là pour ça, comme le test 3 du §13 l'est pour le tri.
+3. **À vérifier en navigateur réel après push** :
+   - le bloc s'intercale bien entre les deux groupes sur un point qui a une carte
+     incertaine ;
+   - une longueur de navire saisie **survit** à un nouveau clic — c'est l'enjeu du
+     déplacement de nœud plutôt que de sa recréation ;
+   - sur un point à terre ou interdit, le bloc n'atterrit pas dans l'encadré
+     coloré ;
+   - le déplacement du bloc à l'arrivée des cartes ne produit pas de saut
+     gênant. **Limite connue et assumée** : quand des cartes incertaines
+     existent, le bloc remonte d'une hauteur de carte au moment où les zonages
+     arrivent. Dans le cas courant — aucune carte incertaine — il ne bouge pas.

@@ -1245,6 +1245,7 @@
     // (v2.3) est supprimé. La colonne d'eau reste saisie à la main tant qu'une
     // source SHOM interrogeable au clic n'a pas été validée.
     boatBlock.innerHTML = `
+      <h2 class="popup-section">Mouillages voisins</h2>
       <div class="jaune-box" id="proximite-block">
         <div class="proximite-header">
           <span class="proximite-msg" id="proximite-msg">
@@ -2164,9 +2165,30 @@
     // v2.16 : le mode « réduit à une ligne » de la v2.5 (`titreCompact`) a été
     // retiré — il n'avait plus d'objet, le contexte étant désormais présenté en
     // cartes qui tiennent déjà sur une ligne chacune.
+    /* v2.30 : le bloc « Mouillages voisins » se glisse ENTRE les deux groupes de
+       cartes — après ce que la carte a établi, avant ce qu'elle n'a pas pu
+       vérifier. Il énonce un fait constaté (des mouillages voisins existent, et
+       voici votre rayon d'évitage) : il n'a rien à faire après les incertitudes,
+       qui sont des aveux d'ignorance.
+       Hors du mode « cartes » — point à terre, interdiction, message d'attente —
+       #env-block est une boîte colorée : le bloc reste alors à sa place, dessous,
+       plutôt que d'atterrir dans un encadré rouge qui ne le concerne pas.
+       On DÉPLACE le noeud, on ne le recrée pas : les saisies de l'usager et les
+       écouteurs attachés aux deux champs survivent au déplacement. */
+    function placerBlocEvitage(dansLesCartes) {
+      if (dansLesCartes) {
+        const incertain = envBlock.querySelector('h2.popup-section--incertain');
+        if (incertain) envBlock.insertBefore(boatBlock, incertain);
+        else envBlock.appendChild(boatBlock);
+      } else if (boatBlock.parentNode !== contenuPopup) {
+        contenuPopup.insertBefore(boatBlock, envBlock.nextSibling);
+      }
+    }
+
     function afficherEnvironnement(html, teinte) {
       envBlock.className = teinte ? 'env-' + teinte : '';
       envBlock.innerHTML = html;
+      placerBlocEvitage(teinte === 'cartes');
       // v2.27 : les cartes arrivent après des appels réseau. Si l'usager a
       // réduit le panneau entre-temps, le compte de la barre doit suivre.
       if (popup.classList.contains('reduit')) majResumeReduit();

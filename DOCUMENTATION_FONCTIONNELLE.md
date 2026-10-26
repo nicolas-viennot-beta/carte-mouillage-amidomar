@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.29 (octobre 2026)  
+**Version:** 2.30 (octobre 2026)  
 **Dernière mise à jour:** 26 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -216,6 +216,8 @@ Contrairement aux cultures marines, aucune couche APB n'est chargée localement 
 Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte.
 
 ### 4.2 Rayon d'évitage (message, formulaire et résultat dans la modale centrale)
+
+> **Titre et place du bloc** *(v2.30)*. Le bloc porte l'intitulé **« Mouillages voisins »**, au même format que « Règles locales » et « Contexte environnemental » : il nomme ce qui déclenche le bloc — d'autres mouillages sont enregistrés à moins de 100 m — et non le calcul, qui en est le contenu. Il se place **entre les deux groupes de cartes**, après « Contexte environnemental » et avant « Ce que la carte n'a pas pu vérifier » : il énonce un fait constaté, il n'a donc rien à faire après des aveux d'ignorance. `placerBlocEvitage()` déplace le nœud (il ne le recrée pas, pour ne pas perdre les saisies ni les écouteurs) et ne le fait **que** dans le mode « cartes » ; sur un point à terre, une interdiction ou pendant le message d'attente, `#env-block` est une boîte colorée et le bloc reste dessous.
 
 > Textes exacts affichés : §4.0, cas C6. La présente section décrit le mécanisme.
 
@@ -856,6 +858,11 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Les cartes du contexte sont **toutes repliées** à l'ouverture
 - [ ] Chaque ligne repliée se suffit à elle-même (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond »)
 
+### ✅ 8sexies. Bloc « Mouillages voisins » *(v2.30)*
+- [ ] Cliquer à moins de 100 m d'une AOT sur un point qui a aussi une carte incertaine → le bloc titré « Mouillages voisins » s'intercale **entre** « Contexte environnemental » et « Ce que la carte n'a pas pu vérifier »
+- [ ] Saisir la longueur du navire, puis cliquer ailleurs puis revenir : la valeur saisie est conservée (le nœud est déplacé, pas recréé)
+- [ ] Cliquer sur un point **à terre** ou **interdit** → le bloc n'atterrit pas dans l'encadré coloré
+
 ### ✅ 8quinquies. Profondeur au point *(v2.29)*
 - [ ] Cliquer sur l'eau en Bretagne → carte « Profondeur : X à Y m selon la marée », **avant** « Nature du fond »
 - [ ] Le détail nomme la valeur haute comme celle qui sert au rayon d'évitage, et le port de référence
@@ -1189,6 +1196,12 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.30 — 26 octobre 2026
+**Le bloc d'évitage prend un titre et remonte d'un cran**
+- Intitulé **« Mouillages voisins »** (demande de Nicolas). Écarté : « radar proximité AOT mouillage » — il n'y a pas de radar, et « AOT » est un sigle administratif que le popup évite devant un plaisancier, dont le bloc lui-même dit « D'autres mouillages sont enregistrés à proximité ».
+- Le bloc passe **entre les deux groupes de cartes** : après ce que la carte a établi, avant ce qu'elle n'a pas pu vérifier.
+- `placerBlocEvitage()` déplace le nœud plutôt que de le recréer : saisies et écouteurs survivent. Hors mode « cartes », le bloc reste à sa place sous `#env-block`, qui est alors une boîte colorée.
 
 ### v2.29 — 26 octobre 2026
 **La profondeur au point s'affiche dans le popup**
