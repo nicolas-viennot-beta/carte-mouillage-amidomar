@@ -2374,9 +2374,22 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
    - `carteCulturesMarines({etat:'indisponible'})` → carte incertaine.
      **Vérifié.**
 
-5. **Reste à vérifier en navigateur réel** (non couvert par le harnais Node) :
-   le rendu des deux intitulés et leur ordre, le retrait visuel du second, et le
-   compte de la barre réduite qui doit inclure les cartes incertaines.
+5. **Vérifié en navigateur réel sur la version publiée** — 26 oct. 2026, après
+   push (`Last-Modified` du jour, `5d7e1cd` servi), point 43.050000 / 6.120000
+   en rade d'Hyères :
+   - ordre réel des enfants de `#env-block` : bloc « Règles locales » et sa carte
+     DDTM, puis **TITRE « Contexte environnemental »** → Natura 2000, ZNIEFF,
+     « Nature du fond : Sables » (trois établies), puis **TITRE « Ce que la carte
+     n'a pas pu vérifier »** → « Cultures marines : non vérifiées ici » ;
+   - la carte incertaine porte bien **`env-carte--usage` ET
+     `env-carte--incertain`** : le type d'origine survit sous le gris ;
+   - le second intitulé porte `popup-section--incertain` (retrait confirmé) ;
+   - **barre réduite : « 5 points à vérifier »** sur 5 `.env-carte` dont 1
+     incertaine — le compte les inclut, comme promis. `aria-expanded="false"` sur
+     la barre à l'état réduit, redéploiement sans perte d'état.
+   - console : aucune erreur JavaScript. Les 26 réponses 404 observées sont des
+     tuiles WMTS `data.geopf.fr` (`Patrinat_SIC`, `Patrinat_ZPS`) hors emprise de
+     couche — comportement normal et antérieur à cette version.
 
 > **Piège pour la prochaine évolution** : le tri se fait sur une chaîne HTML
 > (`c.includes(…)`). Tout changement du nom de la classe dans `carteEnv` casse le
