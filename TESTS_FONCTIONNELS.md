@@ -2444,11 +2444,36 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
    - Attendu : « Fond découvrant : 0 à 4,2 m selon la marée » et l'avertissement
      « se posera sur le fond ». **Vérifié.**
 
-8. **Reste à vérifier en navigateur réel** (hors de portée du harnais Node) :
-   l'ordre réel de la carte avant « Nature du fond », la latence cumulée des cinq
-   interrogations du peloton, et surtout que **le chiffre du champ d'évitage est
-   bien la borne haute annoncée par la carte** — c'est la cohérence que toute
-   cette version existe pour établir.
+8. **Vérifié en navigateur réel sur la version publiée** — 26 oct. 2026, après
+   push (`02427ae` servi) :
+   - **47.447524 / −3.049958, baie de Quiberon** (côte à marée, à moins de 100 m
+     d'une AOT). Ordre des cartes : « Profondeur : 23,7 à 29,1 m selon la marée »
+     **puis** « Nature du fond : Roche », puis le second intitulé avec les
+     cultures marines. Le détail nomme le port (Port-Haliguen) et la valeur haute
+     comme celle du rayon d'évitage. Provenance : « Fond sondé en 1898 (plomb de
+     sonde), d'après le Shom » — jointure par `id_md` effective, et non le levé de
+     1906 qui couvre aussi le point.
+   - **La cohérence recherchée est établie** : le champ « Colonne d'eau à marée
+     haute » vaut **29,1**, exactement la borne haute annoncée par la carte. La
+     note sous le champ porte la même provenance.
+   - **43.050000 / 6.120000, rade d'Hyères** (Méditerranée) : « Profondeur :
+     environ 5,2 m », « la marée ne change pratiquement rien ici », **aucune
+     fourchette**, et la phrase du détail explique pourquoi. Provenance : levé de
+     2013 au lidar.
+   - **Une seule interrogation par clic** (tampon de mesures vidé au préalable) :
+     1 appel EMODnet (95 ms) et 4 appels Levés bathymétriques (102 à 116 ms, en
+     parallèle) pour un clic qui alimente **à la fois** la carte et le bloc
+     d'évitage. `ram-ports.json` n'est pas rechargé.
+   - Console : aucune erreur JavaScript. Les 404 restent les tuiles WMTS
+     `data.geopf.fr` hors emprise, antérieures.
+
+9. **Défaut relevé par ce test, non corrigé** : l'attribut `instrument` du Shom
+   est livré sans accents et avec le modèle de l'appareil. Affiché tel quel en
+   minuscules, il donne « sondé en 2013 (lidar bathymetrique hawkeye iia) » —
+   illisible pour un plaisancier, et fautif en orthographe. À normaliser vers un
+   vocabulaire court (plomb de sonde, sondeur, sondeur multifaisceaux, lidar),
+   sur le modèle de `NATURES_FOND`. En attente d'arbitrage de Nicolas, la
+   formulation étant du texte usager.
 
 > **Piège pour la prochaine évolution** : `carteProfondeur` lit `prof.port.h` pour
 > la phrase du détail. Si `aMaree` est vrai, `port` ne peut pas être nul par
