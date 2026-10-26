@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.28 (octobre 2026)  
+**Version:** 2.29 (octobre 2026)  
 **Dernière mise à jour:** 26 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -528,6 +528,28 @@ Le glissement est **horizontal** par défaut (le point sort par la droite du pop
 
 Appelé **deux fois** : dès la pose du marqueur, pour que le point soit visible tout de suite plutôt qu'au bout d'une seconde d'attente réseau ; puis après l'affichage des cartes, car le popup grandit vers le haut (il est ancré en bas) et peut recouvrir à nouveau un point dégagé verticalement. Sans effet dans le cas courant, le dégagement ayant été horizontal.
 
+### 4.4quinquies Profondeur au point *(v2.29)*
+
+**Ce que l'usager voit.** Une carte sable, **première du contexte environnemental**, juste avant « Nature du fond » : les deux décrivent le même point, et c'est la profondeur qui dimensionne la chaîne. Elle s'affiche **toujours** — une profondeur n'est jamais une simple bonne nouvelle, elle est le chiffre dont dépend le rayon d'évitage, donc la règle v2.19 (« une information absente n'affiche rien ») ne s'y applique pas.
+
+**Les deux bornes de la marée, pas la seule sonde.** La sonde est rapportée au zéro hydrographique ; le champ d'évitage demande une colonne à marée haute. Affichés côte à côte sans lien, ce sont deux nombres distants du marnage pour le même point, et rien ne dit à l'usager qu'ils parlent du même endroit. La carte annonce donc « **Profondeur : 13,7 à 19,1 m selon la marée** », au dixième comme le champ, et le détail nomme la valeur haute comme étant celle qui sert au calcul.
+
+> **En Méditerranée, pas de fourchette.** La référence verticale d'EMODnet y est le **niveau moyen** et non les plus basses mers, et le marnage est négligeable : « au plus bas de la marée » y serait faux. La bascule se fait sur `port.ref === 'PMVE-PBMA'`, le même test que la note du §4.2. Troisième cas, distinct : **aucun port de référence disponible** — un seul nombre également, mais le texte dit que la pleine mer n'a pas pu être estimée, au lieu d'affirmer que la marée ne change rien.
+
+**Le millésime s'affiche toujours, sans seuil** *(décision de Nicolas, 26/10/2026)*. « Sondé en 2013 (lidar bathymétrique) » et « sondé en 1898 (plomb de sonde) » se passent de commentaire : l'instrument raconte l'histoire mieux qu'une année comparée à un seuil, et un seuil serait une règle de plus à tenir.
+
+**Sources, et pourquoi deux.**
+- **La valeur** vient d'EMODnet Bathymetry (`depth_sample`). C'est la seule profondeur interrogeable au point, et la grille européenne diffuse les levés du Shom : les valeurs marines portent `reference.organisation_id = 540`, l'EDMO du Shom. Le WMS « MNT » du Shom n'est pas interrogeable au point et il n'existe pas de WCS — vérifié les 25/09, 12/10 et 15/10/2026, voir `data/SOURCES.md` §5.
+- **Le millésime** vient du Shom, couches WFS « Levés bathymétriques », découpées en **quatre périodes** donc interrogées toutes les quatre. La jointure se fait sur `id_md`, qui contient l'identifiant renvoyé par EMODnet ; à défaut, on retient le levé le plus récent couvrant le point. Délai borné par `CONFIG.delaiLevesBathy` (4 000 ms ; 31 à 89 ms observés).
+
+> **Piège à ne pas rouvrir** : l'identifiant de levé **ne porte pas l'année**. `S199206700` a pour dates réelles 19900512 → 19910531, soit un levé de 1990-1991. Seuls `sursta` et `surend` font foi.
+
+**Trois issues, distinctes.** Service muet → carte grise « Profondeur : vérification impossible ». A répondu mais pas de profondeur marine ici (valeur positive sans `reference`) → carte grise « Profondeur : non renseignée ici ». Sinon la profondeur. Les deux premières ne se confondent pas : « aucun levé ici » est une information, « le service n'a pas répondu » n'en est pas une.
+
+**Fond découvrant.** Une valeur positive *avec* provenance marine désigne l'estran. La carte dit alors « Fond découvrant : 0 à 4,2 m selon la marée » et le détail prévient que le navire se posera : c'est l'information utile, pas la hauteur du caillou.
+
+**Une seule interrogation par clic.** `interrogerProfondeur()` est lancée une fois au traitement du clic ; la même promesse alimente l'estimation de colonne d'eau (§4.2) **et** le peloton `Promise.all` des zonages. `chargerPortsRAM()` sort donc de sa condition « AOT à moins de 100 m », la borne haute étant désormais nécessaire à l'affichage.
+
 ### 4.5 État des sources cartographiques
 Bandeau « Couches affichées » avec icônes:
 
@@ -660,6 +682,7 @@ const CONFIG = {
   colonneMin: 0.5,          // en dessous, pas d'estimation proposée (m, v2.6)
   delaiTraitTerreMer: 3000, // délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (ms, v2.14)
   rayonCouvertureShom: 20,  // rayon du test de couverture du trait terre-mer (km, v2.17, recalibré le 14/10/2026) — voir §4.4.2
+  delaiLevesBathy: 4000,    // délai max des quatre couches « Levés bathymétriques » du Shom (ms, v2.29 ; 31 à 89 ms observés)
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   delaiDepartement: 4000,   // délai max du rattachement départemental, interrogé en parallèle des zonages (ms, v2.22) — voir §4.4ter
   rayonsDepartement: [1, 2, 5, 10], // rayons essayés dans l'ordre pour trouver la côte la plus proche (km, v2.22) — voir §4.4ter
@@ -830,6 +853,13 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Cliquer sur l'eau dans un site Natura 2000 → le popup montre deux parties titrées : « Contexte environnemental » puis « À reporter dans le formulaire de demande »
 - [ ] Les cartes du contexte sont **toutes repliées** à l'ouverture
 - [ ] Chaque ligne repliée se suffit à elle-même (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond »)
+
+### ✅ 8quinquies. Profondeur au point *(v2.29)*
+- [ ] Cliquer sur l'eau en Bretagne → carte « Profondeur : X à Y m selon la marée », **avant** « Nature du fond »
+- [ ] Le détail nomme la valeur haute comme celle qui sert au rayon d'évitage, et le port de référence
+- [ ] Cliquer en Méditerranée → **un seul nombre**, « la marée ne change pratiquement rien ici », aucune mention de « plus bas de la marée »
+- [ ] Le millésime et l'instrument du levé apparaissent dans le détail, quel que soit leur âge
+- [ ] Le chiffre du champ « Colonne d'eau à marée haute » est bien la borne haute annoncée par la carte
 
 ### ✅ 8quater. Deux groupes de cartes *(v2.28)*
 - [ ] Cliquer sur un point où la nature du fond n'est pas cartographiée → la carte « Nature du fond : à vérifier » apparaît **sous « Ce que la carte n'a pas pu vérifier »**, en gris, filet pointillé
@@ -1156,6 +1186,16 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.29 — 26 octobre 2026
+**La profondeur au point s'affiche dans le popup**
+- Une carte sable, première du contexte environnemental, avant « Nature du fond ». Elle s'affiche toujours.
+- **Les deux bornes de la marée** et non la seule sonde : « Profondeur : 13,7 à 19,1 m selon la marée ». Remarque de Nicolas — la sonde est au zéro hydrographique, le champ d'évitage demande une colonne à marée haute ; côte à côte sans lien, ce sont deux nombres distants du marnage pour le même point.
+- **Méditerranée** : ni fourchette ni mention de marée, la référence y étant le niveau moyen. Troisième cas distinct : aucun port de référence, où l'on ne promet pas de borne haute.
+- **Millésime et instrument du levé, toujours affichés, sans seuil** (décision de Nicolas) : nouvelles couches WFS « Levés bathymétriques » du Shom, quatre périodes, jointes à la valeur EMODnet par `id_md`. L'identifiant de levé ne porte pas l'année — seuls `sursta`/`surend` font foi.
+- **Une interrogation au lieu de deux** : la même promesse sert la carte et l'estimation de colonne d'eau. `chargerPortsRAM` sort de sa condition.
+- Ajouts : `CONFIG.delaiLevesBathy`, `WFS_LEVES`, `COUCHES_LEVES`, `levesBathy()`, `leveRetenu()`, `portLePlusProche()`, `interrogerProfondeur()`, `carteProfondeur()`. `profondeurEMODnet()` renvoie désormais `{ alt, identifiant }` et `estimerColonneEau()` accepte une profondeur déjà obtenue.
+- Tests : harnais Node 33/33 (§6.1bis et §14 de TESTS_FONCTIONNELS.md).
 
 ### v2.28 — 26 octobre 2026
 **Les cartes du contexte se rangent en deux groupes**

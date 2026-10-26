@@ -621,6 +621,7 @@
       colonneMin: 0.5,          // m — en dessous, pas d'estimation proposée (point asséché, estran ou à terre)
       delaiTraitTerreMer: 3000, // ms — délai max du trait terre-mer du Shom, consulté seulement quand la détection locale annonce « à terre » (v2.14 ; 25 à 250 ms observés)
       rayonCouvertureShom: 20,  // km — rayon du test de couverture du trait terre-mer (v2.17, recalibré le 14/10/2026 : voir interrogerTraitTerreMer)
+      delaiLevesBathy: 4000,   // ms — délai max des quatre couches « Levés bathymétriques » du Shom (v2.29 ; 31 à 89 ms observés le 26/10/2026)
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       delaiDepartement: 4000,   // ms — délai max du rattachement départemental, interrogé en parallèle des zonages (v2.22)
       rayonsDepartement: [1, 2, 5, 10], // km — rayons essayés dans l'ordre pour trouver la côte la plus proche (v2.22 ; voir interrogerDepartement)
@@ -1413,6 +1414,12 @@
       } catch (e) { portsRAM = []; }
       return portsRAM;
     }
+    /* v2.29 : on garde aussi l'identifiant du levé d'origine
+       (`reference.identifier`), qui permet la jointure avec le WFS « Levés
+       bathymétriques » du Shom, ci-dessous. Une valeur POSITIVE est une altitude
+       au-dessus du zéro de réduction (estran, ou terre) : ce n'est pas une
+       profondeur, et l'absence de `reference` est le bon test « valeur marine ou
+       pas » (mesuré le 15/10/2026). */
     async function profondeurEMODnet(lng, lat) {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), CONFIG.delaiProfondeur);
@@ -1421,38 +1428,138 @@
                                 { signal: ctrl.signal });
         if (!rep.ok) return null;
         const j = await rep.json();
-        return isFinite(j.avg) ? j.avg : null;   // altitude : négative sous l'eau
+        if (!isFinite(j.avg)) return null;
+        return { alt: j.avg, identifiant: (j.reference || {}).identifier || null };
       } catch (e) { return null; } finally { clearTimeout(t); }
     }
-    async function estimerColonneEau(pos) {
-      const [ports, alt] = await Promise.all([chargerPortsRAM(), profondeurEMODnet(pos[0], pos[1])]);
-      if (alt === null || !ports.length) return null;
+
+    /* Emprises des levés bathymétriques du Shom, découpées en quatre périodes :
+       il faut donc interroger les quatre couches. C'est la SEULE source du
+       millésime — le WMS « MNT » n'est pas interrogeable au point et il n'existe
+       pas de WCS (vérifié les 25/09, 12/10 et 15/10/2026). */
+    const WFS_LEVES = 'https://services.data.shom.fr/INSPIRE/wfs?service=WFS&version=2.0.0' +
+                      '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326' +
+                      '&count=20&propertyName=sursta,surend,instrument,id_md&typeNames=';
+    const COUCHES_LEVES = [
+      'LEVES_BATHY_AVANT_1970_WFS:leves_bathy_avant_1970',
+      'LEVES_BATHY_1970-1990_WFS:leves_bathy_1970_1990',
+      'LEVES_BATHY_1990-2005_WFS:leves_bathy_1990_2005',
+      'LEVES_BATHY_APRES_2005_WFS:leves_bathy_apres_2005'
+    ];
+    /* null = aucune des quatre couches n'a répondu (indéterminé) ; [] = elles ont
+       répondu et aucun levé ne couvre le point. Les deux ne se confondent pas. */
+    async function levesBathy(lngLat) {
+      const filtre = `INTERSECTS(geometry,SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiLevesBathy);
+      try {
+        const lots = await Promise.all(COUCHES_LEVES.map(async couche => {
+          try {
+            const rep = await fetch(WFS_LEVES + encodeURIComponent(couche) +
+                                    '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                    { signal: ctrl.signal });
+            if (!rep.ok) return null;
+            const j = await rep.json();
+            return Array.isArray(j.features) ? j.features.map(f => f.properties || {}) : null;
+          } catch (e) { return null; }
+        }));
+        if (lots.every(l => l === null)) return null;
+        return [].concat.apply([], lots.filter(Boolean));
+      } catch (e) { return null; } finally { clearTimeout(t); }
+    }
+
+    /* Le levé qui a produit la valeur, retrouvé par jointure sur `id_md`, qui
+       contient l'identifiant renvoyé par EMODnet. À défaut, le levé le plus
+       récent couvrant le point.
+       NE JAMAIS lire l'année dans l'identifiant : `S199206700` a pour dates
+       réelles 19900512 → 19910531, soit un levé de 1990-1991 (vérifié le
+       26/10/2026). Seuls `sursta` et `surend` font foi. */
+    function leveRetenu(leves, identifiant) {
+      if (!leves || !leves.length) return null;
+      const joint = identifiant && leves.find(p => String(p.id_md || '').indexOf(identifiant) !== -1);
+      const p = joint || leves.slice().sort((a, b) => (b.surend || 0) - (a.surend || 0))[0];
+      const annee = String(p.surend || p.sursta || '').slice(0, 4);
+      const instrument = String(p.instrument || '').split('|')[0].trim().toLowerCase();
+      return { annee: /^\d{4}$/.test(annee) ? annee : null,
+               instrument: instrument || null,
+               joint: Boolean(joint) };
+    }
+
+    function portLePlusProche(pos, ports) {
+      if (!ports || !ports.length) return null;
       let port = ports[0], dMin = Infinity;
       ports.forEach(pt => { const d = distanceM(pos, pt.p); if (d < dMin) { dMin = d; port = pt; } });
-      const colonne = port.h - alt;
-      if (!(colonne >= CONFIG.colonneMin)) return null;
-      return { colonne: Math.round(colonne * 10) / 10, prof: -alt, port };
+      return port;
+    }
+
+    /* Trois issues, comme partout ailleurs :
+         null                  → service muet (carte « vérification impossible ») ;
+         { etat:'absente' }    → a répondu, mais pas de profondeur marine ici ;
+         sinon la profondeur, avec ses deux bornes de marée quand elles ont un
+         sens. `aMaree` est faux en Méditerranée (référence au niveau moyen,
+         marnage négligeable) comme lorsque aucun port de référence n'est
+         disponible : dans les deux cas on n'annonce pas de fourchette, mais le
+         texte affiché diffère — voir carteProfondeur. */
+    async function interrogerProfondeur(pos) {
+      const lngLat = { lng: pos[0], lat: pos[1] };
+      const [emod, ports, leves] = await Promise.all([
+        profondeurEMODnet(pos[0], pos[1]),
+        chargerPortsRAM(),
+        levesBathy(lngLat)
+      ]);
+      if (emod === null) return null;
+      const leve = leveRetenu(leves, emod.identifiant);
+      if (emod.alt > 0 && !emod.identifiant) return { etat: 'absente', leve: null };
+      const port = portLePlusProche(pos, ports);
+      const aMaree = Boolean(port) && port.ref === 'PMVE-PBMA';
+      const haute = port ? Math.round((port.h - emod.alt) * 10) / 10 : null;
+      if (emod.alt > 0) {
+        return { etat: 'decouvrant', decouvre: Math.round(emod.alt * 10) / 10,
+                 haute, aMaree, port, leve };
+      }
+      return { etat: 'profondeur', basse: Math.round(-emod.alt * 10) / 10,
+               haute, aMaree, port, leve };
+    }
+
+    /* `deja` : la profondeur déjà obtenue pour ce clic. Le traitement du clic
+       lance interrogerProfondeur UNE fois et passe la promesse ici comme au
+       peloton des zonages — une interrogation au lieu de deux (v2.29). */
+    async function estimerColonneEau(pos, deja) {
+      const prof = deja !== undefined ? deja : await interrogerProfondeur(pos);
+      if (!prof || prof.etat === 'absente' || prof.haute === null) return null;
+      if (!(prof.haute >= CONFIG.colonneMin)) return null;
+      return { colonne: prof.haute,
+               prof: prof.etat === 'decouvrant' ? -prof.decouvre : prof.basse,
+               port: prof.port, leve: prof.leve };
     }
     const fmt1 = v => v.toLocaleString('fr-FR', { maximumFractionDigits:1 });
     let jetonEstimation = 0;       // ignore les réponses d'un clic précédent
     let colonneAuto = false;       // la valeur du champ vient-elle de l'estimation ?
-    async function lancerEstimationColonne() {
+    async function lancerEstimationColonne(promesseProfondeur) {
       const jeton = ++jetonEstimation;
       const champ = document.getElementById('in-depth');
       const note  = document.getElementById('note-colonne');
       note.textContent = 'Estimation de la colonne d\'eau en cours…';
-      const est = await estimerColonneEau(position);
+      const est = await estimerColonneEau(position,
+                        promesseProfondeur ? await promesseProfondeur : undefined);
       if (jeton !== jetonEstimation || !position) return;
       if (est) {
         champ.value = est.colonne;
         colonneAuto = true;
         const maree = est.port.ref === 'PMVE-PBMA' ? 'marée haute de vives-eaux' : 'marée haute';
         const refPort = `(port de référence : ${est.port.site}, Shom)`;
-        note.textContent = est.prof >= 0
+        // v2.29 : la provenance du levé, quand on la connaît. Elle dit à
+        // l'usager ce que vaut le chiffre — un fond sondé au plomb en 1898 et un
+        // relevé lidar de 2013 ne se valent pas, et rien d'autre ne le dirait.
+        const prov = est.leve && est.leve.annee
+          ? ` Sonde du levé de ${est.leve.annee}` +
+            (est.leve.instrument ? ` (${est.leve.instrument})` : '') + ', Shom.'
+          : '';
+        note.textContent = (est.prof >= 0
           ? `Estimation : profondeur ≈ ${fmt1(est.prof)} m (EMODnet) + ${maree} ≈ ` +
-            `${fmt1(est.port.h)} m ${refPort}. Modifiable.`
+            `${fmt1(est.port.h)} m ${refPort}.`
           : `Estimation : ${maree} ≈ ${fmt1(est.port.h)} m ${refPort}, moins un fond ` +
-            `découvrant à marée basse ≈ ${fmt1(-est.prof)} m (EMODnet). Modifiable.`;
+            `découvrant à marée basse ≈ ${fmt1(-est.prof)} m (EMODnet).`) + prov + ' Modifiable.';
       } else {
         if (colonneAuto) champ.value = '';
         colonneAuto = false;
@@ -2650,6 +2757,97 @@
       } catch (e) { return null; } finally { clearTimeout(t); }
     }
 
+    /* v2.29 — la carte porte LES DEUX BORNES de la marée, pas la seule sonde.
+       La sonde est rapportée au zéro hydrographique ; le champ d'évitage demande
+       une colonne à marée haute. Affichés côte à côte sans lien, ce sont deux
+       nombres distants du marnage pour le même point, et l'usager ne peut pas
+       savoir qu'ils parlent du même endroit (remarque de Nicolas, 26/10/2026).
+       En Méditerranée, pas de fourchette : la référence y est le niveau moyen et
+       le marnage est négligeable — « au plus bas de la marée » y serait faux.
+       Le millésime s'affiche TOUJOURS, sans seuil (décision de Nicolas,
+       26/10/2026) : « sondé en 2013 (lidar) » et « sondé en 1898 (plomb de
+       sonde) » se passent de commentaire, un seuil serait une règle de plus à
+       tenir. */
+    function carteProfondeur(prof) {
+      if (!prof) return carteEnv({
+        type: 'fond', incertain: true,
+        titre: 'Profondeur : vérification impossible',
+        consequence: 'service distant momentanément injoignable'
+      });
+
+      const aVerifier = `<p class="env-caveat">Ce n'est pas une sonde de navigation.
+        Vérifiez la profondeur sur place avant de mouiller.</p>`;
+
+      if (prof.etat === 'absente') return carteEnv({
+        type: 'fond', incertain: true,
+        titre: 'Profondeur : non renseignée ici',
+        consequence: 'aucun levé disponible pour ce point',
+        bouton: 'Que faire ici',
+        detail: `<p>Relevez la profondeur au sondeur ou à la sonde à main : c'est elle
+                 qui détermine la longueur de chaîne à filer, donc votre rayon
+                 d'évitage.</p>`
+      });
+
+      const l = prof.leve;
+      const provenance = l && l.annee
+        ? `sondé en ${l.annee}${l.instrument ? ` (${l.instrument})` : ''}`
+        : null;
+      const phraseLeve = provenance
+        ? `<p>Fond ${provenance}, d'après le Shom.</p>`
+        : '';
+
+      if (prof.etat === 'decouvrant') {
+        const eau = prof.haute !== null && prof.haute >= CONFIG.colonneMin;
+        return carteEnv({
+          type: 'fond',
+          titre: eau ? `Fond découvrant : 0 à ${fmt1(prof.haute)} m selon la marée`
+                     : 'Fond découvrant à marée basse',
+          suffixe: '(Shom)',
+          consequence: eau
+            ? `à sec aux basses mers, environ ${fmt1(prof.haute)} m d'eau à pleine mer`
+            : `il remonte à environ ${fmt1(prof.decouvre)} m au-dessus du plus bas de la marée`,
+          bouton: 'Ce que ça implique',
+          detail: `<p>À cet endroit, le fond se découvre aux basses mers : un navire
+                   mouillé ici <strong>se posera sur le fond</strong>. C'est tenable pour
+                   un bateau conçu pour cela — quille longue, bi-quille, dériveur
+                   relevable — à éviter pour les autres.</p>${phraseLeve}${aVerifier}`
+        });
+      }
+
+      // Cas courant. Trois formulations, selon ce que la marée permet de dire.
+      const fourchette = prof.aMaree && prof.haute !== null && prof.haute > prof.basse;
+      const titre = fourchette
+        ? `Profondeur : ${fmt1(prof.basse)} à ${fmt1(prof.haute)} m selon la marée`
+        : `Profondeur : environ ${fmt1(prof.basse)} m`;
+      const consequence = fourchette
+        ? `${fmt1(prof.basse)} m au plus bas de la marée, ${fmt1(prof.haute)} m à pleine mer de vives-eaux`
+        : (prof.port && !prof.aMaree
+            ? 'la marée ne change pratiquement rien ici'
+            : 'au plus bas de la marée');
+      const explication = fourchette
+        ? `<p>La sonde donne ${fmt1(prof.basse)} m : c'est l'eau qu'il reste quand la mer
+           est au plus bas. À pleine mer de vives-eaux il y a environ
+           ${fmt1(prof.port.h)} m de plus (port de référence : ${prof.port.site}).
+           <strong>C'est cette valeur haute qui sert à estimer votre rayon
+           d'évitage</strong> : c'est à marée haute que votre chaîne est la plus filée
+           et votre cercle le plus large.</p>`
+        : (prof.port && !prof.aMaree
+            ? `<p>En Méditerranée, la profondeur n'est pas rapportée au plus bas de la
+               marée mais au niveau moyen de la mer, et le marnage est de quelques
+               dizaines de centimètres : annoncer une fourchette n'aurait pas de
+               sens.</p>`
+            : `<p>Profondeur au plus bas de la marée. La hauteur de pleine mer n'a pas
+               pu être estimée ici, faute de port de référence.</p>`);
+      return carteEnv({
+        type: 'fond',
+        titre,
+        suffixe: '(Shom)',
+        consequence,
+        bouton: 'Ce que ça veut dire',
+        detail: explication + phraseLeve + aVerifier
+      });
+    }
+
     // v2.16 : rend une carte repliable, ou '' si le service n'a pas répondu.
     function carteNatureFond(fond) {
       if (!fond) return '';                       // service muet : on ne dit rien
@@ -3183,7 +3381,10 @@
       proximiteComplete = false;   // v2.7 : nouveau point → le résultat, s'il est déjà là, se replie
       replierAuto = true;
       clearTimeout(repliTimer);
-      if (formNavireRequis) lancerEstimationColonne();
+      /* v2.29 : une seule interrogation de la profondeur par clic. La promesse
+         alimente l'estimation de colonne d'eau ET le peloton des zonages. */
+      const promesseProfondeur = interrogerProfondeur([lngLat.lng, lngLat.lat]);
+      if (formNavireRequis) lancerEstimationColonne(promesseProfondeur);
       else jetonEstimation++;
       recalculer();   // message de proximité affiché sans attendre les zonages
 
@@ -3195,12 +3396,13 @@
       // v2.22 : le rattachement départemental part dans le même peloton. Il ne
       // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
       // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
-      const [{ natura, znieff, echec }, fond, dep, fiches, zones] = await Promise.all([
+      const [{ natura, znieff, echec }, fond, dep, fiches, zones, prof] = await Promise.all([
         interrogerZonesProtegees(lngLat),
         interrogerNatureFond(lngLat),
         interrogerDepartement(lngLat),
         chargerMessagesDDTM(),
-        chargerZonesAOT()
+        chargerZonesAOT(),
+        promesseProfondeur
       ]);
       if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
 
@@ -3240,6 +3442,9 @@
         titre: 'Zonages de protection : vérification impossible',
         consequence: 'service distant momentanément injoignable'
       }));
+      // v2.29 : la profondeur passe DEVANT la nature du fond — elles décrivent le
+      // même point, et c'est la profondeur qui dimensionne la chaîne.
+      cartes.push(carteProfondeur(prof));
       cartes.push(carteNatureFond(fond));
       // v2.18 : en dernier. Une parcelle AU POINT est une interdiction (rouge,
       // plus haut) et une absence confirmée ne mérite pas une ligne : cette carte

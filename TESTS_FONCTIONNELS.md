@@ -2395,3 +2395,62 @@ inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans except
 > (`c.includes(…)`). Tout changement du nom de la classe dans `carteEnv` casse le
 > tri **silencieusement** — les cartes incertaines repasseraient dans le premier
 > groupe sans qu'aucune erreur ne soit levée. Le test 3 est là pour ça.
+
+---
+
+## 14. Profondeur au point *(v2.29)*
+
+**Exécution : 26 oct. 2026 — harnais Node, 33/33** (les 12 de la v2.28, plus les
+21 ci-dessous). Syntaxe et exécution réelle de la phase synchrone comprises.
+
+1. **`leveRetenu` — la jointure prime sur la date**
+   - Deux levés couvrent le point (1898 et 1906) ; EMODnet désigne `S189800200`.
+   - Attendu : on retient **1898** (`joint: true`), pas le plus récent — c'est le
+     levé qui a produit la valeur affichée. **Vérifié.**
+   - Sans identifiant : on retient **1906**, le plus récent (`joint: false`).
+     **Vérifié.** `leveRetenu(null)` et `leveRetenu([])` renvoient `null`.
+
+2. **L'année ne vient JAMAIS de l'identifiant**
+   - Entrée : `id_md` contenant `S199206700`, `sursta 19900512`, `surend 19910531`.
+   - Attendu : année **1991**, lue dans `surend`. **Vérifié.** Ce test est le
+     garde-fou du piège qui a failli faire afficher « levé de 1992 ».
+   - L'instrument est le premier élément d'une liste séparée par `|`, en
+     minuscules : « Sondeur DESO 20 | Sondeur lateral » → `sondeur deso 20`.
+     **Vérifié.**
+
+3. **`carteProfondeur` — les trois issues ne se confondent pas**
+   - `null` → carte **incertaine** « vérification impossible ». **Vérifié.**
+   - `{etat:'absente'}` → carte **incertaine** « non renseignée ici ». **Vérifié.**
+   - Les deux textes sont **mutuellement exclusifs** : aucun des deux ne contient
+     la formule de l'autre. **Vérifié.** C'est ce qui empêche de retomber sur « une
+     absence de réponse vaut une absence de contrainte ».
+
+4. **Côte à marée : les deux bornes**
+   - Attendu : titre « Profondeur : 13,7 à 19,1 m selon la marée », carte **non**
+     incertaine, millésime et instrument présents. **Vérifié.**
+   - Un levé de 1898 s'affiche comme un levé de 1991 : **aucun seuil**. **Vérifié.**
+
+5. **Méditerranée**
+   - `aMaree: false` avec un port en `PHMA-NM`.
+   - Attendu : **pas** de « selon la marée », **pas** de « au plus bas de la marée »,
+     et la phrase « la marée ne change pratiquement rien ici ». **Vérifié.**
+
+6. **Aucun port de référence** — cas distinct du précédent
+   - `port: null`, `haute: null`.
+   - Attendu : un seul nombre, **ni** fourchette **ni** la phrase méditerranéenne —
+     on ne promet pas une borne haute qu'on ne sait pas calculer. **Vérifié.**
+
+7. **Fond découvrant**
+   - Attendu : « Fond découvrant : 0 à 4,2 m selon la marée » et l'avertissement
+     « se posera sur le fond ». **Vérifié.**
+
+8. **Reste à vérifier en navigateur réel** (hors de portée du harnais Node) :
+   l'ordre réel de la carte avant « Nature du fond », la latence cumulée des cinq
+   interrogations du peloton, et surtout que **le chiffre du champ d'évitage est
+   bien la borne haute annoncée par la carte** — c'est la cohérence que toute
+   cette version existe pour établir.
+
+> **Piège pour la prochaine évolution** : `carteProfondeur` lit `prof.port.h` pour
+> la phrase du détail. Si `aMaree` est vrai, `port` ne peut pas être nul par
+> construction — mais toute modification de `interrogerProfondeur` qui casserait
+> cette invariance ferait planter la carte. Le test 6 couvre le cas `port: null`.

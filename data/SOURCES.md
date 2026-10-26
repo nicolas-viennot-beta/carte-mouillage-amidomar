@@ -732,15 +732,18 @@ parlerait de notre calcul et ferait hésiter celui qui veut entrer sa propre son
 
 ### Affichage dans la popup — au-dessus de la nature du fond
 
-**Pas encore branché — maquette arbitrée le 26/10/2026, code à écrire.** Trois décisions de
+**Branché le 26/10/2026 (v2.29).** Trois décisions de
 Nicolas ce jour-là : la carte profondeur **s'affiche toujours** (elle ne relève pas de la
 règle v2.19 « une bonne nouvelle n'a pas besoin d'une ligne » : une profondeur n'est jamais
 une simple bonne nouvelle, c'est le chiffre qui dimensionne la chaîne) ; **six états**, dont
 deux distincts pour ne pas savoir — « non renseignée à cet endroit » (absence confirmée) et
 « vérification impossible » (service injoignable, sans bouton, même motif que les zonages de
-protection) ; **seuil de levé ancien à 1980**, à porter dans `CONFIG`. Ce point
-n'est **plus suspendu** : les dates réelles viennent du WFS Levés bathymétriques
-(ci-dessus), et non plus d'une lecture du code CDI.
+protection) ; **le millésime et l'instrument du levé affichés TOUJOURS, sans
+seuil** (arbitrage du 26/10/2026, qui a remplacé le seuil de 1980 d'abord
+envisagé) : « sondé en 2013 (lidar bathymétrique) » et « sondé en 1898 (plomb de
+sonde) » se passent de commentaire, et un seuil serait une règle de plus à tenir
+pour aucun gain. Les dates viennent du WFS Levés bathymétriques (ci-dessus), plus
+d'une lecture du code CDI.
 
 Le vocabulaire est arrêté : **« au plus bas de la marée »** et non « zéro hydrographique »,
 qui reste dans le détail dépliable et dans ce fichier — **sauf en Méditerranée**, où la
