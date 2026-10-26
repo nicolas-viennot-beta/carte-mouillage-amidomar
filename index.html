@@ -252,6 +252,25 @@
       #env-block .env-carte--ddtm-ok    { background:#e8f5ec; border:2px solid #18753c;
                                           border-radius:4px; }
       #env-block .env-carte--ddtm-ok .env-carte-resume { color:#0f5629; }
+      /* v2.28 : une carte qui constate une ABSENCE de donnée portait jusqu'ici
+         la couleur de son thème — sable pour la nature du fond, gris-bleu pour
+         les cultures marines — donc elle se lisait comme un constat. « Nature du
+         fond : à vérifier » avait le même poids visuel que « Nature du fond :
+         sable ». Demande de Nicolas (15/10/2026) : n'afficher au clic que des
+         résultats fiables, en hiérarchisant plutôt qu'en masquant — supprimer ces
+         cartes ferait croire qu'il n'y a rien là où on ne sait pas.
+         Le gris neutre les sort du registre du constat sans les effacer, et le
+         filet pointillé dit visuellement « incomplet ». Elles restent des
+         .env-carte : le compte « N points à vérifier » de la barre réduite les
+         inclut toujours, ce qui est exactement ce que ce libellé promet. */
+      #env-block .env-carte--incertain  { background:#f6f6f6; border-left:3px dashed #929292; }
+      #env-block .env-carte--incertain .env-carte-resume { color:#3a3a3a; font-weight:400; }
+      #env-block .env-carte--incertain .env-carte-resume strong { font-weight:600; }
+      #env-block .env-carte--incertain .env-carte-consequence { color:#666; }
+      /* Le second intitulé est en retrait et plus discret que « Contexte
+         environnemental » : c'est une annexe de la section, pas une section de
+         même rang. */
+      #env-block .popup-section--incertain { margin-top:10px; color:#666; font-weight:700; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
@@ -2032,7 +2051,10 @@
     const echapper = (s) => String(s).replace(/[&<>"]/g,
       c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 
-    function carteEnv({ type, titre, suffixe, complement, consequence, detail, bouton }) {
+    /* `incertain` : la carte ne constate rien, elle dit que la vérification n'a
+       pas pu avoir lieu (hors couverture de la source, ou service injoignable).
+       Elle est alors rendue en gris neutre et regroupée à part (v2.28). */
+    function carteEnv({ type, titre, suffixe, complement, consequence, detail, bouton, incertain }) {
       const resume =
         `<span class="env-carte-resume"><strong>${echapper(titre)}</strong>` +
         (suffixe ? ` ${echapper(suffixe)}` : '') +
@@ -2043,7 +2065,7 @@
         ? `<button type="button" class="env-toggle-bloc" aria-expanded="false"
                    data-libelle="${echapper(bouton)}">${echapper(bouton)}</button>` : '';
       const corps = detail ? `<div class="env-detail-bloc" hidden>${detail}</div>` : '';
-      return `<div class="env-carte env-carte--${type}">
+      return `<div class="env-carte env-carte--${type}${incertain ? ' env-carte--incertain' : ''}">
                 <div class="env-carte-entete">${resume}${action}</div>${corps}</div>`;
     }
 
@@ -2638,6 +2660,7 @@
       if (fond.absent) {
         return carteEnv({
           type: 'fond',
+          incertain: true,
           titre: 'Nature du fond : à vérifier',
           consequence: 'non cartographiée à cet endroit',
           bouton: 'Que faire ici',
@@ -2816,12 +2839,12 @@
         Repérez-les sur la carte en activant « Cultures marines » dans la légende, et
         vérifiez auprès de la DDTM de votre département.</p>`;
       if (cm.etat === 'indisponible') return carteEnv({
-        type:'usage', titre:'Cultures marines : vérification impossible',
+        type:'usage', incertain:true, titre:'Cultures marines : vérification impossible',
         consequence:'cadastre conchylicole momentanément injoignable',
         bouton:'Que faire ici', detail:commun
       });
       return carteEnv({
-        type:'usage', titre:'Cultures marines : non vérifiées ici',
+        type:'usage', incertain:true, titre:'Cultures marines : non vérifiées ici',
         consequence:'aucun cadastre conchylicole publié pour ce secteur',
         bouton:'Que faire ici',
         detail:`<p>Seuls le Finistère, l'Ille-et-Vilaine et la Charente-Maritime
@@ -3213,6 +3236,7 @@
       // annoncée — « on ne sait pas » n'est pas « il n'y a rien ».
       if (echec) cartes.push(carteEnv({
         type: 'protection',
+        incertain: true,
         titre: 'Zonages de protection : vérification impossible',
         consequence: 'service distant momentanément injoignable'
       }));
@@ -3228,15 +3252,34 @@
       // v2.19 : plus aucune carte à montrer → pas de bloc du tout, pas même le
       // titre « Contexte environnemental », qui annoncerait un vide.
       const aMontrer = cartes.filter(Boolean);
+      /* v2.28 : les cartes se rangent en deux groupes, les faits d'abord.
+         Le tri se fait sur la classe posée par carteEnv (`incertain`) et non sur
+         le libellé : un titre se reformule, une classe est contractuelle.
+         L'ordre interne de chaque groupe est conservé — il a été arbitré
+         (Natura 2000, ZNIEFF, nature du fond, cultures marines en dernier). */
+      const estIncertaine = (c) => c.includes('env-carte--incertain');
+      const etablies   = aMontrer.filter(c => !estIncertaine(c));
+      const incertaines = aMontrer.filter(estIncertaine);
       // v2.22 : les règles locales passent DEVANT le contexte environnemental.
       // Une règle départementale peut réorienter toute la démarche (les
       // Côtes-d'Armor ne délivrent plus d'AOT du tout) : la lire après la nature
       // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
       // peut s'afficher sans l'autre.
       const reglesLocales = blocReglesLocales(dep, fiches, zones, lngLat);
-      const contexte = aMontrer.length
-        ? '<h2 class="popup-section">Contexte environnemental</h2>' + aMontrer.join('')
-        : '';
+      /* Deux intitulés plutôt qu'un : « Contexte environnemental » ne coiffe plus
+         que ce qui a été réellement trouvé. Ce que la carte n'a pas pu vérifier
+         est dit, mais à part et en retrait — ni confondu avec un constat, ni
+         masqué, parce qu'un silence se lirait « il n'y a rien » là où la
+         réponse est « on ne sait pas ». Si un groupe est vide, son intitulé ne
+         s'affiche pas : annoncer une section vide est pire que l'omettre. */
+      const contexte =
+        (etablies.length
+          ? '<h2 class="popup-section">Contexte environnemental</h2>' + etablies.join('')
+          : '') +
+        (incertaines.length
+          ? '<h2 class="popup-section popup-section--incertain">' +
+            'Ce que la carte n’a pas pu vérifier</h2>' + incertaines.join('')
+          : '');
       verifEnCours = false;
       afficherEnvironnement(reglesLocales + contexte,
                             (reglesLocales || contexte) ? 'cartes' : '');

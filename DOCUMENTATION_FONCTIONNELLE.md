@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.27 (octobre 2026)  
-**Dernière mise à jour:** 15 octobre 2026  
+**Version:** 2.28 (octobre 2026)  
+**Dernière mise à jour:** 26 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -152,6 +152,8 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil ce qui est une information de ce qui est une action.
 
 **Partie 1 — « Contexte environnemental ».** Une carte par information, **toutes repliées au départ** (décision de Nicolas, 13/10/2026). Chaque carte montre un titre, une ligne de conséquence et un bouton qui déplie le détail. La ligne repliée porte déjà l'essentiel : c'est ce qui rend le repli acceptable, un bandeau replié qui ne dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
+
+**Deux groupes, les faits d'abord** *(v2.28)*. Les cartes qui **constatent** quelque chose restent sous « Contexte environnemental ». Celles qui disent que la vérification **n'a pas pu avoir lieu** — point hors couverture de la source, ou service injoignable — passent sous un second intitulé, « Ce que la carte n'a pas pu vérifier », en retrait et plus discret, et sont rendues en **gris neutre avec un filet gauche pointillé** (`env-carte--incertain`). Ce traitement les sort du registre du constat sans les effacer : les supprimer ferait croire qu'il n'y a rien là où on ne sait pas. **Le tri se fait sur la classe posée par `carteEnv`, pas sur le libellé** — un titre se reformule, une classe est contractuelle. Si un groupe est vide, son intitulé ne s'affiche pas. Quatre cartes sont concernées à ce jour : nature du fond non cartographiée, cultures marines non vérifiées, cultures marines injoignables, zonages de protection injoignables. Elles restent des `.env-carte` : le compte « N points à vérifier » de la barre réduite les inclut, ce qui est exactement ce que ce libellé promet.
 
 Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. **Gris-bleu** pour les usages de la mer *(v2.18)*. Le rouge est réservé aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc. Plus de vert depuis la v2.19 : « rien de détecté » ne s'affiche plus du tout.
 
@@ -828,6 +830,12 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Cliquer sur l'eau dans un site Natura 2000 → le popup montre deux parties titrées : « Contexte environnemental » puis « À reporter dans le formulaire de demande »
 - [ ] Les cartes du contexte sont **toutes repliées** à l'ouverture
 - [ ] Chaque ligne repliée se suffit à elle-même (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond »)
+
+### ✅ 8quater. Deux groupes de cartes *(v2.28)*
+- [ ] Cliquer sur un point où la nature du fond n'est pas cartographiée → la carte « Nature du fond : à vérifier » apparaît **sous « Ce que la carte n'a pas pu vérifier »**, en gris, filet pointillé
+- [ ] Les cartes qui constatent (Natura 2000, nature du fond connue) restent sous « Contexte environnemental »
+- [ ] Aucune carte incertaine → le second intitulé ne s'affiche pas ; aucune carte établie → le premier non plus
+- [ ] La barre du popup réduit compte **toutes** les cartes, incertaines comprises
 - [ ] Cliquer « Ce que ça implique » / « Comment mouiller ici » déplie la carte et le bouton devient « Masquer » ; recliquer replie et rend au bouton son libellé
 - [ ] Le nom de la zone Natura 2000 apparaît dans le bloc du bas avec son propre bouton « Copier », qui affiche « Copié ! » 2 s
 - [ ] Cliquer sur un point **sans** Natura 2000 → la ligne « Nom de la zone » disparaît, seules les coordonnées restent
@@ -1148,6 +1156,14 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 ---
 
 ## 11. Historique des corrections
+
+### v2.28 — 26 octobre 2026
+**Les cartes du contexte se rangent en deux groupes**
+- Demande de Nicolas (15/10/2026) : n'afficher au clic que des résultats fiables, en **hiérarchisant plutôt qu'en masquant**. Une carte qui constate une absence de donnée portait jusqu'ici la couleur de son thème, donc se lisait comme un constat : « Nature du fond : à vérifier » avait le même poids visuel que « Nature du fond : sable ».
+- `carteEnv` accepte un drapeau `incertain`, qui ajoute la classe `env-carte--incertain` (gris `#f6f6f6`, filet gauche pointillé `#929292`) sans retirer la teinte de type.
+- Les cartes sont triées **sur cette classe** et affichées sous deux intitulés : « Contexte environnemental » puis « Ce que la carte n'a pas pu vérifier » (`popup-section--incertain`, en retrait). Un groupe vide n'affiche pas son intitulé.
+- Quatre points d'appel marqués : `carteNatureFond` (absence de cartographie), `carteCulturesMarines` (non vérifiées / injoignable), et la carte d'échec des zonages de protection.
+- Vérifié par le harnais Node du §6.1bis de `TESTS_FONCTIONNELS.md` : syntaxe, exécution réelle de la phase synchrone, puis contrôle que la classe est posée, que le type d'origine est conservé et que le tri sépare bien les deux groupes.
 
 ### v2.27 — 15 octobre 2026
 **Réduire le popup de coordonnées, en plus de l'effacer**

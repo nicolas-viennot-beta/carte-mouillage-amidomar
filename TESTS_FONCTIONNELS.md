@@ -2340,3 +2340,45 @@ sur `#coords-reduire`, `#coords-resume` et `#coords-fermer` et relever la classe
 ou du trait terre-mer casse silencieusement ces trois harnais — ils passent alors
 au vert pour de mauvaises raisons, ou au rouge en bloc. Rejouer les quatre
 suites, pas seulement celle de la fonctionnalité touchée.
+
+---
+
+## 13. Deux groupes de cartes — faits et incertitudes *(v2.28)*
+
+**Exécution : 26 oct. 2026 — harnais Node (`vm`, globaux simulés, stub universel
+inerte) : 12/12.** Syntaxe, exécution réelle de la phase synchrone sans exception,
+écouteurs enregistrés, puis les contrôles de la v2.28 ci-dessous.
+
+1. **La classe n'est posée que sur demande**
+   - Action : `carteEnv({type:'fond', titre:…})` puis
+     `carteEnv({type:'fond', incertain:true, titre:…})`.
+   - Attendu : la première ne contient **pas** `env-carte--incertain`, la seconde
+     oui. **Vérifié.**
+
+2. **Le type d'origine est conservé**
+   - Action : inspecter la sortie de la carte incertaine.
+   - Attendu : `env-carte--fond` **et** `env-carte--incertain` — la teinte de type
+     reste, le gris la recouvre en CSS. Ne pas remplacer l'une par l'autre, sinon
+     le jour où le gris est retiré la carte perd son thème. **Vérifié.**
+
+3. **Le tri porte sur la classe, jamais sur le libellé**
+   - Action : trois cartes (une normale, une incertaine, une de protection),
+     filtrées par `c.includes('env-carte--incertain')`.
+   - Attendu : 2 établies / 1 incertaine. **Vérifié.** Un test qui chercherait
+     « à vérifier » dans le titre casserait à la première reformulation.
+
+4. **Les points d'appel marqués**
+   - `carteNatureFond(null)` → chaîne vide (service muet : on ne dit rien).
+     **Vérifié.**
+   - `carteNatureFond({absent:true})` → carte incertaine. **Vérifié.**
+   - `carteCulturesMarines({etat:'indisponible'})` → carte incertaine.
+     **Vérifié.**
+
+5. **Reste à vérifier en navigateur réel** (non couvert par le harnais Node) :
+   le rendu des deux intitulés et leur ordre, le retrait visuel du second, et le
+   compte de la barre réduite qui doit inclure les cartes incertaines.
+
+> **Piège pour la prochaine évolution** : le tri se fait sur une chaîne HTML
+> (`c.includes(…)`). Tout changement du nom de la classe dans `carteEnv` casse le
+> tri **silencieusement** — les cartes incertaines repasseraient dans le premier
+> groupe sans qu'aucune erreur ne soit levée. Le test 3 est là pour ça.
