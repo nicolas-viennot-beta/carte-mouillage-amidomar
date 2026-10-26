@@ -531,6 +531,58 @@ le seul nom de la couche — ne pas tenter d'interpréter le code.
 
 ---
 
+### Rattachement départemental : ce que l'inférence risque (mesuré le 26/10/2026)
+
+Le rattachement se fait par `DWITHIN` sur les polygones **terrestres** du trait
+terre-mer, à rayons croissants (1, 2, 5, 10 km), **en s'arrêtant au premier rayon
+qui touche de la terre**. Tous les départements trouvés à ce rayon sont renvoyés,
+et le code sait dire « ce point est proche de la limite entre X et Y ».
+
+Mesures sur la côte bretonne, aux deux limites interdépartementales franches :
+
+| Point | Résultat | Rayon qui a répondu |
+|---|---|---|
+| Laïta, embouchure (Le Pouldu 29 / Guidel 56) | **29 + 56** | 2 km |
+| Laïta, 1 km au large | **29 seul** | 5 km |
+| Laïta, 3 km au large | **29 + 56** | 5 km |
+| Vilaine, embouchure (Pénestin 56 / Mesquer 44) | **56 seul** | 1 km |
+| Vilaine, 2 km au large | **56 seul** | 5 km |
+| Locquirec (29) / Plestin (22) | 29 seul | 1 km |
+| Baie de Douarnenez, centre | 29 seul | 1 km |
+
+**Cinq risques, dans l'ordre de gravité.**
+
+1. **Le garde-fou se déclenche par accident de géométrie, pas par proximité d'une
+   frontière.** Il dépend de la largeur de l'embouchure comparée au premier rayon
+   qui touche. Sur la Laïta, étroite, il se déclenche ; sur la **Vilaine, large de
+   plusieurs kilomètres, il ne se déclenche pas** — alors que c'est précisément là
+   que l'ambiguïté est maximale.
+2. **Il clignote.** Laïta : 29+56 à l'embouchure, **29 seul** à 1 km, 29+56 à 3 km.
+   L'avertissement apparaît, disparaît et réapparaît quand l'usager déplace son
+   point de quelques centaines de mètres. Un avertissement intermittent est pire
+   qu'un avertissement absent : il décrédibilise les autres.
+3. **Le rayon qui a répondu n'est pas montré.** « Emplacement rattaché à : … » est
+   la même phrase qu'on ait trouvé la terre à 1 km ou à 10 km. Un rattachement
+   obtenu à 10 km est une quasi-devinette présentée comme un fait, et la fonction
+   connaît pourtant `rayonKm`.
+4. **Sur une côte découpée, la terre la plus proche n'est pas la côte dont on
+   relève.** Dans une ria, une baie ou un chenal entre île et continent, le
+   premier rayon attrape la rive qui se trouve être proche.
+5. **Conséquence réglementaire.** Ce rattachement pilote l'affichage des règles
+   locales. En Côtes-d'Armor, la règle est qu'aucune AOT individuelle n'est plus
+   délivrée : un point mal rattaché **affiche la mauvaise règle, ou masque la
+   bonne**. C'est le seul endroit où une erreur de rattachement a une conséquence
+   autre qu'informative.
+
+**Trois correctifs possibles, non tranchés.** (a) Ne plus s'arrêter au premier
+rayon : chercher la terre par rayons croissants, puis **toujours** élargir à un
+rayon fixe pour détecter les voisins — le message « proche de la limite » devient
+stable au lieu de clignoter, pour moins de requêtes. (b) Faire varier la formule
+avec `rayonKm` : « rattaché à » sous 2 km, « le rivage le plus proche est en … »
+au-delà. (c) Construire les polygones (§12), seul vrai correctif.
+
+---
+
 ### Les prépaquets — la seule voie vers du 20 m ou du 1 m
 
 *Vérifié le 15 octobre 2026.*
