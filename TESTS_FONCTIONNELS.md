@@ -2501,14 +2501,26 @@ le reste est à voir en navigateur.
    `h2.popup-section--incertain`. **Vérifié.** Si ce nom de classe change,
    l'ancrage casse **silencieusement** : le bloc repasserait à la fin, sans
    erreur. Le test 2 est là pour ça, comme le test 3 du §13 l'est pour le tri.
-3. **À vérifier en navigateur réel après push** :
-   - le bloc s'intercale bien entre les deux groupes sur un point qui a une carte
-     incertaine ;
-   - une longueur de navire saisie **survit** à un nouveau clic — c'est l'enjeu du
-     déplacement de nœud plutôt que de sa recréation ;
-   - sur un point à terre ou interdit, le bloc n'atterrit pas dans l'encadré
-     coloré ;
-   - le déplacement du bloc à l'arrivée des cartes ne produit pas de saut
-     gênant. **Limite connue et assumée** : quand des cartes incertaines
-     existent, le bloc remonte d'une hauteur de carte au moment où les zonages
-     arrivent. Dans le cas courant — aucune carte incertaine — il ne bouge pas.
+3. **Vérifié en navigateur réel sur la version publiée** — 26 oct. 2026,
+   `e2d6f9e` servi :
+   - **Intercalation**, au point 47.447524 / −3.049958 (carte incertaine
+     présente). Ordre réel des enfants de `#env-block` : titre « Contexte
+     environnemental », « Profondeur : 23,7 à 29,1 m selon la marée », « Nature du
+     fond : Roche », **le bloc « Mouillages voisins »**, titre « Ce que la carte
+     n'a pas pu vérifier », « Cultures marines : non vérifiées ici ». **Vérifié.**
+   - **Le titre est bien rendu** : « Mouillages voisins ». **Vérifié.**
+   - **La saisie survit au changement de point.** Longueur saisie à 9 m, bloc
+     passé en `evitage-resultat chevauche` avec un rayon de **53 m**
+     (29,1 × 1,5 + 9 = 52,65, arrondi) ; après un clic sur 47.448100 / −3.050200,
+     la longueur vaut toujours **9**, le bloc est toujours dans `#env-block` en
+     position 5/7, titre compris, et la colonne est ré-estimée à 25,9 m.
+     **Vérifié** — c'est la preuve que le nœud est déplacé et non recréé.
+   - **Point à terre** (47.487000 / −3.127000) : `#env-block` est vide et sans
+     classe, le bloc est **ressorti** dans `#coords-contenu` et reste masqué, le
+     popup porte bien la classe `terre`. **Vérifié.**
+   - **La technique courte est en ligne** : « sondé en 1898 au plomb de sonde »,
+     et aucun modèle d'appareil ne subsiste dans le popup (test sur simrad, deso,
+     hawkeye, kelvin, lennermor). **Vérifié** — le défaut du §14/9 est clos.
+   - **Limite connue et assumée** : quand des cartes incertaines existent, le bloc
+     remonte d'une hauteur de carte au moment où les zonages arrivent. Dans le cas
+     courant — aucune carte incertaine — il ne bouge pas.
