@@ -126,7 +126,14 @@
       #coords-fermer:focus-visible, #coords-reduire:focus-visible,
       #coords-resume:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
       #coords-fermer .coords-fermer-croix { font-size:17px; line-height:1; }
-      #coords-reduire .coords-chevron { font-size:11px; line-height:1; }
+      /* v2.32 : meme traitement que le chevron du bandeau de droite. A 11 px et
+         en gris, le caractere seul ne se lisait pas comme une commande ; cadre
+         et fond en font une cible visible sans alourdir la barre d'actions. */
+      #coords-reduire .coords-chevron { flex-shrink:0; display:inline-flex; align-items:center;
+                      justify-content:center; width:20px; height:20px; border-radius:4px;
+                      border:1px solid #929292; background:#fff; color:#000091;
+                      font-size:12px; line-height:1; }
+      #coords-reduire:hover .coords-chevron { background:#e8edff; border-color:#000091; }
       /* Équivalent de `fr-sr-only` : visible des seuls lecteurs d'écran. */
       .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
                  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
@@ -165,7 +172,13 @@
       #coords-resume .coords-resume-coords { display:block; font-family:monospace; font-size:13px;
                                              font-weight:700; overflow-wrap:anywhere; }
       #coords-resume .coords-resume-coords:empty { display:none; }
-      #coords-resume .coords-chevron { flex-shrink:0; font-size:12px; color:#3a3a3a; }
+      /* v2.32 : dans l'etat reduit, ce chevron est la seule indication que la
+         barre se redeploie. Il passe en pastille Bleu France sur fond clair. */
+      #coords-resume .coords-chevron { flex-shrink:0; display:inline-flex; align-items:center;
+                      justify-content:center; width:22px; height:22px; border-radius:4px;
+                      border:1px solid #000091; background:#e8edff; color:#000091;
+                      font-size:13px; line-height:1; }
+      #coords-resume:hover .coords-chevron { background:#d3ddff; }
       /* v2.27 : la barre reste en place quand l'usager clique un nouveau point,
          et son contenu change sans que rien ne bouge à l'écran — l'usager peut
          douter d'avoir cliqué. Un bref fond coloré signale la mise à jour.
@@ -339,9 +352,22 @@
       @media (max-width:1100px) { .colonne { width:248px; } }
       .side-panel { background:#fff; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,.2);
                     font-size:13px; overflow:hidden; flex-shrink:0; }
-      .panel-header { background:#003189; color:#fff; padding:8px 14px; font-weight:700; font-size:13px;
+      .panel-header { background:#003189; color:#fff; padding:8px 10px 8px 14px; font-weight:700; font-size:13px;
                       cursor:pointer; display:flex; justify-content:space-between; align-items:center;
-                      user-select:none; }
+                      gap:8px; user-select:none; }
+      /* v2.32 : le chevron etait un caractere de 13 px pose sur du bleu fonce.
+         Il ne se lisait pas comme une commande, et rien n'annoncait que le
+         bandeau se deplie. Depuis que le panneau s'ouvre REPLIE, c'est la seule
+         affordance qui reste : il devient une cible dessinee de 24 px, cadre
+         clair, a l'echelle d'une puce de bouton DSFR. */
+      .panel-header .panel-chevron { flex-shrink:0; display:inline-flex; align-items:center;
+                      justify-content:center; width:24px; height:24px; border-radius:4px;
+                      background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.7);
+                      font-size:14px; line-height:1; }
+      .panel-header:hover .panel-chevron { background:rgba(255,255,255,.34); }
+      /* Le bandeau est devenu un bouton atteignable au clavier : il lui faut
+         l'anneau de focus du DSFR, comme aux commandes du panneau de gauche. */
+      .panel-header:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
       .panel-body { padding:10px 14px; }
 
       .layer-group-title { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em;
@@ -669,42 +695,38 @@
       'data/zones-aot.geojson': { type:'FeatureCollection', features:[] },
       // Jeu reduit : la carte reste demonstrative meme ouverte par double-clic.
       'data/aot-existantes.geojson': { type:'FeatureCollection', features:[
-        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-3.12991,47.44856]}},
-        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-3.08914,47.44709]}},
-        {type:"Feature",properties:{longueur_navire:12},geometry:{type:"Point",coordinates:[-3.06984,47.4943]}},
-        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[-3.02905,47.47849]}},
-        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[-3.00959,47.50992]}},
-        {type:"Feature",properties:{longueur_navire:15},geometry:{type:"Point",coordinates:[-2.96999,47.51071]}},
-        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[-4.46251,48.10516]}},
-        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[-4.42876,48.11446]}},
-        {type:"Feature",properties:{longueur_navire:16},geometry:{type:"Point",coordinates:[-4.41285,48.14449]}},
-        {type:"Feature",properties:{longueur_navire:12},geometry:{type:"Point",coordinates:[-4.38096,48.11578]}},
-        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[-4.34697,48.12509]}},
-        {type:"Feature",properties:{longueur_navire:6},geometry:{type:"Point",coordinates:[-4.3141,48.12433]}},
-        {type:"Feature",properties:{longueur_navire:12},geometry:{type:"Point",coordinates:[-4.49355,48.33512]}},
-        {type:"Feature",properties:{longueur_navire:6},geometry:{type:"Point",coordinates:[-4.46432,48.3054]}},
-        {type:"Feature",properties:{longueur_navire:7},geometry:{type:"Point",coordinates:[-4.44973,48.30438]}},
-        {type:"Feature",properties:{longueur_navire:16},geometry:{type:"Point",coordinates:[-4.448,48.35525]}},
-        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-4.40621,48.30526]}},
-        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[-4.37733,48.30516]}},
-        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[6.03096,43.03635]}},
-        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[6.07835,42.95749]}},
-        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[6.10358,42.97341]}},
-        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[6.15051,42.98868]}},
-        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[6.17391,43.0667]}},
-        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[6.22047,42.97279]}},
-        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[6.59128,43.2727]}},
-        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[6.60641,43.26479]}},
-        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[6.61955,43.27218]}},
-        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[6.64976,43.29536]}},
-        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[6.66265,43.28875]}},
-        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.67838,43.28016]}},
-        {type:"Feature",properties:{longueur_navire:7},geometry:{type:"Point",coordinates:[6.48758,43.12498]}},
-        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[6.51057,43.1417]}},
-        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[6.5358,43.13331]}},
-        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[6.5475,43.17836]}},
-        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.57131,43.1511]}},
-        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.58277,43.15089]}}
+        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[-3.02439,48.77503]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-2.95794,48.76684]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-3.02543,48.86608]}},
+        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-3.02859,48.82196]}},
+        {type:"Feature",properties:{longueur_navire:11},geometry:{type:"Point",coordinates:[-2.31833,48.61452]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-2.50161,48.60765]}},
+        {type:"Feature",properties:{longueur_navire:11},geometry:{type:"Point",coordinates:[-2.48909,48.64677]}},
+        {type:"Feature",properties:{longueur_navire:16},geometry:{type:"Point",coordinates:[-2.41397,48.64262]}},
+        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[-4.43839,48.35582]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-4.32858,48.29207]}},
+        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-4.45735,48.32555]}},
+        {type:"Feature",properties:{longueur_navire:12},geometry:{type:"Point",coordinates:[-4.38601,48.3913]}},
+        {type:"Feature",properties:{longueur_navire:6},geometry:{type:"Point",coordinates:[-4.29934,48.18634]}},
+        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-4.29053,48.15735]}},
+        {type:"Feature",properties:{longueur_navire:13},geometry:{type:"Point",coordinates:[-4.29118,48.10216]}},
+        {type:"Feature",properties:{longueur_navire:7},geometry:{type:"Point",coordinates:[-4.35961,48.10804]}},
+        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[-2.96148,47.55697]}},
+        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[-3.07393,47.46766]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[-3.08203,47.47162]}},
+        {type:"Feature",properties:{longueur_navire:10},geometry:{type:"Point",coordinates:[-3.10923,47.46958]}},
+        {type:"Feature",properties:{longueur_navire:17},geometry:{type:"Point",coordinates:[-2.85374,47.57404]}},
+        {type:"Feature",properties:{longueur_navire:9},geometry:{type:"Point",coordinates:[-2.87597,47.55832]}},
+        {type:"Feature",properties:{longueur_navire:6},geometry:{type:"Point",coordinates:[-2.78467,47.57008]}},
+        {type:"Feature",properties:{longueur_navire:18},geometry:{type:"Point",coordinates:[-2.89549,47.57822]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.2192,42.98905]}},
+        {type:"Feature",properties:{longueur_navire:7},geometry:{type:"Point",coordinates:[6.08323,43.03928]}},
+        {type:"Feature",properties:{longueur_navire:12},geometry:{type:"Point",coordinates:[6.27071,43.12003]}},
+        {type:"Feature",properties:{longueur_navire:15},geometry:{type:"Point",coordinates:[6.10601,43.08212]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.62355,43.26733]}},
+        {type:"Feature",properties:{longueur_navire:8},geometry:{type:"Point",coordinates:[6.64879,43.27284]}},
+        {type:"Feature",properties:{longueur_navire:14},geometry:{type:"Point",coordinates:[6.65857,43.26913]}},
+        {type:"Feature",properties:{longueur_navire:11},geometry:{type:"Point",coordinates:[6.66182,43.26725]}}
       ]},
       // Jeu réduit (3 vraies ZMEL, v2.9) : la carte reste démonstrative même ouverte par
       // double-clic, avec de vraies données plutôt qu'un exemple fictif.
@@ -884,7 +906,7 @@
         id:'aot', label:'AOT de mouillage existantes et leur évitage', couleur:'#c2185b',
         picto:'aot', statut:'local', aot:true,
         geojson:'data/aot-existantes.geojson', visible:true,
-        note:"Données simulées : 249 positions fictives sur 6 sites de Bretagne et de Méditerranée, pour figurer la pression sur le plan d'eau. Natura 2000 n'est pas exclu : une AOT peut y être autorisée." }
+        note:"Données simulées : 248 positions fictives sur 8 sites des DDTM 22, 29, 56 et 83, posées entre 100 et 200 m du trait terre-mer du Shom, pour figurer la pression sur le plan d'eau près du rivage. Dans le Var, 50 des 62 positions sont dans les 5 zones de mouillage autorisées de Saint-Tropez. Natura 2000 n'est pas exclu : une AOT peut y être autorisée." }
     ];
 
     /* ========================================================================
@@ -1269,8 +1291,10 @@
     layerPanel.className = 'side-panel';
     layerPanel.id = 'layer-panel';
     layerPanel.innerHTML = `
-      <div class="panel-header" data-panel="layer">Couches affichées <span>▾</span></div>
-      <div class="panel-body">
+      <div class="panel-header" data-panel="layer" role="button" tabindex="0"
+           aria-expanded="true" aria-controls="layer-panel-body">Couches affichées
+        <span class="panel-chevron" aria-hidden="true">▾</span></div>
+      <div class="panel-body" id="layer-panel-body">
         ${groupes.map(g => `
           <div class="layer-group-title">${g}</div>
           ${COUCHES.filter(c => c.groupe === g).map(c => c.aVenir ? `
@@ -1444,18 +1468,31 @@
 
     function replier(panneau, ouvrir) {
       const body = panneau.querySelector('.panel-body');
-      const chev = panneau.querySelector('.panel-header span');
+      const tete = panneau.querySelector('.panel-header');
+      const chev = tete.querySelector('.panel-chevron');
       body.style.display = ouvrir ? 'block' : 'none';
       chev.textContent = ouvrir ? '▾' : '▸';
+      tete.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
     }
     document.querySelectorAll('.panel-header').forEach(h => {
-      h.addEventListener('click', () => {
+      const bascule = () => {
         const p = h.parentElement;
         replier(p, p.querySelector('.panel-body').style.display === 'none');
+      };
+      h.addEventListener('click', bascule);
+      // v2.32 : le bandeau porte role="button" et tabindex — depuis que le panneau
+      // s'ouvre replié, c'est le SEUL accès aux couches : il doit répondre à Entrée
+      // et à Espace comme un vrai bouton (RGAA 7.3, WCAG 2.1.1).
+      h.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); bascule(); }
       });
     });
-    // État initial : couches dépliées.
-    replier(layerPanel, true);
+    // v2.32 : état initial REPLIÉ (demande de Nicolas, 29/10/2026). La colonne de
+    // droite n'occupe plus la moitié de la hauteur d'écran au premier affichage :
+    // l'usager voit la carte d'abord, et déplie les couches s'il en a besoin. Les
+    // couches restent toutes chargées et affichées — c'est la LISTE qui est repliée,
+    // pas les couches elles-mêmes ; les pastilles ✓/✗ continuent d'être renseignées.
+    replier(layerPanel, false);
 
     /* ---------- Estimation de la colonne d'eau à marée haute (v2.6) ----------
        Approximation assumée (décision de Nicolas, 25/09/2026) :

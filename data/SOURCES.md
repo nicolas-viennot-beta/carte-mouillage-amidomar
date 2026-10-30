@@ -8,10 +8,10 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 26 octobre 2026 — versement de la campagne bathymétrie du
-15 octobre (§5 prépaquets, §6 EMODnet, §12). Consolidation précédente : 15 octobre 2026,
-après relecture croisée de `DOCUMENTATION_FONCTIONNELLE.md`, `TESTS_FONCTIONNELS.md` et
-`index.html`.*
+*Dernière consolidation : 30 octobre 2026 — versement de la campagne de tirage des AOT
+simulées sur le trait terre-mer (§2 piège 9, §5 trait terre-mer, §10). Consolidation
+précédente : 26 octobre 2026, versement de la campagne bathymétrie du 15 octobre
+(§5 prépaquets, §6 EMODnet, §12).*
 
 ---
 
@@ -41,7 +41,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | Cultures marines — cadastres DDTM | ✅ | ✅ WFS | en service, **bloquant** |
 | ZMEL — Cerema/CACEM (fichier local) | ✅ | ✅ local | en service |
 | Zones de mouillage autorisées — DDTM 83 | ✅ | ✅ local | 5 zones sur 1 commune |
-| AOT existantes | ✅ | ✅ local | **données simulées** |
+| AOT existantes | ✅ | ✅ local | **données simulées** — 248 positions, bande 100–200 m du trait terre-mer (§10) |
 | Zones de baignade et zones réglementaires | ❌ | ❌ | aucune source publique |
 
 Deux sources seulement **bloquent** un clic : les APB et le cadastre
@@ -67,8 +67,9 @@ réseau donné : c'est précisément ce que le bandeau sert à montrer.
 
 ## 2. Pièges transverses — à lire avant d'ajouter une source
 
-Six pièges rencontrés en vrai, sur quatre plateformes différentes. Ils se
-ressemblent et coûtent tous le même prix : **un secteur déclaré libre à tort**.
+Neuf pièges rencontrés en vrai, sur quatre plateformes différentes. Les huit
+premiers coûtent tous le même prix : **un secteur déclaré libre à tort**. Le
+neuvième coûte l'inverse : une donnée placée loin de là où on la croyait.
 
 **1. La projection du filtre géométrique.** Les coordonnées d'un `CQL_FILTER`
 sont lues dans la projection *native* de la couche. Sans le préfixe
@@ -116,6 +117,17 @@ utilisable.
 anneaux.** Les parcelles conchylicoles sont faites de 3 à 5 polygones : ne lire
 que le premier `<gml:posList>` donne 36 m au lieu de 10 m. Erreur effectivement
 commise le 14/10/2026.
+
+**9. Une requête `BBOX` renvoie les objets qui *intersectent* l'emprise, pas
+leur portion dans l'emprise.** Évident dit comme ça, coûteux en pratique : sur
+le trait terre-mer, l'emprise d'une baie de 15 km ramène aussi le **grand
+polygone littoral du département**, dont les anneaux courent sur des centaines
+de kilomètres. Le 29/10/2026, un tirage de points le long des anneaux ainsi
+récupérés a placé des mouillages « de Paimpol » à Saint-Cast et à 80 km dans les
+terres, sans qu'aucune vérification de distance ne le signale — les points
+étaient bien à 100–200 m d'une côte, simplement pas de la bonne. **Tout parcours
+de géométrie issu d'une requête `BBOX` doit donc recadrer explicitement ses
+résultats sur l'emprise voulue**, au lieu de supposer que le service l'a fait.
 
 À savoir aussi : `outputFormat=application/json` fonctionne sur le WFS du Shom et
 de l'OFB **alors que les GetCapabilities n'annoncent que du GML**. Sur GéoIDE,
@@ -405,6 +417,27 @@ Requête : `propertyName=id,numdep`, `count=1`, `outputFormat=application/json`,
 du CGPPP**, donc la bonne donnée pour instruire une AOT sur le DPM.
 
 La couche porte les **surfaces terrestres** : un point qui y tombe est à terre.
+
+> **Elle porte aussi les roches, îlots et platiers découvrants**, que le fond de
+> plan vectoriel de l'IGN ne dessine pas à toutes les échelles. Conséquence
+> pratique relevée le 30/10/2026 : une position mesurée à 120 m d'une « côte »
+> peut sembler flotter au large sur le fond IGN. Vérification au nord de Bréhat,
+> point `-3.0284, 48.8377` : **7 objets Shom dans un rayon de 300 m**, le plus
+> proche à **121 m**, aucun visible sur le fond de plan. Ne pas conclure à une
+> erreur de placement sans avoir interrogé le WFS sur l'emprise.
+
+**Second usage, hors clic : le tirage des AOT simulées (29–30/10/2026).** La même
+couche sert à poser les positions fictives de `data/aot-existantes.geojson` à une
+distance contrôlée du rivage — c'est la seule source du projet qui permette de
+dire « à moins de 200 m de la côte » sans l'estimer à l'œil. Méthode et chiffres
+en §10. Mesures de service relevées pendant cette campagne, depuis l'origine de
+déploiement : `outputFormat=application/json`, `srsName=EPSG:4326`, emprise
+`bbox=lat_min,lon_min,lat_max,lon_max,urn:ogc:def:crs:EPSG::4326` (**latitude
+d'abord**), **113 ms** pour 50 objets, **819 objets** au maximum sur une emprise
+de 0,14° × 0,18° autour de l'archipel de Bréhat, `count=5000` accepté,
+`resultType=hits` disponible et fiable pour dimensionner avant de charger. Les
+géométries reviennent en `MultiPolygon`, coordonnées **lon, lat**, malgré
+l'emprise en lat, lon — l'asymétrie est normale et propre à WFS 2.0.
 
 > ⚠️ **Mais zéro objet ne suffit pas à conclure « mer ».** La couche ne couvre
 > que les **départements littoraux** — entièrement, mais seulement eux. Mesuré
@@ -1077,7 +1110,7 @@ nature d'information, ce que l'administration autorise.
 | `data/ram-ports.json` | marnage de 214 ports | Shom, voir §11 |
 | `data/ddtm-messages.json` | messages par DDTM (22 et 83 renseignés) | saisie projet, **provisoire** |
 | `data/ports-plaisance.geojson` | ports de plaisance | **places et contacts fictifs** |
-| `data/aot-existantes.geojson` | **249 positions fictives** sur 6 sites | simulation |
+| `data/aot-existantes.geojson` | **248 positions fictives** sur 8 sites, DDTM 22/29/56/83 | simulation, tirage du 29/10/2026 sur le trait terre-mer |
 | `data/bateaux-exemple.json` | positions de navires (`GRIST.url`) | exemple — **ne jamais mettre de clé d'accès dans `GRIST.url`** |
 | `data/zmel-reel.geojson` | copie de référence de la conversion ZMEL | traçabilité, **non utilisée par la carte** |
 | `data/donnees_carte_amidomar.xlsx` | tableau de suivi des couches | tenu à jour avec la doc |
@@ -1089,6 +1122,7 @@ nature d'information, ce que l'administration autorise.
 | `zmel.geojson` | `nom_zmel` (`nom`), `lieu_dit_s`, `commune` (`nom_commune`), `nb_postes_` (`nb_postes`) — **nombre total agrégé, en texte** |
 | `ports-plaisance.geojson` | `nom_port_de_plaisance` (`nom`), `nom_commune` (`commune`), `places_disponibles`, `contact` |
 | `ddtm-messages.json` | `ddtm`, `nom_departement`, `message_titre`, `message_consequence`, `message_detail`, `liste`, `lien`, `libelle_lien`, `brouillon`, + les quatre variantes `*_zone` |
+| `aot-existantes.geojson` | `longueur_navire` — **seul champ lu par la carte** ; `ref`, `site`, `departement`, `distance_cote_m` et `zone_autorisee` sont de la traçabilité de tirage, pas des données de service |
 
 > **`ddtm-messages.json` est du texte brut, jamais du HTML.** Il est échappé à
 > l'affichage et les liens sont filtrés sur `^https://` — quatre tests
@@ -1105,6 +1139,40 @@ Antibes, baie de L'Île-Rousse), qui permettent à la carte de fonctionner si
 > **`data/aot-existantes.geojson` est simulé** — il figure la pression sur le
 > plan d'eau, pas des AOT réelles. À ne jamais présenter comme de la donnée.
 > Natura 2000 n'y est pas exclu : une AOT peut y être autorisée.
+
+**Comment les 248 positions ont été tirées (29–30 octobre 2026).** À refaire à
+l'identique si le jeu doit être régénéré ; le détail est ici et non dans une note
+datée.
+
+1. **Emprise par site**, huit au total, 62 positions par département : Paimpol–
+   Bréhat et Erquy–Saint-Cast (22), rade de Brest et baie de Douarnenez (29),
+   baie de Quiberon et golfe du Morbihan (56), golfe de Saint-Tropez et rade
+   d'Hyères (83).
+2. **Chargement du trait terre-mer** (§5) sur l'emprise élargie de 0,02° en
+   latitude et 0,03° en longitude, pour que les distances restent justes au bord.
+3. **Marche le long du rivage** : les anneaux sont rééchantillonnés tous les 60 m,
+   chaque sommet donne une normale, et un candidat est posé à une distance tirée
+   dans la bande **100–200 m**, d'un côté puis de l'autre.
+4. **Trois filtres**, dans cet ordre : candidat **dans l'emprise du site** (piège 9
+   du §2), **hors** de tout polygone terrestre, et distance au segment le plus
+   proche **recalculée** et vérifiée dans la bande. Espacement minimal de **130 m**
+   entre deux mouillages retenus.
+5. **Var** : les 50 positions du golfe de Saint-Tropez ne sont pas tirées le long
+   du rivage mais **par rejet à l'intérieur des 5 polygones** de
+   `zones-aot.geojson`, au prorata des capacités déclarées (9 / 8 / 8 / 12 / 13
+   pour 30 / 25 / 25 / 40 / 40 unités), avec la même contrainte de distance et un
+   espacement de 40 m. Mesure préalable : les 5 zones sont **intégralement en
+   mer**, et **61 à 82 % de leur surface** tombe dans la bande 100–200 m — la
+   contrainte n'a donc rien coûté.
+6. **Contrôle sur le fichier livré** : 248 objets, min **100 m**, max **197 m**,
+   62 par département, 50/50 positions varoises du golfe effectivement dans une
+   zone et portant le nom de *leur* zone, aucune zone au-delà de sa capacité.
+
+Le tirage est **déterministe** (générateur pseudo-aléatoire de graine fixe
+20261029) : rejouer la méthode redonne le même fichier. Le générateur a tourné
+dans la page déployée, seule origine depuis laquelle le WFS du Shom est
+joignable — ni le shell de la machine de Nicolas ni le conteneur Claude
+n'atteignent `services.data.shom.fr` (allowlist réseau, constaté le 29/10/2026).
 
 **Deux règles d'exploitation**, rappelées ici parce qu'elles concernent les
 données :

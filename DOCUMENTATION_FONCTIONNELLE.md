@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.31 (octobre 2026)  
-**Dernière mise à jour:** 26 octobre 2026  
+**Version:** 2.32 (octobre 2026)  
+**Dernière mise à jour:** 30 octobre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -36,13 +36,13 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 - 🗺️ **Fond de plan** (bas) — sélecteur de styles cartographiques, limité aux fonds **Simple** et **Aérien** (les fonds « Simple (OSM) » et « Désaturée » ainsi que les surcouches du sélecteur — Cadastre, Limites administratives, Courbes de niveau — ont été retirés de ce contrôle)
 
 ### Droite — Panneau latéral
-- **« Couches affichées »** — légende avec état des sources (déplié au démarrage)
+- **« Couches affichées »** — légende avec état des sources, **repliée au démarrage** *(v2.32)*. Le bandeau bleu porte à droite un chevron en pastille (24 px, cadre blanc sur `#003189`) : ▸ replié, ▾ déplié. Le bandeau est un bouton à part entière — `role="button"`, `tabindex="0"`, `aria-expanded` tenu à jour, réponse à Entrée et à Espace — parce qu'il est devenu le seul accès à la liste des couches. Replier la liste **ne masque aucune couche** : les couches restent chargées et affichées, et les pastilles d'état ✓/✗ continuent d'être renseignées derrière le repli
 
 Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au popup (v1.2 à v2.2) puis le bloc de droite « Calcul rayon d'évitage » (v2.3 et v2.4) ont été successivement abandonnés : depuis **v2.5**, le formulaire du rayon d'évitage est dans le bloc de proximité de la modale centrale (voir §4.0 C6 et §4.2). La colonne de droite ne contient plus que « Couches affichées ».
 
 ### Centre
 - **Carte interactive** — affichage des couches, clics pour saisir un emplacement
-- **Popup de coordonnées** (bas à gauche) — deux commandes en haut à droite depuis la **v2.27** : « Réduire ▾ » et « Effacer le point ✕ » (anciennement « Fermer »). Réduit, le popup devient une barre d'une ligne, au même endroit, portant le nombre de points à vérifier et les coordonnées ; cliquer dessus le redéploie. Voir §4.2
+- **Popup de coordonnées** (bas à gauche) — deux commandes en haut à droite depuis la **v2.27** : « Réduire ▾ » et « Effacer le point ✕ » (anciennement « Fermer »). Réduit, le popup devient une barre d'une ligne, au même endroit, portant le nombre de points à vérifier et les coordonnées ; cliquer dessus le redéploie. Depuis la **v2.32**, les deux chevrons de ce panneau sont eux aussi dessinés en pastille, comme celui du bandeau de droite : cadre gris et chiffre Bleu France sur « Réduire » (20 px), cadre et fond Bleu France sur la barre réduite (22 px). Voir §4.2
 
 ---
 
@@ -666,7 +666,7 @@ Le contrôle n'ouvre pas de déroulant champ vide (`minChars: 3`) : il n'y a don
 - 🟢 **ZMEL** — fichier local `data/zmel.geojson` *(v2.10)* : vraies données (647 ZMEL, Cerema/CACEM, France entière et Antilles, converties depuis un shapefile Lambert-93 fourni par Nicolas — copie de référence dans `data/zmel-reel.geojson`) ; capacité d'accueil réelle, contact (`mailto`) resté sans donnée (absent de la source)
 - 🟢 **Cultures marines** *(v2.18)* — cadastre conchylicole des DDTM, en WMS sur GéoIDE, quatre flux sous une seule case : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime surfacique (13 391) et linéaire (1 254, février 2023). Un clic sur une parcelle déclenche un popup d'interdiction, sur la donnée réelle de la DDTM (§4.3ter). Pas de flux ailleurs : Manche (WFS en panne côté serveur), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement). Remplace le polygone fictif de `data/cultures-marines.geojson`, supprimé
 
-- 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Couverture très partielle** : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF n°41 et n°42 de la DDTM 83 (octobre 2022) et à faire confirmer par elle. Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup
+- 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Couverture très partielle** : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF n°41 et n°42 de la DDTM 83 (octobre 2022) et à faire confirmer par elle. Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup. Depuis la **v2.32**, 50 des AOT simulées sont posées dans ces 5 zones : zoomé sur Saint-Tropez, l'usager voit donc une zone autorisée déjà occupée, ce qui est le cas de figure que le parcours doit savoir montrer
 
 ### Habitats sensibles
 - 🟣 **Herbiers de posidonie et de zostère** — couche WMS (couverture partielle : presque uniquement l'Occitanie, Palavas et Albères ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère annoncée mais absente), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
@@ -675,7 +675,7 @@ Le contrôle n'ouvre pas de déroulant champ vide (`minChars: 3`) : il n'y a don
 - ⬜ **Zone de baignade / zone réglementaire** — entrée unique, grisée et non sélectionnable, mention « À venir » : regroupe deux types de zones pour lesquelles aucune source interrogeable n'a été identifiée à ce jour. Cette entrée matérialise le sujet dans la légende sans (encore) charger de donnée. Les APB, qui y figuraient jusqu'en v1.7, ont désormais leur propre couche (voir « Protection de la nature »).
 
 ### Autres couches
-- 🔴 **AOT de mouillage existantes** (libellé depuis v2.4 ; « AOT existantes » auparavant) — 249 positions simulées, fictives (Bretagne + Méditerranée)
+- 🔴 **AOT de mouillage existantes** (libellé depuis v2.4 ; « AOT existantes » auparavant) — **248 positions simulées, fictives**, rejouées en **v2.32** sur 8 sites des DDTM **22, 29, 56 et 83**, à raison de 62 par département : Paimpol–Bréhat et Erquy–Saint-Cast (22), rade de Brest et baie de Douarnenez (29), baie de Quiberon et golfe du Morbihan (56), golfe de Saint-Tropez et rade d'Hyères (83). Chaque position est posée **entre 100 et 200 m du trait terre-mer du Shom**, distance mesurée sur le service lui-même et conservée dans la propriété `distance_cote_m` (voir `data/SOURCES.md` §10 pour la méthode). Dans le Var, **50 des 62 positions sont à l'intérieur des 5 zones de mouillage autorisées** de Saint-Tropez, réparties au prorata des capacités déclarées ; les 12 autres sont en rade d'Hyères, hors zone cartographiée. Propriétés portées : `ref`, `site`, `departement`, `longueur_navire`, `distance_cote_m`, et `zone_autorisee` pour les seules positions varoises en zone
 
 ### Couches interrogées sans être affichées
 Ces sources n'apparaissent pas dans le panneau « Couches affichées » : elles ne sont jamais dessinées, seulement interrogées au point cliqué.
@@ -1000,6 +1000,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] La couche « Arrêtés de protection de biotope (APB) » apparaît dans « Protection de la nature », **cochée par défaut** ; la décocher la masque, la recocher la réaffiche
 - [ ] *(v2.4)* Les deux couches « Natura 2000 — habitats (SIC/ZSC) » et « Natura 2000 — oiseaux (ZPS) » restent deux entrées distinctes de la légende, **toutes deux cochées par défaut**
 - [ ] *(v2.4)* La couche AOT s'intitule « AOT de mouillage existantes et leur évitage »
+- [ ] *(v2.32)* Au chargement, le panneau « Couches affichées » est **replié** : seul le bandeau bleu est visible, son chevron affiche ▸
+- [ ] *(v2.32)* Cliquer le bandeau déplie la liste, le chevron passe à ▾ ; recliquer la replie
+- [ ] *(v2.32)* Le bandeau est atteignable à la tabulation, affiche l'anneau de focus bleu, et répond à Entrée **et** à Espace
+- [ ] *(v2.32)* Panneau replié, les couches restent affichées sur la carte, et les pastilles ✓/✗ sont bien renseignées une fois la liste dépliée
+- [ ] *(v2.32)* Le chevron du bandeau bleu se voit d'un coup d'œil : pastille cadrée de 24 px, pas un simple caractère
+- [ ] *(v2.32)* Dans le popup de gauche, les chevrons de « Réduire » et de la barre réduite sont eux aussi des pastilles cadrées, lisibles sans chercher
+- [ ] *(v2.32)* Zoomé sur Saint-Tropez, des AOT simulées apparaissent **dans** les zones de mouillage autorisées
+- [ ] *(v2.32)* Zoomé sur Paimpol, Erquy, Brest, Douarnenez, Quiberon, le golfe du Morbihan et Hyères, les AOT simulées longent le rivage et ne sont plus au large
 - [ ] Les tuiles APB s'affichent sur des sites connus (statut ✓, par exemple Morbihan, Brest, Ajaccio, Camargue) ; sinon le statut ✗ signale un problème de service
 
 ### ✅ 14. État des sources (bandeau légende)
@@ -1232,7 +1240,32 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ---
 
+### Des AOT simulées semblent flotter au large, loin de toute côte *(v2.32)*
+
+Ce n'est pas une erreur de placement. Les positions sont mesurées contre le
+**trait terre-mer du Shom**, qui porte les roches, îlots et platiers découvrants
+que le fond de plan vectoriel de l'IGN ne dessine pas à toutes les échelles. Un
+mouillage à 120 m d'une roche cartographiée par le Shom paraît donc isolé sur le
+fond IGN. Vérifié le 30/10/2026 au nord de Bréhat : 7 objets Shom dans un rayon
+de 300 m autour du point `-3.0284, 48.8377`, le plus proche à 121 m, aucun visible
+sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
+300 m autour du point.
+
+---
+
 ## 11. Historique des corrections
+
+### v2.32 — 30 octobre 2026
+**Les mouillages simulés rentrent au rivage ; la colonne de droite s'efface au démarrage**
+- Demande de Nicolas : rapprocher les AOT existantes de la côte (**moins de 200 m**) sur les départements **22, 29, 56 et 83**, et, dans le Var, les poser principalement dans les zones de mouillage autorisées. Les 249 anciennes positions sont supprimées, pas complétées.
+- **248 nouvelles positions**, 62 par département, sur 8 sites (voir §5). Chacune est tirée le long du **trait terre-mer du Shom** (`LIMTM`, le même service que celui qui arbitre déjà le verdict terre/mer au clic), à une distance tirée dans la bande **100–200 m**, puis contrôlée : point hors des polygones terrestres, distance recalculée au segment le plus proche, espacement minimal de 130 m entre mouillages. Mesure finale sur le fichier livré : min 100 m, max 197 m, aucune exception.
+- **Var** : 50 positions dans les 5 zones autorisées de Saint-Tropez, au prorata des capacités déclarées (9 / 8 / 8 / 12 / 13 pour 30 / 25 / 25 / 40 / 40 unités — aucune zone saturée), 12 en rade d'Hyères. Les 5 zones sont intégralement en mer et 61 à 82 % de leur surface tombe dans la bande 100–200 m : la contrainte de distance n'a donc rien coûté au remplissage.
+- **Piège relevé** : une requête WFS par emprise renvoie aussi le grand polygone littoral du département, dont les anneaux débordent de plusieurs dizaines de kilomètres. Sans recadrage explicite des candidats sur l'emprise du site, les points partaient à 80 km de là. Consigné dans `data/SOURCES.md` §2.
+- Le jeu `SECOURS` embarqué est régénéré en conséquence : 32 positions, 4 par site, toutes présentes dans le fichier réel.
+- **Panneau « Couches affichées » replié au démarrage** (demande de Nicolas) : la colonne de droite n'occupe plus la moitié de la hauteur d'écran au premier affichage. Les couches restent chargées et affichées, c'est la liste qui est repliée.
+- **Chevrons de repli redessinés**, à droite comme à gauche : pastille cadrée de 24 px dans le bandeau bleu, de 20 et 22 px dans la barre d'actions et la barre réduite du popup de gauche. Un caractère de 11 à 13 px, gris sur blanc ou blanc sur bleu foncé, ne se lisait pas comme une commande.
+- **Conséquence d'accessibilité assumée** : le bandeau étant devenu le seul accès aux couches, il reçoit `role="button"`, `tabindex="0"`, un `aria-expanded` tenu à jour, la réponse à Entrée et Espace, et l'anneau de focus DSFR. Sans cela, replier par défaut aurait retiré la légende aux usagers au clavier (RGAA 7.3, WCAG 2.1.1).
+- Tests : harnais Node (syntaxe, exécution réelle, zéro focus à l'initialisation, `rayonEvitage`) + 18 contrôles de données + rendu Chromium headless, 0 `pageerror`. Voir TESTS_FONCTIONNELS.md §16.
 
 ### v2.31 — 26 octobre 2026
 **La virgule du champ de recherche n'est plus devinée**
@@ -1712,4 +1745,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 26 octobre 2026
+**Dernière mise à jour:** 30 octobre 2026

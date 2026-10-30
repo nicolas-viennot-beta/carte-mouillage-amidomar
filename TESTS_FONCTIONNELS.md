@@ -14,7 +14,24 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Dernière exécution : 15 oct. 2026 (v2.27) — réduction du popup, harnais Node/jsdom.**
+**Dernière exécution : 30 oct. 2026 (v2.32) — repli du panneau de couches, chevrons,
+et rejeu des AOT simulées.**
+- §16 (nouvelle section) : **18/18** sur les données, **7/7** sur l'interface.
+- §6.1 (syntaxe), §6.1bis (exécution réelle), §6.1quinquies (zéro focus) et
+  §6.3 (`rayonEvitage`) : **OK**, harnais Node reconstruit (`vm`, globaux simulés,
+  stub générique de nœud DOM par `Proxy`, `maplibregl.Map` avec `getSource`
+  renvoyant un objet porteur de `setData`).
+- Rendu complet en **Chromium headless** (Playwright, 1400 × 900), serveur local
+  statique : **0 `pageerror`**. Les erreurs de console constatées sont toutes des
+  échecs réseau sur les flux distants, bloqués depuis le conteneur de test.
+- Vérifié en navigateur réel sur la carte **publiée** (version v2.31) avec les
+  nouvelles positions injectées à la main dans une couche temporaire : les 50
+  positions varoises tombent bien **dans** le polygone de la zone 1 (La
+  Bouillabaisse), et celles de Bréhat longent le rivage.
+- Non couvert, à reprendre après déploiement : le rendu des chevrons sur la
+  version en ligne, et le repli par défaut constaté dans le navigateur de Nicolas.
+
+**Exécution précédente : 15 oct. 2026 (v2.27) — réduction du popup, harnais Node/jsdom.**
 - §12 (nouvelle section) : **22/22** — contrat d'accessibilité (ordre du DOM,
   nom accessible de la barre, `aria-expanded` sur les deux boutons), repli,
   redéploiement, accord singulier/pluriel, priorité de l'alerte de recoupement,
@@ -1356,7 +1373,12 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
    - Vérification : exécution (parse JSON) + lecture du code.
 
 1quinquies. **Aucun vol de focus à l'initialisation (embed en iframe, v2.25.1)**
-   - *Dernière exécution : 14 oct. 2026 (v2.25.1) — harnais Node.js : 0 focus
+   - *Dernière exécution : 30 oct. 2026 (v2.32) — harnais Node.js : 0 focus posé
+     pendant la phase synchrone. Point d'attention nouveau depuis le repli par
+     défaut du panneau de couches (§16) : `replier(layerPanel, false)` ne doit
+     poser aucun focus — vérifié, il ne touche qu'à `style.display`, au texte du
+     chevron et à `aria-expanded`.*
+   - *Exécution précédente : 14 oct. 2026 (v2.25.1) — harnais Node.js : 0 focus
      posé pendant la phase synchrone ; `ouvrirGuide()` rappelée à la main pose
      bien 1 focus, avec `{ preventScroll: true }`.*
    - Contexte : la carte est embarquée en iframe dans les pages de
@@ -1386,7 +1408,17 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
      `iframe.getBoundingClientRect().top + window.scrollY` signe la régression).
 
 1bis. **Exécution réelle du script (insuffisance du test de syntaxe seul)**
-   - *Dernière exécution : 14 oct. 2026 (v2.25) — harnais Node.js (`vm`, globaux
+   - *Dernière exécution : 30 oct. 2026 (v2.32) — harnais Node.js (`vm`, globaux
+     simulés) reconstruit : phase synchrone exécutée en entier, sans exception ;
+     écouteurs `move`, `error` et `click` enregistrés ; 0 appel à `focus()` à
+     l'initialisation ; `rayonEvitage(10,4)=16` et `rayonEvitage(6,10)=21`. Une
+     première passe avait levé un `TypeError` sur `map.getSource('ports-pts').setData`
+     — **lacune du stub**, pas du code : `getSource` renvoyait `undefined`. Corrigé
+     dans le harnais, l'erreur disparaît. Elle survenait après un `await`, donc
+     non bloquante au sens de ce test, mais la corriger donne une exécution plus
+     profonde. Puis chargement complet dans Chromium headless (Playwright) sans
+     `pageerror`.*
+   - *Exécution précédente : 14 oct. 2026 (v2.25) — harnais Node.js (`vm`, globaux
      simulés, stub `CarteFacile.SearchControl` et `maplibregl.LngLat`) : phase
      synchrone exécutée en entier, sans exception ; écouteurs `move`, `error` et
      `click` bien enregistrés. Les fonctions de la recherche GPS étant en liaison
@@ -2630,3 +2662,94 @@ le reste est à voir en navigateur.
    - **Limite connue et assumée** : quand des cartes incertaines existent, le bloc
      remonte d'une hauteur de carte au moment où les zonages arrivent. Dans le cas
      courant — aucune carte incertaine — il ne bouge pas.
+
+---
+
+## 16. Repli du panneau de couches, chevrons, et rejeu des AOT simulées *(v2.32)*
+
+**Exécution : 30 oct. 2026 — 18/18 sur les données, 7/7 sur l'interface.**
+
+### Interface — panneau « Couches affichées » et chevrons
+
+Méthode : rendu réel en **Chromium headless** (Playwright, 1400 × 900) sur un
+serveur statique local servant le dossier `projet/`, puis lecture du DOM et des
+styles calculés. Une vérification de code seule ne suffit pas ici : c'est la
+valeur **calculée** de `display`, et la taille **rendue** du chevron, qui portent
+la demande.
+
+1. **Le panneau s'ouvre replié.** Action : charger la page, lire
+   `getComputedStyle(document.querySelector('#layer-panel .panel-body')).display`.
+   Attendu : `none`. **Vérifié** (`none`).
+2. **Le bandeau annonce son état.** Attendu : `role="button"`, `tabindex="0"`,
+   `aria-expanded="false"` au chargement, chevron `▸`. **Vérifié** (les quatre).
+3. **La bascule au clavier fonctionne.** Action : donner le focus au bandeau,
+   envoyer un `keydown` `Enter`. Attendu : `display` passe à `block`,
+   `aria-expanded` à `true`, chevron à `▾`, et le bandeau porte bien le focus.
+   **Vérifié** (les quatre). À reprendre en navigateur réel pour la touche Espace,
+   que le harnais n'envoie pas.
+4. **Le clic bascule aussi.** Attendu : recliquer referme. **Vérifié.**
+5. **Le chevron du bandeau bleu est une cible dessinée.** Attendu : boîte
+   d'au moins 24 px de côté, bordure visible, fond distinct du bandeau.
+   **Vérifié** : 26 × 26 px rendus, bordure `1px rgba(255,255,255,0.7)`, fond
+   `rgba(255,255,255,0.16)`.
+6. **Le chevron de « Réduire » (popup de gauche) est une cible dessinée.**
+   Attendu : boîte d'au moins 20 px, texte Bleu France, bordure grise.
+   **Vérifié** : 22 × 22 px, `rgb(0,0,145)`, bordure `rgb(146,146,146)`.
+7. **Le chevron de la barre réduite est une pastille Bleu France.** Attendu :
+   texte `#000091` sur fond `#e8edff`. **Vérifié** (`rgb(0,0,145)` sur
+   `rgb(232,237,255)`).
+
+**Piège à ne pas réintroduire.** Replier le panneau par défaut sans rendre le
+bandeau atteignable au clavier retirerait la légende entière aux usagers au
+clavier : le bandeau était un `<div>` à `cursor:pointer`, sans rôle ni
+`tabindex`. Tant que le panneau s'ouvre replié, les tests 2 et 3 sont
+**bloquants**, pas cosmétiques.
+
+**Non vérifiable par ce harnais** : que le repli par défaut n'ait pas privé
+l'usager d'une information qu'il voyait avant. À regarder en usage réel — si les
+pastilles ✓/✗ d'état des sources ne sont plus jamais vues, c'est le repli qu'il
+faudra discuter, pas le chevron.
+
+### Données — `data/aot-existantes.geojson`
+
+Méthode : script Python sur le fichier livré et sur le bloc `SECOURS` extrait de
+`index.html`. Chaque test est une mesure sur le fichier, pas une relecture de la
+procédure de tirage.
+
+1. **248 objets, tous des `Point`.** **Vérifié.**
+2. **`longueur_navire` présent, entre 6 et 18 m.** **Vérifié.**
+3. **Distance au trait terre-mer dans la bande 100–200 m**, lue dans
+   `distance_cote_m`. **Vérifié** : min **100 m**, max **197 m**, aucune exception.
+4. **62 positions par département**, sur 22, 29, 56 et 83, et rien ailleurs.
+   **Vérifié.**
+5. **Références uniques** (`AOT-001` … `AOT-248`). **Vérifié.**
+6. **8 sites**, 31 par site breton, 12 en rade d'Hyères, 50 dans le golfe de
+   Saint-Tropez. **Vérifié.**
+7. **Les 50 positions du golfe sont dans une zone autorisée** de
+   `data/zones-aot.geojson` — test « point dans polygone » rejoué sur les 5 zones.
+   **Vérifié** : 50/50.
+8. **Chacune porte le nom de *sa* zone** dans `zone_autorisee`. **Vérifié** :
+   50/50. Ce test attrape un décalage d'indice au tirage, qu'une simple
+   appartenance ne verrait pas.
+9. **Aucune zone au-delà de sa capacité déclarée.** **Vérifié** : 9/30, 8/25,
+   8/25, 12/40, 13/40.
+10. **Le jeu `SECOURS` compte 32 positions, 4 par site.** **Vérifié.**
+11. **Toutes les positions de secours existent dans le fichier réel.**
+    **Vérifié** — c'est ce test qui empêche le secours de dériver en silence.
+12. **Aucune position du jeu v2.31 ne subsiste** (sonde : `-3.12991, 47.44856`).
+    **Vérifié.**
+13. **Les schémas des autres fichiers sont inchangés** (`nom_port_de_plaisance`,
+    `nom_commune`, `nom_zmel`) — §6.1quater rejoué. **Vérifié.**
+
+**À refaire si le jeu est régénéré** : les tests 3, 7, 8 et 9 sont ceux qui
+portent la demande de Nicolas (moins de 200 m, et le Var dans les zones). Les
+retirer reviendrait à ne plus rien vérifier du tirage.
+
+**Vérifié en navigateur réel, le 30 oct. 2026**, sur la carte publiée (v2.31)
+avec les nouvelles positions injectées dans une couche temporaire : les positions
+de la zone 1 (La Bouillabaisse) tombent **dans** le polygone orange et dans l'eau,
+celles de Bréhat longent le rivage. Deux d'entre elles semblent flotter au large
+sur le fond IGN : interrogation du WFS `LIMTM` sur une emprise de 300 m autour de
+`-3.0284, 48.8377` → **7 objets Shom, le plus proche à 121 m**. Ce sont des roches
+que le fond de plan ne dessine pas. **Ce n'est pas un défaut de placement** —
+consigné dans `DOCUMENTATION_FONCTIONNELLE.md` §10 et `data/SOURCES.md` §5.
