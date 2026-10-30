@@ -21,6 +21,11 @@ et rejeu des AOT simulées.**
   §6.3 (`rayonEvitage`) : **OK**, harnais Node reconstruit (`vm`, globaux simulés,
   stub générique de nœud DOM par `Proxy`, `maplibregl.Map` avec `getSource`
   renvoyant un objet porteur de `setData`).
+- **§10 (recherche par coordonnées GPS) rejoué en entier** : **59/59** en Node
+  (tests 1, 1bis, 2, 2bis, 3, 4, 4bis) et **22/22** en Chromium headless
+  (tests 5 à 9bis). Aucun défaut du code. Ce rejeu avait été **omis** dans la
+  première passe du 30 oct., où seuls le §6 et les contrôles de données avaient
+  été exécutés — omission signalée par Nicolas le jour même.
 - Rendu complet en **Chromium headless** (Playwright, 1400 × 900), serveur local
   statique : **0 `pageerror`**. Les erreurs de console constatées sont toutes des
   échecs réseau sur les flux distants, bloqués depuis le conteneur de test.
@@ -1893,6 +1898,16 @@ harnais Node.js ; les tests 5 à 9 en Chromium headless sur le serveur local.
 Harnais : `executer.mjs` et `test_recherche_gps.mjs` (hors dépôt, dossier de
 travail de Claude).*
 
+**Dernière exécution : 30 oct. 2026 (v2.32) — 59/59 en Node, 22/22 en Chromium
+headless, 0 `pageerror`.** Rejeu complet après la modification du jeu d'AOT et le
+repli du panneau de couches, pour vérifier qu'aucune des deux n'avait touché la
+recherche. Relevés notables : `placeholder` à **exactement 32 caractères** (la
+borne du test 4, pas une marge), `description` de la virgule ambiguë à
+**exactement 40 caractères** (idem, test 4 et 9bis), et `43 16` bien accepté
+comme couple alors que `43.16` reste une saisie incomplète — les deux lectures
+proposées par `lecturesAmbigues` ne sont donc pas symétriques, et c'est voulu :
+l'une est un point, l'autre renvoie à l'aide au format.
+
 **Note sur le harnais Node.js :** `parserCoordonnees`, `GpsGeocoder` et leurs
 voisines sont déclarées en `const` au niveau racine du script, donc en liaison
 lexicale et **non** sur l'objet global. Elles sont inaccessibles depuis le
@@ -1910,6 +1925,23 @@ pointer sur le sandbox ne les a pas) ; et `parentElement` / `parentNode`
 doivent rendre un parent inerte créé paresseusement. Une exception **après**
 la phase synchrone imputable au stub (`parentElement` d'un nœud non monté,
 par exemple) n'est pas bloquante : la relever sans arrêter le harnais.
+
+**Trois pièges du harnais Chromium**, tous rencontrés le 30/10/2026, et tous
+capables de faire échouer — ou pire, **réussir** — un test pour une raison qui
+n'est pas le code :
+
+1. **Lire le déroulant dès qu'il est non vide renvoie la réponse PRÉCÉDENTE.**
+   Vider le champ ne vide pas la liste : les entrées de la requête d'avant restent
+   affichées pendant le debounce. Un harnais qui attend « au moins une entrée »
+   lit donc systématiquement un cran en retard — ce qui a fait passer au vert
+   l'entrée d'inversion pour une saisie DM, et échouer 9bis sur l'entrée de 9.
+   **Attendre que le contenu du déroulant CHANGE**, pas qu'il existe.
+2. **« Le même point » n'est pas « la même chaîne ».** `43°16.063'N 6°37.357'E`
+   affiche `Point GPS — 43.267717, 6.622617` : la conversion DM donne 0,8 m
+   d'écart avec la saisie décimale équivalente. Le test 7 compare des
+   **positions**, à ~2 m près, jamais des libellés.
+3. **La marche à suivre intercepte les clics.** `#guide-fermer` doit être
+   déclenché avant toute interaction, sinon chaque `click` part dans la modale.
 
 1. **Parseur — les formats attendus**
    - Action : appeler `parserCoordonnees` sur chaque saisie et comparer à la
@@ -2668,6 +2700,11 @@ le reste est à voir en navigateur.
 ## 16. Repli du panneau de couches, chevrons, et rejeu des AOT simulées *(v2.32)*
 
 **Exécution : 30 oct. 2026 — 18/18 sur les données, 7/7 sur l'interface.**
+Le §10 (recherche par coordonnées GPS) a été rejoué dans la foulée, 59/59 en Node
+et 22/22 en Chromium : ni le nouveau jeu d'AOT ni le repli du panneau ne
+l'affectent. **Rappel de méthode** : un changement de données ou de disposition
+n'exempte pas du rejeu des sections antérieures — l'omettre, c'est proposer un
+déploiement sur la foi des seuls tests du jour.
 
 ### Interface — panneau « Couches affichées » et chevrons
 

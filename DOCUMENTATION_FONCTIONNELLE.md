@@ -1265,7 +1265,7 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 - **Panneau « Couches affichées » replié au démarrage** (demande de Nicolas) : la colonne de droite n'occupe plus la moitié de la hauteur d'écran au premier affichage. Les couches restent chargées et affichées, c'est la liste qui est repliée.
 - **Chevrons de repli redessinés**, à droite comme à gauche : pastille cadrée de 24 px dans le bandeau bleu, de 20 et 22 px dans la barre d'actions et la barre réduite du popup de gauche. Un caractère de 11 à 13 px, gris sur blanc ou blanc sur bleu foncé, ne se lisait pas comme une commande.
 - **Conséquence d'accessibilité assumée** : le bandeau étant devenu le seul accès aux couches, il reçoit `role="button"`, `tabindex="0"`, un `aria-expanded` tenu à jour, la réponse à Entrée et Espace, et l'anneau de focus DSFR. Sans cela, replier par défaut aurait retiré la légende aux usagers au clavier (RGAA 7.3, WCAG 2.1.1).
-- Tests : harnais Node (syntaxe, exécution réelle, zéro focus à l'initialisation, `rayonEvitage`) + 18 contrôles de données + rendu Chromium headless, 0 `pageerror`. Voir TESTS_FONCTIONNELS.md §16.
+- Tests : harnais Node (syntaxe, exécution réelle, zéro focus à l'initialisation, `rayonEvitage`) + 18 contrôles de données + rendu Chromium headless, 0 `pageerror` (TESTS_FONCTIONNELS.md §16), **et rejeu complet du §10** — recherche par coordonnées GPS, 59/59 en Node et 22/22 en Chromium : ni le nouveau jeu d'AOT ni le repli du panneau ne touchent au champ de recherche.
 
 ### v2.31 — 26 octobre 2026
 **La virgule du champ de recherche n'est plus devinée**
