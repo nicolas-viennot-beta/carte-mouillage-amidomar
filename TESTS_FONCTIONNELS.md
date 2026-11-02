@@ -35,10 +35,17 @@ locale, zones réservées aux professionnels, 24 zones de plus dans le Var.**
   été inséré *dans* `#report-block`, donc masqué avec lui. Les tests Node le
   voyaient dans le DOM ; seul le rendu Chromium (hauteur rendue **0**) l'a
   révélé. D'où le test 17.5.3 : la hauteur rendue du paragraphe doit être > 0.
-- Non couvert, à reprendre en réel sur la version publiée : le rattachement
-  départemental réel (Shom) suivi du masquage dans les Côtes-d'Armor, et le
-  rendu gris d'une zone `professionnels` (aucune dans les données à ce jour —
-  vérifié uniquement par mutation du GeoJSON dans le harnais).
+- **Vérifié en réel sur la version publiée (2 nov. 2026, 18 h, navigateur
+  intégré de l'app Claude, rattachement Shom réel, 0 erreur console)** : baie
+  de Saint-Brieuc (48.58, −2.72) → « Côtes-d'Armor (22) », carte orange,
+  bloc « À reporter » masqué, paragraphe du 22 affiché, barre réduite sans
+  coordonnées ; même point en `?vue=existant` → coordonnées affichées ; Var
+  hors zone (43.20, 6.70) → coordonnées affichées (brouillon), 28 zones
+  listées ; Var dans la zone 1 (43.2678, 6.6228) → carte verte, 27 zones
+  listées, coordonnées affichées.
+- Non couvert : le rendu gris d'une zone `professionnels` (aucune dans les
+  données à ce jour — vérifié uniquement par mutation du GeoJSON dans le
+  harnais).
 
 **Exécution précédente : 30 oct. 2026 (v2.32) — repli du panneau de couches, chevrons,
 et rejeu des AOT simulées.**
