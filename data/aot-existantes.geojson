@@ -1,254 +1,4285 @@
 {
-  "type": "FeatureCollection",
-  "name": "aot-existantes",
-  "features": [
-    {"type":"Feature","properties":{"ref":"AOT-001","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":14,"distance_cote_m":122},"geometry":{"type":"Point","coordinates":[-3.02439,48.77503]}},
-    {"type":"Feature","properties":{"ref":"AOT-002","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":12,"distance_cote_m":135},"geometry":{"type":"Point","coordinates":[-2.99369,48.7661]}},
-    {"type":"Feature","properties":{"ref":"AOT-003","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":150},"geometry":{"type":"Point","coordinates":[-3.00723,48.8056]}},
-    {"type":"Feature","properties":{"ref":"AOT-004","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":17,"distance_cote_m":154},"geometry":{"type":"Point","coordinates":[-2.99167,48.83664]}},
-    {"type":"Feature","properties":{"ref":"AOT-005","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":10,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[-3.02844,48.8377]}},
-    {"type":"Feature","properties":{"ref":"AOT-006","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":12,"distance_cote_m":145},"geometry":{"type":"Point","coordinates":[-3.08257,48.86673]}},
-    {"type":"Feature","properties":{"ref":"AOT-007","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":10,"distance_cote_m":179},"geometry":{"type":"Point","coordinates":[-3.07795,48.87534]}},
-    {"type":"Feature","properties":{"ref":"AOT-008","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":8,"distance_cote_m":175},"geometry":{"type":"Point","coordinates":[-2.95794,48.76684]}},
-    {"type":"Feature","properties":{"ref":"AOT-009","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":18,"distance_cote_m":112},"geometry":{"type":"Point","coordinates":[-3.01079,48.81563]}},
-    {"type":"Feature","properties":{"ref":"AOT-010","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":12,"distance_cote_m":163},"geometry":{"type":"Point","coordinates":[-3.07585,48.84795]}},
-    {"type":"Feature","properties":{"ref":"AOT-011","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":11,"distance_cote_m":191},"geometry":{"type":"Point","coordinates":[-3.08802,48.8701]}},
-    {"type":"Feature","properties":{"ref":"AOT-012","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":7,"distance_cote_m":148},"geometry":{"type":"Point","coordinates":[-3.00947,48.79868]}},
-    {"type":"Feature","properties":{"ref":"AOT-013","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":151},"geometry":{"type":"Point","coordinates":[-3.0963,48.80161]}},
-    {"type":"Feature","properties":{"ref":"AOT-014","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":135},"geometry":{"type":"Point","coordinates":[-2.97288,48.79678]}},
-    {"type":"Feature","properties":{"ref":"AOT-015","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":8,"distance_cote_m":102},"geometry":{"type":"Point","coordinates":[-3.02543,48.86608]}},
-    {"type":"Feature","properties":{"ref":"AOT-016","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":11,"distance_cote_m":135},"geometry":{"type":"Point","coordinates":[-3.02764,48.78996]}},
-    {"type":"Feature","properties":{"ref":"AOT-017","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":18,"distance_cote_m":132},"geometry":{"type":"Point","coordinates":[-3.08616,48.81293]}},
-    {"type":"Feature","properties":{"ref":"AOT-018","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":152},"geometry":{"type":"Point","coordinates":[-3.08339,48.81912]}},
-    {"type":"Feature","properties":{"ref":"AOT-019","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":13,"distance_cote_m":139},"geometry":{"type":"Point","coordinates":[-3.01234,48.81348]}},
-    {"type":"Feature","properties":{"ref":"AOT-020","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":8,"distance_cote_m":111},"geometry":{"type":"Point","coordinates":[-3.06846,48.83402]}},
-    {"type":"Feature","properties":{"ref":"AOT-021","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":121},"geometry":{"type":"Point","coordinates":[-3.08074,48.87757]}},
-    {"type":"Feature","properties":{"ref":"AOT-022","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":10,"distance_cote_m":128},"geometry":{"type":"Point","coordinates":[-3.02859,48.82196]}},
-    {"type":"Feature","properties":{"ref":"AOT-023","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":15,"distance_cote_m":116},"geometry":{"type":"Point","coordinates":[-2.96704,48.76347]}},
-    {"type":"Feature","properties":{"ref":"AOT-024","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":8,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-3.10331,48.78204]}},
-    {"type":"Feature","properties":{"ref":"AOT-025","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":147},"geometry":{"type":"Point","coordinates":[-3.09439,48.87082]}},
-    {"type":"Feature","properties":{"ref":"AOT-026","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":7,"distance_cote_m":120},"geometry":{"type":"Point","coordinates":[-3.03463,48.78889]}},
-    {"type":"Feature","properties":{"ref":"AOT-027","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":10,"distance_cote_m":121},"geometry":{"type":"Point","coordinates":[-3.02462,48.77828]}},
-    {"type":"Feature","properties":{"ref":"AOT-028","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":17,"distance_cote_m":160},"geometry":{"type":"Point","coordinates":[-3.0142,48.79066]}},
-    {"type":"Feature","properties":{"ref":"AOT-029","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":121},"geometry":{"type":"Point","coordinates":[-3.07265,48.83448]}},
-    {"type":"Feature","properties":{"ref":"AOT-030","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":9,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-3.10598,48.77875]}},
-    {"type":"Feature","properties":{"ref":"AOT-031","site":"Paimpol — île de Bréhat","departement":"22","longueur_navire":12,"distance_cote_m":145},"geometry":{"type":"Point","coordinates":[-3.03004,48.83634]}},
-    {"type":"Feature","properties":{"ref":"AOT-032","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":11,"distance_cote_m":139},"geometry":{"type":"Point","coordinates":[-2.31833,48.61452]}},
-    {"type":"Feature","properties":{"ref":"AOT-033","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":9,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-2.2485,48.64703]}},
-    {"type":"Feature","properties":{"ref":"AOT-034","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":9,"distance_cote_m":142},"geometry":{"type":"Point","coordinates":[-2.47496,48.64639]}},
-    {"type":"Feature","properties":{"ref":"AOT-035","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":13,"distance_cote_m":150},"geometry":{"type":"Point","coordinates":[-2.46888,48.63363]}},
-    {"type":"Feature","properties":{"ref":"AOT-036","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":13,"distance_cote_m":175},"geometry":{"type":"Point","coordinates":[-2.25187,48.64656]}},
-    {"type":"Feature","properties":{"ref":"AOT-037","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":146},"geometry":{"type":"Point","coordinates":[-2.35769,48.65992]}},
-    {"type":"Feature","properties":{"ref":"AOT-038","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":122},"geometry":{"type":"Point","coordinates":[-2.54732,48.59927]}},
-    {"type":"Feature","properties":{"ref":"AOT-039","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":142},"geometry":{"type":"Point","coordinates":[-2.50161,48.60765]}},
-    {"type":"Feature","properties":{"ref":"AOT-040","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":10,"distance_cote_m":147},"geometry":{"type":"Point","coordinates":[-2.30589,48.6449]}},
-    {"type":"Feature","properties":{"ref":"AOT-041","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":154},"geometry":{"type":"Point","coordinates":[-2.46928,48.63209]}},
-    {"type":"Feature","properties":{"ref":"AOT-042","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":9,"distance_cote_m":100},"geometry":{"type":"Point","coordinates":[-2.33332,48.67173]}},
-    {"type":"Feature","properties":{"ref":"AOT-043","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":17,"distance_cote_m":185},"geometry":{"type":"Point","coordinates":[-2.43877,48.65431]}},
-    {"type":"Feature","properties":{"ref":"AOT-044","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":12,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-2.31278,48.67464]}},
-    {"type":"Feature","properties":{"ref":"AOT-045","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":10,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[-2.3317,48.67278]}},
-    {"type":"Feature","properties":{"ref":"AOT-046","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":11,"distance_cote_m":156},"geometry":{"type":"Point","coordinates":[-2.48909,48.64677]}},
-    {"type":"Feature","properties":{"ref":"AOT-047","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":151},"geometry":{"type":"Point","coordinates":[-2.31062,48.67726]}},
-    {"type":"Feature","properties":{"ref":"AOT-048","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":8,"distance_cote_m":148},"geometry":{"type":"Point","coordinates":[-2.30972,48.63443]}},
-    {"type":"Feature","properties":{"ref":"AOT-049","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":14,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[-2.41847,48.6429]}},
-    {"type":"Feature","properties":{"ref":"AOT-050","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":11,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-2.3153,48.61122]}},
-    {"type":"Feature","properties":{"ref":"AOT-051","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":16,"distance_cote_m":116},"geometry":{"type":"Point","coordinates":[-2.34297,48.66893]}},
-    {"type":"Feature","properties":{"ref":"AOT-052","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":12,"distance_cote_m":119},"geometry":{"type":"Point","coordinates":[-2.59769,48.56019]}},
-    {"type":"Feature","properties":{"ref":"AOT-053","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":16,"distance_cote_m":140},"geometry":{"type":"Point","coordinates":[-2.41397,48.64262]}},
-    {"type":"Feature","properties":{"ref":"AOT-054","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":12,"distance_cote_m":131},"geometry":{"type":"Point","coordinates":[-2.29642,48.65068]}},
-    {"type":"Feature","properties":{"ref":"AOT-055","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":11,"distance_cote_m":110},"geometry":{"type":"Point","coordinates":[-2.35046,48.66382]}},
-    {"type":"Feature","properties":{"ref":"AOT-056","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":11,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-2.46919,48.63507]}},
-    {"type":"Feature","properties":{"ref":"AOT-057","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":6,"distance_cote_m":183},"geometry":{"type":"Point","coordinates":[-2.25667,48.64589]}},
-    {"type":"Feature","properties":{"ref":"AOT-058","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":12,"distance_cote_m":104},"geometry":{"type":"Point","coordinates":[-2.60273,48.55478]}},
-    {"type":"Feature","properties":{"ref":"AOT-059","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":16,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-2.46967,48.65016]}},
-    {"type":"Feature","properties":{"ref":"AOT-060","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":7,"distance_cote_m":152},"geometry":{"type":"Point","coordinates":[-2.58456,48.57058]}},
-    {"type":"Feature","properties":{"ref":"AOT-061","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":13,"distance_cote_m":161},"geometry":{"type":"Point","coordinates":[-2.58346,48.57195]}},
-    {"type":"Feature","properties":{"ref":"AOT-062","site":"Erquy — Saint-Cast (baie de Saint-Brieuc)","departement":"22","longueur_navire":16,"distance_cote_m":180},"geometry":{"type":"Point","coordinates":[-2.52753,48.60009]}},
-    {"type":"Feature","properties":{"ref":"AOT-063","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":122},"geometry":{"type":"Point","coordinates":[-4.43839,48.35582]}},
-    {"type":"Feature","properties":{"ref":"AOT-064","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":101},"geometry":{"type":"Point","coordinates":[-4.38204,48.3958]}},
-    {"type":"Feature","properties":{"ref":"AOT-065","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":107},"geometry":{"type":"Point","coordinates":[-4.4961,48.37543]}},
-    {"type":"Feature","properties":{"ref":"AOT-066","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":111},"geometry":{"type":"Point","coordinates":[-4.4726,48.28783]}},
-    {"type":"Feature","properties":{"ref":"AOT-067","site":"Rade de Brest","departement":"29","longueur_navire":11,"distance_cote_m":140},"geometry":{"type":"Point","coordinates":[-4.40113,48.38433]}},
-    {"type":"Feature","properties":{"ref":"AOT-068","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":101},"geometry":{"type":"Point","coordinates":[-4.33444,48.3175]}},
-    {"type":"Feature","properties":{"ref":"AOT-069","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":109},"geometry":{"type":"Point","coordinates":[-4.31668,48.34191]}},
-    {"type":"Feature","properties":{"ref":"AOT-070","site":"Rade de Brest","departement":"29","longueur_navire":8,"distance_cote_m":150},"geometry":{"type":"Point","coordinates":[-4.32858,48.29207]}},
-    {"type":"Feature","properties":{"ref":"AOT-071","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":158},"geometry":{"type":"Point","coordinates":[-4.25232,48.26578]}},
-    {"type":"Feature","properties":{"ref":"AOT-072","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":147},"geometry":{"type":"Point","coordinates":[-4.41327,48.37568]}},
-    {"type":"Feature","properties":{"ref":"AOT-073","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":137},"geometry":{"type":"Point","coordinates":[-4.3049,48.29881]}},
-    {"type":"Feature","properties":{"ref":"AOT-074","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":170},"geometry":{"type":"Point","coordinates":[-4.40884,48.3229]}},
-    {"type":"Feature","properties":{"ref":"AOT-075","site":"Rade de Brest","departement":"29","longueur_navire":8,"distance_cote_m":127},"geometry":{"type":"Point","coordinates":[-4.43165,48.36579]}},
-    {"type":"Feature","properties":{"ref":"AOT-076","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-4.31048,48.32856]}},
-    {"type":"Feature","properties":{"ref":"AOT-077","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-4.45735,48.32555]}},
-    {"type":"Feature","properties":{"ref":"AOT-078","site":"Rade de Brest","departement":"29","longueur_navire":14,"distance_cote_m":106},"geometry":{"type":"Point","coordinates":[-4.30423,48.34975]}},
-    {"type":"Feature","properties":{"ref":"AOT-079","site":"Rade de Brest","departement":"29","longueur_navire":7,"distance_cote_m":152},"geometry":{"type":"Point","coordinates":[-4.29017,48.31109]}},
-    {"type":"Feature","properties":{"ref":"AOT-080","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":135},"geometry":{"type":"Point","coordinates":[-4.27961,48.27587]}},
-    {"type":"Feature","properties":{"ref":"AOT-081","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":159},"geometry":{"type":"Point","coordinates":[-4.24101,48.29009]}},
-    {"type":"Feature","properties":{"ref":"AOT-082","site":"Rade de Brest","departement":"29","longueur_navire":9,"distance_cote_m":191},"geometry":{"type":"Point","coordinates":[-4.4083,48.27736]}},
-    {"type":"Feature","properties":{"ref":"AOT-083","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":137},"geometry":{"type":"Point","coordinates":[-4.45172,48.32279]}},
-    {"type":"Feature","properties":{"ref":"AOT-084","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":151},"geometry":{"type":"Point","coordinates":[-4.38601,48.3913]}},
-    {"type":"Feature","properties":{"ref":"AOT-085","site":"Rade de Brest","departement":"29","longueur_navire":11,"distance_cote_m":107},"geometry":{"type":"Point","coordinates":[-4.45188,48.29427]}},
-    {"type":"Feature","properties":{"ref":"AOT-086","site":"Rade de Brest","departement":"29","longueur_navire":15,"distance_cote_m":112},"geometry":{"type":"Point","coordinates":[-4.41438,48.39207]}},
-    {"type":"Feature","properties":{"ref":"AOT-087","site":"Rade de Brest","departement":"29","longueur_navire":11,"distance_cote_m":172},"geometry":{"type":"Point","coordinates":[-4.28531,48.34508]}},
-    {"type":"Feature","properties":{"ref":"AOT-088","site":"Rade de Brest","departement":"29","longueur_navire":9,"distance_cote_m":135},"geometry":{"type":"Point","coordinates":[-4.26286,48.32203]}},
-    {"type":"Feature","properties":{"ref":"AOT-089","site":"Rade de Brest","departement":"29","longueur_navire":17,"distance_cote_m":174},"geometry":{"type":"Point","coordinates":[-4.36937,48.32778]}},
-    {"type":"Feature","properties":{"ref":"AOT-090","site":"Rade de Brest","departement":"29","longueur_navire":12,"distance_cote_m":115},"geometry":{"type":"Point","coordinates":[-4.50042,48.30413]}},
-    {"type":"Feature","properties":{"ref":"AOT-091","site":"Rade de Brest","departement":"29","longueur_navire":13,"distance_cote_m":131},"geometry":{"type":"Point","coordinates":[-4.3572,48.34568]}},
-    {"type":"Feature","properties":{"ref":"AOT-092","site":"Rade de Brest","departement":"29","longueur_navire":10,"distance_cote_m":128},"geometry":{"type":"Point","coordinates":[-4.44053,48.34281]}},
-    {"type":"Feature","properties":{"ref":"AOT-093","site":"Rade de Brest","departement":"29","longueur_navire":8,"distance_cote_m":170},"geometry":{"type":"Point","coordinates":[-4.25224,48.28511]}},
-    {"type":"Feature","properties":{"ref":"AOT-094","site":"Baie de Douarnenez","departement":"29","longueur_navire":6,"distance_cote_m":119},"geometry":{"type":"Point","coordinates":[-4.29934,48.18634]}},
-    {"type":"Feature","properties":{"ref":"AOT-095","site":"Baie de Douarnenez","departement":"29","longueur_navire":18,"distance_cote_m":103},"geometry":{"type":"Point","coordinates":[-4.45492,48.09829]}},
-    {"type":"Feature","properties":{"ref":"AOT-096","site":"Baie de Douarnenez","departement":"29","longueur_navire":11,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-4.2798,48.1308]}},
-    {"type":"Feature","properties":{"ref":"AOT-097","site":"Baie de Douarnenez","departement":"29","longueur_navire":9,"distance_cote_m":107},"geometry":{"type":"Point","coordinates":[-4.29962,48.09556]}},
-    {"type":"Feature","properties":{"ref":"AOT-098","site":"Baie de Douarnenez","departement":"29","longueur_navire":16,"distance_cote_m":157},"geometry":{"type":"Point","coordinates":[-4.35514,48.10571]}},
-    {"type":"Feature","properties":{"ref":"AOT-099","site":"Baie de Douarnenez","departement":"29","longueur_navire":12,"distance_cote_m":137},"geometry":{"type":"Point","coordinates":[-4.37684,48.1108]}},
-    {"type":"Feature","properties":{"ref":"AOT-100","site":"Baie de Douarnenez","departement":"29","longueur_navire":9,"distance_cote_m":174},"geometry":{"type":"Point","coordinates":[-4.326,48.10171]}},
-    {"type":"Feature","properties":{"ref":"AOT-101","site":"Baie de Douarnenez","departement":"29","longueur_navire":10,"distance_cote_m":133},"geometry":{"type":"Point","coordinates":[-4.29053,48.15735]}},
-    {"type":"Feature","properties":{"ref":"AOT-102","site":"Baie de Douarnenez","departement":"29","longueur_navire":10,"distance_cote_m":133},"geometry":{"type":"Point","coordinates":[-4.28358,48.1147]}},
-    {"type":"Feature","properties":{"ref":"AOT-103","site":"Baie de Douarnenez","departement":"29","longueur_navire":8,"distance_cote_m":167},"geometry":{"type":"Point","coordinates":[-4.27756,48.13534]}},
-    {"type":"Feature","properties":{"ref":"AOT-104","site":"Baie de Douarnenez","departement":"29","longueur_navire":9,"distance_cote_m":139},"geometry":{"type":"Point","coordinates":[-4.29675,48.1625]}},
-    {"type":"Feature","properties":{"ref":"AOT-105","site":"Baie de Douarnenez","departement":"29","longueur_navire":13,"distance_cote_m":177},"geometry":{"type":"Point","coordinates":[-4.35559,48.10779]}},
-    {"type":"Feature","properties":{"ref":"AOT-106","site":"Baie de Douarnenez","departement":"29","longueur_navire":12,"distance_cote_m":110},"geometry":{"type":"Point","coordinates":[-4.35695,48.10625]}},
-    {"type":"Feature","properties":{"ref":"AOT-107","site":"Baie de Douarnenez","departement":"29","longueur_navire":9,"distance_cote_m":141},"geometry":{"type":"Point","coordinates":[-4.34221,48.10246]}},
-    {"type":"Feature","properties":{"ref":"AOT-108","site":"Baie de Douarnenez","departement":"29","longueur_navire":13,"distance_cote_m":147},"geometry":{"type":"Point","coordinates":[-4.29118,48.10216]}},
-    {"type":"Feature","properties":{"ref":"AOT-109","site":"Baie de Douarnenez","departement":"29","longueur_navire":11,"distance_cote_m":119},"geometry":{"type":"Point","coordinates":[-4.30034,48.1877]}},
-    {"type":"Feature","properties":{"ref":"AOT-110","site":"Baie de Douarnenez","departement":"29","longueur_navire":14,"distance_cote_m":143},"geometry":{"type":"Point","coordinates":[-4.41298,48.10842]}},
-    {"type":"Feature","properties":{"ref":"AOT-111","site":"Baie de Douarnenez","departement":"29","longueur_navire":8,"distance_cote_m":137},"geometry":{"type":"Point","coordinates":[-4.35152,48.10346]}},
-    {"type":"Feature","properties":{"ref":"AOT-112","site":"Baie de Douarnenez","departement":"29","longueur_navire":9,"distance_cote_m":170},"geometry":{"type":"Point","coordinates":[-4.28579,48.1105]}},
-    {"type":"Feature","properties":{"ref":"AOT-113","site":"Baie de Douarnenez","departement":"29","longueur_navire":12,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-4.37297,48.11118]}},
-    {"type":"Feature","properties":{"ref":"AOT-114","site":"Baie de Douarnenez","departement":"29","longueur_navire":10,"distance_cote_m":118},"geometry":{"type":"Point","coordinates":[-4.33675,48.10432]}},
-    {"type":"Feature","properties":{"ref":"AOT-115","site":"Baie de Douarnenez","departement":"29","longueur_navire":7,"distance_cote_m":121},"geometry":{"type":"Point","coordinates":[-4.35961,48.10804]}},
-    {"type":"Feature","properties":{"ref":"AOT-116","site":"Baie de Douarnenez","departement":"29","longueur_navire":15,"distance_cote_m":134},"geometry":{"type":"Point","coordinates":[-4.30023,48.09304]}},
-    {"type":"Feature","properties":{"ref":"AOT-117","site":"Baie de Douarnenez","departement":"29","longueur_navire":11,"distance_cote_m":163},"geometry":{"type":"Point","coordinates":[-4.29399,48.17427]}},
-    {"type":"Feature","properties":{"ref":"AOT-118","site":"Baie de Douarnenez","departement":"29","longueur_navire":10,"distance_cote_m":143},"geometry":{"type":"Point","coordinates":[-4.45267,48.09944]}},
-    {"type":"Feature","properties":{"ref":"AOT-119","site":"Baie de Douarnenez","departement":"29","longueur_navire":18,"distance_cote_m":141},"geometry":{"type":"Point","coordinates":[-4.42612,48.10138]}},
-    {"type":"Feature","properties":{"ref":"AOT-120","site":"Baie de Douarnenez","departement":"29","longueur_navire":7,"distance_cote_m":127},"geometry":{"type":"Point","coordinates":[-4.33231,48.09875]}},
-    {"type":"Feature","properties":{"ref":"AOT-121","site":"Baie de Douarnenez","departement":"29","longueur_navire":17,"distance_cote_m":157},"geometry":{"type":"Point","coordinates":[-4.37986,48.10945]}},
-    {"type":"Feature","properties":{"ref":"AOT-122","site":"Baie de Douarnenez","departement":"29","longueur_navire":8,"distance_cote_m":113},"geometry":{"type":"Point","coordinates":[-4.3293,48.10021]}},
-    {"type":"Feature","properties":{"ref":"AOT-123","site":"Baie de Douarnenez","departement":"29","longueur_navire":8,"distance_cote_m":103},"geometry":{"type":"Point","coordinates":[-4.32256,48.09852]}},
-    {"type":"Feature","properties":{"ref":"AOT-124","site":"Baie de Douarnenez","departement":"29","longueur_navire":6,"distance_cote_m":132},"geometry":{"type":"Point","coordinates":[-4.39633,48.1062]}},
-    {"type":"Feature","properties":{"ref":"AOT-125","site":"Baie de Quiberon","departement":"56","longueur_navire":9,"distance_cote_m":130},"geometry":{"type":"Point","coordinates":[-2.96148,47.55697]}},
-    {"type":"Feature","properties":{"ref":"AOT-126","site":"Baie de Quiberon","departement":"56","longueur_navire":9,"distance_cote_m":100},"geometry":{"type":"Point","coordinates":[-3.1114,47.47186]}},
-    {"type":"Feature","properties":{"ref":"AOT-127","site":"Baie de Quiberon","departement":"56","longueur_navire":16,"distance_cote_m":100},"geometry":{"type":"Point","coordinates":[-3.08863,47.4576]}},
-    {"type":"Feature","properties":{"ref":"AOT-128","site":"Baie de Quiberon","departement":"56","longueur_navire":16,"distance_cote_m":117},"geometry":{"type":"Point","coordinates":[-3.13064,47.53435]}},
-    {"type":"Feature","properties":{"ref":"AOT-129","site":"Baie de Quiberon","departement":"56","longueur_navire":7,"distance_cote_m":155},"geometry":{"type":"Point","coordinates":[-2.96939,47.55592]}},
-    {"type":"Feature","properties":{"ref":"AOT-130","site":"Baie de Quiberon","departement":"56","longueur_navire":7,"distance_cote_m":156},"geometry":{"type":"Point","coordinates":[-3.12091,47.47773]}},
-    {"type":"Feature","properties":{"ref":"AOT-131","site":"Baie de Quiberon","departement":"56","longueur_navire":10,"distance_cote_m":127},"geometry":{"type":"Point","coordinates":[-3.07786,47.46844]}},
-    {"type":"Feature","properties":{"ref":"AOT-132","site":"Baie de Quiberon","departement":"56","longueur_navire":14,"distance_cote_m":173},"geometry":{"type":"Point","coordinates":[-3.07393,47.46766]}},
-    {"type":"Feature","properties":{"ref":"AOT-133","site":"Baie de Quiberon","departement":"56","longueur_navire":11,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-3.09883,47.47093]}},
-    {"type":"Feature","properties":{"ref":"AOT-134","site":"Baie de Quiberon","departement":"56","longueur_navire":17,"distance_cote_m":131},"geometry":{"type":"Point","coordinates":[-3.10285,47.47085]}},
-    {"type":"Feature","properties":{"ref":"AOT-135","site":"Baie de Quiberon","departement":"56","longueur_navire":12,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[-3.09359,47.47226]}},
-    {"type":"Feature","properties":{"ref":"AOT-136","site":"Baie de Quiberon","departement":"56","longueur_navire":7,"distance_cote_m":145},"geometry":{"type":"Point","coordinates":[-2.94821,47.55523]}},
-    {"type":"Feature","properties":{"ref":"AOT-137","site":"Baie de Quiberon","departement":"56","longueur_navire":10,"distance_cote_m":168},"geometry":{"type":"Point","coordinates":[-3.13923,47.55444]}},
-    {"type":"Feature","properties":{"ref":"AOT-138","site":"Baie de Quiberon","departement":"56","longueur_navire":9,"distance_cote_m":160},"geometry":{"type":"Point","coordinates":[-3.13017,47.53056]}},
-    {"type":"Feature","properties":{"ref":"AOT-139","site":"Baie de Quiberon","departement":"56","longueur_navire":8,"distance_cote_m":142},"geometry":{"type":"Point","coordinates":[-3.08203,47.47162]}},
-    {"type":"Feature","properties":{"ref":"AOT-140","site":"Baie de Quiberon","departement":"56","longueur_navire":11,"distance_cote_m":159},"geometry":{"type":"Point","coordinates":[-3.12414,47.51879]}},
-    {"type":"Feature","properties":{"ref":"AOT-141","site":"Baie de Quiberon","departement":"56","longueur_navire":10,"distance_cote_m":130},"geometry":{"type":"Point","coordinates":[-3.09115,47.47797]}},
-    {"type":"Feature","properties":{"ref":"AOT-142","site":"Baie de Quiberon","departement":"56","longueur_navire":14,"distance_cote_m":131},"geometry":{"type":"Point","coordinates":[-3.13655,47.54694]}},
-    {"type":"Feature","properties":{"ref":"AOT-143","site":"Baie de Quiberon","departement":"56","longueur_navire":10,"distance_cote_m":186},"geometry":{"type":"Point","coordinates":[-3.12807,47.54936]}},
-    {"type":"Feature","properties":{"ref":"AOT-144","site":"Baie de Quiberon","departement":"56","longueur_navire":8,"distance_cote_m":154},"geometry":{"type":"Point","coordinates":[-3.12409,47.51699]}},
-    {"type":"Feature","properties":{"ref":"AOT-145","site":"Baie de Quiberon","departement":"56","longueur_navire":16,"distance_cote_m":158},"geometry":{"type":"Point","coordinates":[-3.12719,47.55754]}},
-    {"type":"Feature","properties":{"ref":"AOT-146","site":"Baie de Quiberon","departement":"56","longueur_navire":10,"distance_cote_m":144},"geometry":{"type":"Point","coordinates":[-3.10923,47.46958]}},
-    {"type":"Feature","properties":{"ref":"AOT-147","site":"Baie de Quiberon","departement":"56","longueur_navire":6,"distance_cote_m":174},"geometry":{"type":"Point","coordinates":[-3.09696,47.49017]}},
-    {"type":"Feature","properties":{"ref":"AOT-148","site":"Baie de Quiberon","departement":"56","longueur_navire":18,"distance_cote_m":143},"geometry":{"type":"Point","coordinates":[-3.1399,47.48022]}},
-    {"type":"Feature","properties":{"ref":"AOT-149","site":"Baie de Quiberon","departement":"56","longueur_navire":6,"distance_cote_m":108},"geometry":{"type":"Point","coordinates":[-3.13938,47.55779]}},
-    {"type":"Feature","properties":{"ref":"AOT-150","site":"Baie de Quiberon","departement":"56","longueur_navire":12,"distance_cote_m":126},"geometry":{"type":"Point","coordinates":[-3.10179,47.48827]}},
-    {"type":"Feature","properties":{"ref":"AOT-151","site":"Baie de Quiberon","departement":"56","longueur_navire":9,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-3.07833,47.46586]}},
-    {"type":"Feature","properties":{"ref":"AOT-152","site":"Baie de Quiberon","departement":"56","longueur_navire":14,"distance_cote_m":138},"geometry":{"type":"Point","coordinates":[-3.09072,47.4711]}},
-    {"type":"Feature","properties":{"ref":"AOT-153","site":"Baie de Quiberon","departement":"56","longueur_navire":17,"distance_cote_m":122},"geometry":{"type":"Point","coordinates":[-3.13754,47.54498]}},
-    {"type":"Feature","properties":{"ref":"AOT-154","site":"Baie de Quiberon","departement":"56","longueur_navire":9,"distance_cote_m":136},"geometry":{"type":"Point","coordinates":[-3.13571,47.47697]}},
-    {"type":"Feature","properties":{"ref":"AOT-155","site":"Baie de Quiberon","departement":"56","longueur_navire":17,"distance_cote_m":132},"geometry":{"type":"Point","coordinates":[-2.97271,47.55784]}},
-    {"type":"Feature","properties":{"ref":"AOT-156","site":"Golfe du Morbihan","departement":"56","longueur_navire":17,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-2.85374,47.57404]}},
-    {"type":"Feature","properties":{"ref":"AOT-157","site":"Golfe du Morbihan","departement":"56","longueur_navire":15,"distance_cote_m":146},"geometry":{"type":"Point","coordinates":[-2.81236,47.58546]}},
-    {"type":"Feature","properties":{"ref":"AOT-158","site":"Golfe du Morbihan","departement":"56","longueur_navire":14,"distance_cote_m":161},"geometry":{"type":"Point","coordinates":[-2.94335,47.59656]}},
-    {"type":"Feature","properties":{"ref":"AOT-159","site":"Golfe du Morbihan","departement":"56","longueur_navire":7,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[-2.95617,47.62226]}},
-    {"type":"Feature","properties":{"ref":"AOT-160","site":"Golfe du Morbihan","departement":"56","longueur_navire":7,"distance_cote_m":106},"geometry":{"type":"Point","coordinates":[-2.85659,47.56331]}},
-    {"type":"Feature","properties":{"ref":"AOT-161","site":"Golfe du Morbihan","departement":"56","longueur_navire":10,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-2.89739,47.57034]}},
-    {"type":"Feature","properties":{"ref":"AOT-162","site":"Golfe du Morbihan","departement":"56","longueur_navire":10,"distance_cote_m":150},"geometry":{"type":"Point","coordinates":[-2.93453,47.55354]}},
-    {"type":"Feature","properties":{"ref":"AOT-163","site":"Golfe du Morbihan","departement":"56","longueur_navire":9,"distance_cote_m":144},"geometry":{"type":"Point","coordinates":[-2.87597,47.55832]}},
-    {"type":"Feature","properties":{"ref":"AOT-164","site":"Golfe du Morbihan","departement":"56","longueur_navire":7,"distance_cote_m":130},"geometry":{"type":"Point","coordinates":[-2.85951,47.57974]}},
-    {"type":"Feature","properties":{"ref":"AOT-165","site":"Golfe du Morbihan","departement":"56","longueur_navire":16,"distance_cote_m":181},"geometry":{"type":"Point","coordinates":[-2.86651,47.55577]}},
-    {"type":"Feature","properties":{"ref":"AOT-166","site":"Golfe du Morbihan","departement":"56","longueur_navire":9,"distance_cote_m":103},"geometry":{"type":"Point","coordinates":[-2.86066,47.59869]}},
-    {"type":"Feature","properties":{"ref":"AOT-167","site":"Golfe du Morbihan","departement":"56","longueur_navire":12,"distance_cote_m":140},"geometry":{"type":"Point","coordinates":[-2.82839,47.54539]}},
-    {"type":"Feature","properties":{"ref":"AOT-168","site":"Golfe du Morbihan","departement":"56","longueur_navire":7,"distance_cote_m":156},"geometry":{"type":"Point","coordinates":[-2.93351,47.59207]}},
-    {"type":"Feature","properties":{"ref":"AOT-169","site":"Golfe du Morbihan","departement":"56","longueur_navire":9,"distance_cote_m":133},"geometry":{"type":"Point","coordinates":[-2.91015,47.58353]}},
-    {"type":"Feature","properties":{"ref":"AOT-170","site":"Golfe du Morbihan","departement":"56","longueur_navire":6,"distance_cote_m":157},"geometry":{"type":"Point","coordinates":[-2.78467,47.57008]}},
-    {"type":"Feature","properties":{"ref":"AOT-171","site":"Golfe du Morbihan","departement":"56","longueur_navire":15,"distance_cote_m":167},"geometry":{"type":"Point","coordinates":[-2.82144,47.54787]}},
-    {"type":"Feature","properties":{"ref":"AOT-172","site":"Golfe du Morbihan","departement":"56","longueur_navire":12,"distance_cote_m":153},"geometry":{"type":"Point","coordinates":[-2.85109,47.56938]}},
-    {"type":"Feature","properties":{"ref":"AOT-173","site":"Golfe du Morbihan","departement":"56","longueur_navire":9,"distance_cote_m":117},"geometry":{"type":"Point","coordinates":[-2.91623,47.58579]}},
-    {"type":"Feature","properties":{"ref":"AOT-174","site":"Golfe du Morbihan","departement":"56","longueur_navire":15,"distance_cote_m":160},"geometry":{"type":"Point","coordinates":[-2.8418,47.55597]}},
-    {"type":"Feature","properties":{"ref":"AOT-175","site":"Golfe du Morbihan","departement":"56","longueur_navire":18,"distance_cote_m":148},"geometry":{"type":"Point","coordinates":[-2.91142,47.54027]}},
-    {"type":"Feature","properties":{"ref":"AOT-176","site":"Golfe du Morbihan","departement":"56","longueur_navire":15,"distance_cote_m":164},"geometry":{"type":"Point","coordinates":[-2.80303,47.55505]}},
-    {"type":"Feature","properties":{"ref":"AOT-177","site":"Golfe du Morbihan","departement":"56","longueur_navire":18,"distance_cote_m":161},"geometry":{"type":"Point","coordinates":[-2.89549,47.57822]}},
-    {"type":"Feature","properties":{"ref":"AOT-178","site":"Golfe du Morbihan","departement":"56","longueur_navire":8,"distance_cote_m":107},"geometry":{"type":"Point","coordinates":[-2.91355,47.54171]}},
-    {"type":"Feature","properties":{"ref":"AOT-179","site":"Golfe du Morbihan","departement":"56","longueur_navire":12,"distance_cote_m":162},"geometry":{"type":"Point","coordinates":[-2.90646,47.57092]}},
-    {"type":"Feature","properties":{"ref":"AOT-180","site":"Golfe du Morbihan","departement":"56","longueur_navire":14,"distance_cote_m":113},"geometry":{"type":"Point","coordinates":[-2.92733,47.58802]}},
-    {"type":"Feature","properties":{"ref":"AOT-181","site":"Golfe du Morbihan","departement":"56","longueur_navire":8,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[-2.95624,47.55922]}},
-    {"type":"Feature","properties":{"ref":"AOT-182","site":"Golfe du Morbihan","departement":"56","longueur_navire":10,"distance_cote_m":142},"geometry":{"type":"Point","coordinates":[-2.93224,47.58161]}},
-    {"type":"Feature","properties":{"ref":"AOT-183","site":"Golfe du Morbihan","departement":"56","longueur_navire":16,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[-2.85334,47.59702]}},
-    {"type":"Feature","properties":{"ref":"AOT-184","site":"Golfe du Morbihan","departement":"56","longueur_navire":14,"distance_cote_m":183},"geometry":{"type":"Point","coordinates":[-2.94833,47.60487]}},
-    {"type":"Feature","properties":{"ref":"AOT-185","site":"Golfe du Morbihan","departement":"56","longueur_navire":14,"distance_cote_m":105},"geometry":{"type":"Point","coordinates":[-2.80555,47.56735]}},
-    {"type":"Feature","properties":{"ref":"AOT-186","site":"Golfe du Morbihan","departement":"56","longueur_navire":9,"distance_cote_m":114},"geometry":{"type":"Point","coordinates":[-2.85804,47.61224]}},
-    {"type":"Feature","properties":{"ref":"AOT-187","site":"Rade d'Hyères","departement":"83","longueur_navire":8,"distance_cote_m":111},"geometry":{"type":"Point","coordinates":[6.2192,42.98905]}},
-    {"type":"Feature","properties":{"ref":"AOT-188","site":"Rade d'Hyères","departement":"83","longueur_navire":17,"distance_cote_m":176},"geometry":{"type":"Point","coordinates":[6.12783,43.06755]}},
-    {"type":"Feature","properties":{"ref":"AOT-189","site":"Rade d'Hyères","departement":"83","longueur_navire":16,"distance_cote_m":125},"geometry":{"type":"Point","coordinates":[6.14822,43.02041]}},
-    {"type":"Feature","properties":{"ref":"AOT-190","site":"Rade d'Hyères","departement":"83","longueur_navire":7,"distance_cote_m":158},"geometry":{"type":"Point","coordinates":[6.08323,43.03928]}},
-    {"type":"Feature","properties":{"ref":"AOT-191","site":"Rade d'Hyères","departement":"83","longueur_navire":7,"distance_cote_m":191},"geometry":{"type":"Point","coordinates":[6.14094,43.02264]}},
-    {"type":"Feature","properties":{"ref":"AOT-192","site":"Rade d'Hyères","departement":"83","longueur_navire":11,"distance_cote_m":161},"geometry":{"type":"Point","coordinates":[6.15926,43.02659]}},
-    {"type":"Feature","properties":{"ref":"AOT-193","site":"Rade d'Hyères","departement":"83","longueur_navire":12,"distance_cote_m":129},"geometry":{"type":"Point","coordinates":[6.27071,43.12003]}},
-    {"type":"Feature","properties":{"ref":"AOT-194","site":"Rade d'Hyères","departement":"83","longueur_navire":8,"distance_cote_m":124},"geometry":{"type":"Point","coordinates":[6.14269,43.02742]}},
-    {"type":"Feature","properties":{"ref":"AOT-195","site":"Rade d'Hyères","departement":"83","longueur_navire":10,"distance_cote_m":108},"geometry":{"type":"Point","coordinates":[6.2452,43.02119]}},
-    {"type":"Feature","properties":{"ref":"AOT-196","site":"Rade d'Hyères","departement":"83","longueur_navire":15,"distance_cote_m":190},"geometry":{"type":"Point","coordinates":[6.10601,43.08212]}},
-    {"type":"Feature","properties":{"ref":"AOT-197","site":"Rade d'Hyères","departement":"83","longueur_navire":12,"distance_cote_m":155},"geometry":{"type":"Point","coordinates":[6.09114,43.03399]}},
-    {"type":"Feature","properties":{"ref":"AOT-198","site":"Rade d'Hyères","departement":"83","longueur_navire":7,"distance_cote_m":106},"geometry":{"type":"Point","coordinates":[6.11324,43.03363]}},
-    {"type":"Feature","properties":{"ref":"AOT-199","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":117,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62355,43.26733]}},
-    {"type":"Feature","properties":{"ref":"AOT-200","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":14,"distance_cote_m":171,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62335,43.26836]}},
-    {"type":"Feature","properties":{"ref":"AOT-201","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":13,"distance_cote_m":197,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62255,43.26736]}},
-    {"type":"Feature","properties":{"ref":"AOT-202","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":134,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62354,43.26789]}},
-    {"type":"Feature","properties":{"ref":"AOT-203","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":10,"distance_cote_m":179,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62273,43.26701]}},
-    {"type":"Feature","properties":{"ref":"AOT-204","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":147,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62322,43.26759]}},
-    {"type":"Feature","properties":{"ref":"AOT-205","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":189,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.62272,43.26773]}},
-    {"type":"Feature","properties":{"ref":"AOT-206","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":145,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.6228,43.26664]}},
-    {"type":"Feature","properties":{"ref":"AOT-207","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":159,"zone_autorisee":"Zone 1 — La Bouillabaisse"},"geometry":{"type":"Point","coordinates":[6.6238,43.26861]}},
-    {"type":"Feature","properties":{"ref":"AOT-208","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":11,"distance_cote_m":142,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.64963,43.2722]}},
-    {"type":"Feature","properties":{"ref":"AOT-209","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":175,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.64973,43.27269]}},
-    {"type":"Feature","properties":{"ref":"AOT-210","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":170,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65017,43.27229]}},
-    {"type":"Feature","properties":{"ref":"AOT-211","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":116,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.64879,43.27284]}},
-    {"type":"Feature","properties":{"ref":"AOT-212","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":172,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.64926,43.27324]}},
-    {"type":"Feature","properties":{"ref":"AOT-213","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":141,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65045,43.27177]}},
-    {"type":"Feature","properties":{"ref":"AOT-214","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":10,"distance_cote_m":124,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.64916,43.2725]}},
-    {"type":"Feature","properties":{"ref":"AOT-215","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":13,"distance_cote_m":187,"zone_autorisee":"Zone 2 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65069,43.27217]}},
-    {"type":"Feature","properties":{"ref":"AOT-216","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":12,"distance_cote_m":159,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65979,43.26835]}},
-    {"type":"Feature","properties":{"ref":"AOT-217","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":152,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65806,43.269]}},
-    {"type":"Feature","properties":{"ref":"AOT-218","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":157,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65909,43.26842]}},
-    {"type":"Feature","properties":{"ref":"AOT-219","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":10,"distance_cote_m":118,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65914,43.2679]}},
-    {"type":"Feature","properties":{"ref":"AOT-220","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":133,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65852,43.26839]}},
-    {"type":"Feature","properties":{"ref":"AOT-221","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":129,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65803,43.26861]}},
-    {"type":"Feature","properties":{"ref":"AOT-222","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":175,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65873,43.26874]}},
-    {"type":"Feature","properties":{"ref":"AOT-223","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":14,"distance_cote_m":195,"zone_autorisee":"Zone 3 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.65857,43.26913]}},
-    {"type":"Feature","properties":{"ref":"AOT-224","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":6,"distance_cote_m":188,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66172,43.26803]}},
-    {"type":"Feature","properties":{"ref":"AOT-225","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":158,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66244,43.26687]}},
-    {"type":"Feature","properties":{"ref":"AOT-226","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":14,"distance_cote_m":124,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66152,43.26692]}},
-    {"type":"Feature","properties":{"ref":"AOT-227","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":189,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66219,43.26749]}},
-    {"type":"Feature","properties":{"ref":"AOT-228","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":102,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66071,43.26766]}},
-    {"type":"Feature","properties":{"ref":"AOT-229","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":124,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.6626,43.26644]}},
-    {"type":"Feature","properties":{"ref":"AOT-230","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":6,"distance_cote_m":144,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66142,43.26767]}},
-    {"type":"Feature","properties":{"ref":"AOT-231","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":17,"distance_cote_m":104,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66118,43.26726]}},
-    {"type":"Feature","properties":{"ref":"AOT-232","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":101,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66209,43.26642]}},
-    {"type":"Feature","properties":{"ref":"AOT-233","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":18,"distance_cote_m":140,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66076,43.26803]}},
-    {"type":"Feature","properties":{"ref":"AOT-234","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":179,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66123,43.26825]}},
-    {"type":"Feature","properties":{"ref":"AOT-235","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":11,"distance_cote_m":153,"zone_autorisee":"Zone 4 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66182,43.26725]}},
-    {"type":"Feature","properties":{"ref":"AOT-236","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":10,"distance_cote_m":194,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.6669,43.27135]}},
-    {"type":"Feature","properties":{"ref":"AOT-237","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":186,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66704,43.2734]}},
-    {"type":"Feature","properties":{"ref":"AOT-238","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":10,"distance_cote_m":181,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66716,43.27238]}},
-    {"type":"Feature","properties":{"ref":"AOT-239","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":175,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66723,43.27306]}},
-    {"type":"Feature","properties":{"ref":"AOT-240","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":13,"distance_cote_m":159,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66753,43.27267]}},
-    {"type":"Feature","properties":{"ref":"AOT-241","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":101,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66812,43.27219]}},
-    {"type":"Feature","properties":{"ref":"AOT-242","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":15,"distance_cote_m":140,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66757,43.27143]}},
-    {"type":"Feature","properties":{"ref":"AOT-243","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":8,"distance_cote_m":172,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66714,43.27172]}},
-    {"type":"Feature","properties":{"ref":"AOT-244","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":16,"distance_cote_m":112,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66806,43.2729]}},
-    {"type":"Feature","properties":{"ref":"AOT-245","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":9,"distance_cote_m":119,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66791,43.27325]}},
-    {"type":"Feature","properties":{"ref":"AOT-246","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":6,"distance_cote_m":115,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66784,43.27182]}},
-    {"type":"Feature","properties":{"ref":"AOT-247","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":11,"distance_cote_m":102,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66826,43.27256]}},
-    {"type":"Feature","properties":{"ref":"AOT-248","site":"Golfe de Saint-Tropez","departement":"83","longueur_navire":7,"distance_cote_m":145,"zone_autorisee":"Zone 5 — Les Canebiers"},"geometry":{"type":"Point","coordinates":[6.66754,43.2735]}}
-  ]
+ "type": "FeatureCollection",
+ "name": "aot-existantes",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-001",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 14,
+    "distance_cote_m": 122
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02439,
+     48.77503
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-002",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 135
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.99369,
+     48.7661
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-003",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 150
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.00723,
+     48.8056
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-004",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 17,
+    "distance_cote_m": 154
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.99167,
+     48.83664
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-005",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02844,
+     48.8377
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-006",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 145
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08257,
+     48.86673
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-007",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 179
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07795,
+     48.87534
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-008",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 175
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.95794,
+     48.76684
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-009",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 18,
+    "distance_cote_m": 112
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.01079,
+     48.81563
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-010",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 163
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07585,
+     48.84795
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-011",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 191
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08802,
+     48.8701
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-012",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 7,
+    "distance_cote_m": 148
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.00947,
+     48.79868
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-013",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 151
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0963,
+     48.80161
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-014",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 135
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.97288,
+     48.79678
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-015",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 102
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02543,
+     48.86608
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-016",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 135
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02764,
+     48.78996
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-017",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 18,
+    "distance_cote_m": 132
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08616,
+     48.81293
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-018",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 152
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08339,
+     48.81912
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-019",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 13,
+    "distance_cote_m": 139
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.01234,
+     48.81348
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-020",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 111
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.06846,
+     48.83402
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-021",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 121
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08074,
+     48.87757
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-022",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 128
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02859,
+     48.82196
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-023",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 15,
+    "distance_cote_m": 116
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96704,
+     48.76347
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-024",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10331,
+     48.78204
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-025",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 147
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09439,
+     48.87082
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-026",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 7,
+    "distance_cote_m": 120
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.03463,
+     48.78889
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-027",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 121
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.02462,
+     48.77828
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-028",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 17,
+    "distance_cote_m": 160
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.0142,
+     48.79066
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-029",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 121
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07265,
+     48.83448
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-030",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10598,
+     48.77875
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-031",
+    "site": "Paimpol — île de Bréhat",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 145
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.03004,
+     48.83634
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-032",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 139
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.31833,
+     48.61452
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-033",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.2485,
+     48.64703
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-034",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 142
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.47496,
+     48.64639
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-035",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 13,
+    "distance_cote_m": 150
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.46888,
+     48.63363
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-036",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 13,
+    "distance_cote_m": 175
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.25187,
+     48.64656
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-037",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 146
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.35769,
+     48.65992
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-038",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 122
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.54732,
+     48.59927
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-039",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 142
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.50161,
+     48.60765
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-040",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 147
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.30589,
+     48.6449
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-041",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 154
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.46928,
+     48.63209
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-042",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 9,
+    "distance_cote_m": 100
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.33332,
+     48.67173
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-043",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 17,
+    "distance_cote_m": 185
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.43877,
+     48.65431
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-044",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.31278,
+     48.67464
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-045",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 10,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.3317,
+     48.67278
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-046",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 156
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.48909,
+     48.64677
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-047",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 151
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.31062,
+     48.67726
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-048",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 8,
+    "distance_cote_m": 148
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.30972,
+     48.63443
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-049",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 14,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.41847,
+     48.6429
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-050",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.3153,
+     48.61122
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-051",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 16,
+    "distance_cote_m": 116
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.34297,
+     48.66893
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-052",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 119
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.59769,
+     48.56019
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-053",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 16,
+    "distance_cote_m": 140
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.41397,
+     48.64262
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-054",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 131
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.29642,
+     48.65068
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-055",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 110
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.35046,
+     48.66382
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-056",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 11,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.46919,
+     48.63507
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-057",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 6,
+    "distance_cote_m": 183
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.25667,
+     48.64589
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-058",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 12,
+    "distance_cote_m": 104
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.60273,
+     48.55478
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-059",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 16,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.46967,
+     48.65016
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-060",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 7,
+    "distance_cote_m": 152
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.58456,
+     48.57058
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-061",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 13,
+    "distance_cote_m": 161
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.58346,
+     48.57195
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-062",
+    "site": "Erquy — Saint-Cast (baie de Saint-Brieuc)",
+    "departement": "22",
+    "longueur_navire": 16,
+    "distance_cote_m": 180
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.52753,
+     48.60009
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-063",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 122
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.43839,
+     48.35582
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-064",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 101
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.38204,
+     48.3958
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-065",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 107
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4961,
+     48.37543
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-066",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 111
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4726,
+     48.28783
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-067",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 140
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.40113,
+     48.38433
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-068",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 101
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33444,
+     48.3175
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-069",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 109
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.31668,
+     48.34191
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-070",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 150
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.32858,
+     48.29207
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-071",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 158
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.25232,
+     48.26578
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-072",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 147
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41327,
+     48.37568
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-073",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 137
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3049,
+     48.29881
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-074",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 170
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.40884,
+     48.3229
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-075",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 127
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.43165,
+     48.36579
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-076",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.31048,
+     48.32856
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-077",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.45735,
+     48.32555
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-078",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 14,
+    "distance_cote_m": 106
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.30423,
+     48.34975
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-079",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 7,
+    "distance_cote_m": 152
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29017,
+     48.31109
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-080",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 135
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.27961,
+     48.27587
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-081",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 159
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.24101,
+     48.29009
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-082",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 191
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.4083,
+     48.27736
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-083",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 137
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.45172,
+     48.32279
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-084",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 151
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.38601,
+     48.3913
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-085",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 107
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.45188,
+     48.29427
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-086",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 15,
+    "distance_cote_m": 112
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41438,
+     48.39207
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-087",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 172
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.28531,
+     48.34508
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-088",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 135
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.26286,
+     48.32203
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-089",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 174
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.36937,
+     48.32778
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-090",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 115
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.50042,
+     48.30413
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-091",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 13,
+    "distance_cote_m": 131
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3572,
+     48.34568
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-092",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 128
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.44053,
+     48.34281
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-093",
+    "site": "Rade de Brest",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 170
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.25224,
+     48.28511
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-094",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 6,
+    "distance_cote_m": 119
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29934,
+     48.18634
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-095",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 18,
+    "distance_cote_m": 103
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.45492,
+     48.09829
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-096",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.2798,
+     48.1308
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-097",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 107
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29962,
+     48.09556
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-098",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 16,
+    "distance_cote_m": 157
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.35514,
+     48.10571
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-099",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 137
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37684,
+     48.1108
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-100",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 174
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.326,
+     48.10171
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-101",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 133
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29053,
+     48.15735
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-102",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 133
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.28358,
+     48.1147
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-103",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 167
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.27756,
+     48.13534
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-104",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 139
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29675,
+     48.1625
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-105",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 13,
+    "distance_cote_m": 177
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.35559,
+     48.10779
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-106",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 110
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.35695,
+     48.10625
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-107",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 141
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.34221,
+     48.10246
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-108",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 13,
+    "distance_cote_m": 147
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29118,
+     48.10216
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-109",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 119
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.30034,
+     48.1877
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-110",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 14,
+    "distance_cote_m": 143
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.41298,
+     48.10842
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-111",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 137
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.35152,
+     48.10346
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-112",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 9,
+    "distance_cote_m": 170
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.28579,
+     48.1105
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-113",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 12,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37297,
+     48.11118
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-114",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 118
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33675,
+     48.10432
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-115",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 7,
+    "distance_cote_m": 121
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.35961,
+     48.10804
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-116",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 15,
+    "distance_cote_m": 134
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.30023,
+     48.09304
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-117",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 11,
+    "distance_cote_m": 163
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.29399,
+     48.17427
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-118",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 10,
+    "distance_cote_m": 143
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.45267,
+     48.09944
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-119",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 18,
+    "distance_cote_m": 141
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.42612,
+     48.10138
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-120",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 7,
+    "distance_cote_m": 127
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.33231,
+     48.09875
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-121",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 17,
+    "distance_cote_m": 157
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.37986,
+     48.10945
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-122",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 113
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.3293,
+     48.10021
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-123",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 8,
+    "distance_cote_m": 103
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.32256,
+     48.09852
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-124",
+    "site": "Baie de Douarnenez",
+    "departement": "29",
+    "longueur_navire": 6,
+    "distance_cote_m": 132
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.39633,
+     48.1062
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-125",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 130
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96148,
+     47.55697
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-126",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 100
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1114,
+     47.47186
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-127",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 16,
+    "distance_cote_m": 100
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08863,
+     47.4576
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-128",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 16,
+    "distance_cote_m": 117
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13064,
+     47.53435
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-129",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 155
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.96939,
+     47.55592
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-130",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 156
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12091,
+     47.47773
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-131",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 127
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07786,
+     47.46844
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-132",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 173
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07393,
+     47.46766
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-133",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 11,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09883,
+     47.47093
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-134",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 17,
+    "distance_cote_m": 131
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10285,
+     47.47085
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-135",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 12,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09359,
+     47.47226
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-136",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 145
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.94821,
+     47.55523
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-137",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 168
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13923,
+     47.55444
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-138",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 160
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13017,
+     47.53056
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-139",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 8,
+    "distance_cote_m": 142
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.08203,
+     47.47162
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-140",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 11,
+    "distance_cote_m": 159
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12414,
+     47.51879
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-141",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 130
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09115,
+     47.47797
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-142",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 131
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13655,
+     47.54694
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-143",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 186
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12807,
+     47.54936
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-144",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 8,
+    "distance_cote_m": 154
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12409,
+     47.51699
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-145",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 16,
+    "distance_cote_m": 158
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.12719,
+     47.55754
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-146",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 144
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10923,
+     47.46958
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-147",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 6,
+    "distance_cote_m": 174
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09696,
+     47.49017
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-148",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 18,
+    "distance_cote_m": 143
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.1399,
+     47.48022
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-149",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 6,
+    "distance_cote_m": 108
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13938,
+     47.55779
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-150",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 12,
+    "distance_cote_m": 126
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.10179,
+     47.48827
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-151",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.07833,
+     47.46586
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-152",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 138
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.09072,
+     47.4711
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-153",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 17,
+    "distance_cote_m": 122
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13754,
+     47.54498
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-154",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 136
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.13571,
+     47.47697
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-155",
+    "site": "Baie de Quiberon",
+    "departement": "56",
+    "longueur_navire": 17,
+    "distance_cote_m": 132
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.97271,
+     47.55784
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-156",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 17,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85374,
+     47.57404
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-157",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 15,
+    "distance_cote_m": 146
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.81236,
+     47.58546
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-158",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 161
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.94335,
+     47.59656
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-159",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.95617,
+     47.62226
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-160",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 106
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85659,
+     47.56331
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-161",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.89739,
+     47.57034
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-162",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 150
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.93453,
+     47.55354
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-163",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 144
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.87597,
+     47.55832
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-164",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 130
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85951,
+     47.57974
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-165",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 16,
+    "distance_cote_m": 181
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.86651,
+     47.55577
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-166",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 103
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.86066,
+     47.59869
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-167",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 12,
+    "distance_cote_m": 140
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.82839,
+     47.54539
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-168",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 7,
+    "distance_cote_m": 156
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.93351,
+     47.59207
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-169",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 133
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.91015,
+     47.58353
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-170",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 6,
+    "distance_cote_m": 157
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.78467,
+     47.57008
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-171",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 15,
+    "distance_cote_m": 167
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.82144,
+     47.54787
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-172",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 12,
+    "distance_cote_m": 153
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85109,
+     47.56938
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-173",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 117
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.91623,
+     47.58579
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-174",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 15,
+    "distance_cote_m": 160
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.8418,
+     47.55597
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-175",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 18,
+    "distance_cote_m": 148
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.91142,
+     47.54027
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-176",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 15,
+    "distance_cote_m": 164
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.80303,
+     47.55505
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-177",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 18,
+    "distance_cote_m": 161
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.89549,
+     47.57822
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-178",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 8,
+    "distance_cote_m": 107
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.91355,
+     47.54171
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-179",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 12,
+    "distance_cote_m": 162
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.90646,
+     47.57092
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-180",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 113
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.92733,
+     47.58802
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-181",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 8,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.95624,
+     47.55922
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-182",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 10,
+    "distance_cote_m": 142
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.93224,
+     47.58161
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-183",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 16,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85334,
+     47.59702
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-184",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 183
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.94833,
+     47.60487
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-185",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 14,
+    "distance_cote_m": 105
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.80555,
+     47.56735
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-186",
+    "site": "Golfe du Morbihan",
+    "departement": "56",
+    "longueur_navire": 9,
+    "distance_cote_m": 114
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.85804,
+     47.61224
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-187",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 111
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.2192,
+     42.98905
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-188",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 176
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.12783,
+     43.06755
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-189",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 16,
+    "distance_cote_m": 125
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.14822,
+     43.02041
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-190",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 158
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.08323,
+     43.03928
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-191",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 191
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.14094,
+     43.02264
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-192",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 11,
+    "distance_cote_m": 161
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15926,
+     43.02659
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-193",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 12,
+    "distance_cote_m": 129
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.27071,
+     43.12003
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-194",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 124
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.14269,
+     43.02742
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-195",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 108
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.2452,
+     43.02119
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-196",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 15,
+    "distance_cote_m": 190
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.10601,
+     43.08212
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-197",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 12,
+    "distance_cote_m": 155
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.09114,
+     43.03399
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-198",
+    "site": "Rade d'Hyères",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 106
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.11324,
+     43.03363
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-199",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 117,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62355,
+     43.26733
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-200",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 14,
+    "distance_cote_m": 171,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62335,
+     43.26836
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-201",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 13,
+    "distance_cote_m": 197,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62255,
+     43.26736
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-202",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 134,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62354,
+     43.26789
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-203",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 179,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62273,
+     43.26701
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-204",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 147,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62322,
+     43.26759
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-205",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 189,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.62272,
+     43.26773
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-206",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 145,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6228,
+     43.26664
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-207",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 159,
+    "zone_autorisee": "Zone 1 — La Bouillabaisse"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6238,
+     43.26861
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-208",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 11,
+    "distance_cote_m": 142,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64963,
+     43.2722
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-209",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 175,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64973,
+     43.27269
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-210",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 170,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65017,
+     43.27229
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-211",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 116,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64879,
+     43.27284
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-212",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 172,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64926,
+     43.27324
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-213",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 141,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65045,
+     43.27177
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-214",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 124,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.64916,
+     43.2725
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-215",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 13,
+    "distance_cote_m": 187,
+    "zone_autorisee": "Zone 2 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65069,
+     43.27217
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-216",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 12,
+    "distance_cote_m": 159,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65979,
+     43.26835
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-217",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 152,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65806,
+     43.269
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-218",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 157,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65909,
+     43.26842
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-219",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 118,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65914,
+     43.2679
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-220",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 133,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65852,
+     43.26839
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-221",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 129,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65803,
+     43.26861
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-222",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 175,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65873,
+     43.26874
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-223",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 14,
+    "distance_cote_m": 195,
+    "zone_autorisee": "Zone 3 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.65857,
+     43.26913
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-224",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 6,
+    "distance_cote_m": 188,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66172,
+     43.26803
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-225",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 158,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66244,
+     43.26687
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-226",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 14,
+    "distance_cote_m": 124,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66152,
+     43.26692
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-227",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 189,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66219,
+     43.26749
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-228",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 102,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66071,
+     43.26766
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-229",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 124,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6626,
+     43.26644
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-230",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 6,
+    "distance_cote_m": 144,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66142,
+     43.26767
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-231",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 17,
+    "distance_cote_m": 104,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66118,
+     43.26726
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-232",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 101,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66209,
+     43.26642
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-233",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 18,
+    "distance_cote_m": 140,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66076,
+     43.26803
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-234",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 179,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66123,
+     43.26825
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-235",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 11,
+    "distance_cote_m": 153,
+    "zone_autorisee": "Zone 4 — Les Canebiers"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66182,
+     43.26725
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-236",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 194,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.6669,
+     43.27135
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-237",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 186,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66704,
+     43.2734
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-238",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 10,
+    "distance_cote_m": 181,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66716,
+     43.27238
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-239",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 175,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66723,
+     43.27306
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-240",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 13,
+    "distance_cote_m": 159,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66753,
+     43.27267
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-241",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 101,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66812,
+     43.27219
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-242",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 15,
+    "distance_cote_m": 140,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66757,
+     43.27143
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-243",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 8,
+    "distance_cote_m": 172,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66714,
+     43.27172
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-244",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 16,
+    "distance_cote_m": 112,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66806,
+     43.2729
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-245",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 9,
+    "distance_cote_m": 119,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66791,
+     43.27325
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-246",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 6,
+    "distance_cote_m": 115,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66784,
+     43.27182
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-247",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 11,
+    "distance_cote_m": 102,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66826,
+     43.27256
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ref": "AOT-248",
+    "site": "Golfe de Saint-Tropez",
+    "departement": "83",
+    "longueur_navire": 7,
+    "distance_cote_m": 145,
+    "zone_autorisee": null,
+    "note": "posée en v2.32 dans la zone 5 des Canebiers, retirée du référentiel le 2 nov. 2026 (suppression annoncée par la DDTM 83) — position conservée, hors zone"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.66754,
+     43.2735
+    ]
+   }
+  }
+ ]
 }

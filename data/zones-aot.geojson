@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "name": "zones-aot-mouillage-individuel",
- "_lisez_moi": "Zones où une AOT de mouillage individuel reste délivrable, par DDTM. Saisie manuelle à partir des cartes PDF de la DDTM, à faire confirmer avant usage réglementaire. Chaque entité porte la propriété ddtm, qui fait le lien avec data/ddtm-messages.json.",
+ "_lisez_moi": "Zones où une AOT de mouillage individuel reste délivrable, par DDTM. Saisie manuelle à partir des cartes PDF de la DDTM, à faire confirmer avant usage réglementaire. Chaque entité porte la propriété ddtm, qui fait le lien avec data/ddtm-messages.json, et la propriété public : 'tous' (zone ouverte aux plaisanciers) ou 'professionnels' (zone réservée uniquement aux professionnels, dite « zone tampon » par la DDTM 83 : affichée, mais sans coordonnées pour un plaisancier). Var : 28 zones issues des cartes n°31 à 52 (la zone 5 des Canebiers, Saint-Tropez, a été retirée le 2 nov. 2026 : la DDTM 83 va la supprimer) (oct. 2022 / mai 2023) ; la carte n°38 (Ramatuelle, Bonne Terrasse) porte des étiquettes de sommets inversées sur le PDF, réattribuées selon leur position (confirmé).",
  "features": [
   {
    "type": "Feature",
@@ -18,7 +18,8 @@
     "profondeur_max_m": 13,
     "source": "DDTM du Var / SML-BLO, carte n°42, octobre 2022",
     "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
-    "surface_m2_approx": 28100
+    "surface_m2_approx": 28100,
+    "public": "tous"
    },
    "geometry": {
     "type": "Polygon",
@@ -63,7 +64,8 @@
     "profondeur_max_m": 10,
     "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
     "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
-    "surface_m2_approx": 25397
+    "surface_m2_approx": 25397,
+    "public": "tous"
    },
    "geometry": {
     "type": "Polygon",
@@ -108,7 +110,8 @@
     "profondeur_max_m": 10,
     "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
     "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
-    "surface_m2_approx": 21577
+    "surface_m2_approx": 21577,
+    "public": "tous"
    },
    "geometry": {
     "type": "Polygon",
@@ -153,7 +156,8 @@
     "profondeur_max_m": 10,
     "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
     "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
-    "surface_m2_approx": 36564
+    "surface_m2_approx": 36564,
+    "public": "tous"
    },
    "geometry": {
     "type": "Polygon",
@@ -188,41 +192,1141 @@
    "properties": {
     "ddtm": "83",
     "departement": "Var",
-    "commune": "Saint-Tropez",
-    "lieu": "Les Canebiers",
-    "zone": 5,
-    "nom": "Zone 5 — Les Canebiers",
-    "capacite_unites": 40,
-    "exposition": "Est",
-    "profondeur_min_m": 0.5,
-    "profondeur_max_m": 3,
-    "source": "DDTM du Var / SML-BLO, carte n°41, octobre 2022",
-    "saisie": "relevé manuel sur PDF, à faire confirmer par la DDTM 83",
-    "surface_m2_approx": 42620
+    "commune": "Cavalaire-sur-Mer",
+    "lieu": "Le Dattier",
+    "zone": null,
+    "nom": "Le Dattier",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 7,
+    "profondeur_max_m": 10.3,
+    "source": "DDTM du Var / SML-BLO, carte n°31, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 6300,
+    "herbier_lecture_visuelle": "Zone majoritairement sur herbier de Posidonie, avec quelques taches de sable/roche"
    },
    "geometry": {
     "type": "Polygon",
     "coordinates": [
      [
       [
-       6.666033,
-       43.273383
+       6.504667,
+       43.1555
       ],
       [
-       6.668117,
-       43.273583
+       6.50525,
+       43.155167
       ],
       [
-       6.668467,
-       43.27135
+       6.504333,
+       43.1545
       ],
       [
-       6.666383,
-       43.27115
+       6.50375,
+       43.154833
       ],
       [
-       6.666033,
-       43.273383
+       6.504667,
+       43.1555
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Croix-Valmer",
+    "lieu": "Débarquement",
+    "zone": null,
+    "nom": "Débarquement",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 8.2,
+    "source": "DDTM du Var / SML-BLO, carte n°32, mai 2023",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 32400,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier (sable) ; bords sud et est au contact de l'herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.562317,
+       43.1885
+      ],
+      [
+       6.563767,
+       43.1877
+      ],
+      [
+       6.5606,
+       43.186967
+      ],
+      [
+       6.55915,
+       43.18775
+      ],
+      [
+       6.562317,
+       43.1885
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Croix-Valmer",
+    "lieu": "Héraclée",
+    "zone": 1,
+    "nom": "Zone 1 — Héraclée",
+    "public": "tous",
+    "capacite_unites": 13,
+    "exposition": "Sud",
+    "profondeur_min_m": 1.6,
+    "profondeur_max_m": 7.8,
+    "source": "DDTM du Var / SML-BLO, carte n°33, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 13100,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier ; herbier en lisière est et sud",
+    "remarques": "Profondeur max écrite sans unité sur la carte (« 7.80 ») : mètres (confirmé)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.5857,
+       43.185717
+      ],
+      [
+       6.5873,
+       43.185633
+      ],
+      [
+       6.587233,
+       43.184733
+      ],
+      [
+       6.585633,
+       43.184817
+      ],
+      [
+       6.5857,
+       43.185717
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Croix-Valmer",
+    "lieu": "Héraclée",
+    "zone": 2,
+    "nom": "Zone 2 — Héraclée",
+    "public": "tous",
+    "capacite_unites": 13,
+    "exposition": "Sud",
+    "profondeur_min_m": 1.6,
+    "profondeur_max_m": 7.8,
+    "source": "DDTM du Var / SML-BLO, carte n°33, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 12000,
+    "herbier_lecture_visuelle": "Moitié ouest sur herbier, moitié est hors herbier",
+    "remarques": "Sommet NE écrit « 43°11,1170'N » sur la carte : 43°11.117'N (confirmé). Profondeur max sans unité : mètres (confirmé)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.588283,
+       43.185367
+      ],
+      [
+       6.590133,
+       43.185283
+      ],
+      [
+       6.590067,
+       43.184567
+      ],
+      [
+       6.588233,
+       43.18465
+      ],
+      [
+       6.588283,
+       43.185367
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Croix-Valmer",
+    "lieu": "Gigaro",
+    "zone": null,
+    "nom": "Gigaro",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°34, mai 2023",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 20000,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; bord sud-ouest au contact de l'herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.599267,
+       43.18245
+      ],
+      [
+       6.600933,
+       43.181117
+      ],
+      [
+       6.59995,
+       43.180567
+      ],
+      [
+       6.5983,
+       43.181883
+      ],
+      [
+       6.599267,
+       43.18245
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Ramatuelle",
+    "lieu": "L'Escalet",
+    "zone": 13,
+    "nom": "Zone 13 — L'Escalet",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 0.6,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°36, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 9900,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.6513,
+       43.189833
+      ],
+      [
+       6.652533,
+       43.18975
+      ],
+      [
+       6.652483,
+       43.188867
+      ],
+      [
+       6.651267,
+       43.188933
+      ],
+      [
+       6.6513,
+       43.189833
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Ramatuelle",
+    "lieu": "L'Escalet",
+    "zone": 14,
+    "nom": "Zone 14 — L'Escalet",
+    "public": "tous",
+    "capacite_unites": 88,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 0.6,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°36, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 45300,
+    "herbier_lecture_visuelle": "Partie ouest hors herbier (fond de baie), partie est sur herbier",
+    "remarques": "Polygone à 6 sommets (décrochement au nord-est)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.645217,
+       43.187583
+      ],
+      [
+       6.646933,
+       43.187633
+      ],
+      [
+       6.647,
+       43.1871
+      ],
+      [
+       6.647367,
+       43.1871
+      ],
+      [
+       6.647483,
+       43.185317
+      ],
+      [
+       6.6453,
+       43.185067
+      ],
+      [
+       6.645217,
+       43.187583
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Ramatuelle",
+    "lieu": "La Quessine",
+    "zone": 12,
+    "nom": "Zone 12 — La Quessine",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 0.6,
+    "profondeur_max_m": 10,
+    "source": "DDTM du Var / SML-BLO, carte n°37, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 22200,
+    "herbier_lecture_visuelle": "Moitié nord hors herbier, moitié sud sur herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.658883,
+       43.194183
+      ],
+      [
+       6.65945,
+       43.193083
+      ],
+      [
+       6.6575,
+       43.192533
+      ],
+      [
+       6.656933,
+       43.193633
+      ],
+      [
+       6.658883,
+       43.194183
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Ramatuelle",
+    "lieu": "Bonne Terrasse",
+    "zone": 11,
+    "nom": "Zone 11 — Bonne Terrasse",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Est",
+    "profondeur_min_m": 0.4,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°38, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 9000,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie (mosaïque herbier / roche)",
+    "remarques": "Étiquettes inversées sur la carte d'origine (confirmé) : coordonnées réattribuées aux sommets selon leur position (N, E, S, O)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.670317,
+       43.208933
+      ],
+      [
+       6.670783,
+       43.20835
+      ],
+      [
+       6.6695,
+       43.207817
+      ],
+      [
+       6.669033,
+       43.2084
+      ],
+      [
+       6.670317,
+       43.208933
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "La Rabiou",
+    "zone": 6,
+    "nom": "Zone 6 — La Rabiou",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 10,
+    "profondeur_max_m": 12,
+    "source": "DDTM du Var / SML-BLO, carte n°40, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 16000,
+    "herbier_lecture_visuelle": "Sur herbier de Posidonie"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.684767,
+       43.277867
+      ],
+      [
+       6.6862,
+       43.276883
+      ],
+      [
+       6.685333,
+       43.27625
+      ],
+      [
+       6.683883,
+       43.277233
+      ],
+      [
+       6.684767,
+       43.277867
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "La Moutte",
+    "zone": 7,
+    "nom": "Zone 7 — La Moutte",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°40, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 27200,
+    "herbier_lecture_visuelle": "Sur herbier de Posidonie"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.696767,
+       43.27005
+      ],
+      [
+       6.69855,
+       43.26925
+      ],
+      [
+       6.6975,
+       43.268033
+      ],
+      [
+       6.695717,
+       43.268833
+      ],
+      [
+       6.696767,
+       43.27005
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Tropez",
+    "lieu": "Les Salins",
+    "zone": 8,
+    "nom": "Zone 8 — Les Salins",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°40, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 23900,
+    "herbier_lecture_visuelle": "Partie ouest hors herbier, partie est sur herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.6968,
+       43.26125
+      ],
+      [
+       6.69835,
+       43.2605
+      ],
+      [
+       6.69715,
+       43.25935
+      ],
+      [
+       6.695633,
+       43.260117
+      ],
+      [
+       6.6968,
+       43.26125
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Gassin",
+    "lieu": "Bertaud",
+    "zone": 1,
+    "nom": "Zone 1 — Bertaud",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Est",
+    "profondeur_min_m": 0.7,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°43, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 19900,
+    "herbier_lecture_visuelle": "Entièrement sur herbier de Posidonie",
+    "remarques": "Bord nord au contact de la limite des 300 m"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.601783,
+       43.265483
+      ],
+      [
+       6.603883,
+       43.264983
+      ],
+      [
+       6.603483,
+       43.264033
+      ],
+      [
+       6.601367,
+       43.264533
+      ],
+      [
+       6.601783,
+       43.265483
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Baie de Grimaud",
+    "zone": 1,
+    "nom": "Zone 1 — Baie de Grimaud",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 6.6,
+    "source": "DDTM du Var / SML-BLO, carte n°44, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 13600,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier en lisière est"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.587033,
+       43.27895
+      ],
+      [
+       6.58825,
+       43.278333
+      ],
+      [
+       6.587667,
+       43.277433
+      ],
+      [
+       6.5865,
+       43.27775
+      ],
+      [
+       6.587033,
+       43.27895
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Baie de Grimaud",
+    "zone": "1bis",
+    "nom": "Zone 1bis — Baie de Grimaud",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 1.4,
+    "profondeur_max_m": 2.8,
+    "source": "DDTM du Var / SML-BLO, carte n°44, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 11500,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier, quelques taches d'herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.59105,
+       43.281683
+      ],
+      [
+       6.5921,
+       43.280667
+      ],
+      [
+       6.591433,
+       43.280183
+      ],
+      [
+       6.590283,
+       43.281117
+      ],
+      [
+       6.59105,
+       43.281683
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Baie de Grimaud",
+    "zone": 2,
+    "nom": "Zone 2 — Baie de Grimaud",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Est",
+    "profondeur_min_m": 1.4,
+    "profondeur_max_m": 2.8,
+    "source": "DDTM du Var / SML-BLO, carte n°44, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 21800,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.599417,
+       43.283667
+      ],
+      [
+       6.5999,
+       43.28275
+      ],
+      [
+       6.597567,
+       43.282167
+      ],
+      [
+       6.597083,
+       43.283083
+      ],
+      [
+       6.599417,
+       43.283667
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Guerrevieille",
+    "zone": 3,
+    "nom": "Zone 3 — Guerrevieille",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 2.1,
+    "profondeur_max_m": 5.7,
+    "source": "DDTM du Var / SML-BLO, carte n°45, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 30200,
+    "herbier_lecture_visuelle": "Sur herbier de Posidonie"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.604117,
+       43.2857
+      ],
+      [
+       6.6051,
+       43.284883
+      ],
+      [
+       6.6028,
+       43.2834
+      ],
+      [
+       6.6018,
+       43.2842
+      ],
+      [
+       6.604117,
+       43.2857
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Guerrevieille",
+    "zone": 4,
+    "nom": "Zone 4 — Guerrevieille",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 6,
+    "source": "DDTM du Var / SML-BLO, carte n°45, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 32300,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.6099,
+       43.289267
+      ],
+      [
+       6.611033,
+       43.28845
+      ],
+      [
+       6.608717,
+       43.28695
+      ],
+      [
+       6.6076,
+       43.287783
+      ],
+      [
+       6.6099,
+       43.289267
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Guerrevieille",
+    "zone": 5,
+    "nom": "Zone 5 — Guerrevieille",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 2.7,
+    "profondeur_max_m": 4.7,
+    "source": "DDTM du Var / SML-BLO, carte n°45, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 19100,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier, herbier en lisière"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.6133,
+       43.290983
+      ],
+      [
+       6.614117,
+       43.2902
+      ],
+      [
+       6.612417,
+       43.289317
+      ],
+      [
+       6.6115,
+       43.29005
+      ],
+      [
+       6.6133,
+       43.290983
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Grimaud",
+    "lieu": "Guerrevieille",
+    "zone": 6,
+    "nom": "Zone 6 — Guerrevieille",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Est",
+    "profondeur_min_m": 3.9,
+    "profondeur_max_m": 5.5,
+    "source": "DDTM du Var / SML-BLO, carte n°45, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 28000,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier, herbier en lisière nord-ouest"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.62175,
+       43.2954
+      ],
+      [
+       6.6226,
+       43.294317
+      ],
+      [
+       6.620467,
+       43.293417
+      ],
+      [
+       6.6196,
+       43.294517
+      ],
+      [
+       6.62175,
+       43.2954
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Roquebrune-sur-Argens",
+    "lieu": "Les Issambres — Les Pierrats",
+    "zone": 1,
+    "nom": "Zone 1 — Les Issambres — Les Pierrats",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 1,
+    "profondeur_max_m": 7,
+    "source": "DDTM du Var / SML-BLO, carte n°48, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 21400,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie",
+    "remarques": "À proximité immédiate du port San Peïre"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.689083,
+       43.341017
+      ],
+      [
+       6.6908,
+       43.340867
+      ],
+      [
+       6.69085,
+       43.3396
+      ],
+      [
+       6.689283,
+       43.3394
+      ],
+      [
+       6.689083,
+       43.341017
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Fréjus",
+    "lieu": "Les Esclamandes",
+    "zone": 1,
+    "nom": "Zone 1 — Les Esclamandes",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 1,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°50, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 27500,
+    "herbier_lecture_visuelle": "Aucun herbier cartographié dans la zone",
+    "remarques": "Plage de Saint-Aygulf ; bord est sur la limite des 300 m"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.73435,
+       43.40455
+      ],
+      [
+       6.7366,
+       43.403783
+      ],
+      [
+       6.73565,
+       43.402267
+      ],
+      [
+       6.73435,
+       43.403033
+      ],
+      [
+       6.73435,
+       43.40455
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Raphaël",
+    "lieu": "Île d'Or",
+    "zone": null,
+    "nom": "Île d'Or",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud-Est / Est",
+    "profondeur_min_m": 10,
+    "profondeur_max_m": 30,
+    "source": "DDTM du Var / SML-BLO, carte n°51, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 22500,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier ; frange ouest hors herbier",
+    "remarques": "Au large du Cap du Dramont / Île d'Or"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.843667,
+       43.411533
+      ],
+      [
+       6.845517,
+       43.411517
+      ],
+      [
+       6.845517,
+       43.410167
+      ],
+      [
+       6.843667,
+       43.410183
+      ],
+      [
+       6.843667,
+       43.411533
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Saint-Raphaël",
+    "lieu": "Dramont — Plage du Débarquement",
+    "zone": null,
+    "nom": "Dramont — Plage du Débarquement",
+    "public": "tous",
+    "capacite_unites": 6,
+    "exposition": "Sud",
+    "profondeur_min_m": 10,
+    "profondeur_max_m": 30,
+    "source": "DDTM du Var / SML-BLO, carte n°52, mai 2023",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 5100,
+    "herbier_lecture_visuelle": "Bande d'herbier traversant la zone ; reste hors herbier",
+    "remarques": "Coquille du titre de la carte corrigée (« Déparquement » → « Débarquement »)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.838583,
+       43.416383
+      ],
+      [
+       6.839617,
+       43.41635
+      ],
+      [
+       6.839567,
+       43.4158
+      ],
+      [
+       6.838533,
+       43.415833
+      ],
+      [
+       6.838583,
+       43.416383
       ]
      ]
     ]

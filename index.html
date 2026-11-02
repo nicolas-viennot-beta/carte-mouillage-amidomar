@@ -265,6 +265,13 @@
       #env-block .env-carte--ddtm-ok    { background:#e8f5ec; border:2px solid #18753c;
                                           border-radius:4px; }
       #env-block .env-carte--ddtm-ok .env-carte-resume { color:#0f5629; }
+      /* v2.33 : dans une zone réservée uniquement aux professionnels, la règle
+         locale garde son cadre orange — ce n'est pas une autorisation — mais
+         le fond passe au gris : la zone existe, elle n'est simplement pas pour
+         ce public. Le rouge reste réservé aux interdictions au point. */
+      #env-block .env-carte--ddtm-pro   { background:#f1f1f1; border:2px solid #b34000;
+                                          border-radius:4px; }
+      #env-block .env-carte--ddtm-pro .env-carte-resume { color:#8a3200; }
       /* v2.28 : une carte qui constate une ABSENCE de donnée portait jusqu'ici
          la couleur de son thème — sable pour la nature du fond, gris-bleu pour
          les cultures marines — donc elle se lisait comme un constat. « Nature du
@@ -335,6 +342,12 @@
       #coords-popup.alerte #coords-hint { color:#8a1215; background:#ffe9e9; border-left-color:#c9191e; }
       /* Avertissement « vous êtes à terre » : le popup ne montre alors aucune coordonnée. */
       #coords-popup.terre #report-block { display:none; }
+      /* v2.33 : coordonnées retenues par une règle locale (coordonnees_hors_zone).
+         Un paragraphe explique pourquoi, à la place du bloc « à reporter ». */
+      #report-masque { text-align:left; font-size:12px; line-height:1.4; color:#8a3200;
+                       background:#fff4ed; border-left:3px solid #b34000; padding:8px 10px;
+                       border-radius:0 4px 4px 0; margin:0; }
+      #report-masque[hidden] { display:none; }
       #coords-popup.terre #coords-hint { color:#8a1215; background:#ffe9e9; border-left-color:#c9191e; }
       .copy-btn { flex-shrink:0; background:#1a73e8; color:#fff; border:none; border-radius:5px;
                   padding:7px 12px; cursor:pointer; font-size:13px; font-family:inherit; }
@@ -624,6 +637,10 @@
           </div>
         </div>
       </div>
+      <!-- v2.33 : affiché À LA PLACE du bloc « à reporter » quand une règle
+           locale retient les coordonnées (voir decisionCoordonnees). Hors du
+           bloc, qui est masqué dans ce cas. -->
+      <p id="report-masque" hidden></p>
       </div>
     </div>
 
@@ -893,8 +910,12 @@
         id:'zones_aot', label:'Zones de mouillage autorisées (AOT)', couleur:'#b34000',
         picto:'polygone', statut:'local',
         geojson:'data/zones-aot.geojson', visible:true,
-        attribution:'DDTM du Var / SML-BLO, cartes n°41 et n°42, octobre 2022',
-        note:"Zones où une AOT de mouillage individuel reste délivrable. Couverture TRÈS partielle à ce jour : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF de la DDTM 83 et à faire confirmer par elle. Même teinte orange que la carte « Règles locales » du popup : c'est la même nature d'information, ce que l'administration autorise." },
+        // v2.33 : une zone réservée uniquement aux professionnels (propriété
+        // `public` = 'professionnels') est dessinée en gris — elle existe, mais
+        // pas pour ce public. Les autres gardent l'orange des règles locales.
+        couleurExpr:['case', ['==', ['get','public'], 'professionnels'], '#6a6a6a', '#b34000'],
+        attribution:'DDTM du Var / SML-BLO, cartes n°31 à 52, octobre 2022 – mai 2023',
+        note:"Zones où une AOT de mouillage individuel reste délivrable. Couverture partielle à ce jour : 28 zones du Var sur 9 communes, du golfe de Saint-Tropez à Saint-Raphaël (cartes n°31 à 52 de la DDTM 83, relevées à la main sur PDF, à faire confirmer par elle). L'ouest du département n'est pas encore couvert. Orange : zone ouverte à tous ; gris : zone réservée uniquement aux professionnels. Même teinte orange que la carte « Règles locales » du popup : c'est la même nature d'information, ce que l'administration autorise." },
 
       { groupe:'Usages de la mer',
         id:'restrictions_diverses', label:'Zone de baignade / zone réglementaire',
@@ -1943,10 +1964,10 @@
             map.addSource(c.id, { type:'geojson', data:gj });
             map.addLayer({ id:c.id+'-fill', type:'fill', source:c.id,
               layout:{ visibility: c.visible ? 'visible':'none' },
-              paint:{ 'fill-color':c.couleur, 'fill-opacity':0.35 } });
+              paint:{ 'fill-color':c.couleurExpr || c.couleur, 'fill-opacity':0.35 } });
             map.addLayer({ id:c.id+'-line', type:'line', source:c.id,
               layout:{ visibility: c.visible ? 'visible':'none' },
-              paint:{ 'line-color':c.couleur, 'line-width':1.5 } });
+              paint:{ 'line-color':c.couleurExpr || c.couleur, 'line-width':1.5 } });
             st.textContent = vide ? '○' : (secours ? '≈' : '✓');
             st.className = 'layer-status ' + (vide ? 'st-wait' : 'st-ok');
             st.title = vide ? 'Fichier présent mais vide — à compléter'
@@ -2167,6 +2188,8 @@
     const zoneLabel = document.getElementById('zone-label');
     const zoneText  = document.getElementById('zone-text');
     const copyZone  = document.getElementById('copy-zone');
+    const reportMasque = document.getElementById('report-masque');   // v2.33
+    let coordonneesMasquees = false;   // v2.33 : une règle locale retient les coordonnées
 
     /* ---------- v2.27 : réduire le popup sans perdre l'emplacement ----------
        « Réduire » et « Fermer » ne font PAS la même chose, et c'est tout
@@ -2219,7 +2242,7 @@
       resumeCompte.className = 'coords-resume-compte' + (classe ? ' ' + classe : '');
       // Pas de coordonnées à terre : le panneau déplié n'en montre pas non plus
       // (#coords-popup.terre #report-block { display:none }).
-      resumeCoords.textContent = (position && !popup.classList.contains('terre'))
+      resumeCoords.textContent = (position && !popup.classList.contains('terre') && !coordonneesMasquees)
         ? coordsText.textContent : '';
       // La barre ne bouge pas quand l'usager clique un nouveau point : sans
       // signal, il doute d'avoir cliqué.
@@ -2266,7 +2289,7 @@
     // v2.16 : le mode « réduit à une ligne » de la v2.5 (`titreCompact`) a été
     // retiré — il n'avait plus d'objet, le contexte étant désormais présenté en
     // cartes qui tiennent déjà sur une ligne chacune.
-    /* v2.30 : le bloc « Mouillages voisins » se glisse ENTRE les deux groupes de
+    /* v2.33 : le bloc « Mouillages voisins » se glisse ENTRE les deux groupes de
        cartes — après ce que la carte a établi, avant ce qu'elle n'a pas pu
        vérifier. Il énonce un fait constaté (des mouillages voisins existent, et
        voici votre rayon d'évitage) : il n'a rien à faire après les incertitudes,
@@ -2652,6 +2675,69 @@
       }) || null;
     }
 
+    /* v2.33 : propriété `public` d'une zone — 'tous' (défaut) ou 'professionnels'
+       (zone dite « tampon » par la DDTM 83). Lue à un seul endroit pour qu'une
+       graphie différente dans le GeoJSON ne passe pas inaperçue. */
+    function zoneReserveePro(f) {
+      return String(((f || {}).properties || {}).public || '').trim().toLowerCase() === 'professionnels';
+    }
+
+    /* ---------- v2.33 : coordonnées retenues par une règle locale ----------
+       Deux territoires ne délivrent plus d'AOT de mouillage individuel en dehors
+       de zones précises : les Côtes-d'Armor (ports et ZMEL seulement — qui ont
+       leur propre modale, donc aucune zone dans le GeoJSON) et le Var (zones
+       dédiées). Y proposer des coordonnées GPS à recopier, c'est engager l'usager
+       dans une démarche qui n'aboutira pas. La règle est donc UNE SEULE : quand
+       la fiche DDTM porte `coordonnees_hors_zone: false`, les coordonnées ne
+       s'affichent que dans une zone de cette DDTM ouverte à tous. Pas de cas
+       particulier par département dans le code : tout est dans les données.
+
+       Quatre garde-fous, arbitrés avec Nicolas le 2 novembre 2026 :
+       - `brouillon: true` désactive le masquage. Tant que la liste des zones est
+         en cours de constitution, retenir les coordonnées à Hyères parce que
+         seules les zones du golfe sont saisies serait faux. La carte dit la
+         règle, elle n'en tire pas encore la conséquence ;
+       - l'entrée ?vue=existant n'est pas concernée : le titulaire d'une AOT en
+         cours a un emplacement légitime, la règle porte sur les NOUVELLES
+         demandes ;
+       - département inconnu (Shom injoignable, point au large) : on affiche. Le
+         masquage est un levier pédagogique, pas une interdiction, et une panne
+         réseau ne doit jamais bloquer le parcours ;
+       - deux départements au plus petit rayon : on affiche, avec les deux
+         messages. L'usager a l'information pour juger ; retenir les coordonnées
+         sur une inférence incertaine serait pire. */
+    function decisionCoordonnees(dep, messages, zones, lngLat) {
+      if (vueExistant) return { masquer:false };
+      if (!dep || !dep.departements || dep.departements.length !== 1) return { masquer:false };
+      const f = (messages || []).find(m => String(m.ddtm) === String(dep.departements[0]));
+      if (!f || f.coordonnees_hors_zone !== false || f.brouillon) return { masquer:false };
+      const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
+      const autorisee = !!zoneIci
+        && String((zoneIci.properties||{}).ddtm) === String(f.ddtm)
+        && !zoneReserveePro(zoneIci);
+      if (autorisee) return { masquer:false };
+      const nom = f.nom_departement ? `${f.nom_departement} (${f.ddtm})` : `département ${f.ddtm}`;
+      return { masquer:true,
+               raison: f.message_hors_zone
+                 || `La DDTM ${nom} ne délivre plus de nouvelles AOT de mouillage individuel à cet emplacement : les coordonnées GPS ne sont donc pas proposées. Voir les règles locales ci-dessus.` };
+    }
+
+    /* Applique la décision : le cadre « à reporter » laisse la place à un
+       paragraphe qui dit pourquoi. `null` remet l'état normal (nouveau clic,
+       fermeture). Le texte vient du fichier de messages : échappé, comme le
+       reste. */
+    function masquerCoordonnees(decision) {
+      coordonneesMasquees = !!(decision && decision.masquer);
+      if (coordonneesMasquees) {
+        reportBlock.style.display = 'none';
+        reportMasque.textContent = decision.raison;
+        reportMasque.hidden = false;
+      } else {
+        reportMasque.hidden = true;
+        reportMasque.textContent = '';
+      }
+    }
+
     // Cadrage sur une zone depuis le popup. Conservé dans une table indexée
     // plutôt que sérialisé dans le DOM : les coordonnées n'ont rien à faire
     // dans un attribut HTML, et l'index suffit à retrouver l'entité.
@@ -2727,14 +2813,26 @@
         // une phrase propre à un département, et la coder en dur obligerait à
         // repasser par un développeur pour chaque DDTM qui rejoindra le
         // dispositif. Sans ces champs, on retombe sur une phrase neutre.
-        const enZone = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
+        const zoneDeCetteDDTM = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
+        // v2.33 : une zone réservée uniquement aux professionnels n'est pas une
+        // autorisation pour un plaisancier. Troisième état, ni orange ni vert.
+        const enZonePro = zoneDeCetteDDTM && zoneReserveePro(zoneIci);
+        const enZone = zoneDeCetteDDTM && !enZonePro;
         // Le nom de la zone est accolé au complément, entre parenthèses. Il
         // occupait la seconde ligne, qui porte désormais la conséquence
         // (« identifier les autres zones autorisées »), comme sur la carte
         // orange. Les parenthèses évitent de confondre le tiret du libellé
         // (« Saint-Tropez — La Bouillabaisse ») avec celui qui le précède.
-        const nomZone = enZone ? libelleZone(zoneIci.properties || {}) : '';
-        const source = enZone
+        const nomZone = (enZone || enZonePro) ? libelleZone(zoneIci.properties || {}) : '';
+        const source = enZonePro
+          ? { titre: f.message_titre_zone_pro
+                  || 'Cet emplacement est dans une zone réservée uniquement aux professionnels',
+              complement: [f.message_complement_zone_pro, nomZone && `(${nomZone})`]
+                            .filter(Boolean).join(' '),
+              consequence: f.message_consequence_zone_pro || 'identifier les zones autorisées à tous',
+              bouton: f.libelle_bouton_zone_pro || f.libelle_bouton || 'Voir les zones',
+              detail: f.message_detail_zone_pro || f.message_detail || [] }
+          : enZone
           ? { titre: f.message_titre_zone
                   || "Cet emplacement est dans une zone où l'AOT reste délivrable",
               complement: [f.message_complement_zone, nomZone && `(${nomZone})`]
@@ -2760,7 +2858,7 @@
         // contredirait son libellé.
         const sesZones = (zones || [])
           .filter(z => String((z.properties||{}).ddtm) === String(f.ddtm))
-          .filter(z => !enZone || z !== zoneIci);
+          .filter(z => !(enZone || enZonePro) || z !== zoneIci);
         if (sesZones.length) {
           const items = sesZones.map(z => {
             const p = z.properties || {};
@@ -2772,8 +2870,11 @@
                 ? `profondeur ${String(p.profondeur_min_m).replace('.', ',')} à ${String(p.profondeur_max_m).replace('.', ',')} m` : ''
             ].filter(Boolean).join(', ');
             const titre = libelleZone(p);
+            // v2.33 : une zone réservée aux professionnels reste listée — la
+            // cacher la ferait passer pour libre — mais le dit.
+            const pro = zoneReserveePro(z) ? ' — réservée uniquement aux professionnels' : '';
             return `<li><button type="button" class="env-zone-lien" data-zone="${i}"
-                      >${echapper(titre)}</button>${detail ? ' : ' + echapper(detail) : ''}</li>`;
+                      >${echapper(titre)}</button>${detail ? ' : ' + echapper(detail) : ''}${pro}</li>`;
           }).join('');
           paragraphes.splice(1, 0,
             `<ul class="env-liste">${items}</ul>
@@ -2792,7 +2893,7 @@
           `<p class="env-caveat">Information provisoire, en cours de validation
              avec la DDTM ${echapper(f.nom_departement || f.ddtm)}.</p>`);
         return carteEnv({
-          type: enZone ? 'ddtm-ok' : 'ddtm',
+          type: enZonePro ? 'ddtm-pro' : enZone ? 'ddtm-ok' : 'ddtm',
           titre: source.titre,
           complement: source.complement,
           consequence: source.consequence,
@@ -3459,6 +3560,7 @@
       // emplacement n'est plus choisi, et ses coordonnées copiées ne valent plus.
       copieFaite = false; majEtapes();
       reportBlock.style.display = 'none';
+      masquerCoordonnees(null);   // v2.33
       boatBlock.style.display = 'none';
       hint.textContent = '';
       popup.classList.remove('info', 'alerte');
@@ -3617,6 +3719,11 @@
       // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
       // peut s'afficher sans l'autre.
       const reglesLocales = blocReglesLocales(dep, fiches, zones, lngLat);
+      // v2.33 : la même règle locale peut retenir les coordonnées. Décidé ici,
+      // une fois le département connu, jamais avant : pendant l'attente le bloc
+      // « à reporter » est déjà visible avec le point, et c'est voulu — une
+      // panne ne doit pas le faire disparaître.
+      masquerCoordonnees(decisionCoordonnees(dep, fiches, zones, lngLat));
       /* Deux intitulés plutôt qu'un : « Contexte environnemental » ne coiffe plus
          que ce qui a été réellement trouvé. Ce que la carte n'a pas pu vérifier
          est dit, mais à part et en retrait — ni confondu avec un constat, ni
@@ -3667,6 +3774,7 @@
       copyBtn.textContent = 'Copier'; copyBtn.classList.remove('copied');
       copyZone.textContent = 'Copier'; copyZone.classList.remove('copied');
       reportBlock.style.display = 'none';
+      masquerCoordonnees(null);   // v2.33
       boatBlock.style.display = 'none';
       afficherEnvironnement('', '');
       popup.classList.remove('visible', 'info', 'alerte', 'terre');

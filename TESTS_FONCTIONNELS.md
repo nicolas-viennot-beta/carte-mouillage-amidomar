@@ -18,11 +18,29 @@ fonctionnalité correspondante a réellement disparu.
 `Claude/Amidomar`, hors dépôt Git *(depuis le 02/11/2026)* :
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
-`test_donnees_aot.py` (§16), `stub.js` et `tirage_aot.js`. Leur `README.md`
+`test_donnees_aot.py` (§16), `test_regles_locales.js` et
+`test_regles_locales_chromium.js` (§17), `stub.js` et `tirage_aot.js`. Leur `README.md`
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 30 oct. 2026 (v2.32) — repli du panneau de couches, chevrons,
+**Dernière exécution : 2 nov. 2026 (v2.33) — coordonnées retenues par une règle
+locale, zones réservées aux professionnels, 24 zones de plus dans le Var.**
+- §17 (nouvelle section) : **27/27** en Node (`test_regles_locales.js` — données,
+  `decisionCoordonnees`, `zoneReserveePro`, les trois états de `blocReglesLocales`,
+  `?vue=existant`), et **11/11** en rendu Chromium avec réseau Shom simulé
+  (hors zone 83 publié, en zone 83, Côtes-d'Armor), 0 `pageerror`.
+- §6.1, §6.1bis, §6.1quinquies, §6.3 : **OK**. §16 données : **OK** après ajustement — la zone 5 des Canebiers retirée du référentiel, les 13 AOT simulées qui s'y trouvaient restent sans nom de zone (37/50 en zone au lieu de 50/50, `test_donnees_aot.py` mis à jour).
+- **§10 rejoué en entier** : 59/59 en Node, 22/22 en Chromium.
+- **Défaut trouvé et corrigé en session** : le paragraphe `#report-masque` avait
+  été inséré *dans* `#report-block`, donc masqué avec lui. Les tests Node le
+  voyaient dans le DOM ; seul le rendu Chromium (hauteur rendue **0**) l'a
+  révélé. D'où le test 17.5.3 : la hauteur rendue du paragraphe doit être > 0.
+- Non couvert, à reprendre en réel sur la version publiée : le rattachement
+  départemental réel (Shom) suivi du masquage dans les Côtes-d'Armor, et le
+  rendu gris d'une zone `professionnels` (aucune dans les données à ce jour —
+  vérifié uniquement par mutation du GeoJSON dans le harnais).
+
+**Exécution précédente : 30 oct. 2026 (v2.32) — repli du panneau de couches, chevrons,
 et rejeu des AOT simulées.**
 - §16 (nouvelle section) : **18/18** sur les données, **7/7** sur l'interface.
 - §6.1 (syntaxe), §6.1bis (exécution réelle), §6.1quinquies (zéro focus) et
@@ -2804,3 +2822,63 @@ sur le fond IGN : interrogation du WFS `LIMTM` sur une emprise de 300 m autour d
 `-3.0284, 48.8377` → **7 objets Shom, le plus proche à 121 m**. Ce sont des roches
 que le fond de plan ne dessine pas. **Ce n'est pas un défaut de placement** —
 consigné dans `DOCUMENTATION_FONCTIONNELLE.md` §10 et `data/SOURCES.md` §5.
+
+---
+
+## 17. Coordonnées retenues par une règle locale, zones réservées aux professionnels *(v2.33)*
+
+**Exécution : 2 nov. 2026 — 27/27 en Node, 11/11 en Chromium.**
+
+Harnais : `test_regles_locales.js` (Node, réseau coupé, fiches et zones lues sur
+disque et injectées dans les fonctions via le pont `globalThis.__t`), complété
+d'un rendu Chromium où le WFS `LIMTM` du Shom est **simulé** (`page.route`) pour
+renvoyer un `numdep` choisi, et où `ddtm-messages.json` est servi avec
+`brouillon: false` sur le 83 : `test_regles_locales_chromium.js` (Playwright
+requis — tourne dans le conteneur Claude, captures dans `/tmp/amidomar_shot_*.png`).
+
+### 17.0 Données
+1. `data/ddtm-messages.json` : fiche 22 avec `coordonnees_hors_zone === false` et `brouillon === false` ; fiche 83 avec `coordonnees_hors_zone === false`, `message_hors_zone` et `message_titre_zone_pro`.
+2. `data/zones-aot.geojson` : toutes les entités portent `ddtm` et `public ∈ {tous, professionnels}` ; 28 zones `ddtm = 83` sur 9 communes ; anneaux fermés, ≥ 4 sommets distincts.
+   - Vérification : lecture des fichiers.
+
+### 17.1 `zoneAOTauPoint` et `zoneReserveePro`
+1. `{lng: 6.6228, lat: 43.2678}` → zone 1, La Bouillabaisse. `{lng: 6.70, lat: 43.20}` → `null`.
+2. `zoneReserveePro` : `false` sur `public: "tous"`, `true` sur `"Professionnels "` (casse et espaces tolérés).
+
+### 17.2 `decisionCoordonnees(dep, messages, zones, lngLat)` — matrice
+Avec le 83 forcé en `brouillon: false` (`f83pub`) :
+| Cas | Attendu |
+|---|---|
+| 22, hors zone | `masquer: true`, `raison === message_hors_zone` du 22 |
+| 83 publié, hors zone | `masquer: true` |
+| 83 publié, dans une zone `tous` | `masquer: false` |
+| 83 publié, dans une zone `professionnels` | `masquer: true` |
+| 83 **tel qu'en fichier** (`brouillon: true`), hors zone | `masquer: false` |
+| 29 (fiche sans `coordonnees_hors_zone`) | `masquer: false` |
+| `dep = null` (département inconnu) | `masquer: false` |
+| deux départements (`['13','83']`) | `masquer: false` |
+| 22 sans `message_hors_zone` | raison par défaut contenant « Côtes-d'Armor (22) » |
+   - Vérification : appel direct des fonctions dans le sandbox `vm`.
+
+### 17.3 `?vue=existant`
+1. Script chargé avec `location.search = '?vue=existant'` → `vueExistant === true`, et le cas « 22 hors zone » rend `masquer: false`.
+
+### 17.4 `blocReglesLocales` — trois états
+1. 83, hors zone → classe `env-carte--ddtm` (ni `-ok` ni `-pro`), **28** `env-zone-lien`.
+2. 83, dans une zone `tous` → `env-carte--ddtm-ok`, **27** liens (la zone occupée sort de la liste).
+3. 83, dans une zone mutée en `professionnels` → `env-carte--ddtm-pro`, titre = `message_titre_zone_pro`, 27 liens.
+4. 83, hors zone, une zone mutée en `professionnels` → la liste contient « réservée uniquement aux professionnels ».
+5. Aucune balise `<script` dans le HTML rendu (échappement des fiches).
+
+### 17.5 Rendu Chromium, réseau Shom simulé
+1. Point `43.20, 6.70` avec `numdep = 83` et 83 publié → `#report-block` en `display: none`, `#report-masque` visible avec le texte du 83 (« Le Var ne délivre plus… »), carte orange, `#coords-resume-coords` vide.
+2. Point `43.2678, 6.6228` → `#report-block` visible, `#report-masque` caché, carte `ddtm-ok`, `#coords-text` = « 43.267800, 6.622800 ».
+3. **Hauteur rendue de `#report-masque` > 0 et bas du paragraphe dans la fenêtre** (`getBoundingClientRect`). C'est le test qui a attrapé le paragraphe inséré au mauvais endroit.
+4. Point `48.80, -3.00` avec `numdep = 22` → `#report-block` masqué, texte du 22.
+5. `pageerror` cumulées : 0.
+   - Vérification : Playwright, 1440 × 900, serveur statique local, `page.route` sur `services.data.shom.fr` (DWITHIN → une entité `{numdep}`, sinon vide) et sur `data/ddtm-messages.json`.
+
+### 17.6 Non couvert par les harnais
+- Le rattachement réel par le Shom (CORS limité à l'origine publiée), donc le masquage en conditions réelles dans les Côtes-d'Armor — **à vérifier sur la version publiée** après déploiement : clic en baie de Saint-Brieuc, attendre « Emplacement rattaché à : Côtes-d'Armor (22) », constater l'absence du bloc « À reporter ».
+- Le rendu gris d'une zone `professionnels` sur la carte (expression `couleurExpr`) : aucune zone de ce type dans les données. Vérifier à la première transmise, ou en mutant localement `public` sur une zone.
+- La barre réduite après masquage en conditions réelles (vérifiée seulement par lecture de `#coords-resume-coords`).

@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.32 (octobre 2026)  
-**Dernière mise à jour:** 30 octobre 2026  
+**Version:** 2.33 (novembre 2026)  
+**Dernière mise à jour:** 2 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -489,15 +489,15 @@ Un point au milieu d'une grande baie n'a aucune terre à 2 km : il faut pouvoir 
 
 **Affichage.** Un bloc « Règles locales » (`popup-entete-section`), placé **avant** « Contexte environnemental » : une règle départementale peut réorienter toute la démarche, la lire après la nature du fond n'aurait pas de sens. Le message lui-même réutilise `carteEnv`, dans une quatrième teinte `env-carte--ddtm` (orange DSFR `#b34000`) et, depuis la v2.23, une **bordure complète** de 2 px au lieu du filet gauche des trois autres cartes : celles-ci décrivent le contexte, celle-ci énonce une règle qui prime sur le reste, et un cadre fermé la détache du groupe au lieu de l'y ranger. Orange et non rouge : le rouge reste l'interdiction au point précis (biotope, parcelle conchylicole), qui ferme l'emplacement ; une règle départementale réoriente la démarche, elle ne condamne pas le point. Un département connu mais sans message particulier (29, 56 à ce jour) n'affiche que la ligne de rattachement.
 
-**Source des messages : `data/ddtm-messages.json`.** Fichier **provisoire**. L'interface instructeur Grist prévue pour que les agents DDTM gèrent leurs bandeaux par périmètre n'existe pas encore ; en attendant, les messages vivent dans le dépôt, mais avec **les noms de champs de la future table DDTM de Grist** (`ddtm`, `message_titre`, `message_consequence`, `message_detail`, `liste`, `lien`, `libelle_lien`, `brouillon`), pour que le basculement soit un script d'export et non une réécriture de la carte.
+**Source des messages : `data/ddtm-messages.json`.** Fichier **provisoire**. L'interface instructeur Grist prévue pour que les agents DDTM gèrent leurs bandeaux par périmètre n'existe pas encore ; en attendant, les messages vivent dans le dépôt, mais avec **les noms de champs de la future table DDTM de Grist** (`ddtm`, `message_titre`, `message_consequence`, `message_detail`, `liste`, `lien`, `libelle_lien`, `brouillon`, et depuis la v2.33 `coordonnees_hors_zone`, `message_hors_zone` et les champs `*_zone_pro`), pour que le basculement soit un script d'export et non une réécriture de la carte.
 
 **Tous les champs sont du texte brut, jamais du HTML**, et la carte les échappe à l'affichage. Ce n'est pas une précaution théorique : ce fichier sera demain rédigé par des agents DDTM via Grist, et du HTML injecté dans la page serait une faille. Les liens sont en outre filtrés sur `https://` — une URL `javascript:` saisie par mégarde ne devient pas cliquable. Quatre tests couvrent ce point (`TESTS_FONCTIONNELS.md` §9).
 
 Le drapeau `brouillon: true` fait ajouter « Information provisoire, en cours de validation avec la DDTM … » sous le message. Il reste posé sur le **83**.
 
-**État de la liste du Var (v2.23).** Cinq zones ont été transmises par la DDTM 83, toutes sur la **commune de Saint-Tropez** : zone 1 à La Bouillabaisse (30 unités, 3 à 13 m) et zones 2 à 5 aux Canebiers (25, 25, 40 et 40 unités). Source : cartes n°41 et n°42, DDTM du Var / SML-BLO, octobre 2022, fond ORTHO_COULEUR_PVA2017_083.
+**État de la liste du Var (v2.33).** **28 zones sur 9 communes**, du golfe de Saint-Tropez à Saint-Raphaël, pour 740 unités : 4 des 5 zones tropéziennes de la v2.23 (cartes n°41 et 42 : La Bouillabaisse, Les Canebiers 2 à 4 — **la zone 5 des Canebiers a été retirée le 2 novembre 2026**, la DDTM 83 ayant annoncé sa suppression) et, depuis le 2 novembre 2026, 24 zones relevées sur les cartes n°31 à 52 de la DDTM du Var / SML-BLO (octobre 2022 et mai 2023) — Cavalaire-sur-Mer, La Croix-Valmer, Ramatuelle, Saint-Tropez (La Rabiou, La Moutte, Les Salins), Gassin, Grimaud, Roquebrune-sur-Argens, Fréjus, Saint-Raphaël. Tous les sommets ont été lus à la main sur les étiquettes des PDF (aucune donnée géoréférencée dans les fichiers), convertis des degrés-minutes au décimal, et contrôlés : aucun polygone auto-intersecté, et une surface par unité comprise entre 300 et 3 000 m² pour chacune. Sur la **carte n°38 (Ramatuelle, Bonne Terrasse, zone 11)**, les étiquettes de sommets sont inversées sur le PDF : les coordonnées ont été réattribuées aux sommets selon leur position (N, E, S, O), lecture confirmée. Détail des sources et des anomalies de lecture dans `data/SOURCES.md`.
 
-La liste **reste partielle et le texte le dit** : la DDTM 83 couvre toute la façade varoise (Hyères, Giens, Porquerolles, Cavalaire, Le Lavandou, Bandol…), et présenter cinq zones tropéziennes comme « les zones du Var » induirait en erreur quiconque clique ailleurs. Chaque entrée nomme donc sa commune, et le premier paragraphe annonce explicitement que la couverture se limite à Saint-Tropez.
+La liste **reste partielle et le texte le dit** : l'ouest du département (Hyères, Giens, Porquerolles, Le Lavandou, Bandol, Toulon…) n'est pas encore couvert. Chaque entrée nomme sa commune, le premier paragraphe du message dit que la liste est en cours de constitution avec la DDTM, et le drapeau `brouillon` reste à `true` sur le 83 — ce qui, depuis la v2.33, a une conséquence précise sur les coordonnées (voir ci-dessous).
 
 **Les zones sont désormais des polygones : `data/zones-aot.geojson`.** Les quatre sommets de chaque zone, donnés en degrés-minutes décimales sur les cartes PDF, ont été convertis en décimal et versés dans un GeoJSON. Ce fichier sert **deux fois** : il dessine la couche `zones_aot` sur la carte, et il alimente la liste du message DDTM. Les zones ne sont donc pas recopiées dans `data/ddtm-messages.json` — une zone est une géométrie, et la dupliquer en texte garantirait de voir les deux listes diverger. Le lien entre les deux fichiers est la propriété `ddtm` portée par chaque entité.
 
@@ -519,6 +519,30 @@ Trois conséquences pour l'usager :
 **Le test point-dans-zone réutilise `pointDansAnneau`**, écrit pour le cadastre conchylicole (§4.3ter). Une seconde implémentation avait été écrite puis retirée : les déclarations de fonction étant hissées, le doublon écrasait silencieusement l'originale et cassait **aussi** la détection des parcelles conchylicoles. Attrapé par le test d'exécution réelle, pas par le test de syntaxe. Seule différence à gérer : cette fonction attend des anneaux en « lat, lon » (ordre du WFS), le GeoJSON les donne en « lon, lat ».
 
 **Secours hors ligne** volontairement **vide** (`SECOURS['data/ddtm-messages.json']`) : un message d'orientation périmé est pire que pas de message, et ce secours ne sert qu'à l'ouverture par double-clic.
+
+#### Coordonnées retenues par une règle locale *(v2.33)*
+
+**Pourquoi.** Dans les Côtes-d'Armor, aucune nouvelle AOT de mouillage individuel n'est délivrée en dehors des ports et des ZMEL ; dans le Var, aucune en dehors des zones dédiées. Jusqu'ici la carte énonçait la règle (carte orange) mais proposait tout de même des coordonnées GPS à recopier : l'usager pouvait engager une démarche qui n'aboutirait pas. Depuis la v2.33, **la même règle locale retient les coordonnées** là où la DDTM ne délivre pas.
+
+**Une seule règle, aucun cas par département dans le code.** La fiche DDTM de `data/ddtm-messages.json` porte un champ `coordonnees_hors_zone` : à `false`, les coordonnées ne s'affichent que si le point cliqué tombe dans une zone de `data/zones-aot.geojson` appartenant à cette DDTM **et ouverte à tous** (propriété `public` = `tous`). Absent ou `true` : comportement d'avant, coordonnées partout. Les Côtes-d'Armor n'ont aucune zone dans le GeoJSON — ports et ZMEL ont leur propre modale, sans coordonnées — donc les coordonnées n'y sont jamais proposées en mer ; le Var les propose dans ses 28 zones. Un nouveau territoire qui rejoint le dispositif, c'est une ligne de fiche et des polygones, pas du code.
+
+**Ce que voit l'usager.** Le bloc « À reporter dans le formulaire de demande » laisse la place à un paragraphe orange (`#report-masque`) qui dit pourquoi, avec le texte `message_hors_zone` de la fiche DDTM (à défaut, une phrase neutre nommant la DDTM). Le marqueur reste posé et tout le reste du popup est inchangé : la règle réoriente, elle ne ferme pas la carte. La barre réduite n'affiche pas non plus les coordonnées. La décision est prise **après** le rattachement départemental, jamais avant : pendant l'attente réseau, le bloc est visible avec le point, et c'est voulu — une panne ne doit pas le faire disparaître. Fonctions `decisionCoordonnees` et `masquerCoordonnees`.
+
+**Quatre garde-fous**, arbitrés avec Nicolas le 2 novembre 2026 :
+- **`brouillon: true` désactive le masquage.** Tant que la liste des zones d'une DDTM est en cours de constitution, retenir les coordonnées à Hyères parce que seules les zones du golfe sont saisies serait faux. La carte dit la règle sans encore en tirer la conséquence. **C'est l'état actuel du Var** : le masquage y est prêt mais inactif ; il s'activera en passant `brouillon` à `false`, quand la liste sera jugée complète. Dans les Côtes-d'Armor (`brouillon: false`), il est **actif**.
+- **L'entrée `?vue=existant` n'est pas concernée.** Le titulaire d'une AOT en cours a un emplacement légitime ; la règle porte sur les *nouvelles* demandes.
+- **Département inconnu** (Shom injoignable, point au large sans terre à 10 km) : coordonnées affichées. Le masquage est un levier pédagogique, pas une interdiction, et une panne réseau ne bloque jamais le parcours.
+- **Deux départements au plus petit rayon** : coordonnées affichées, avec les deux messages. L'usager a l'information pour juger ; retenir les coordonnées sur une inférence incertaine serait pire.
+
+**Conséquence sur la marche à suivre** : l'étape « copier les coordonnées » reste affichée « en cours » quand elles sont retenues. C'est assumé — l'étape dit ce qu'il faudrait faire, le paragraphe dit pourquoi ce n'est pas possible ici.
+
+#### Zones réservées uniquement aux professionnels *(v2.33)*
+
+La DDTM du Var distingue deux listes de zones : celles ouvertes à tous, et des zones réservées uniquement aux professionnels, qu'elle appelle « zones tampon ». Chaque entité de `data/zones-aot.geojson` porte donc une propriété **`public`** : `tous` (défaut) ou `professionnels`. Lue à un seul endroit du code (`zoneReserveePro`), casse et espaces tolérés.
+
+Pour un plaisancier, une zone réservée aux professionnels n'est pas une autorisation. Un clic dedans donne un **troisième état** de la carte de règle locale — ni orange (hors zone), ni verte (autorisée) : fond gris `#f1f1f1` et cadre orange (`env-carte--ddtm-pro`), titre « Cet emplacement est dans une zone réservée uniquement aux professionnels », textes lus dans les champs `*_zone_pro` de la fiche DDTM (repli sur une phrase neutre), **et pas de coordonnées** (même mécanisme que ci-dessus). Sur la carte, ces zones sont dessinées en **gris** `#6a6a6a` au lieu de l'orange (expression `couleurExpr` de la couche `zones_aot`). Dans la liste « Voir les zones », elles restent listées — les cacher les ferait passer pour libres — avec la mention « réservée uniquement aux professionnels ». Le libellé « zone tampon » reste un terme interne de la DDTM : l'usager lit toujours « réservée uniquement aux professionnels ».
+
+Aucune zone de ce type n'est saisie à ce jour : le mécanisme est en place pour la première que la DDTM 83 transmettra.
 
 ### 4.4quater Dégagement du point cliqué sous le popup *(v2.22)*
 
@@ -666,7 +690,7 @@ Le contrôle n'ouvre pas de déroulant champ vide (`minChars: 3`) : il n'y a don
 - 🟢 **ZMEL** — fichier local `data/zmel.geojson` *(v2.10)* : vraies données (647 ZMEL, Cerema/CACEM, France entière et Antilles, converties depuis un shapefile Lambert-93 fourni par Nicolas — copie de référence dans `data/zmel-reel.geojson`) ; capacité d'accueil réelle, contact (`mailto`) resté sans donnée (absent de la source)
 - 🟢 **Cultures marines** *(v2.18)* — cadastre conchylicole des DDTM, en WMS sur GéoIDE, quatre flux sous une seule case : Finistère (1 406 parcelles, juin 2026), Ille-et-Vilaine (2 194, mars 2024), Charente-Maritime surfacique (13 391) et linéaire (1 254, février 2023). Un clic sur une parcelle déclenche un popup d'interdiction, sur la donnée réelle de la DDTM (§4.3ter). Pas de flux ailleurs : Manche (WFS en panne côté serveur), Morbihan, Vendée, Loire-Atlantique, Gironde (fichier à télécharger seulement). Remplace le polygone fictif de `data/cultures-marines.geojson`, supprimé
 
-- 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Couverture très partielle** : 5 zones sur la seule commune de Saint-Tropez (La Bouillabaisse, Les Canebiers), relevées à la main sur les cartes PDF n°41 et n°42 de la DDTM 83 (octobre 2022) et à faire confirmer par elle. Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup. Depuis la **v2.32**, 50 des AOT simulées sont posées dans ces 5 zones : zoomé sur Saint-Tropez, l'usager voit donc une zone autorisée déjà occupée, ce qui est le cas de figure que le parcours doit savoir montrer
+- 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23, étendue en v2.33)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Couverture partielle** : 28 zones du Var sur 9 communes, du golfe de Saint-Tropez à Saint-Raphaël, relevées à la main sur les cartes PDF n°31 à 52 de la DDTM 83 (octobre 2022 – mai 2023) et à faire confirmer par elle ; l'ouest du département n'est pas couvert. Propriété `public` : les zones réservées uniquement aux professionnels sont dessinées en **gris** `#6a6a6a` (aucune à ce jour). Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup. Depuis la **v2.32**, 50 des AOT simulées sont posées dans les 5 zones tropéziennes d'alors (dont 13 dans la zone 5 des Canebiers, retirée du référentiel en v2.33 — elles y restent, sans nom de zone : des AOT existantes dans une zone que la DDTM ferme) : zoomé sur Saint-Tropez, l'usager voit donc une zone autorisée déjà occupée, ce qui est le cas de figure que le parcours doit savoir montrer
 
 ### Habitats sensibles
 - 🟣 **Herbiers de posidonie et de zostère** — couche WMS (couverture partielle : presque uniquement l'Occitanie, Palavas et Albères ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère annoncée mais absente), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
@@ -1054,14 +1078,23 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Couper le réseau puis cliquer → aucun bloc « Règles locales », le reste du popup fonctionne normalement
 
 ### ✅ 21. Zones de mouillage autorisées *(v2.23)*
-- [ ] Rechercher « Saint-Tropez » → les 5 zones apparaissent en orange sur la carte (1 à La Bouillabaisse, 4 aux Canebiers)
+- [ ] Rechercher « Saint-Tropez » → les zones apparaissent en orange sur la carte (La Bouillabaisse, Les Canebiers, puis La Rabiou, La Moutte et Les Salins vers l'est) ; « Grimaud » → 7 zones en baie de Grimaud et à Guerrevieille ; « Saint-Raphaël » → Île d'Or et Dramont
 - [ ] Décocher « Zones de mouillage autorisées (AOT) » dans la légende → les polygones disparaissent ; recocher → ils reviennent
 - [ ] Cliquer **dans** une zone → la carte de règle locale est **verte**, première ligne « La DDTM du Var autorise les nouvelles AOT de mouillage individuel dans cette zone — sous réserve de places disponibles (Saint-Tropez — La Bouillabaisse, zone 1) », seconde ligne « identifier les autres zones autorisées », bouton « Voir les zones » ; **une seule** carte DDTM, aucun bandeau vert séparé ; et le parcours continue (marqueur posé, coordonnées affichées) — un clic en zone autorisée ne doit pas se comporter comme un clic sur un port
-- [ ] Dans une zone, déplier « Identifier les autres zones autorisées » → **4** zones listées, celle où l'on se trouve n'y figure pas
-- [ ] Cliquer dans le Var **hors** de toute zone → la carte est **orange**, titrée « ne délivre plus… », et les **5** zones sont listées sous « Voir les zones »
+- [ ] Dans une zone, déplier « Identifier les autres zones autorisées » → **27** zones listées, celle où l'on se trouve n'y figure pas
+- [ ] Cliquer dans le Var **hors** de toute zone → la carte est **orange**, titrée « ne délivre plus… », et les **28** zones sont listées sous « Voir les zones », chacune avec sa commune
 - [ ] Déplier « Voir les zones » → les noms sont des liens soulignés
 - [ ] Cliquer un nom → la carte se recadre sur la zone, celle-ci n'est **pas** cachée par le popup, et la liste reste dépliée
 - [ ] Cliquer un second nom à la suite → le recadrage fonctionne aussi
+
+### ✅ 22. Coordonnées retenues par une règle locale et zones réservées aux professionnels *(v2.33)*
+- [ ] Cliquer en mer dans les Côtes-d'Armor (baie de Saint-Brieuc, Sept-Îles) → carte orange du 22, **aucun** bloc « À reporter dans le formulaire », à la place un paragraphe orange « Les Côtes-d'Armor ne délivrent plus de nouvelles AOT… les coordonnées GPS de cet emplacement ne sont donc pas proposées » ; le marqueur reste posé ; « Réduire » → la barre n'affiche pas de coordonnées
+- [ ] Même point avec `?vue=existant` → le bloc « À reporter » est présent, coordonnées affichées
+- [ ] Cliquer dans le Var hors zone, **tant que `brouillon` vaut `true`** → coordonnées affichées (masquage inactif), mention « Information provisoire »
+- [ ] Passer `brouillon` à `false` dans `data/ddtm-messages.json` (test local) puis cliquer dans le Var hors zone → paragraphe « Le Var ne délivre plus… », pas de coordonnées ; cliquer dans une zone → carte verte et coordonnées
+- [ ] Cliquer très au large (département inconnu) → coordonnées affichées
+- [ ] Passer `public` à `professionnels` sur une zone (test local) → elle est dessinée en **gris** ; cliquer dedans → carte **grise à cadre orange** titrée « Cet emplacement est dans une zone réservée uniquement aux professionnels », pas de coordonnées ; dans la liste des zones depuis un autre point, elle porte la mention « réservée uniquement aux professionnels »
+- [ ] Couper le réseau puis cliquer → coordonnées affichées (aucun rattachement, donc aucune retenue)
 - [ ] Vérifier que la détection des parcelles conchylicoles marche toujours (§8) : les deux fonctionnalités partagent `pointDansAnneau`
 
 ### ✅ 20. Dégagement du point cliqué sous le popup *(v2.22)*
@@ -1240,6 +1273,11 @@ Symptôme : le popup affiche les coordonnées et le contexte environnemental alo
 
 ---
 
+### Les coordonnées GPS n'apparaissent pas après un clic en mer *(v2.33)*
+- **Symptôme** : marqueur posé, carte « Règles locales » orange, mais pas de bloc « À reporter dans le formulaire » — à la place, un paragraphe orange.
+- **Ce n'est pas une panne** : la DDTM du point (`Emplacement rattaché à…`) porte `coordonnees_hors_zone: false` et `brouillon: false` dans `data/ddtm-messages.json`, et le point n'est pas dans une zone ouverte à tous de `data/zones-aot.geojson`. C'est le comportement attendu (§4.4ter).
+- **Si les coordonnées devraient s'afficher** : vérifier que la zone existe dans le GeoJSON avec le bon `ddtm` et `public: "tous"` (une zone `professionnels` retient aussi les coordonnées) ; vérifier que le point y tombe vraiment (le test est géométrique, pas visuel) ; vérifier que l'URL ne porte pas `?vue=existant` à l'envers de ce qu'on croit. Pour désactiver temporairement le masquage d'une DDTM sans toucher au code : `brouillon: true`.
+
 ### Des AOT simulées semblent flotter au large, loin de toute côte *(v2.32)*
 
 Ce n'est pas une erreur de placement. Les positions sont mesurées contre le
@@ -1254,6 +1292,18 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.33 — 2 novembre 2026
+**Les règles locales retiennent les coordonnées ; 23 zones de plus dans le Var ; zones réservées aux professionnels**
+- Demande de Nicolas (30 octobre et 2 novembre) : dans le 22, pas de coordonnées GPS en dehors des ports et des ZMEL ; dans le 83, pas de coordonnées en dehors des zones autorisées, avec deux listes de zones (ouvertes à tous / réservées uniquement aux professionnels, dites « zones tampon ») ; et garder le fonctionnement le plus simple possible, piloté demain par une interface Grist par DDTM.
+- **Une seule règle, dans les données** : champ `coordonnees_hors_zone` par fiche DDTM, propriété `public` par zone. Le 22 n'a pas de zone (ports et ZMEL ont leur modale) → jamais de coordonnées en mer ; le 83 les propose dans ses zones ouvertes à tous. Aucun `if` par département dans le code. Voir §4.4ter.
+- Quatre garde-fous arbitrés avec Nicolas : `brouillon: true` désactive le masquage (le Var reste en brouillon tant que la liste est incomplète — masquage prêt mais **inactif** ; actif dans le 22) ; `?vue=existant` n'est pas concernée ; département inconnu → affichage ; deux départements → affichage avec les deux messages.
+- Nouveau paragraphe `#report-masque` à la place du bloc « À reporter », texte `message_hors_zone` de la fiche. Barre réduite sans coordonnées dans ce cas.
+- **Troisième état** de la carte de règle locale, `env-carte--ddtm-pro` (gris, cadre orange), textes `*_zone_pro` ; zones `professionnels` dessinées en gris (`couleurExpr` sur la couche, support générique ajouté au chargeur GeoJSON) et listées avec la mention. Libellé usager : « réservée uniquement aux professionnels ».
+- **`data/zones-aot.geojson`** : 24 zones ajoutées (cartes n°31 à 52 de la DDTM 83, relevées sur PDF dans une session précédente, contrôlées : pas d'auto-intersection, 300 à 3 000 m² par unité ; carte n°38 avec étiquettes réattribuées, confirmé) et **zone 5 des Canebiers retirée** (suppression annoncée par la DDTM 83 ; les 13 AOT simulées qui y étaient posées en v2.32 restent en place, sans nom de zone dans `data/aot-existantes.geojson` : des AOT existantes dans une zone que la DDTM ferme, c'est un cas réel ; test §16 ajusté à 37/50). 28 zones, 9 communes, 740 unités. Propriété `public` posée sur toutes.
+- **`data/ddtm-messages.json`** : drapeaux et textes du 22 et du 83, paragraphe de couverture du Var réécrit (9 communes, ouest absent).
+- Correction en cours de session : le paragraphe de masquage avait été inséré *dans* le bloc « À reporter », donc masqué avec lui — détecté par le rendu Chromium (hauteur rendue nulle), pas par le harnais Node. Un contrôle de rendu réel est ajouté au test (TESTS_FONCTIONNELS.md §17).
+- Tests : harnais Node (syntaxe, exécution réelle, zéro focus, `rayonEvitage`), nouveau harnais `test_regles_locales.js` 27/27, §10 rejoué 59/59 en Node et 22/22 en Chromium, rendu Chromium des trois cas (hors zone 83, en zone 83, 22) avec réseau Shom simulé : 0 `pageerror`.
 
 ### v2.32 — 30 octobre 2026
 **Les mouillages simulés rentrent au rivage ; la colonne de droite s'efface au démarrage**
@@ -1745,4 +1795,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 30 octobre 2026
+**Dernière mise à jour:** 2 novembre 2026
