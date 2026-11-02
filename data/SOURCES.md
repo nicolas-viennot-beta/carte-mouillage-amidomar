@@ -1169,7 +1169,9 @@ datée.
    zone et portant le nom de *leur* zone, aucune zone au-delà de sa capacité.
 
 Le tirage est **déterministe** (générateur pseudo-aléatoire de graine fixe
-20261029) : rejouer la méthode redonne le même fichier. Le générateur a tourné
+20261029) : rejouer la méthode redonne le même fichier. Le script est rangé dans
+`scripts/tests-carte/tirage_aot.js` du dossier `Claude/Amidomar` (hors dépôt) —
+`await tirerAOT()` dans la console de la carte publiée. Le générateur a tourné
 dans la page déployée, seule origine depuis laquelle le WFS du Shom est
 joignable — ni le shell de la machine de Nicolas ni le conteneur Claude
 n'atteignent `services.data.shom.fr` (allowlist réseau, constaté le 29/10/2026).

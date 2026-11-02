@@ -14,6 +14,14 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
+**Les harnais sont rangés dans `scripts/tests-carte/`** du dossier
+`Claude/Amidomar`, hors dépôt Git *(depuis le 02/11/2026)* :
+`harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
+`test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
+`test_donnees_aot.py` (§16), `stub.js` et `tirage_aot.js`. Leur `README.md`
+dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
+les compléter l'est.
+
 **Dernière exécution : 30 oct. 2026 (v2.32) — repli du panneau de couches, chevrons,
 et rejeu des AOT simulées.**
 - §16 (nouvelle section) : **18/18** sur les données, **7/7** sur l'interface.
@@ -1893,10 +1901,16 @@ toute côte) → aucun bloc, aucune erreur.*
 ## 10. Recherche par coordonnées GPS dans le champ de recherche (v2.25)
 
 *Le champ est le `SearchControl` de carte-facile, alimenté par un provider
-`GpsGeocoder` placé avant `GeopfGeocoder`. Les tests 1 à 4 s'exécutent dans le
-harnais Node.js ; les tests 5 à 9 en Chromium headless sur le serveur local.
-Harnais : `executer.mjs` et `test_recherche_gps.mjs` (hors dépôt, dossier de
-travail de Claude).*
+`GpsGeocoder` placé avant `GeopfGeocoder`. Les tests 1 à 4bis s'exécutent dans le
+harnais Node.js ; les tests 5 à 9bis en Chromium headless sur le serveur local.*
+
+> **Harnais : `scripts/tests-carte/` du dossier `Claude/Amidomar`** *(rangés le
+> 02/11/2026)* — `test_recherche_gps.js` (tests 1 à 4bis, Node),
+> `test_interface_chromium.js` (tests 5 à 9bis, Playwright) et le stub partagé
+> `stub.js`. Ils résolvent `projet/index.html` par un chemin relatif et tournent
+> sans configuration. Ils étaient auparavant dans le dossier de travail de
+> Claude, donc **perdus et réécrits à chaque session** — et les trois pièges
+> ci-dessous redécouverts à chaque réécriture. Voir le `README.md` du dossier.
 
 **Dernière exécution : 30 oct. 2026 (v2.32) — 59/59 en Node, 22/22 en Chromium
 headless, 0 `pageerror`.** Rejeu complet après la modification du jeu d'AOT et le
