@@ -23,7 +23,10 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 2 nov. 2026 (v2.33) — coordonnées retenues par une règle
+**Dernière exécution : 3 nov. 2026 (v2.35) — 29 zones de l'ouest du Var.**
+- §17 : **27/27** (compteurs portés à 57 zones / 16 communes, 56 dans la liste depuis une zone ; le test d'anneau accepte 3 sommets — deux triangles). §6, §10 (59/59), §16 : **OK**. Données seules, pas de rendu Chromium rejoué.
+
+**Exécution précédente : 2 nov. 2026 (v2.33) — coordonnées retenues par une règle
 locale, zones réservées aux professionnels, 24 zones de plus dans le Var.**
 - §17 (nouvelle section) : **27/27** en Node (`test_regles_locales.js` — données,
   `decisionCoordonnees`, `zoneReserveePro`, les trois états de `blocReglesLocales`,
@@ -2871,7 +2874,7 @@ requis — tourne dans le conteneur Claude, captures dans `/tmp/amidomar_shot_*.
 
 ### 17.0 Données
 1. `data/ddtm-messages.json` : fiche 22 avec `coordonnees_hors_zone === false` et `brouillon === false` ; fiche 83 avec `coordonnees_hors_zone === false`, `message_hors_zone` et `message_titre_zone_pro`.
-2. `data/zones-aot.geojson` : toutes les entités portent `ddtm` et `public ∈ {tous, professionnels}` ; 28 zones `ddtm = 83` sur 9 communes ; anneaux fermés, ≥ 4 sommets distincts.
+2. `data/zones-aot.geojson` : toutes les entités portent `ddtm` et `public ∈ {tous, professionnels}` ; 57 zones `ddtm = 83` sur 16 communes *(v2.35)* ; anneaux fermés, ≥ 3 sommets distincts (deux triangles : Lazaret M1, Madrague de Giens D).
    - Vérification : lecture des fichiers.
 
 ### 17.1 `zoneAOTauPoint` et `zoneReserveePro`
@@ -2897,9 +2900,9 @@ Avec le 83 forcé en `brouillon: false` (`f83pub`) :
 1. Script chargé avec `location.search = '?vue=existant'` → `vueExistant === true`, et le cas « 22 hors zone » rend `masquer: false`.
 
 ### 17.4 `blocReglesLocales` — trois états
-1. 83, hors zone → classe `env-carte--ddtm` (ni `-ok` ni `-pro`), **28** `env-zone-lien`.
-2. 83, dans une zone `tous` → `env-carte--ddtm-ok`, **27** liens (la zone occupée sort de la liste).
-3. 83, dans une zone mutée en `professionnels` → `env-carte--ddtm-pro`, titre = `message_titre_zone_pro`, 27 liens.
+1. 83, hors zone → classe `env-carte--ddtm` (ni `-ok` ni `-pro`), **57** `env-zone-lien`.
+2. 83, dans une zone `tous` → `env-carte--ddtm-ok`, **56** liens (la zone occupée sort de la liste).
+3. 83, dans une zone mutée en `professionnels` → `env-carte--ddtm-pro`, titre = `message_titre_zone_pro`, 56 liens.
 4. 83, hors zone, une zone mutée en `professionnels` → la liste contient « réservée uniquement aux professionnels ».
 5. Aucune balise `<script` dans le HTML rendu (échappement des fiches).
 

@@ -8,6 +8,1375 @@
    "properties": {
     "ddtm": "83",
     "departement": "Var",
+    "commune": "Bandol",
+    "lieu": "Casino",
+    "zone": null,
+    "nom": "Casino",
+    "public": "tous",
+    "capacite_unites": 55,
+    "exposition": "Sud-Ouest",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°1, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 41100,
+    "herbier_lecture_visuelle": "Partie ouest sur herbier de Posidonie, partie est hors herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.766833,
+       43.138333
+      ],
+      [
+       5.7685,
+       43.137083
+      ],
+      [
+       5.765,
+       43.135667
+      ],
+      [
+       5.765517,
+       43.1377
+      ],
+      [
+       5.766833,
+       43.138333
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Seyne-sur-Mer",
+    "lieu": "Fabrégas",
+    "zone": null,
+    "nom": "Fabrégas",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°2, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 12600,
+    "herbier_lecture_visuelle": "Hors herbier (fond de baie) ; herbier en lisière"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.8734,
+       43.069117
+      ],
+      [
+       5.87445,
+       43.068017
+      ],
+      [
+       5.8736,
+       43.067567
+      ],
+      [
+       5.872567,
+       43.0687
+      ],
+      [
+       5.8734,
+       43.069117
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Seyne-sur-Mer",
+    "lieu": "Mar Vivo",
+    "zone": null,
+    "nom": "Mar Vivo",
+    "public": "tous",
+    "capacite_unites": 10,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°3, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 7900,
+    "herbier_lecture_visuelle": "Enclave de sable entourée d'herbier ; herbier en lisière sur tout le pourtour"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.882,
+       43.072333
+      ],
+      [
+       5.883,
+       43.071783
+      ],
+      [
+       5.882,
+       43.07125
+      ],
+      [
+       5.881383,
+       43.07205
+      ],
+      [
+       5.882,
+       43.072333
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Seyne-sur-Mer",
+    "lieu": "Baie du Lazaret",
+    "zone": "M1",
+    "nom": "Zone M1 — Baie du Lazaret",
+    "public": "tous",
+    "capacite_unites": 66,
+    "exposition": "Est",
+    "profondeur_min_m": 1.6,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°4, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 23200,
+    "herbier_lecture_visuelle": "Aucun herbier cartographié (rade de Toulon)",
+    "remarques": "Polygone à 3 sommets (triangle). Carte commune aux zones M1 et M3 ; pas de zone M2 sur la carte"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.909833,
+       43.083
+      ],
+      [
+       5.909083,
+       43.08075
+      ],
+      [
+       5.907,
+       43.081333
+      ],
+      [
+       5.909833,
+       43.083
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Seyne-sur-Mer",
+    "lieu": "Baie du Lazaret",
+    "zone": "M3",
+    "nom": "Zone M3 — Baie du Lazaret",
+    "public": "tous",
+    "capacite_unites": 105,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 4.5,
+    "source": "DDTM du Var / SML-BLO, carte n°4, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 51000,
+    "herbier_lecture_visuelle": "Aucun herbier cartographié (rade de Toulon) ; matte morte à proximité",
+    "remarques": "Polygone à 5 sommets. Carte commune aux zones M1 et M3"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.902333,
+       43.084
+      ],
+      [
+       5.905083,
+       43.081667
+      ],
+      [
+       5.904417,
+       43.081167
+      ],
+      [
+       5.903167,
+       43.080917
+      ],
+      [
+       5.901167,
+       43.083167
+      ],
+      [
+       5.902333,
+       43.084
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Toulon",
+    "lieu": "Méjean",
+    "zone": null,
+    "nom": "Méjean",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°5, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 33700,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier ; taches d'herbier et de matte morte au nord et à l'ouest"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       5.975,
+       43.107083
+      ],
+      [
+       5.97575,
+       43.105917
+      ],
+      [
+       5.973083,
+       43.105117
+      ],
+      [
+       5.972367,
+       43.106333
+      ],
+      [
+       5.975,
+       43.107083
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Madrague de Giens",
+    "zone": "A",
+    "nom": "Zone A — Madrague de Giens",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Ouest",
+    "profondeur_min_m": 0,
+    "profondeur_max_m": 1,
+    "source": "DDTM du Var / SML-BLO, carte n°6, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 18500,
+    "herbier_lecture_visuelle": "Sur herbier de Posidonie (lisière côtière)",
+    "remarques": "Carte commune aux zones A à D. Profondeur 0 à 1 m"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.107017,
+       43.041617
+      ],
+      [
+       6.1096,
+       43.041117
+      ],
+      [
+       6.1091,
+       43.040233
+      ],
+      [
+       6.10715,
+       43.040783
+      ],
+      [
+       6.107017,
+       43.041617
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Madrague de Giens",
+    "zone": "B",
+    "nom": "Zone B — Madrague de Giens",
+    "public": "tous",
+    "capacite_unites": 45,
+    "exposition": "Ouest",
+    "profondeur_min_m": 0,
+    "profondeur_max_m": 1,
+    "source": "DDTM du Var / SML-BLO, carte n°6, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 48300,
+    "herbier_lecture_visuelle": "Mosaïque herbier / matte morte / sable",
+    "remarques": "Carte commune aux zones A à D. Sommets est partagés avec la zone C"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.111383,
+       43.040883
+      ],
+      [
+       6.116767,
+       43.040517
+      ],
+      [
+       6.11655,
+       43.039533
+      ],
+      [
+       6.11135,
+       43.039867
+      ],
+      [
+       6.111383,
+       43.040883
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Madrague de Giens",
+    "zone": "C",
+    "nom": "Zone C — Madrague de Giens",
+    "public": "tous",
+    "capacite_unites": 60,
+    "exposition": "Ouest",
+    "profondeur_min_m": 0,
+    "profondeur_max_m": 1,
+    "source": "DDTM du Var / SML-BLO, carte n°6, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 37900,
+    "herbier_lecture_visuelle": "Mosaïque herbier / matte morte / sable",
+    "remarques": "Carte commune aux zones A à D. Sommets ouest partagés avec la zone B"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.116767,
+       43.040517
+      ],
+      [
+       6.1206,
+       43.04095
+      ],
+      [
+       6.12105,
+       43.03995
+      ],
+      [
+       6.11655,
+       43.039533
+      ],
+      [
+       6.116767,
+       43.040517
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Madrague de Giens",
+    "zone": "D",
+    "nom": "Zone D — Madrague de Giens",
+    "public": "tous",
+    "capacite_unites": 39,
+    "exposition": "Ouest",
+    "profondeur_min_m": 0,
+    "profondeur_max_m": 1,
+    "source": "DDTM du Var / SML-BLO, carte n°6, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 32400,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie",
+    "remarques": "Polygone à 3 sommets (triangle). Carte commune aux zones A à D"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.1206,
+       43.04095
+      ],
+      [
+       6.1273,
+       43.041967
+      ],
+      [
+       6.12105,
+       43.03995
+      ],
+      [
+       6.1206,
+       43.04095
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Le Pradeau",
+    "zone": null,
+    "nom": "Le Pradeau",
+    "public": "tous",
+    "capacite_unites": 25,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°7, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 24900,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable ; matte morte sur le bord ouest"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.150333,
+       43.027417
+      ],
+      [
+       6.15275,
+       43.0275
+      ],
+      [
+       6.152333,
+       43.02625
+      ],
+      [
+       6.150333,
+       43.026167
+      ],
+      [
+       6.150333,
+       43.027417
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "La Badine",
+    "zone": null,
+    "nom": "La Badine",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Est",
+    "profondeur_min_m": 1,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°8, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 16600,
+    "herbier_lecture_visuelle": "Hors herbier (sable)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.154083,
+       43.03675
+      ],
+      [
+       6.156083,
+       43.03675
+      ],
+      [
+       6.156083,
+       43.035833
+      ],
+      [
+       6.154083,
+       43.035833
+      ],
+      [
+       6.154083,
+       43.03675
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "La Bergerie",
+    "zone": null,
+    "nom": "La Bergerie",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°9, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 20100,
+    "herbier_lecture_visuelle": "Hors herbier (sable)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.151333,
+       43.04725
+      ],
+      [
+       6.152633,
+       43.047233
+      ],
+      [
+       6.15285,
+       43.045517
+      ],
+      [
+       6.151583,
+       43.0455
+      ],
+      [
+       6.151333,
+       43.04725
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "La Capte",
+    "zone": null,
+    "nom": "La Capte",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°10, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 25600,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier au-delà de la limite des 300 m"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.151667,
+       43.061383
+      ],
+      [
+       6.15325,
+       43.061383
+      ],
+      [
+       6.15325,
+       43.0596
+      ],
+      [
+       6.151667,
+       43.0596
+      ],
+      [
+       6.151667,
+       43.061383
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Les Cabanes du Gapeau",
+    "zone": null,
+    "nom": "Les Cabanes du Gapeau",
+    "public": "tous",
+    "capacite_unites": 10,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°11, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 7400,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier au sud",
+    "remarques": "Titre de la carte : « Les Cabannes du Gapeau »"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.188667,
+       43.109233
+      ],
+      [
+       6.1895,
+       43.108733
+      ],
+      [
+       6.188583,
+       43.108283
+      ],
+      [
+       6.1878,
+       43.108917
+      ],
+      [
+       6.188667,
+       43.109233
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Hyères",
+    "lieu": "Pothuau",
+    "zone": null,
+    "nom": "Pothuau",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°12, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 33100,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.200317,
+       43.115217
+      ],
+      [
+       6.200433,
+       43.113783
+      ],
+      [
+       6.198233,
+       43.112633
+      ],
+      [
+       6.1981,
+       43.1144
+      ],
+      [
+       6.200317,
+       43.115217
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Londe-les-Maures",
+    "lieu": "Potez",
+    "zone": null,
+    "nom": "Potez",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°13, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 40700,
+    "herbier_lecture_visuelle": "Partie nord hors herbier, partie sud sur herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.2404,
+       43.113333
+      ],
+      [
+       6.240617,
+       43.11185
+      ],
+      [
+       6.237483,
+       43.111683
+      ],
+      [
+       6.237367,
+       43.1131
+      ],
+      [
+       6.2404,
+       43.113333
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "La Londe-les-Maures",
+    "lieu": "L'Argentière",
+    "zone": null,
+    "nom": "L'Argentière",
+    "public": "tous",
+    "capacite_unites": 70,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 1,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°14, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 73100,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.263667,
+       43.120917
+      ],
+      [
+       6.265,
+       43.118667
+      ],
+      [
+       6.261733,
+       43.118267
+      ],
+      [
+       6.25985,
+       43.119967
+      ],
+      [
+       6.263667,
+       43.120917
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "Léoube",
+    "zone": null,
+    "nom": "Léoube",
+    "public": "tous",
+    "capacite_unites": 25,
+    "exposition": "Sud-Ouest",
+    "profondeur_min_m": 1,
+    "profondeur_max_m": 3,
+    "source": "DDTM du Var / SML-BLO, carte n°15, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 27600,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.285233,
+       43.114383
+      ],
+      [
+       6.286667,
+       43.114367
+      ],
+      [
+       6.287833,
+       43.112283
+      ],
+      [
+       6.286317,
+       43.1123
+      ],
+      [
+       6.285233,
+       43.114383
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "L'Estagnol",
+    "zone": null,
+    "nom": "L'Estagnol",
+    "public": "tous",
+    "capacite_unites": 15,
+    "exposition": "Sud",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°16, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 18200,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier en lisière ouest"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.296133,
+       43.109583
+      ],
+      [
+       6.298033,
+       43.10845
+      ],
+      [
+       6.29755,
+       43.10765
+      ],
+      [
+       6.295733,
+       43.10875
+      ],
+      [
+       6.296133,
+       43.109583
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "La Vignasse",
+    "zone": null,
+    "nom": "La Vignasse",
+    "public": "tous",
+    "capacite_unites": 10,
+    "exposition": "Sud",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°17, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 9700,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier ; herbier en lisière ouest"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.30795,
+       43.1079
+      ],
+      [
+       6.308867,
+       43.1074
+      ],
+      [
+       6.3075,
+       43.106983
+      ],
+      [
+       6.3066,
+       43.10755
+      ],
+      [
+       6.30795,
+       43.1079
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "Cabasson",
+    "zone": null,
+    "nom": "Cabasson",
+    "public": "tous",
+    "capacite_unites": 25,
+    "exposition": "Ouest",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°18, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 29100,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.321667,
+       43.0971
+      ],
+      [
+       6.323467,
+       43.097167
+      ],
+      [
+       6.3239,
+       43.095267
+      ],
+      [
+       6.322167,
+       43.09535
+      ],
+      [
+       6.321667,
+       43.0971
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "Gaou Bénat",
+    "zone": 1,
+    "nom": "Zone 1 — Gaou Bénat",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°19, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 31100,
+    "herbier_lecture_visuelle": "Majoritairement hors herbier ; herbier au sud",
+    "remarques": "Carte commune aux zones 1 à 3"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.36425,
+       43.11415
+      ],
+      [
+       6.365633,
+       43.1132
+      ],
+      [
+       6.36425,
+       43.111933
+      ],
+      [
+       6.362533,
+       43.113483
+      ],
+      [
+       6.36425,
+       43.11415
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "Gaou Bénat",
+    "zone": 2,
+    "nom": "Zone 2 — Gaou Bénat",
+    "public": "tous",
+    "capacite_unites": 35,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°19, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 35500,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie",
+    "remarques": "Carte commune aux zones 1 à 3"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.361633,
+       43.110283
+      ],
+      [
+       6.3642,
+       43.110283
+      ],
+      [
+       6.36235,
+       43.1087
+      ],
+      [
+       6.359867,
+       43.108917
+      ],
+      [
+       6.361633,
+       43.110283
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Bormes-les-Mimosas",
+    "lieu": "Gaou Bénat",
+    "zone": 3,
+    "nom": "Zone 3 — Gaou Bénat",
+    "public": "tous",
+    "capacite_unites": 55,
+    "exposition": "Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°19, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 57000,
+    "herbier_lecture_visuelle": "Mosaïque herbier / sable",
+    "remarques": "Carte commune aux zones 1 à 3"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.360383,
+       43.107283
+      ],
+      [
+       6.3629,
+       43.107383
+      ],
+      [
+       6.36495,
+       43.105
+      ],
+      [
+       6.36235,
+       43.1049
+      ],
+      [
+       6.360383,
+       43.107283
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Le Lavandou",
+    "lieu": "Calanque du Four",
+    "zone": null,
+    "nom": "Calanque du Four",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud-Est",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 4,
+    "source": "DDTM du Var / SML-BLO, carte n°20, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 36600,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier en lisière est"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.385667,
+       43.144167
+      ],
+      [
+       6.387,
+       43.143583
+      ],
+      [
+       6.385,
+       43.141333
+      ],
+      [
+       6.38375,
+       43.141917
+      ],
+      [
+       6.385667,
+       43.144167
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Le Lavandou",
+    "lieu": "La Fossette",
+    "zone": null,
+    "nom": "La Fossette",
+    "public": "tous",
+    "capacite_unites": 20,
+    "exposition": "Sud",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 6,
+    "source": "DDTM du Var / SML-BLO, carte n°21, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 17300,
+    "herbier_lecture_visuelle": "Majoritairement sur herbier de Posidonie ; matte morte au nord-est"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.393833,
+       43.145017
+      ],
+      [
+       6.395333,
+       43.1445
+      ],
+      [
+       6.39435,
+       43.1435
+      ],
+      [
+       6.39305,
+       43.1438
+      ],
+      [
+       6.393833,
+       43.145017
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Le Lavandou",
+    "lieu": "Aiguebelle",
+    "zone": null,
+    "nom": "Aiguebelle",
+    "public": "tous",
+    "capacite_unites": 30,
+    "exposition": "Sud",
+    "profondeur_min_m": 2,
+    "profondeur_max_m": 5,
+    "source": "DDTM du Var / SML-BLO, carte n°22, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 30200,
+    "herbier_lecture_visuelle": "Partie nord hors herbier (fond de baie), partie sud sur herbier"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.40455,
+       43.149
+      ],
+      [
+       6.405533,
+       43.147867
+      ],
+      [
+       6.4033,
+       43.147017
+      ],
+      [
+       6.402317,
+       43.148117
+      ],
+      [
+       6.40455,
+       43.149
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
+    "commune": "Le Lavandou",
+    "lieu": "Pramousquier",
+    "zone": null,
+    "nom": "Pramousquier",
+    "public": "tous",
+    "capacite_unites": 40,
+    "exposition": "Est",
+    "profondeur_min_m": 3,
+    "profondeur_max_m": 7,
+    "source": "DDTM du Var / SML-BLO, carte n°26, octobre 2022",
+    "saisie": "relevé manuel sur PDF (sommets en degrés-minutes décimales), à faire confirmer par la DDTM 83",
+    "surface_m2_approx": 34300,
+    "herbier_lecture_visuelle": "Hors herbier (sable) ; herbier en lisière est"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       6.449667,
+       43.152917
+      ],
+      [
+       6.451167,
+       43.15225
+      ],
+      [
+       6.449417,
+       43.1505
+      ],
+      [
+       6.447917,
+       43.151167
+      ],
+      [
+       6.449667,
+       43.152917
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "83",
+    "departement": "Var",
     "commune": "Saint-Tropez",
     "lieu": "La Bouillabaisse",
     "zone": 1,

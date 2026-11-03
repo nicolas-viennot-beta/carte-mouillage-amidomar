@@ -8,7 +8,8 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
+*Dernière consolidation : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
+n°1 à 26). Consolidation précédente : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
 ajoutées (§9), nouveaux champs de `ddtm-messages.json` et propriété `public` des zones
 (§10), coordonnées retenues par une règle locale. Consolidations précédentes : 30 octobre
 2026, versement de la campagne de tirage des AOT simulées sur le trait terre-mer (§2
@@ -42,7 +43,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | Profondeur — EMODnet (levés Shom, EDMO 540) | — | ✅ | en service, **maille ~115 m** |
 | Cultures marines — cadastres DDTM | ✅ | ✅ WFS | en service, **bloquant** |
 | ZMEL — Cerema/CACEM (fichier local) | ✅ | ✅ local | en service |
-| Zones de mouillage autorisées — DDTM 83 | ✅ | ✅ local | 28 zones sur 9 communes, ouest du Var absent |
+| Zones de mouillage autorisées — DDTM 83 | ✅ | ✅ local | 57 zones sur 16 communes, cartes 23–25 et 27–30 manquantes |
 | AOT existantes | ✅ | ✅ local | **données simulées** — 248 positions, bande 100–200 m du trait terre-mer (§10) |
 | Zones de baignade et zones réglementaires | ❌ | ❌ | aucune source publique |
 
@@ -1076,21 +1077,28 @@ WMS/WFS sur GéoIDE. C'est le gisement le plus homogène si l'on veut compléter
 
 ---
 
-## 9. Zones de mouillage autorisées (AOT) — DDTM 83 (complété le 2 novembre 2026)
+## 9. Zones de mouillage autorisées (AOT) — DDTM 83 (complété les 2 et 3 novembre 2026)
 
 `data/zones-aot.geojson`. Zones où une AOT de mouillage individuel reste
 délivrable, relevées **à la main** sur les cartes PDF de la DDTM du Var / SML-BLO
-(n°31 à 52, octobre 2022 et mai 2023). Les PDF ne contiennent **aucune donnée
+(n°1 à 26, octobre 2022, et n°31 à 52, octobre 2022 et mai 2023). Les PDF ne contiennent **aucune donnée
 géoréférencée** (vérifié : pas de métadonnées GPTS/LPTS, pas de texte extractible
 sur la plupart) : chaque sommet a été lu sur l'étiquette imprimée à côté du
 polygone, en degrés-minutes décimales, WGS84 supposé, puis converti en décimal.
 Fond des cartes : `ORTHO_COULEUR_PVA2017_083` ; sources herbiers citées par la
 DDTM : SML, BLO, BLE, GEOBASE, ANDROMEDE, MEDTRIX.
 
-**État : 28 zones, 9 communes, 740 unités déclarées.** La zone 5 des Canebiers (Saint-Tropez, 40 unités, carte n°41) a été **retirée le 2 novembre 2026** : la DDTM 83 va la supprimer. Les 13 AOT simulées posées dans cette zone en v2.32 (§10) y restent, leur `zone_autorisee` passée à `null` avec une `note` : des AOT existantes dans une zone que la DDTM ferme sont un cas réel.
+**État : 57 zones, 16 communes, 1 765 unités déclarées.** Ouest (cartes n°1 à 26, versées le 3 novembre 2026 ; en-tête extractible en texte, sommets en image) : 29 zones, 7 communes, 1 025 unités. Est (cartes n°31 à 52) : 28 zones, 9 communes, 740 unités. La zone 5 des Canebiers (Saint-Tropez, 40 unités, carte n°41) a été **retirée le 2 novembre 2026** : la DDTM 83 va la supprimer. Les 13 AOT simulées posées dans cette zone en v2.32 (§10) y restent, leur `zone_autorisee` passée à `null` avec une `note` : des AOT existantes dans une zone que la DDTM ferme sont un cas réel.
 
 | Carte | Commune | Zones | Unités |
 |---|---|---|---|
+| 1 | Bandol | Casino | 55 |
+| 2, 3, 4 | La Seyne-sur-Mer | Fabrégas, Mar Vivo, Baie du Lazaret M1 (triangle) et M3 (pentagone) | 211 |
+| 5 | Toulon | Méjean | 30 |
+| 6 à 12 | Hyères | Madrague de Giens A, B, C, D (triangle) ; Le Pradeau ; La Badine ; La Bergerie ; La Capte ; Les Cabanes du Gapeau ; Pothuau | 314 |
+| 13, 14 | La Londe-les-Maures | Potez, L'Argentière | 110 |
+| 15 à 19 | Bormes-les-Mimosas | Léoube, L'Estagnol, La Vignasse, Cabasson, Gaou Bénat 1 à 3 | 185 |
+| 20, 21, 22, 26 | Le Lavandou | Calanque du Four, La Fossette, Aiguebelle, Pramousquier | 120 |
 | 31 | Cavalaire-sur-Mer | Le Dattier | 20 |
 | 32, 33, 34 | La Croix-Valmer | Débarquement, Héraclée 1 et 2, Gigaro | 86 |
 | 36, 37, 38 | Ramatuelle | L'Escalet 13 et 14, La Quessine 12, Bonne Terrasse 11 | 138 |
@@ -1108,6 +1116,10 @@ sommet est). Lecture retenue, confirmée lors de la relecture des cartes :
 étiquettes inversées, coordonnées **réattribuées aux sommets selon leur
 position** (N, E, S, O). Consigné dans `remarques`.
 
+**Cartes non transmises** : n°23 à 25 et 27 à 30 (entre Le Lavandou et Cavalaire). À demander à la DDTM 83 (§12).
+
+**Particularités des cartes de l'ouest** : carte 4, pas de zone M2 (M1 et M3 seulement) ; carte 6, les zones B et C partagent deux sommets, étiquetés deux fois au même endroit ; carte 11, titre « Les Cabannes du Gapeau » (orthographe de la carte, « Cabanes » retenu) ; cartes 1 à 5, longitudes en 5°E.
+
 **Anomalies de lecture, consignées dans la propriété `remarques`** : carte 33
 zone 2, un sommet écrit « 43°11,1170'N », lu 43°11.117'N ; carte 33, profondeur
 max « 7.80 » sans unité, mètres supposés ; carte 36 zone 14, polygone à 6
@@ -1117,7 +1129,7 @@ Déparquement » dans le titre.
 **Contrôles faits à la saisie**, qui écartent la faute de frappe mais **ne
 valent pas validation par la DDTM** : aucun polygone auto-intersecté dans
 l'ordre des sommets ; surface par unité déclarée entre 300 et 3 000 m² pour
-chacune des 28 zones (600 m² pour Bonne Terrasse, 863 à 1 065 m² sur les cinq premières, soit un rayon
+chacune des 57 zones (350 à 490 m² en rade de Toulon — Lazaret, Fabrégas — où les mouillages sont denses ; 600 m² pour Bonne Terrasse ; 863 à 1 065 m² sur les cinq premières, soit un rayon
 d'évitage d'environ 18 m).
 
 **Propriétés** : `ddtm`, `departement`, `commune`, `lieu`, `zone` (numéro, ou
@@ -1128,7 +1140,7 @@ l'œil de la couche herbier des cartes — indicatif, pas une mesure), `remarque
 
 **`public`** (v2.33) : la DDTM 83 distingue les zones ouvertes à tous des zones
 **réservées uniquement aux professionnels**, qu'elle appelle « zones tampon ».
-Aucune de ces dernières n'a encore été transmise : les 28 zones sont `tous`. Une
+Aucune de ces dernières n'a encore été transmise : les 57 zones sont `tous`. Une
 zone `professionnels` est dessinée en gris, listée avec la mention, et ne donne
 jamais de coordonnées à un plaisancier.
 
@@ -1154,7 +1166,7 @@ nature d'information, ce que l'administration autorise.
 |---|---|---|
 | `data/zmel.geojson` | 647 ZMEL | Cerema/CACEM, 18/09/2026 |
 | `data/ZMEL_18_09_2026/` | shapefile source | idem |
-| `data/zones-aot.geojson` | 28 zones, 9 communes | DDTM 83, relevé manuel sur les cartes n°31 à 52 |
+| `data/zones-aot.geojson` | 57 zones, 16 communes | DDTM 83, relevé manuel sur les cartes n°31 à 52 |
 | `data/ram-ports.json` | marnage de 214 ports | Shom, voir §11 |
 | `data/ddtm-messages.json` | messages par DDTM (22 et 83 renseignés) | saisie projet, **provisoire** |
 | `data/ports-plaisance.geojson` | ports de plaisance | **places et contacts fictifs** |
@@ -1283,7 +1295,7 @@ quelques sites avant de bouger.
 | CORS sur le cadastre national | Cerema, `geolittoral-data.cerema.fr` | un réglage de serveur donnerait la couverture nationale d'un coup |
 | **Zones de baignade et zones réglementaires** | — | aucune source publique ne permet de les représenter ni de les identifier au clic. Confirmé absent du Shom. Les API de prédiction de marée du Shom sont par ailleurs **payantes** |
 | **Zones réservées aux professionnels (« zones tampon ») du Var** | DDTM 83 | aucune transmise à ce jour ; le mécanisme d'affichage est prêt (propriété `public`) |
-| **Zones autorisées de l'ouest du Var** | DDTM 83 | Hyères, Giens, Porquerolles, Le Lavandou, Bandol, Toulon — tant que la liste est incomplète, le 83 reste en `brouillon` et le masquage des coordonnées y reste inactif |
+| **Cartes n°23 à 25 et 27 à 30 du Var** | DDTM 83 | non transmises ; et validation de l'ensemble des 57 périmètres relevés sur PDF — tant que ce n'est pas fait, le 83 reste en `brouillon` et le masquage des coordonnées y reste inactif |
 | Messages DDTM : 2 départements sur une centaine | DDTM pilotes | `ddtm-messages.json` ne porte que les DDTM **22** (Côtes-d'Armor : plus d'AOT individuelle délivrée, redirection vers une liste d'attente) et **83** (encore en `brouillon`). C'est le fichier qui fait parler la carte au niveau local |
 | Pêcheries d'Ille-et-Vilaine | — | `ms:L_PECHERIES_L_035`, même plateforme que le cadastre : ce sont aussi des occupations du DPM. **Piste non explorée** |
 
@@ -1424,5 +1436,6 @@ reprise dans ce fichier.
 | 13 oct. 2026 | `AMIDOMAR_Cadastre_conchylicole_sources_et_integration.md` | 4 sources candidates, registre départemental |
 | 14 oct. 2026 | `AMIDOMAR_Herbiers_sources_nationales.md` | couches OFB, WFS Géoplateforme |
 | 15 oct. 2026 | — | consolidation dans ce fichier, puis relecture croisée avec la spec, les tests et le code : correction de la règle de lecture du trait terre-mer, des cinq issues du cadastre, du rayon de requête à 40 m, de l'origine de test du CORS, et du statut du rattachement départemental |
+| 3 nov. 2026 | dossier `Amidomar/var ouest` (23 PDF + `zones_var_ouest_releve.py`, le relevé des sommets) | lecture des cartes n°1 à 26 de la DDTM 83, 29 zones versées |
 | 2 nov. 2026 | conversation « Tableau des zones de mouillage » (projet Claude) | lecture des 15 cartes PDF n°31 à 52 de la DDTM 83, 24 zones relevées et versées (carte 38 : étiquettes réattribuées, confirmé), classeur `zones_mouillage_AOT_Var.xlsx` et GeoJSON de travail |
 | 15 oct. 2026 | `AMIDOMAR_Bathymetrie_flux_Shom_et_integration.md` | bathymétrie : les quatre voies Shom fermées avec preuves, prépaquets et poids mesurés, provenance et dispersion EMODnet |
