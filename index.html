@@ -2289,11 +2289,13 @@
     // v2.16 : le mode « réduit à une ligne » de la v2.5 (`titreCompact`) a été
     // retiré — il n'avait plus d'objet, le contexte étant désormais présenté en
     // cartes qui tiennent déjà sur une ligne chacune.
-    /* v2.33 : le bloc « Mouillages voisins » se glisse ENTRE les deux groupes de
-       cartes — après ce que la carte a établi, avant ce qu'elle n'a pas pu
-       vérifier. Il énonce un fait constaté (des mouillages voisins existent, et
-       voici votre rayon d'évitage) : il n'a rien à faire après les incertitudes,
-       qui sont des aveux d'ignorance.
+    /* v2.34 : le bloc « Mouillages voisins » se place juste AVANT « Contexte
+       environnemental » — donc après « Règles locales », qui garde la tête
+       (demande de Nicolas, 2 nov. 2026). Le voisinage dimensionne directement
+       l'emplacement et appelle une saisie : le lire après les cartes de contexte
+       le reléguait. S'il n'y a pas de contexte établi, il se place avant « Ce
+       que la carte n'a pas pu vérifier » (comportement v2.30), sinon en fin.
+       Ancrage sur des classes, jamais sur des libellés.
        Hors du mode « cartes » — point à terre, interdiction, message d'attente —
        #env-block est une boîte colorée : le bloc reste alors à sa place, dessous,
        plutôt que d'atterrir dans un encadré rouge qui ne le concerne pas.
@@ -2301,8 +2303,9 @@
        écouteurs attachés aux deux champs survivent au déplacement. */
     function placerBlocEvitage(dansLesCartes) {
       if (dansLesCartes) {
-        const incertain = envBlock.querySelector('h2.popup-section--incertain');
-        if (incertain) envBlock.insertBefore(boatBlock, incertain);
+        const ancre = envBlock.querySelector('h2.popup-section--contexte')
+                   || envBlock.querySelector('h2.popup-section--incertain');
+        if (ancre) envBlock.insertBefore(boatBlock, ancre);
         else envBlock.appendChild(boatBlock);
       } else if (boatBlock.parentNode !== contenuPopup) {
         contenuPopup.insertBefore(boatBlock, envBlock.nextSibling);
@@ -3732,7 +3735,7 @@
          s'affiche pas : annoncer une section vide est pire que l'omettre. */
       const contexte =
         (etablies.length
-          ? '<h2 class="popup-section">Contexte environnemental</h2>' + etablies.join('')
+          ? '<h2 class="popup-section popup-section--contexte">Contexte environnemental</h2>' + etablies.join('')
           : '') +
         (incertaines.length
           ? '<h2 class="popup-section popup-section--incertain">' +

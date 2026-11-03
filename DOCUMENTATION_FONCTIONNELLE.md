@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.33 (novembre 2026)  
+**Version:** 2.34 (novembre 2026)  
 **Dernière mise à jour:** 2 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -217,7 +217,7 @@ Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégée
 
 ### 4.2 Rayon d'évitage (message, formulaire et résultat dans la modale centrale)
 
-> **Titre et place du bloc** *(v2.30)*. Le bloc porte l'intitulé **« Mouillages voisins »**, au même format que « Règles locales » et « Contexte environnemental » : il nomme ce qui déclenche le bloc — d'autres mouillages sont enregistrés à moins de 100 m — et non le calcul, qui en est le contenu. Il se place **entre les deux groupes de cartes**, après « Contexte environnemental » et avant « Ce que la carte n'a pas pu vérifier » : il énonce un fait constaté, il n'a donc rien à faire après des aveux d'ignorance. `placerBlocEvitage()` déplace le nœud (il ne le recrée pas, pour ne pas perdre les saisies ni les écouteurs) et ne le fait **que** dans le mode « cartes » ; sur un point à terre, une interdiction ou pendant le message d'attente, `#env-block` est une boîte colorée et le bloc reste dessous.
+> **Titre et place du bloc** *(v2.30)*. Le bloc porte l'intitulé **« Mouillages voisins »**, au même format que « Règles locales » et « Contexte environnemental » : il nomme ce qui déclenche le bloc — d'autres mouillages sont enregistrés à moins de 100 m — et non le calcul, qui en est le contenu. Depuis la **v2.34** (demande de Nicolas, 2 novembre 2026), il se place **juste avant « Contexte environnemental »**, donc après « Règles locales », qui garde la tête : le voisinage dimensionne directement l'emplacement et appelle une saisie, il ne doit pas passer après les cartes de contexte. Ordre complet : Règles locales → Mouillages voisins → Contexte environnemental → Ce que la carte n'a pas pu vérifier → À reporter. Sans contexte établi, il se place avant « Ce que la carte n'a pas pu vérifier » ; sans aucune des deux sections, en fin de `#env-block`. L'ancrage se fait sur les classes `popup-section--contexte` puis `popup-section--incertain`, jamais sur les libellés. (v2.30 à v2.33 : entre « Contexte environnemental » et « Ce que la carte n'a pas pu vérifier ».) Tant que la longueur du navire (ou la colonne d'eau) n'est pas saisie, le bloc garde le style orange `jaune-box` (fond `#fff4ed`, filet `#b34000`) ; il ne passe au rouge ou au vert qu'une fois le calcul fait. `placerBlocEvitage()` déplace le nœud (il ne le recrée pas, pour ne pas perdre les saisies ni les écouteurs) et ne le fait **que** dans le mode « cartes » ; sur un point à terre, une interdiction ou pendant le message d'attente, `#env-block` est une boîte colorée et le bloc reste dessous.
 
 > Textes exacts affichés : §4.0, cas C6. La présente section décrit le mécanisme.
 
@@ -903,8 +903,9 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Les cartes du contexte sont **toutes repliées** à l'ouverture
 - [ ] Chaque ligne repliée se suffit à elle-même (« étude d'incidence à prévoir », « ne laissez pas votre chaîne racler le fond »)
 
-### ✅ 8sexies. Bloc « Mouillages voisins » *(v2.30)*
-- [ ] Cliquer à moins de 100 m d'une AOT sur un point qui a aussi une carte incertaine → le bloc titré « Mouillages voisins » s'intercale **entre** « Contexte environnemental » et « Ce que la carte n'a pas pu vérifier »
+### ✅ 8sexies. Bloc « Mouillages voisins » *(v2.30, place revue en v2.34)*
+- [ ] *(v2.34)* Cliquer à moins de 100 m d'une AOT sur un point qui a des règles locales et un contexte environnemental → ordre : « Règles locales », « Mouillages voisins », « Contexte environnemental », puis « Ce que la carte n'a pas pu vérifier »
+- [ ] Longueur du navire vide → bloc « Mouillages voisins » en orange ; longueur et colonne d'eau saisies → rouge ou vert
 - [ ] Saisir la longueur du navire, puis cliquer ailleurs puis revenir : la valeur saisie est conservée (le nœud est déplacé, pas recréé)
 - [ ] Cliquer sur un point **à terre** ou **interdit** → le bloc n'atterrit pas dans l'encadré coloré
 
@@ -1292,6 +1293,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.34 — 2 novembre 2026
+**« Mouillages voisins » remonte avant « Contexte environnemental »**
+- Demande de Nicolas : dans la colonne de gauche, le bloc « Mouillages voisins » passe **avant** « Contexte environnemental » (après « Règles locales », qui reste en tête). Ordre : Règles locales → Mouillages voisins → Contexte environnemental → Ce que la carte n'a pas pu vérifier → À reporter.
+- `placerBlocEvitage()` s'ancre désormais sur `h2.popup-section--contexte` (classe ajoutée à l'intitulé « Contexte environnemental »), à défaut sur `h2.popup-section--incertain`, à défaut en fin de bloc. Le nœud est toujours déplacé, pas recréé : la saisie survit.
+- Couleur : vérifié avec Nicolas que l'orange attendu tant que la longueur n'est pas saisie est bien l'état existant (`jaune-box`) — inchangé.
+- Tests : harnais Node (syntaxe, exécution réelle, focus, `rayonEvitage`), §10 59/59 Node et 22/22 Chromium, §17 27/27 et rendu 11/11, données AOT OK ; nouveau harnais `test_mouillages_voisins_chromium.js` 11/11 (ordre avec et sans contexte, couleur orange à vide, 0 `pageerror`).
 
 ### v2.33 — 2 novembre 2026
 **Les règles locales retiennent les coordonnées ; 23 zones de plus dans le Var ; zones réservées aux professionnels**

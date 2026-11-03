@@ -2734,6 +2734,32 @@ le reste est à voir en navigateur.
      remonte d'une hauteur de carte au moment où les zonages arrivent. Dans le cas
      courant — aucune carte incertaine — il ne bouge pas.
 
+### 15 bis. Place revue en v2.34 — avant « Contexte environnemental »
+
+**Exécution : 2 nov. 2026 — `scripts/tests-carte/test_mouillages_voisins_chromium.js`, 11/11.**
+Remplace l'attendu « entre les deux groupes » du point 3 ci-dessus, qui
+décrit la v2.30 (les constats de ce point restent valables pour la survie de la
+saisie et le point à terre).
+
+1. **Ancrage** — `placerBlocEvitage` cherche `h2.popup-section--contexte`, puis
+   `h2.popup-section--incertain`, puis ajoute en fin. L'intitulé « Contexte
+   environnemental » porte bien la classe `popup-section--contexte`. Méthode :
+   lecture du code. Si la classe disparaît, le bloc retombe silencieusement
+   après le contexte : ce test est là pour ça.
+2. **Ordre avec contexte** — point 43.2678, 6.6228, nature du fond simulée
+   (Sables), département 83 simulé : Règles locales → Mouillages voisins →
+   Contexte environnemental → Ce que la carte n'a pas pu vérifier → À reporter.
+   Méthode : Chromium, harnais ci-dessus. **Vérifié.**
+3. **Ordre sans contexte établi** — même point, réseau coupé : Règles locales →
+   Mouillages voisins → Ce que la carte n'a pas pu vérifier → À reporter.
+   **Vérifié.**
+4. **Orange tant que la longueur est vide** — `#proximite-block` a la classe
+   `jaune-box` (fond `#fff4ed`, filet `#b34000`) tant que la longueur du navire
+   n'est pas saisie ; rouge (`chevauche`) ou vert (`libre`) seulement une fois
+   longueur ET colonne d'eau renseignées. **Vérifié.**
+5. **À refaire sur la version publiée**, avec les vrais services : ordre réel
+   sur un point qui a Natura 2000 ou ZNIEFF en plus de la nature du fond.
+
 ---
 
 ## 16. Repli du panneau de couches, chevrons, et rejeu des AOT simulées *(v2.32)*
