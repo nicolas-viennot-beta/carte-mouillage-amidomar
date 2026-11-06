@@ -1335,7 +1335,7 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 - **Champ de recherche** : surcharge CSS de `CarteFacile.SearchControl` à partir des mesures relevées sur cartes.gouv.fr (48 px, `#EEEEEE`, trait `#000091`, bouton loupe carré bleu, 545 px réduits sur petit écran). Voir §4.6.
 - **Colonne de droite** : picto pile de calques dans le bandeau ; bloc « Fond de carte » en bas du panneau (groupe radio, vignettes carte-facile). `CarteFacile.MapSelectorControl` retiré du coin bas gauche. Voir §2 et §4.7.
 - **Défaut corrigé au passage** : l'ancien sélecteur effaçait toutes les couches AMIDOMAR au changement de fond (constaté sur la version publiée v2.35 : 23 couches et 17 sources perdues). `changerFond()` les reporte sur le nouveau fond via `transformStyle`.
-- Tests : harnais Node (§6 intégrité et exécution réelle, §10 59/59, §17 27/27) ; Chromium §10 22/22 (un premier passage à 20/22 sur §10.7 inversion lat/lon, reproduit à l'identique sur la v2.35 : course de temporisation du harnais, pas de régression), §15 11/11, §17 rendu 11/11 ; nouveau harnais `test_fond_recherche_chromium.js` (§18 de TESTS_FONCTIONNELS) **27/27**.
+- Tests : harnais Node (§6 intégrité et exécution réelle, §10 59/59, §17 27/27) ; Chromium §10 22/22 (un premier passage à 20/22 sur §10.7 inversion lat/lon, reproduit à l'identique sur la v2.35 : course de temporisation du harnais, pas de régression), §15 11/11, §17 rendu 11/11 ; nouveau harnais `test_fond_recherche_chromium.js` (§18 de TESTS_FONCTIONNELS) **27/27**. Vérifié ensuite sur la version publiée : bascule Simple ↔ Aérienne sans perte de couche.
 
 ### v2.35 — 3 novembre 2026
 **L'ouest du Var rejoint la liste des zones autorisées : 57 zones, 16 communes**
