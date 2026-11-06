@@ -19,11 +19,16 @@ fonctionnalité correspondante a réellement disparu.
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
 `test_donnees_aot.py` (§16), `test_regles_locales.js` et
-`test_regles_locales_chromium.js` (§17), `stub.js` et `tirage_aot.js`. Leur `README.md`
+`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `stub.js` et `tirage_aot.js`. Leur `README.md`
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 3 nov. 2026 (v2.35) — 29 zones de l'ouest du Var.**
+**Dernière exécution : 6 nov. 2026 (v2.36) — champ de recherche façon cartes.gouv.fr, fond de carte dans la colonne.**
+- §6 (syntaxe, exécution réelle, 0 focus, `rayonEvitage`) : **OK**. §10 : **59/59** Node, **22/22** Chromium (premier passage 20/22 sur §10.7 « 6.622611, 43.267710 » — même échec reproduit sur la v2.35 non modifiée, puis 22/22 au second passage : le harnais lit le déroulant avant sa mise à jour, à fiabiliser). §15 : **11/11**. §17 : **27/27** Node, **11/11** rendu.
+- §18 (nouvelle section) : **27/27** — mesures du champ, picto, bloc « Fond de carte », bascule Aérienne → Simple sans perte de couche, clavier, clic après bascule.
+- Chromium exécuté dans le conteneur cloud de Claude (Playwright + Chrome), faute de Playwright sur la VM du Mac. Fond IGN injoignable depuis ce conteneur : rendu visuel du fond **non vérifié** ici, à contrôler sur la version publiée.
+
+**Exécution précédente : 3 nov. 2026 (v2.35) — 29 zones de l'ouest du Var.**
 - §17 : **27/27** (compteurs portés à 57 zones / 16 communes, 56 dans la liste depuis une zone ; le test d'anneau accepte 3 sommets — deux triangles). §6, §10 (59/59), §16 : **OK**. Données seules, pas de rendu Chromium rejoué.
 
 **Exécution précédente : 2 nov. 2026 (v2.33) — coordonnées retenues par une règle
@@ -629,23 +634,19 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
 
 ---
 
-## 2. Sélecteur de fond de carte (`MapSelectorControl`)
+## 2. Fond de carte *(colonne de droite depuis la v2.36 — l'ancien `MapSelectorControl` est retiré)*
 
-1. **Fonds limités à Simple et Aérien**
-   - Action : lire l'appel `new CarteFacile.MapSelectorControl({...})`.
-   - Attendu : `styles: ['simple', 'aerial']`.
+1. **Fonds limités à Simple et Aérienne**
+   - Action : lire `const FONDS = [...]` dans `index.html`.
+   - Attendu : `['simple', 'aerial']`.
    - Vérification : lecture du code.
 
-2. **Aucune surcouche proposée**
-   - Action : lire le même appel.
-   - Attendu : `overlays: []`.
-   - Vérification : lecture du code.
+2. **Plus de sélecteur flottant**
+   - Action : chercher `MapSelectorControl` dans les appels `map.addControl`.
+   - Attendu : aucun appel ; dans le DOM, ni `.cartefacile-btn-icon--stack` ni `.cartefacile-ctrl-map-selector-panel`.
+   - Vérification : lecture du code, puis §18.2.
 
-3. **Test visuel : contenu du sélecteur**
-   - Action : ouvrir le sélecteur de fond de carte (bas-gauche).
-   - Attendu : section « Cartes » avec seulement Simple et Aérien ; aucune
-     section « Surcouches ».
-   - Vérification : visuelle.
+3. **Contenu et comportement** : voir §18.2 et §18.3.
 
 ---
 
@@ -2080,8 +2081,10 @@ n'est pas le code :
 
 4. **Contrat du provider `GpsGeocoder`**
    - Action : lire `GpsGeocoder` et appeler `search()` sur quatre saisies.
-   - Attendu : `name === 'gps'` ; `placeholder` de **32 caractères au plus** (le
-     contrôle fait 280 px et tronque au-delà) ;
+   - Attendu : `name === 'gps'` ; `placeholder` de **32 caractères au plus**
+     (limite d'origine, contrôle de 280 px ; gardée depuis la v2.36 où le
+     champ fait 545 px mais se réduit sur petit écran — valeur actuelle
+     « Lieu ou Coordonnées GPS », 23 caractères) ;
      - coordonnées valides → **un** résultat, `icon === 'pin'`, libellé
        `Point GPS — <DD>`, `center` au format **`[lon, lat]`** (et non l'inverse —
        MapLibre attend cet ordre), `data.gps` renseigné ;
@@ -2918,3 +2921,43 @@ Avec le 83 forcé en `brouillon: false` (`f83pub`) :
 - Le rattachement réel par le Shom (CORS limité à l'origine publiée), donc le masquage en conditions réelles dans les Côtes-d'Armor — **à vérifier sur la version publiée** après déploiement : clic en baie de Saint-Brieuc, attendre « Emplacement rattaché à : Côtes-d'Armor (22) », constater l'absence du bloc « À reporter ».
 - Le rendu gris d'une zone `professionnels` sur la carte (expression `couleurExpr`) : aucune zone de ce type dans les données. Vérifier à la première transmise, ou en mutant localement `public` sur une zone.
 - La barre réduite après masquage en conditions réelles (vérifiée seulement par lecture de `#coords-resume-coords`).
+
+---
+
+## 18. Champ de recherche façon cartes.gouv.fr, picto et fond de carte dans la colonne *(v2.36)*
+
+Harnais : `scripts/tests-carte/test_fond_recherche_chromium.js` (Playwright,
+1440 × 900, serveur statique local). Variable `CHROME` pour désigner un
+exécutable Chrome si Playwright n'a pas le sien.
+
+### 18.1 Champ de recherche — mesures relevées sur cartes.gouv.fr/explorer-les-cartes
+1. `placeholder` = « Lieu ou Coordonnées GPS ».
+2. Hauteur rendue du contrôle **et** du champ = 48 px.
+3. Largeur = 545 px à 1440 px de large.
+4. Fond `rgb(238, 238, 238)` ; `box-shadow` contenant `rgb(0, 0, 145) 0px -2px 0px 0px inset`.
+5. Texte 16 px, `rgb(58, 58, 58)` ; placeholder en italique.
+6. Bouton loupe 48 × 48, fond `rgb(0, 0, 145)` ; `::before` (loupe) `rgb(245, 245, 254)`.
+7. À 1440 px puis à **900 px** de large : bord droit du contrôle < bord gauche de `#panels-droite` (jamais de chevauchement).
+   - Vérification : `getBoundingClientRect` et `getComputedStyle`.
+
+### 18.2 Colonne « Couches affichées »
+1. `svg.panel-picto` est le **premier enfant** de `.panel-titre` dans le bandeau.
+2. `.fond-carte` est le **dernier enfant** de `#layer-panel-body`.
+3. Deux `.fond-carte-btn` : `simple` libellé « Simple », `aerial` libellé « Aérienne », chacun avec une vignette (`img[src]`).
+4. Au chargement : `simple` `aria-checked="true"`, `aerial` `"false"`.
+5. Aucun `.cartefacile-btn-icon--stack` ni `.cartefacile-ctrl-map-selector-panel` dans le DOM.
+
+### 18.3 Changer de fond conserve les couches AMIDOMAR
+*Pourquoi ce test : l'ancien `MapSelectorControl` effaçait toutes nos couches
+(constaté sur la v2.35 publiée, 321 → 155 couches).*
+1. Déplier le panneau (il s'ouvre replié), relever les couches dont la source n'est pas dans `sourcesFond` (attendu : > 5 ; 23 couches et 18 sources au 6 nov. 2026).
+2. Cliquer « Aérienne », attendre 2,5 s → **aucune** de ces couches ne manque ; toutes leurs sources présentes ; `layout.visibility` de chacune inchangée ; leur ordre relatif inchangé ; `sourcesFond` ne contient plus que les sources du nouveau fond ; `aerial` coché.
+3. Revenir en « Simple » → aucune couche perdue.
+4. Focus sur « Simple », flèche → : sélection **et** focus passent sur « Aérienne ».
+5. Clic sur la carte après bascule → `#coords-popup` visible.
+6. `pageerror` : 0.
+
+### 18.4 Non couvert par le harnais
+- Le **rendu réel** du fond Aérienne (tuiles IGN injoignables depuis le conteneur de test) : à vérifier sur la version publiée — l'orthophoto s'affiche et les couches AMIDOMAR sont dessinées par-dessus.
+- La comparaison visuelle fine avec cartes.gouv.fr (police Marianne chargée ou non, rendu sur fond Aérienne).
+

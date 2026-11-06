@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.35 (novembre 2026)  
-**Dernière mise à jour:** 3 novembre 2026  
+**Version:** 2.36 (novembre 2026)  
+**Dernière mise à jour:** 6 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -28,15 +28,17 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 ## 2. Disposition de l'interface
 
 ### Gauche — Contrôles cartographiques
-- 🔍 **Recherche** — un seul champ pour localiser : commune, lieu-dit ou **coordonnées GPS** (voir §4.6)
+- 🔍 **Recherche** — un seul champ pour localiser : commune, lieu-dit ou **coordonnées GPS** (voir §4.6). Depuis la **v2.36**, présentation alignée sur celle de cartes.gouv.fr/explorer-les-cartes (barre de recherche DSFR en grande taille), placeholder « Lieu ou Coordonnées GPS » — voir §4.6, « Présentation du champ »
 - 🔍 **Zoom** — agrandissement/réduction
 - 🧭 **Orientation** — rotation de la carte
 - 📍 **Géolocalisation** — position de l'usager
 - ❓ **Aide** — réouvre la modale de marche à suivre
-- 🗺️ **Fond de plan** (bas) — sélecteur de styles cartographiques, limité aux fonds **Simple** et **Aérien** (les fonds « Simple (OSM) » et « Désaturée » ainsi que les surcouches du sélecteur — Cadastre, Limites administratives, Courbes de niveau — ont été retirés de ce contrôle)
+- ~~🗺️ **Fond de plan** (bas)~~ — retiré en **v2.36** : le choix du fond est désormais en bas de la colonne « Couches affichées » (voir ci-dessous)
 
 ### Droite — Panneau latéral
 - **« Couches affichées »** — légende avec état des sources, **repliée au démarrage** *(v2.32)*. Le bandeau bleu porte à droite un chevron en pastille (24 px, cadre blanc sur `#003189`) : ▸ replié, ▾ déplié. Le bandeau est un bouton à part entière — `role="button"`, `tabindex="0"`, `aria-expanded` tenu à jour, réponse à Entrée et à Espace — parce qu'il est devenu le seul accès à la liste des couches. Replier la liste **ne masque aucune couche** : les couches restent chargées et affichées, et les pastilles d'état ✓/✗ continuent d'être renseignées derrière le repli
+  - *(v2.36)* Le bandeau porte à gauche du titre le **picto « Cartes »** (pile de calques, 18 px, blanc) — celui du bouton de l'ancien sélecteur de fond de carte de carte-facile.
+  - *(v2.36)* **Fond de carte**, tout en bas du panneau, sous la légende ✓/✗ : deux vignettes côte à côte, **Simple** (Plan IGN) et **Aérienne** (photographie). Le fond actif est encadré en Bleu France `#000091`, libellé en gras. Groupe de boutons radio (`role="radiogroup"`, `role="radio"`, `aria-checked`) : Tab entre dans le groupe sur le fond actif, les flèches passent d'un fond à l'autre. Comme le reste du panneau, ce bloc est **masqué tant que le panneau est replié**. Changer de fond **conserve toutes les couches AMIDOMAR** (voir §4.7)
 
 Le panneau « Mon mouillage » (supprimé en v1.2), le formulaire intégré au popup (v1.2 à v2.2) puis le bloc de droite « Calcul rayon d'évitage » (v2.3 et v2.4) ont été successivement abandonnés : depuis **v2.5**, le formulaire du rayon d'évitage est dans le bloc de proximité de la modale centrale (voir §4.0 C6 et §4.2). La colonne de droite ne contient plus que « Couches affichées ».
 
@@ -667,11 +669,39 @@ Le corps du gestionnaire de clic a été extrait dans une fonction nommée, `tra
 
 #### Signalement des deux possibilités à l'usager
 Le label du `SearchControl` est **masqué visuellement** (`clip: rect(0,0,0,0)` dans `carte-facile.css`) et un contrôle flottant au-dessus de la carte n'offre pas de place pour un texte d'aide sous le champ : le `fr-hint-text` du DSFR n'est pas applicable ici. Trois signaux le remplacent :
-1. le **placeholder** — « Commune, lieu-dit ou coordonnées » (32 caractères, limite au-delà de laquelle le contrôle de 280 px tronque) ;
+1. le **placeholder** — « Lieu ou Coordonnées GPS » depuis la **v2.36** (auparavant « Commune, lieu-dit ou coordonnées »). La limite de 32 caractères est conservée par prudence : le champ ne fait plus 280 px mais il se réduit sur petit écran (voir ci-dessous) ;
 2. l'**étape 1 de la marche à suivre**, qui porte l'exemple chiffré ;
 3. l'**entrée d'aide au format** dans le déroulant, affichée au moment exact où l'usager tâtonne.
 
 Le contrôle n'ouvre pas de déroulant champ vide (`minChars: 3`) : il n'y a donc pas de suggestions au focus.
+
+#### Présentation du champ — alignée sur cartes.gouv.fr *(v2.36)*
+Mesures relevées le 6 novembre 2026 sur cartes.gouv.fr/explorer-les-cartes (barre de recherche DSFR `fr-search-bar`, grande taille), reprises par surcharge CSS dans `index.html` — `vendor/carte-facile.css` n'est pas modifié :
+
+| Élément | Valeur |
+|---|---|
+| Hauteur | 48 px (champ et bouton) |
+| Largeur | 545 px ; réduite à `100vw − 312 px` (`− 288 px` sous 1 100 px) pour ne jamais passer sous la colonne de droite, plancher 240 px |
+| Champ | fond `#EEEEEE`, coins supérieurs arrondis 4 px, trait bas 2 px Bleu France `#000091` (`box-shadow: inset 0 -2px 0 0`) |
+| Texte | Marianne 16 px / 24 px, `#3A3A3A` ; placeholder `#666`, italique |
+| Bouton | carré 48 × 48, fond `#000091` (survol `#1212ff`), loupe 24 px `#F5F5FE`, coin supérieur droit arrondi 4 px |
+| Focus | anneau DSFR 2 px `#0a76f6` sur le champ et le bouton |
+
+Le bouton ✕ d'effacement reste à l'intérieur du champ, à droite. Le déroulant de résultats n'est pas restylé.
+
+### 4.7 Fond de carte — choix dans la colonne de droite *(v2.36)*
+
+**Ce que voit l'usager** — voir §2 : deux vignettes, Simple et Aérienne, en bas de « Couches affichées ». Libellés lus dans le style lui-même (`metadata.fr.name`), vignettes `CarteFacile.mapThumbnails`.
+
+**Pourquoi le `MapSelectorControl` de carte-facile a été retiré** — en plus du regroupement demandé (tout ce qui règle l'affichage au même endroit), le contrôle d'origine appelait `map.setStyle(style)` sans précaution. Constaté le 6 novembre 2026 sur la version publiée (v2.35) : passer en Aérienne faisait tomber le style de 321 à 155 couches et de 19 à 2 sources — **toutes les couches AMIDOMAR disparaissaient** (AOT, ports, ZMEL, zonages, cercle d'évitage) jusqu'au rechargement de la page, et revenir en Simple ne les rendait pas.
+
+**Méthode** — `changerFond(cle)` appelle `map.setStyle(CarteFacile.mapStyles[cle], { transformStyle })`. La fonction `transformStyle` reçoit le style sortant et le style entrant ; elle reprend du style sortant :
+- toutes les sources qui ne sont **pas** dans `sourcesFond` (le relevé des sources du fond fait au démarrage, cf. §10) ;
+- les couches qui s'appuient sur ces sources, **dans leur ordre**, reposées par-dessus le nouveau fond.
+
+Visibilité, filtres et données GeoJSON du moment font partie du style sérialisé : ils sont conservés. `sourcesFond` est ensuite remplacé par les sources du nouveau fond seul, pour que l'alerte « Fond de carte indisponible » ne compte que les échecs du fond affiché. Un clic avant la fin du démarrage (`sourcesFond` encore nul) est ignoré : on ne saurait pas encore distinguer le fond de nos couches.
+
+La **carte fantôme** de détection terre/mer (§4.4) n'est pas concernée : elle reste en permanence sur le fond Simple.
 
 ---
 
@@ -1062,10 +1092,14 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] *(v2.25.1)* Ouvrir une page d'amidomar.beta.gouv.fr qui embarque la carte (Première demande, Poursuite d'occupation, Renonciation) → la page s'affiche **en haut**, pas à la hauteur de l'iframe
 - [ ] *(v2.25.1)* Dans la carte embarquée, fermer puis rouvrir la marche à suivre avec ❓ → le bouton de fermeture reçoit bien le focus (navigation au clavier, `Échap` ferme) **sans** que la page parente ne défile
 
-### ✅ 18. Sélecteur de fond de carte
-- [ ] Ouvrir le sélecteur de fond de carte (bas-gauche) → seuls les fonds **Simple** et **Aérien** sont proposés dans « Cartes »
-- [ ] Aucune section « Surcouches » n'apparaît dans ce sélecteur
-- [ ] Basculer entre Simple et Aérien → la carte change de fond sans erreur console
+### ✅ 18. Fond de carte *(colonne de droite depuis v2.36)*
+- [ ] Plus aucun bouton de sélecteur de fond en bas à gauche de la carte
+- [ ] Le bandeau « Couches affichées » porte le picto Cartes (pile de calques) à gauche du titre
+- [ ] Déplier « Couches affichées » → tout en bas, bloc « Fond de carte » avec deux vignettes **Simple** et **Aérienne** ; Simple encadré en bleu au chargement
+- [ ] Cliquer **Aérienne** → la photographie s'affiche **et** les AOT, ports, ZMEL et zonages restent visibles ; cocher/décocher une couche fonctionne toujours
+- [ ] Poser un point sur Aérienne, puis revenir en **Simple** → le point, son cercle et les couches sont toujours là
+- [ ] Au clavier : Tab jusqu'au fond actif, flèche → / ← pour changer de fond
+- [ ] Aucune erreur console pendant les bascules
 
 ---
 
@@ -1123,7 +1157,8 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] *(v2.31)* Saisir `Gruissan, Aude` → résultats de communes, **aucune** entrée « Virgule ambiguë » parasite
 - [ ] Saisir `Saint-Tropez` → résultats de communes de la Géoplateforme, **aucune** entrée « Point GPS » parasite
 - [ ] Saisir une coordonnée en Bretagne (`47.4869, -3.0997`, Port-Haliguen) → le point tombe bien dans le Morbihan, longitude négative gérée
-- [ ] Le placeholder affiche « Commune, lieu-dit ou coordonnées » sans troncature
+- [ ] Le placeholder affiche « Lieu ou Coordonnées GPS » sans troncature *(v2.36)*
+- [ ] *(v2.36)* Le champ a l'allure de celui de cartes.gouv.fr : 48 px de haut, fond gris clair, trait bleu en bas, bouton loupe carré bleu ; sur un écran plus étroit (≈ 900 px), il se réduit sans passer sous la colonne de droite
 
 ---
 
@@ -1293,6 +1328,14 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.36 — 6 novembre 2026
+**Champ de recherche façon cartes.gouv.fr ; fond de carte dans la colonne de droite**
+- Demande de Nicolas (évolution UX-UI de la carte) : reprendre la taille et la couleur du champ de recherche de cartes.gouv.fr/explorer-les-cartes, placeholder « Lieu ou Coordonnées GPS » ; dans « Couches affichées », picto Cartes dans le bandeau bleu et fonds Simple / Aérienne tout en bas de la colonne.
+- **Champ de recherche** : surcharge CSS de `CarteFacile.SearchControl` à partir des mesures relevées sur cartes.gouv.fr (48 px, `#EEEEEE`, trait `#000091`, bouton loupe carré bleu, 545 px réduits sur petit écran). Voir §4.6.
+- **Colonne de droite** : picto pile de calques dans le bandeau ; bloc « Fond de carte » en bas du panneau (groupe radio, vignettes carte-facile). `CarteFacile.MapSelectorControl` retiré du coin bas gauche. Voir §2 et §4.7.
+- **Défaut corrigé au passage** : l'ancien sélecteur effaçait toutes les couches AMIDOMAR au changement de fond (constaté sur la version publiée v2.35 : 23 couches et 17 sources perdues). `changerFond()` les reporte sur le nouveau fond via `transformStyle`.
+- Tests : harnais Node (§6 intégrité et exécution réelle, §10 59/59, §17 27/27) ; Chromium §10 22/22 (un premier passage à 20/22 sur §10.7 inversion lat/lon, reproduit à l'identique sur la v2.35 : course de temporisation du harnais, pas de régression), §15 11/11, §17 rendu 11/11 ; nouveau harnais `test_fond_recherche_chromium.js` (§18 de TESTS_FONCTIONNELS) **27/27**.
 
 ### v2.35 — 3 novembre 2026
 **L'ouest du Var rejoint la liste des zones autorisées : 57 zones, 16 communes**
@@ -1811,4 +1854,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 3 novembre 2026
+**Dernière mise à jour:** 6 novembre 2026

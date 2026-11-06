@@ -382,6 +382,25 @@
          l'anneau de focus du DSFR, comme aux commandes du panneau de gauche. */
       .panel-header:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
       .panel-body { padding:10px 14px; }
+      /* v2.36 : le picto « Cartes » (pile de calques, celui de l'ancien
+         sélecteur de fond) passe dans le bandeau, à gauche du titre. */
+      .panel-titre { display:inline-flex; align-items:center; gap:8px; min-width:0; }
+      .panel-picto { width:18px; height:18px; flex-shrink:0; display:block; }
+
+      /* ---------- Fond de carte (v2.36) ----------
+         Les fonds Simple et Aérienne quittent le bouton flottant en bas à
+         gauche pour le bas de la colonne « Couches affichées » : tout ce qui
+         règle l'affichage de la carte est au même endroit. Vignettes au
+         format du sélecteur de cartes.gouv.fr. */
+      .fond-carte { margin-top:12px; padding-top:10px; border-top:1px solid #e5e5e5; }
+      .fond-liste { display:flex; gap:8px; }
+      .fond-carte-btn { flex:1; display:flex; flex-direction:column; align-items:stretch; gap:4px;
+                        padding:4px; margin:0; background:#fff; border:1px solid #ddd; border-radius:4px;
+                        cursor:pointer; font-family:inherit; font-size:12px; color:#3a3a3a; text-align:center; }
+      .fond-carte-btn img { display:block; width:100%; height:52px; object-fit:cover; border-radius:2px; }
+      .fond-carte-btn:hover { border-color:#000091; }
+      .fond-carte-btn[aria-checked="true"] { border:2px solid #000091; padding:3px; color:#000091; font-weight:700; }
+      .fond-carte-btn:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
 
       .layer-group-title { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em;
                            color:#666; margin:10px 0 4px; }
@@ -445,6 +464,31 @@
       /* v2.5 : bloc environnement réduit à une ligne quand un mouillage est proche —
          retiré en v2.16, le contexte étant désormais présenté en cartes qui
          tiennent déjà sur une ligne chacune. */
+      /* ---------- Champ de recherche, aligné sur cartes.gouv.fr (v2.36) ----------
+         Mesures relevées sur cartes.gouv.fr/explorer-les-cartes : barre de
+         recherche DSFR en grande taille — 48 px de haut, champ gris #EEEEEE
+         surligné d'un trait bleu France de 2 px, texte 16 px, bouton carré
+         bleu France #000091 portant la loupe. Largeur 545 px comme là-bas,
+         réduite pour ne jamais passer sous la colonne de droite. */
+      #map-wrap .maplibregl-ctrl-group.cartefacile-ctrl-search {
+        width:min(545px, max(240px, calc(100vw - 312px))); max-width:none;
+        background:#eee; border-radius:4px 4px 0 0; box-shadow:inset 0 -2px 0 0 #000091; }
+      @media (max-width:1100px) {
+        #map-wrap .maplibregl-ctrl-group.cartefacile-ctrl-search { width:min(545px, max(240px, calc(100vw - 288px))); }
+      }
+      #map-wrap .cartefacile-ctrl-search__field { border-right:none; }
+      #map-wrap .cartefacile-ctrl-search__input { height:48px; box-sizing:border-box;
+        padding:12px 2.25rem 12px 16px; font:16px/24px Marianne, arial, sans-serif; color:#3a3a3a; }
+      #map-wrap .cartefacile-ctrl-search__input::placeholder { color:#666; font-style:italic; opacity:1; }
+      #map-wrap .cartefacile-ctrl-search__input:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
+      #map-wrap .cartefacile-ctrl-search .cartefacile-ctrl-search__btn-search {
+        width:48px; height:48px; flex-shrink:0; background:#000091; border-radius:0 4px 0 0; }
+      #map-wrap .cartefacile-ctrl-search .cartefacile-ctrl-search__btn-search:hover { background:#1212ff; }
+      #map-wrap .cartefacile-ctrl-search .cartefacile-ctrl-search__btn-search::before {
+        background-color:#f5f5fe; mask-size:24px; -webkit-mask-size:24px; }
+      #map-wrap .cartefacile-ctrl-search .cartefacile-ctrl-search__btn-search:focus-visible {
+        outline:2px solid #0a76f6; outline-offset:2px; }
+
       .disclaimer { font-size:11px; color:#666; font-style:italic; line-height:1.4; margin-top:9px;
                     border-top:1px solid #eee; padding-top:7px; }
 
@@ -1173,8 +1217,9 @@
       /* Le label du contrôle est masqué visuellement et il n'y a pas de place
          pour un texte d'aide sous un contrôle flottant : le placeholder est le
          seul signal permanent. L'exemple chiffré est porté par l'étape 1 de la
-         marche à suivre. 32 caractères au plus, au-delà c'est tronqué. */
-      placeholder: 'Commune, lieu-dit ou coordonnées',
+         marche à suivre. v2.36 : libellé court « Lieu ou Coordonnées GPS »,
+         demandé par l'équipe produit avec le passage au champ cartes.gouv.fr. */
+      placeholder: 'Lieu ou Coordonnées GPS',
 
       async search(query) {
         const coords = parserCoordonnees(query);
@@ -1237,7 +1282,11 @@
     }), 'top-left');
     map.addControl(new maplibregl.NavigationControl, 'top-left');
     map.addControl(new maplibregl.GeolocateControl, 'top-left');
-    map.addControl(new CarteFacile.MapSelectorControl({ styles: ['simple', 'aerial'], overlays: [] }), 'bottom-left');
+    /* v2.36 : plus de CarteFacile.MapSelectorControl en bas à gauche. Le choix
+       du fond est en bas de la colonne « Couches affichées » (voir changerFond).
+       Le contrôle d'origine appelait map.setStyle() sans rien conserver :
+       changer de fond effaçait toutes les couches AMIDOMAR (AOT, ports, ZMEL,
+       zonages) jusqu'au rechargement de la page. */
     map.addControl(new maplibregl.ScaleControl, 'bottom-right');
 
     const wrap = document.getElementById('map-wrap');
@@ -1308,12 +1357,22 @@
     wrap.appendChild(colonneD);
 
     const groupes = [...new Set(COUCHES.map(c => c.groupe))];
+    /* Fonds proposés : les deux de l'ancien sélecteur. Le libellé vient du
+       style lui-même (metadata.fr.name : « Simple », « Aérienne »). */
+    const FONDS = ['simple', 'aerial'];
+    let fondActuel = 'simple';
+    function nomFond(k) {
+      const st = CarteFacile.mapStyles[k] || {};
+      return (st.metadata && st.metadata.fr && st.metadata.fr.name) || k;
+    }
     const layerPanel = document.createElement('div');
     layerPanel.className = 'side-panel';
     layerPanel.id = 'layer-panel';
     layerPanel.innerHTML = `
       <div class="panel-header" data-panel="layer" role="button" tabindex="0"
-           aria-expanded="true" aria-controls="layer-panel-body">Couches affichées
+           aria-expanded="true" aria-controls="layer-panel-body">
+        <span class="panel-titre"><svg class="panel-picto" viewBox="0 0 24 24" fill="currentColor"
+          aria-hidden="true"><path d="M20.0833 10.4999L21.2854 11.2212C21.5221 11.3633 21.5989 11.6704 21.4569 11.9072C21.4146 11.9776 21.3557 12.0365 21.2854 12.0787L11.9999 17.6499L2.71451 12.0787C2.47772 11.9366 2.40093 11.6295 2.54301 11.3927C2.58523 11.3223 2.64413 11.2634 2.71451 11.2212L3.9166 10.4999L11.9999 15.3499L20.0833 10.4999ZM20.0833 15.1999L21.2854 15.9212C21.5221 16.0633 21.5989 16.3704 21.4569 16.6072C21.4146 16.6776 21.3557 16.7365 21.2854 16.7787L12.5144 22.0412C12.1977 22.2313 11.8021 22.2313 11.4854 22.0412L2.71451 16.7787C2.47772 16.6366 2.40093 16.3295 2.54301 16.0927C2.58523 16.0223 2.64413 15.9634 2.71451 15.9212L3.9166 15.1999L11.9999 20.0499L20.0833 15.1999ZM12.5144 1.30864L21.2854 6.5712C21.5221 6.71327 21.5989 7.0204 21.4569 7.25719C21.4146 7.32757 21.3557 7.38647 21.2854 7.42869L11.9999 12.9999L2.71451 7.42869C2.47772 7.28662 2.40093 6.97949 2.54301 6.7427C2.58523 6.67232 2.64413 6.61343 2.71451 6.5712L11.4854 1.30864C11.8021 1.11864 12.1977 1.11864 12.5144 1.30864Z"/></svg>Couches affichées</span>
         <span class="panel-chevron" aria-hidden="true">▾</span></div>
       <div class="panel-body" id="layer-panel-body">
         ${groupes.map(g => `
@@ -1337,6 +1396,17 @@
         `).join('')}
         <p class="disclaimer">✓ = source testée et joignable depuis votre navigateur.
         ✗ = source injoignable : la couche existe dans la configuration mais n'affiche rien.</p>
+        <div class="fond-carte">
+          <div class="layer-group-title" id="fond-titre">Fond de carte</div>
+          <div class="fond-liste" role="radiogroup" aria-labelledby="fond-titre">
+            ${FONDS.map(k => `
+              <button type="button" class="fond-carte-btn" role="radio" data-fond="${k}"
+                      aria-checked="${k === fondActuel}" tabindex="${k === fondActuel ? 0 : -1}">
+                <img src="${(CarteFacile.mapThumbnails || {})[k] || ''}" alt="">
+                <span>${nomFond(k)}</span>
+              </button>`).join('')}
+          </div>
+        </div>
       </div>`;
     // Bloc « navire » : injecté dans le popup de coordonnées (#coords-popup),
     // affiché seulement si l'emplacement cliqué est à moins de 100 m d'une AOT
@@ -1465,6 +1535,53 @@
     }
 
     colonneD.appendChild(layerPanel);
+
+    /* ---------- Changement de fond de carte (v2.36) ----------
+       setStyle() remplace tout le style : sans précaution, il emporte nos
+       sources et nos couches. transformStyle reprend du style sortant tout ce
+       qui n'appartient pas au fond (sources hors `sourcesFond`, et leurs
+       couches, dans leur ordre), et le repose par-dessus le nouveau fond.
+       Visibilité, filtres et données GeoJSON du moment sont conservés, car
+       ils font partie du style sérialisé. La carte fantôme (détection terre /
+       mer) ne bouge pas : elle reste sur le fond Simple. */
+    function changerFond(cle) {
+      if (cle === fondActuel || !CarteFacile.mapStyles[cle]) return;
+      // Avant le démarrage, on ne sait pas encore distinguer fond et couches.
+      if (!sourcesFond) return;
+      map.setStyle(CarteFacile.mapStyles[cle], {
+        transformStyle: (prec, suiv) => {
+          if (!prec) return suiv;
+          const nosSources = {};
+          Object.entries(prec.sources || {}).forEach(([id, src]) => {
+            if (!sourcesFond.has(id) && !(id in suiv.sources)) nosSources[id] = src;
+          });
+          const nosCouches = (prec.layers || []).filter(l => l.source && nosSources[l.source]);
+          // Le fond change : les échecs à surveiller sont désormais ceux du nouveau.
+          sourcesFond = new Set(Object.keys(suiv.sources || {}));
+          return { ...suiv, sources: { ...suiv.sources, ...nosSources },
+                   layers: [...suiv.layers, ...nosCouches] };
+        }
+      });
+      fondActuel = cle;
+      layerPanel.querySelectorAll('.fond-carte-btn').forEach(b => {
+        const actif = b.dataset.fond === cle;
+        b.setAttribute('aria-checked', actif ? 'true' : 'false');
+        b.tabIndex = actif ? 0 : -1;
+      });
+    }
+    const boutonsFond = [...layerPanel.querySelectorAll('.fond-carte-btn')];
+    boutonsFond.forEach((b, i) => {
+      b.addEventListener('click', () => changerFond(b.dataset.fond));
+      // Groupe de boutons radio : les flèches passent d'un fond à l'autre (ARIA APG).
+      b.addEventListener('keydown', e => {
+        const pas = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1
+                  : (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ? -1 : 0;
+        if (!pas) return;
+        e.preventDefault();
+        const cible = boutonsFond[(i + pas + boutonsFond.length) % boutonsFond.length];
+        cible.focus(); changerFond(cible.dataset.fond);
+      });
+    });
 
 
     // Plus de bouton ici : l'usager clique directement les ports et ZMEL sur la
