@@ -1134,8 +1134,8 @@ plage 1–30 : **à confirmer avec la DDTM 83** (ligne ajoutée au §12).
 **Particularités des cartes de l'ouest** : carte 4, pas de zone M2 (M1 et M3 seulement) ; carte 6, les zones B et C partagent deux sommets, étiquetés deux fois au même endroit ; carte 11, titre « Les Cabannes du Gapeau » (orthographe de la carte, « Cabanes » retenu) ; cartes 1 à 5, longitudes en 5°E.
 
 **Anomalies de lecture, consignées dans la propriété `remarques`** : carte 33
-zone 2, un sommet écrit « 43°11,1170'N », lu 43°11.117'N ; carte 33, profondeur
-max « 7.80 » sans unité, mètres supposés ; carte 36 zone 14, polygone à 6
+zone 2, un sommet écrit « 43°11,1170'N », lu 43°11.117'N (lecture confirmée) ;
+carte 33, profondeur max « 7.80 » sans unité, en mètres (confirmé) ; carte 36 zone 14, polygone à 6
 sommets (décrochement au nord-est) ; carte 52, coquille « Plage du
 Déparquement » dans le titre.
 
