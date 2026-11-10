@@ -1,6 +1,6 @@
 {
   "_lisez_moi": "Messages affichés sur la carte selon la DDTM dont relève l'emplacement cliqué. Fichier provisoire : il sera régénéré depuis la table DDTM de Grist quand l'interface instructeur existera, d'où les noms de champs ci-dessous, alignés sur ceux prévus pour cette table. TOUS LES CHAMPS SONT DU TEXTE BRUT, jamais du HTML : la carte échappe les valeurs et construit elle-même la mise en forme. N'y mettre aucune balise. Champ coordonnees_hors_zone (v2.33) : false = la DDTM ne délivre pas d'AOT en dehors des zones de data/zones-aot.geojson ouvertes à tous, la carte n'affiche alors les coordonnées GPS que dans ces zones (jamais dans une zone réservée uniquement aux professionnels) ; absent ou true = coordonnées affichées partout. Ce masquage n'est actif que si brouillon est à false : tant que la liste des zones est en cours de constitution, la carte dit la règle mais ne retient pas les coordonnées. Il ne s'applique pas à l'entrée ?vue=existant (titulaire d'une AOT en cours).",
-  "millesime": "2026-11-03",
+  "millesime": "2026-11-10",
   "ddtm": [
     {
       "ddtm": "22",
@@ -22,21 +22,39 @@
       "ddtm": "83",
       "nom_departement": "Var",
       "brouillon": true,
-      "message_titre": "La DDTM du Var ne délivre plus de nouvelles AOT en dehors de certaines zones dédiées",
+      "message_titre": "La DDTM du Var délivre de nouvelles AOT de mouillage individuel uniquement dans les zones autorisées listées ci-dessous, et après vérification des disponibilités",
       "message_consequence": "identifier ces zones pour faire une demande",
       "libelle_bouton": "Voir les zones",
       "message_detail": [
-        "Zones connues à ce jour, sur 16 communes de Bandol à Saint-Raphaël (Bandol, La Seyne-sur-Mer, Toulon, Hyères, La Londe-les-Maures, Bormes-les-Mimosas, Le Lavandou, Cavalaire-sur-Mer, La Croix-Valmer, Ramatuelle, Saint-Tropez, Gassin, Grimaud, Roquebrune-sur-Argens, Fréjus, Saint-Raphaël). Cette liste est en cours de validation avec la DDTM du Var : quelques cartes manquent encore.",
         "Si aucune de ces zones ne convient à votre projet, orientez-vous vers une zone de mouillages et d'équipements légers (ZMEL) ou vers une zone portuaire."
       ],
       "liste": [],
       "lien": "",
       "libelle_lien": "",
       "_note_zones": "Les zones ne sont PAS listées ici : elles vivent dans data/zones-aot.geojson, qui sert à la fois à les dessiner sur la carte et à les énumérer dans ce message. Une zone est une géométrie — la recopier en texte créerait deux listes qui divergeraient.",
+      "libelle_toutes_zones": "Toutes les zones du Var",
+      "secteurs": [
+        {
+          "nom": "Secteur Ouest Var",
+          "etendue": "Bandol → Le Lavandou",
+          "cartes": [
+            1,
+            30
+          ]
+        },
+        {
+          "nom": "Secteur Est Var",
+          "etendue": "Cavalaire-sur-Mer → Saint-Raphaël",
+          "cartes": [
+            31,
+            99
+          ]
+        }
+      ],
+      "_note_secteurs": "v2.37 : la liste des zones est rangée par secteur. Le secteur d'une zone se lit dans le numéro de carte DDTM de son champ source (« carte n°6 ») : cartes 1 à 26 pour l'ouest (27 à 30 non transmises, rangées à l'ouest par défaut — à confirmer avec la DDTM), 31 à 52 pour l'est. Une zone sans numéro de carte, ou hors de ces plages, apparaît sous « Autres zones ». Sans champ secteurs, les communes sont listées directement.",
       "message_titre_zone": "La DDTM du Var autorise les nouvelles AOT de mouillage individuel dans cette zone",
       "message_complement_zone": "sous réserve de places disponibles",
       "message_detail_zone": [
-        "Les autres zones connues à ce jour, sur 16 communes de Bandol à Saint-Raphaël. Cette liste est en cours de validation avec la DDTM du Var : quelques cartes manquent encore.",
         "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres : rapprochez-vous de la DDTM du Var pour connaître la disponibilité réelle."
       ],
       "_note_variante_zone": "Les champs *_zone sont utilisés quand l'emplacement cliqué tombe DANS une zone de data/zones-aot.geojson : la carte de règle locale passe alors au vert et affiche ces textes à la place des textes par défaut. Le nom de la zone est ajouté automatiquement entre parenthèses après message_complement_zone — ne pas l'écrire ici. Sans libelle_bouton_zone, le bouton par défaut est conservé.",

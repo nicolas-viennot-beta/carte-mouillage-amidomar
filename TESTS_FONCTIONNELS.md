@@ -23,7 +23,12 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 6 nov. 2026 (v2.36) — champ de recherche façon cartes.gouv.fr, fond de carte dans la colonne.**
+**Dernière exécution : 10 nov. 2026 (v2.37) — zones du Var rangées Secteur → Commune → Zone.**
+- §6 (syntaxe, exécution réelle, 0 focus, `rayonEvitage`) : **OK**. §10 : **59/59** Node, **22/22** Chromium. §15 : **11/11**. §16 : **OK**. §17 + §19 : **47/47** Node, §17.5 **11/11** rendu. §18 : **27/27**.
+- §19.2 (nouveau, `test_zones_secteurs_chromium.js`) : **9/9** — point à l'est de Giens : 3 zones proches (La Bergerie 180 m, La Badine 920 m, La Capte 1,6 km), deux secteurs repliés, Hyères dépliée → 10 zones, clics de recadrage sans exception.
+- Chromium exécuté dans le conteneur cloud de Claude (Playwright), réseau externe coupé. Rendu téléphone (390 px) **non vérifié par harnais** : à 390 px le champ de recherche est recouvert par l'en-tête du panneau de couches et le harnais ne peut pas saisir — limite du harnais, pas de la v2.37 ; contrôle à faire sur la version publiée.
+
+**Exécution précédente : 6 nov. 2026 (v2.36) — champ de recherche façon cartes.gouv.fr, fond de carte dans la colonne.**
 - §6 (syntaxe, exécution réelle, 0 focus, `rayonEvitage`) : **OK**. §10 : **59/59** Node, **22/22** Chromium (premier passage 20/22 sur §10.7 « 6.622611, 43.267710 » — même échec reproduit sur la v2.35 non modifiée, puis 22/22 au second passage : le harnais lit le déroulant avant sa mise à jour, à fiabiliser). §15 : **11/11**. §17 : **27/27** Node, **11/11** rendu.
 - §18 (nouvelle section) : **27/27** — mesures du champ, picto, bloc « Fond de carte », bascule Aérienne → Simple sans perte de couche, clavier, clic après bascule.
 - Chromium exécuté dans le conteneur cloud de Claude (Playwright + Chrome), faute de Playwright sur la VM du Mac. Fond IGN injoignable depuis ce conteneur : rendu visuel du fond **non vérifié** ici, à contrôler sur la version publiée.
@@ -2962,3 +2967,36 @@ exécutable Chrome si Playwright n'a pas le sien.
 - Le **rendu réel** du fond Aérienne (tuiles IGN injoignables depuis le conteneur de test) : à vérifier sur la version publiée — l'orthophoto s'affiche et les couches AMIDOMAR sont dessinées par-dessus.
 - La comparaison visuelle fine avec cartes.gouv.fr (police Marianne chargée ou non, rendu sur fond Aérienne).
 
+
+
+## 19. Liste des zones autorisées rangée Secteur → Commune → Zone *(v2.37)*
+
+*Harnais : `test_regles_locales.js` (§19.1, Node) et `test_zones_secteurs_chromium.js`
+(§19.2, Playwright). Dernière exécution : 10 nov. 2026 — 20/20 Node, 9/9 Chromium.*
+
+**Point de vigilance pour §17.4** : depuis la v2.37, les zones proches sont répétées
+en tête de liste. Les comptes « 57 zones listées » / « 56 autres zones » portent
+donc sur la partie qui suit le titre « Toutes les zones », pas sur tout le HTML
+(60 boutons `env-zone-lien` au total hors zone, dont 3 proches).
+
+### 19.1 Contenu (Node, `blocReglesLocales` appelé directement)
+1. Fiche 83 : `secteurs` = deux plages, 1–30 et 31–99 ; `message_titre` = « La DDTM du Var délivre de nouvelles AOT de mouillage individuel uniquement… » ; plus aucun paragraphe « Zones connues à ce jour » ni « Les autres zones connues ».
+2. Point hors zone à l'est de Giens (43.045, 6.155) : deux `<details class="env-secteur">`, **aucun** attribut `open`.
+3. Comptes : « Bandol → Le Lavandou · 7 communes · 29 zones · 1 025 emplacements » ; « Cavalaire-sur-Mer → Saint-Raphaël · 9 communes · 28 zones · 740 emplacements » ; Hyères « 10 zones · 314 emplacements » ; aucune « Autres zones ».
+4. 16 `<details class="env-commune">`, d'ouest en est : Bandol, La Seyne-sur-Mer, Toulon, Hyères, La Londe-les-Maures, Bormes-les-Mimosas, Le Lavandou, puis Cavalaire-sur-Mer … Saint-Raphaël.
+5. « emplacements », jamais « unités » ; dans une commune, la zone est nommée sans la commune (« Madrague de Giens, zone A »).
+6. « Les plus proches de votre point » : `CONFIG.zonesProches` (3) zones, toutes à Hyères, chacune avec une distance au format « 180 m » / « 1,6 km », croissante.
+7. Sans point (`lngLat` null) : pas de section « proches », 57 zones dans la liste rangée.
+8. Fiche sans `secteurs` : communes listées directement (16), aucun `env-secteur-nom`.
+9. Zone dont `source` ne porte pas de numéro de carte : rangée sous « Autres zones ».
+10. Nom de secteur contenant du HTML (`<b>x</b>`) : échappé.
+
+### 19.2 Rendu (Chromium, Shom LIMTM simulé → 83)
+1. Saisir « 43.045, 6.155 », valider : carte orange avec le nouveau titre.
+2. « Voir les zones » : deux secteurs repliés ; 3 zones proches rendues (hauteur > 0) ; ni « unités » ni « Zones connues » dans le panneau.
+3. Ouvrir « Secteur Ouest Var » puis Hyères : 10 zones visibles, hauteur rendue > 0.
+4. Cliquer une zone de la commune, puis une zone « proche » : la liste reste ouverte, **0** `pageerror`.
+
+### 19.3 Non couvert par les harnais — à vérifier sur la version publiée
+- Rendu à 390 px de large (téléphone).
+- Recadrage réel de la carte sur la zone cliquée avec le fond IGN (fond injoignable dans le conteneur).

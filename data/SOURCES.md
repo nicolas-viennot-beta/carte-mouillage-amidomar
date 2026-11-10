@@ -8,7 +8,7 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
+*Dernière consolidation : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
 n°1 à 26). Consolidation précédente : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
 ajoutées (§9), nouveaux champs de `ddtm-messages.json` et propriété `public` des zones
 (§10), coordonnées retenues par une règle locale. Consolidations précédentes : 30 octobre
@@ -1118,6 +1118,19 @@ position** (N, E, S, O). Consigné dans `remarques`.
 
 **Cartes non transmises** : n°23 à 25 et 27 à 30 (entre Le Lavandou et Cavalaire). À demander à la DDTM 83 (§12).
 
+**Le champ `source` sert aussi au rangement (v2.37, 10 novembre 2026).** La carte
+range les zones par secteur d'après le numéro de carte DDTM lu dans `source`
+(expression `cartes? n° <nombre>`, premier nombre retenu), comparé aux plages
+`secteurs` de la fiche 83 dans `data/ddtm-messages.json` : cartes 1 à 30 →
+Secteur Ouest Var (Bandol → Le Lavandou, 29 zones, 1 025 emplacements), 31 à 99
+→ Secteur Est Var (Cavalaire-sur-Mer → Saint-Raphaël, 28 zones, 740
+emplacements). Vérifié le 10 novembre 2026 : les 57 zones portent un numéro et
+tombent dans une plage, aucune sous « Autres zones ». **Piège** : réécrire
+`source` sans « carte n°X » (export Grist, autre producteur) range la zone sous
+« Autres zones » sans erreur ; garder le numéro, ou prévoir un champ `secteur`
+explicite. Les cartes 27 à 30, non transmises, sont rangées à l'ouest par la
+plage 1–30 : **à confirmer avec la DDTM 83** (ligne ajoutée au §12).
+
 **Particularités des cartes de l'ouest** : carte 4, pas de zone M2 (M1 et M3 seulement) ; carte 6, les zones B et C partagent deux sommets, étiquetés deux fois au même endroit ; carte 11, titre « Les Cabannes du Gapeau » (orthographe de la carte, « Cabanes » retenu) ; cartes 1 à 5, longitudes en 5°E.
 
 **Anomalies de lecture, consignées dans la propriété `remarques`** : carte 33
@@ -1280,6 +1293,7 @@ quelques sites avant de bouger.
 
 | Manque | Qui | Demande |
 |---|---|---|
+| Zones AOT du Var : limite entre secteurs Ouest et Est, et cartes n°23 à 25 et 27 à 30 | DDTM 83 / SML-BLO | le découpage Ouest (cartes 1–26) / Est (31–52) est repris de la numérotation des cartes (v2.37) ; confirmer que c'est bien le découpage de la DDTM et dans quel secteur tombent les cartes non transmises |
 | **Herbiers : mise en cache WMTS de la couche Nav&Co** | OFB, `sig@ofb.gouv.fr` | c'est la seule des trois couches à ne pas être tuilée, et c'est celle qui porte le message usager |
 | Herbiers : tuiles vectorielles | OFB | y a-t-il un projet d'activer le plugin ? Rejoint la question PING posée à Fredy Thomas côté Shom |
 | Herbiers : qui reprend l'actualisation ? | OFB | le Life Marha s'achève au 31/12/2025 |
@@ -1412,6 +1426,7 @@ source muette, et un `null` mal interprété en fausse autorisation.
 | `delaiCulturesMarines` | 4 000 ms | cadastre conchylicole (150–740 ms observés) |
 | `proximiteCulturesMarines` | 40 m | parcelle signalée sans blocage |
 | `blocageCulturesMarines` | 5 m | parcelle bloquante |
+| `zonesProches` | 3 | zones autorisées (§9) listées en tête, par distance au bord du polygone — un nombre d'entrées, pas un seuil ni un rayon |
 | `profondeurDefaut` | 5 m | colonne supposée pour les AOT existantes |
 | `longueurAutres` | 9 m | longueur supposée des autres navires |
 

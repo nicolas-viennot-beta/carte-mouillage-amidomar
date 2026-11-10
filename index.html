@@ -251,6 +251,29 @@
       #env-block .env-carte--ddtm .env-carte-resume { color:#8a3200; }
       #env-block .env-liste { margin:0 0 6px; padding-left:18px; }
       #env-block .env-liste li { margin-bottom:2px; }
+      /* v2.37 : la liste des zones autorisées est rangée Secteur → Commune →
+         Zone, en <details> natifs (clavier et lecteur d'écran gérés par le
+         navigateur), tous repliés. Les zones les plus proches du point passent
+         devant, à plat, avec leur distance : c'est ce que cherche l'usager. */
+      #env-block .env-sous-titre { margin:10px 0 6px; font-size:13px; font-weight:700; color:#161616; }
+      #env-block .env-liste--proches { list-style:none; padding:0; display:flex; flex-direction:column; gap:6px; }
+      #env-block .env-liste--proches li { display:flex; justify-content:space-between; gap:10px;
+                                          padding:6px 8px; background:#f6f6f6; border-radius:4px; margin:0; }
+      #env-block .env-zone-distance { font-weight:700; white-space:nowrap; }
+      #env-block .env-zone-meta { display:block; font-size:12px; color:#3a3a3a; }
+      #env-block .env-secteur { border:1px solid #dddddd; border-radius:4px; margin:0 0 6px; background:#ffffff; }
+      #env-block .env-secteur > summary { cursor:pointer; padding:8px 10px; background:#f5f5fe; border-radius:4px;
+                                          list-style-position:inside; }
+      #env-block .env-secteur[open] > summary { border-bottom:1px solid #dddddd; border-radius:4px 4px 0 0; }
+      #env-block .env-secteur-nom { font-weight:700; color:#000091; }
+      #env-block .env-groupe-meta { display:block; font-size:12px; color:#3a3a3a; margin-left:14px; }
+      #env-block .env-secteur-corps { padding:2px 10px 6px; }
+      #env-block .env-commune { border-bottom:1px solid #eeeeee; }
+      #env-block .env-commune:last-child { border-bottom:none; }
+      #env-block .env-commune > summary { cursor:pointer; padding:7px 0; display:list-item; }
+      #env-block .env-commune > summary .env-groupe-meta { display:inline; margin-left:6px; }
+      #env-block .env-commune .env-liste { border-left:2px solid #b34000; list-style:none; padding-left:10px; margin:0 0 8px; }
+      #env-block .env-commune .env-liste li { margin-bottom:6px; }
       /* v2.23 : le nom de zone est un bouton, pas un lien — il ne navigue
          nulle part, il recadre la carte. Mis en forme comme un lien parce que
          c'est ce que l'usager reconnaît comme cliquable. */
@@ -714,6 +737,7 @@
       rayonsDepartement: [1, 2, 5, 10], // km — rayons essayés dans l'ordre pour trouver la côte la plus proche (v2.22 ; voir interrogerDepartement)
       delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
       proximiteCulturesMarines: 40, // m — en deçà, une parcelle voisine est signalée sans bloquer (v2.20, décision de Nicolas du 14/10/2026 : un rayon d'évitage ordinaire dépasse cette distance)
+      zonesProches: 3,          // nombre de zones autorisées proposées en tête de liste, triées par distance au point cliqué (v2.37)
       blocageCulturesMarines: 5,  // m — en deçà, on considère être SUR la parcelle (marge pour les imprécisions de saisie du cadastre)
       centre: [2.4, 46.6],      // vue initiale : la France entière
       zoom:   5
@@ -2872,6 +2896,116 @@
            + (p.zone != null ? `, zone ${p.zone}` : '');
     }
 
+    /* ---------- v2.37 : liste des zones rangée Secteur → Commune → Zone ----------
+       Le secteur d'une zone se déduit du numéro de la carte DDTM dont elle a
+       été relevée (champ `source` du GeoJSON : « carte n°6 »), comparé aux
+       plages `secteurs` du fichier de messages de la DDTM. Rien n'est recopié
+       dans le GeoJSON : la DDTM 83 numérote déjà ses cartes par secteur (1 à 26
+       à l'ouest, 31 à 52 à l'est), et une plage se corrige en une ligne. Une
+       zone sans numéro, ou hors de toute plage, tombe dans « Autres zones ».
+       Une DDTM sans `secteurs` voit ses communes directement, sans niveau
+       secteur. Communes d'ouest en est (longitude la plus faible de leurs
+       zones) ; zones dans l'ordre du GeoJSON, qui suit celui des cartes. */
+    function numeroCarte(p) {
+      const m = /cartes?\s*n°\s*(\d+)/i.exec(String((p || {}).source || ''));
+      return m ? Number(m[1]) : null;
+    }
+    function anneauxZone(z) {
+      const g = (z || {}).geometry;
+      if (!g) return [];
+      const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+      return polys.filter(p => p.length).map(p => p[0].map(([lng, lat]) => [lat, lng]));
+    }
+    function distanceZone(lngLat, z) {
+      let d = Infinity;
+      anneauxZone(z).forEach(a => {
+        d = Math.min(d, pointDansAnneau(lngLat.lat, lngLat.lng, a) ? 0 : distanceAuContour(lngLat.lat, lngLat.lng, a));
+      });
+      return d;
+    }
+    function lonMinZone(z) {
+      let o = Infinity;
+      anneauxZone(z).forEach(a => a.forEach(([, lng]) => { o = Math.min(o, lng); }));
+      return o;
+    }
+    function formaterDistance(m) {
+      if (!isFinite(m)) return '';
+      return m < 1000 ? `${Math.max(10, Math.round(m / 10) * 10)} m`
+                      : `${(m / 1000).toFixed(1).replace('.', ',')} km`;
+    }
+    function nombreFr(n) { return Number(n).toLocaleString('fr-FR'); }
+    // « 30 emplacements, exposition ouest, profondeur 0 à 1 m ». v2.37 :
+    // « emplacements » et non plus « unités » — c'est le mot du message DDTM.
+    function detailZone(p) {
+      return [
+        p.capacite_unites ? `${nombreFr(p.capacite_unites)} emplacement${p.capacite_unites > 1 ? 's' : ''}` : '',
+        p.exposition ? `exposition ${String(p.exposition).toLowerCase()}` : '',
+        (p.profondeur_min_m != null && p.profondeur_max_m != null)
+          ? `profondeur ${String(p.profondeur_min_m).replace('.', ',')} à ${String(p.profondeur_max_m).replace('.', ',')} m` : ''
+      ].filter(Boolean).join(', ');
+    }
+    // Compte d'un groupe : « 10 zones · 314 emplacements ». Le total n'est
+    // donné que si toutes les zones du groupe ont une capacité : un total
+    // partiel passerait pour complet.
+    function compteGroupe(zs) {
+      const n = zs.length;
+      const caps = zs.map(z => Number((z.properties || {}).capacite_unites));
+      const total = caps.every(c => c > 0) ? caps.reduce((a, b) => a + b, 0) : null;
+      return `${n} zone${n > 1 ? 's' : ''}` + (total ? ` · ${nombreFr(total)} emplacement${total > 1 ? 's' : ''}` : '');
+    }
+    function itemZone(z, { complet, distance }) {
+      const p = z.properties || {};
+      const i = zonesListees.push(z) - 1;
+      const titre = complet ? libelleZone(p)
+        : [p.lieu || p.nom || p.commune].filter(Boolean).join('') + (p.zone != null ? `, zone ${p.zone}` : '');
+      const pro = zoneReserveePro(z) ? ' — réservée uniquement aux professionnels' : '';
+      const detail = detailZone(p);
+      const corps = `<span><button type="button" class="env-zone-lien" data-zone="${i}"
+                      >${echapper(titre)}</button>${pro}${detail ? `<span class="env-zone-meta">${echapper(detail)}</span>` : ''}</span>`;
+      return `<li>${corps}${distance != null ? `<span class="env-zone-distance">${formaterDistance(distance)}</span>` : ''}</li>`;
+    }
+    function listeZonesGroupees(zs, fiche, lngLat) {
+      let html = '';
+      if (lngLat && CONFIG.zonesProches > 0) {
+        const proches = zs.map(z => ({ z, d: distanceZone(lngLat, z) }))
+          .filter(o => isFinite(o.d)).sort((a, b) => a.d - b.d).slice(0, CONFIG.zonesProches);
+        if (proches.length) html += `<h3 class="env-sous-titre">Les plus proches de votre point</h3>
+          <ul class="env-liste env-liste--proches">${proches.map(o => itemZone(o.z, { complet: true, distance: o.d })).join('')}</ul>`;
+      }
+      const communes = (liste) => {
+        const parCommune = new Map();
+        liste.forEach(z => {
+          const c = (z.properties || {}).commune || 'Commune non précisée';
+          if (!parCommune.has(c)) parCommune.set(c, []);
+          parCommune.get(c).push(z);
+        });
+        return [...parCommune.entries()]
+          .sort((a, b) => Math.min(...a[1].map(lonMinZone)) - Math.min(...b[1].map(lonMinZone)))
+          .map(([nom, zc]) => `<details class="env-commune"><summary><span>${echapper(nom)}</span>
+              <span class="env-groupe-meta">${compteGroupe(zc)}</span></summary>
+              <ul class="env-liste">${zc.map(z => itemZone(z, { complet: false })).join('')}</ul></details>`).join('');
+      };
+      html += `<h3 class="env-sous-titre">${echapper(fiche.libelle_toutes_zones || 'Toutes les zones')}</h3>`;
+      const secteurs = (fiche.secteurs || []).filter(s => s && s.nom);
+      if (!secteurs.length) return html + `<div class="env-secteur"><div class="env-secteur-corps">${communes(zs)}</div></div>`;
+      const groupes = secteurs.map(s => ({ s, zs: [] }));
+      const autres = [];
+      zs.forEach(z => {
+        const n = numeroCarte(z.properties);
+        const g = n == null ? null : groupes.find(({ s }) =>
+          Array.isArray(s.cartes) && n >= Number(s.cartes[0]) && n <= Number(s.cartes[1]));
+        (g ? g.zs : autres).push(z);
+      });
+      if (autres.length) groupes.push({ s: { nom: 'Autres zones' }, zs: autres });
+      return html + groupes.filter(g => g.zs.length).map(({ s, zs: zg }) => {
+        const nbCommunes = new Set(zg.map(z => (z.properties || {}).commune)).size;
+        const meta = [s.etendue, `${nbCommunes} commune${nbCommunes > 1 ? 's' : ''}`, compteGroupe(zg)].filter(Boolean).join(' · ');
+        return `<details class="env-secteur"><summary><span class="env-secteur-nom">${echapper(s.nom)}</span>
+            <span class="env-groupe-meta">${echapper(meta)}</span></summary>
+            <div class="env-secteur-corps">${communes(zg)}</div></details>`;
+      }).join('');
+    }
+
     let zonesListees = [];
     function cadrerSurZone(i) {
       const f = zonesListees[i];
@@ -2980,25 +3114,13 @@
           .filter(z => String((z.properties||{}).ddtm) === String(f.ddtm))
           .filter(z => !(enZone || enZonePro) || z !== zoneIci);
         if (sesZones.length) {
-          const items = sesZones.map(z => {
-            const p = z.properties || {};
-            const i = zonesListees.push(z) - 1;
-            const detail = [
-              p.capacite_unites ? `${p.capacite_unites} unités` : '',
-              p.exposition ? `exposition ${String(p.exposition).toLowerCase()}` : '',
-              (p.profondeur_min_m != null && p.profondeur_max_m != null)
-                ? `profondeur ${String(p.profondeur_min_m).replace('.', ',')} à ${String(p.profondeur_max_m).replace('.', ',')} m` : ''
-            ].filter(Boolean).join(', ');
-            const titre = libelleZone(p);
-            // v2.33 : une zone réservée aux professionnels reste listée — la
-            // cacher la ferait passer pour libre — mais le dit.
-            const pro = zoneReserveePro(z) ? ' — réservée uniquement aux professionnels' : '';
-            return `<li><button type="button" class="env-zone-lien" data-zone="${i}"
-                      >${echapper(titre)}</button>${detail ? ' : ' + echapper(detail) : ''}${pro}</li>`;
-          }).join('');
-          paragraphes.splice(1, 0,
-            `<ul class="env-liste">${items}</ul>
-             <p class="env-caveat">Cliquez le nom d'une zone pour la voir sur la carte.</p>`);
+          // v2.37 : liste rangée par secteur et commune, zones proches en tête.
+          // Elle passe en premier dans le détail : le paragraphe d'introduction
+          // qui la précédait (« Zones connues à ce jour, sur 16 communes… »)
+          // faisait doublon avec les comptes des secteurs et avec la note
+          // « information provisoire » du bas de carte.
+          paragraphes.unshift(listeZonesGroupees(sesZones, f, lngLat)
+            + `<p class="env-caveat">Cliquez le nom d'une zone pour la voir sur la carte.</p>`);
         } else if ((f.liste || []).length) {
           const items = f.liste.map(z => `<li>${echapper(z)}</li>`).join('');
           paragraphes.splice(1, 0, `<ul class="env-liste">${items}</ul>`);

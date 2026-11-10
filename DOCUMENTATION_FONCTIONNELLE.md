@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.36 (novembre 2026)  
-**Dernière mise à jour:** 6 novembre 2026  
+**Version:** 2.37 (novembre 2026)  
+**Dernière mise à jour:** 10 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -499,7 +499,7 @@ Le drapeau `brouillon: true` fait ajouter « Information provisoire, en cours de
 
 **État de la liste du Var (v2.35).** **57 zones sur 16 communes, de Bandol à Saint-Raphaël, pour 1 765 unités.** Depuis le 3 novembre 2026, l'ouest du département est couvert : **29 zones sur 7 communes** (Bandol, La Seyne-sur-Mer, Toulon, Hyères, La Londe-les-Maures, Bormes-les-Mimosas, Le Lavandou — 1 025 unités) relevées sur les cartes n°1 à 26 de la DDTM du Var / SML-BLO (octobre 2022), avec deux triangles (Baie du Lazaret M1, Madrague de Giens D) et un pentagone (Lazaret M3) ; les cartes n°23 à 25 et 27 à 30 n'ont pas été transmises. Le golfe de Saint-Tropez et l'est comptent 28 zones sur 9 communes pour 740 unités : 4 des 5 zones tropéziennes de la v2.23 (cartes n°41 et 42 : La Bouillabaisse, Les Canebiers 2 à 4 — **la zone 5 des Canebiers a été retirée le 2 novembre 2026**, la DDTM 83 ayant annoncé sa suppression) et, depuis le 2 novembre 2026, 24 zones relevées sur les cartes n°31 à 52 de la DDTM du Var / SML-BLO (octobre 2022 et mai 2023) — Cavalaire-sur-Mer, La Croix-Valmer, Ramatuelle, Saint-Tropez (La Rabiou, La Moutte, Les Salins), Gassin, Grimaud, Roquebrune-sur-Argens, Fréjus, Saint-Raphaël. Tous les sommets ont été lus à la main sur les étiquettes des PDF (aucune donnée géoréférencée dans les fichiers), convertis des degrés-minutes au décimal, et contrôlés : aucun polygone auto-intersecté, et une surface par unité comprise entre 300 et 3 000 m² pour chacune. Sur la **carte n°38 (Ramatuelle, Bonne Terrasse, zone 11)**, les étiquettes de sommets sont inversées sur le PDF : les coordonnées ont été réattribuées aux sommets selon leur position (N, E, S, O), lecture confirmée. Détail des sources et des anomalies de lecture dans `data/SOURCES.md`.
 
-La liste **reste à valider et le texte le dit** : sept numéros de cartes manquent (23 à 25, 27 à 30) et aucun périmètre n'a encore été confirmé par la DDTM 83. Chaque entrée nomme sa commune, le premier paragraphe du message dit que la liste est en cours de validation avec la DDTM, et le drapeau `brouillon` reste à `true` sur le 83 — ce qui, depuis la v2.33, a une conséquence précise sur les coordonnées (voir ci-dessous).
+La liste **reste à valider et le texte le dit** : sept numéros de cartes manquent (23 à 25, 27 à 30) et aucun périmètre n'a encore été confirmé par la DDTM 83. Chaque zone est rangée sous sa commune, la note « Information provisoire, en cours de validation avec la DDTM … » (drapeau `brouillon`) le dit en bas de la carte, et ce drapeau reste à `true` sur le 83 — ce qui, depuis la v2.33, a une conséquence précise sur les coordonnées (voir ci-dessous).
 
 **Les zones sont désormais des polygones : `data/zones-aot.geojson`.** Les quatre sommets de chaque zone, donnés en degrés-minutes décimales sur les cartes PDF, ont été convertis en décimal et versés dans un GeoJSON. Ce fichier sert **deux fois** : il dessine la couche `zones_aot` sur la carte, et il alimente la liste du message DDTM. Les zones ne sont donc pas recopiées dans `data/ddtm-messages.json` — une zone est une géométrie, et la dupliquer en texte garantirait de voir les deux listes diverger. Le lien entre les deux fichiers est la propriété `ddtm` portée par chaque entité.
 
@@ -513,6 +513,13 @@ Trois conséquences pour l'usager :
   Les textes de l'état « en zone » viennent du fichier de messages (`message_titre_zone`, `message_complement_zone`, `message_consequence_zone`, `message_detail_zone`), **pas du code** : « La DDTM du Var autorise… » est une phrase propre à un département, et la coder en dur obligerait à repasser par un développeur pour chaque DDTM qui rejoindra le dispositif. En l'absence de ces champs, une phrase neutre est utilisée.
 
   La zone occupée **sort de la liste** dépliable, dont le bouton propose « les autres zones autorisées » : y faire figurer celle où l'on se trouve déjà contredirait son libellé.
+- **La liste est rangée Secteur → Commune → Zone (v2.37).** Demande de Nicolas après une maquette validée le 10 novembre 2026 (canvas « AMIDOMAR — Zones du Var par secteur ») : 57 zones à plat se lisaient mal.
+  - **En tête, « Les plus proches de votre point »** : les `CONFIG.zonesProches` (3) zones les plus proches du point cliqué, avec leur commune et leur distance au bord du polygone (`distanceZone`, même approximation plate que le cadastre conchylicole ; « 180 m », « 1,6 km »). C'est ce que cherche l'usager qui explore sans mouillage : il clique là où il voudrait mouiller et voit d'abord ce qui est autorisé autour.
+  - **Puis « Toutes les zones du Var »**, en `<details>` natifs, **tous repliés** (clavier et lecteur d'écran gérés par le navigateur) : le secteur affiche son étendue, son nombre de communes, de zones et d'emplacements (« Bandol → Le Lavandou · 7 communes · 29 zones · 1 025 emplacements ») ; chaque commune son nombre de zones et d'emplacements ; chaque zone son nom sans répéter la commune, puis « 30 emplacements, exposition ouest, profondeur 0 à 1 m ». Le total d'un groupe n'est donné que si toutes ses zones ont une capacité.
+  - **Le secteur vient du numéro de carte DDTM**, lu dans le champ `source` de la zone (« carte n°6 »), comparé aux plages `secteurs` de la fiche DDTM dans `data/ddtm-messages.json` (83 : cartes 1 à 30 → « Secteur Ouest Var », 31 à 99 → « Secteur Est Var »). Rien n'est recopié dans le GeoJSON. Une zone sans numéro ou hors plage tombe sous « Autres zones » ; une fiche sans `secteurs` liste ses communes directement. Les cartes 27 à 30, non transmises, seraient rangées à l'ouest : limite à confirmer avec la DDTM 83.
+  - **Communes d'ouest en est** (longitude la plus faible de leurs zones), zones dans l'ordre du GeoJSON.
+  - **« emplacements » remplace « unités »**, mot déjà employé par le message « en zone » (« La capacité indiquée est le nombre d'emplacements »).
+  - **Texte du Var** (fiche 83) : nouveau titre « La DDTM du Var délivre de nouvelles AOT de mouillage individuel uniquement dans les zones autorisées listées ci-dessous, et après vérification des disponibilités » ; le paragraphe « Zones connues à ce jour, sur 16 communes… » (et son pendant « Les autres zones connues… » en zone) est retiré, il doublait les comptes des secteurs et la note `brouillon`. Le libellé du titre de liste vient de `libelle_toutes_zones`.
 - **Les noms de zone sont cliquables** et recadrent la carte dessus (`cadrerSurZone`), avec une marge à gauche pour que la zone ne se retrouve pas sous le popup. La liste reste ouverte : on passe d'une zone à l'autre sans tout rouvrir.
 - **Les zones sont visibles** sur la carte, sous la case « Zones de mouillage autorisées (AOT) », dans le même orange que la carte de règle locale — c'est la même nature d'information.
 
@@ -767,6 +774,7 @@ const CONFIG = {
   rayonsDepartement: [1, 2, 5, 10], // rayons essayés dans l'ordre pour trouver la côte la plus proche (km, v2.22) — voir §4.4ter
   delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
   proximiteCulturesMarines: 40, // en deçà, une parcelle voisine est signalée sans bloquer (m, v2.21)
+  zonesProches: 3,          // zones autorisées proposées en tête de liste, triées par distance au point (v2.37) — voir §4.4ter
   blocageCulturesMarines: 5,  // en deçà, on considère être SUR la parcelle (m, v2.21)
   longueurAutres: 9,        // longueur supposée des autres navires (m)
   // ... autres paramètres
@@ -1119,6 +1127,10 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Dans une zone, déplier « Identifier les autres zones autorisées » → **56** zones listées, celle où l'on se trouve n'y figure pas
 - [ ] Cliquer dans le Var **hors** de toute zone → la carte est **orange**, titrée « ne délivre plus… », et les **57** zones sont listées sous « Voir les zones », chacune avec sa commune
 - [ ] Déplier « Voir les zones » → les noms sont des liens soulignés
+- [ ] *(v2.37)* Cliquer en mer à l'est de la presqu'île de Giens → en tête « Les plus proches de votre point » : 3 zones d'Hyères avec leur distance, croissante ; dessous « Toutes les zones du Var » avec « Secteur Ouest Var » et « Secteur Est Var », **repliés**
+- [ ] *(v2.37)* Ouvrir « Secteur Ouest Var » → 7 communes de Bandol au Lavandou ; ouvrir Hyères → 10 zones, nommées sans « Hyères — », avec « emplacements » (jamais « unités »)
+- [ ] *(v2.37)* Cliquer une zone de la section « proches », puis une zone d'une commune ouverte → la carte se recadre à chaque fois, les sections restent ouvertes
+- [ ] *(v2.37)* Sur téléphone (≈ 390 px), le panneau reste lisible : secteurs et communes sur une ou deux lignes, distance à droite
 - [ ] Cliquer un nom → la carte se recadre sur la zone, celle-ci n'est **pas** cachée par le popup, et la liste reste dépliée
 - [ ] Cliquer un second nom à la suite → le recadrage fonctionne aussi
 
@@ -1328,6 +1340,15 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.37 — 10 novembre 2026
+**Zones du Var rangées Secteur → Commune → Zone, zones proches en tête**
+- Demande de Nicolas : organiser la liste des zones sous « Secteur Ouest Var » et « Secteur Est Var » pour simplifier la lecture. Maquette validée au préalable (canvas Design, trois écrans, commentaires de Nicolas intégrés : pas de tri selon la partie visible de la carte, secteurs repliés, nouveau titre DDTM).
+- `blocReglesLocales` : la liste à plat est remplacée par `listeZonesGroupees` — section « Les plus proches de votre point » (`CONFIG.zonesProches` = 3, distance au bord du polygone), puis `<details>` Secteur → Commune repliés, avec comptes de zones et d'emplacements. Secteur déduit du numéro de carte DDTM (`numeroCarte`) et des plages `secteurs` de la fiche. Voir §4.4ter.
+- `data/ddtm-messages.json` (83) : nouveau `message_titre`, champs `secteurs`, `libelle_toutes_zones` et `_note_secteurs` ajoutés, paragraphes « Zones connues à ce jour… » retirés de `message_detail` et `message_detail_zone`.
+- « unités » → « emplacements » dans le détail de chaque zone.
+- Le cas « usager sans mouillage qui explore » passe par le clic, comme les autres : décision de Nicolas, pas de panneau sans point.
+- Tests : harnais Node §6 OK, §10 59/59, §16 OK, §17 + nouvelle §19 47/47 (trois comptes de §17.4 portent désormais sur la liste rangée, la section « proches » répétant 3 zones) ; Chromium §10 22/22, §15 11/11, §17.5 11/11, §18 27/27, nouveau `test_zones_secteurs_chromium.js` (§19.2) 9/9.
 
 ### v2.36 — 6 novembre 2026
 **Champ de recherche façon cartes.gouv.fr ; fond de carte dans la colonne de droite**
@@ -1854,4 +1875,4 @@ Un document dédié, `claude_AMIDOMAR_Spec_Reactions_Clic_v1.md`, décrit désor
 
 ---
 
-**Dernière mise à jour:** 6 novembre 2026
+**Dernière mise à jour:** 10 novembre 2026
