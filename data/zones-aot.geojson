@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "name": "zones-aot-mouillage-individuel",
- "_lisez_moi": "Zones où une AOT de mouillage individuel reste délivrable, par DDTM. Saisie manuelle à partir des cartes PDF de la DDTM, à faire confirmer avant usage réglementaire. Chaque entité porte la propriété ddtm, qui fait le lien avec data/ddtm-messages.json, et la propriété public : 'tous' (zone ouverte aux plaisanciers) ou 'professionnels' (zone réservée uniquement aux professionnels, dite « zone tampon » par la DDTM 83 : affichée, mais sans coordonnées pour un plaisancier). Var : 28 zones issues des cartes n°31 à 52 (la zone 5 des Canebiers, Saint-Tropez, a été retirée le 2 nov. 2026 : la DDTM 83 va la supprimer) (oct. 2022 / mai 2023) ; la carte n°38 (Ramatuelle, Bonne Terrasse) porte des étiquettes de sommets inversées sur le PDF, réattribuées selon leur position (confirmé).",
+ "_lisez_moi": "Zones où une AOT de mouillage individuel reste délivrable, par DDTM. Saisie manuelle à partir des cartes PDF de la DDTM, à faire confirmer avant usage réglementaire. Chaque entité porte la propriété ddtm, qui fait le lien avec data/ddtm-messages.json, et la propriété public : 'tous' (zone ouverte aux plaisanciers) ou 'professionnels' (zone réservée uniquement aux professionnels, dite « zone tampon » par la DDTM 83 : affichée, mais sans coordonnées pour un plaisancier). Var : 28 zones issues des cartes n°31 à 52 (la zone 5 des Canebiers, Saint-Tropez, a été retirée le 2 nov. 2026 : la DDTM 83 va la supprimer) (oct. 2022 / mai 2023) ; la carte n°38 (Ramatuelle, Bonne Terrasse) porte des étiquettes de sommets inversées sur le PDF, réattribuées selon leur position (confirmé). Morbihan (v2.38, 13 nov. 2026) : 15 zones importées de la couche SIG de la DDTM 56 (N_ZONE_MOUILLAGE_INDIVID_S_056, Lambert 93 reprojeté en WGS 84 — pas de relevé manuel) ; les 10 zones réservées à un usage particulier (mouillages plongeurs du PNR, vedettes à passagers, club nautique) ne sont pas reprises ; une zone transmise sans attribut (ria d'Étel) est intégrée, commune à confirmer. Propriétés propres au 56 : gid_ddtm56, insee, unite_gestion, date_commission_nautique_locale, date_cdnps, date_maj_ddtm.",
  "features": [
   {
    "type": "Feature",
@@ -2696,6 +2696,1541 @@
       [
        6.838583,
        43.416383
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Lorient",
+    "lieu": "Le Scorff — Pont Saint-Christophe",
+    "zone": null,
+    "nom": "Le Scorff — Pont Saint-Christophe",
+    "public": "tous",
+    "capacite_unites": 50,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 48000,
+    "gid_ddtm56": 103,
+    "insee": "56121",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.365601,
+       47.765491
+      ],
+      [
+       -3.365538,
+       47.765126
+      ],
+      [
+       -3.365364,
+       47.763793
+      ],
+      [
+       -3.364958,
+       47.762049
+      ],
+      [
+       -3.364515,
+       47.76149
+      ],
+      [
+       -3.364976,
+       47.761018
+      ],
+      [
+       -3.365576,
+       47.761296
+      ],
+      [
+       -3.366001,
+       47.761584
+      ],
+      [
+       -3.366005,
+       47.761751
+      ],
+      [
+       -3.365375,
+       47.761989
+      ],
+      [
+       -3.365423,
+       47.762083
+      ],
+      [
+       -3.36597,
+       47.761922
+      ],
+      [
+       -3.36613,
+       47.761912
+      ],
+      [
+       -3.366327,
+       47.762223
+      ],
+      [
+       -3.366423,
+       47.762291
+      ],
+      [
+       -3.366764,
+       47.76336
+      ],
+      [
+       -3.366772,
+       47.763718
+      ],
+      [
+       -3.367002,
+       47.76416
+      ],
+      [
+       -3.367228,
+       47.76471
+      ],
+      [
+       -3.367362,
+       47.764799
+      ],
+      [
+       -3.365601,
+       47.765491
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Lanester",
+    "lieu": "Le Scorff — Pont Saint-Christophe",
+    "zone": null,
+    "nom": "Le Scorff — Pont Saint-Christophe",
+    "public": "tous",
+    "capacite_unites": 30,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 42300,
+    "gid_ddtm56": 104,
+    "insee": "56098",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.363764,
+       47.762052
+      ],
+      [
+       -3.364052,
+       47.761809
+      ],
+      [
+       -3.364745,
+       47.76231
+      ],
+      [
+       -3.364964,
+       47.763279
+      ],
+      [
+       -3.365174,
+       47.76475
+      ],
+      [
+       -3.36491,
+       47.765793
+      ],
+      [
+       -3.363631,
+       47.765481
+      ],
+      [
+       -3.363243,
+       47.764928
+      ],
+      [
+       -3.363179,
+       47.764549
+      ],
+      [
+       -3.363428,
+       47.764117
+      ],
+      [
+       -3.363694,
+       47.763527
+      ],
+      [
+       -3.363822,
+       47.762995
+      ],
+      [
+       -3.363869,
+       47.762488
+      ],
+      [
+       -3.363813,
+       47.762181
+      ],
+      [
+       -3.363764,
+       47.762052
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Riantec",
+    "lieu": "Les Deux Moulins",
+    "zone": null,
+    "nom": "Les Deux Moulins",
+    "public": "tous",
+    "capacite_unites": 30,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 42700,
+    "gid_ddtm56": 120,
+    "insee": "56193",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03",
+    "remarques": "Taille maximum des navires de plaisance 10 m (sauf professionnels)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.339444,
+       47.70837
+      ],
+      [
+       -3.33589,
+       47.70727
+      ],
+      [
+       -3.335275,
+       47.707185
+      ],
+      [
+       -3.33646,
+       47.706214
+      ],
+      [
+       -3.337812,
+       47.706555
+      ],
+      [
+       -3.340464,
+       47.707501
+      ],
+      [
+       -3.339444,
+       47.70837
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Riantec",
+    "lieu": "Stervins",
+    "zone": null,
+    "nom": "Stervins",
+    "public": "tous",
+    "capacite_unites": 60,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 105700,
+    "gid_ddtm56": 119,
+    "insee": "56193",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2018-12-20",
+    "remarques": "Taille maximum des navires de plaisance 10 m (sauf professionnels)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.33068,
+       47.70598
+      ],
+      [
+       -3.327226,
+       47.708677
+      ],
+      [
+       -3.327149,
+       47.708669
+      ],
+      [
+       -3.327051,
+       47.708802
+      ],
+      [
+       -3.32611,
+       47.708483
+      ],
+      [
+       -3.326458,
+       47.708089
+      ],
+      [
+       -3.324164,
+       47.705841
+      ],
+      [
+       -3.325304,
+       47.704795
+      ],
+      [
+       -3.326919,
+       47.705545
+      ],
+      [
+       -3.330635,
+       47.705599
+      ],
+      [
+       -3.33068,
+       47.70598
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Lanester",
+    "lieu": "Le Plessis",
+    "zone": null,
+    "nom": "Le Plessis",
+    "public": "tous",
+    "capacite_unites": 15,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 31300,
+    "gid_ddtm56": 99,
+    "insee": "56098",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.326123,
+       47.759303
+      ],
+      [
+       -3.326177,
+       47.759277
+      ],
+      [
+       -3.326164,
+       47.759229
+      ],
+      [
+       -3.326128,
+       47.759155
+      ],
+      [
+       -3.326038,
+       47.759063
+      ],
+      [
+       -3.325929,
+       47.758974
+      ],
+      [
+       -3.325843,
+       47.758876
+      ],
+      [
+       -3.32572,
+       47.758766
+      ],
+      [
+       -3.325603,
+       47.758654
+      ],
+      [
+       -3.325484,
+       47.758536
+      ],
+      [
+       -3.325339,
+       47.75839
+      ],
+      [
+       -3.325152,
+       47.7582
+      ],
+      [
+       -3.324985,
+       47.758031
+      ],
+      [
+       -3.324816,
+       47.757868
+      ],
+      [
+       -3.324526,
+       47.757633
+      ],
+      [
+       -3.324408,
+       47.757528
+      ],
+      [
+       -3.324285,
+       47.757402
+      ],
+      [
+       -3.324143,
+       47.757259
+      ],
+      [
+       -3.323999,
+       47.757121
+      ],
+      [
+       -3.323895,
+       47.757029
+      ],
+      [
+       -3.323794,
+       47.756953
+      ],
+      [
+       -3.323682,
+       47.756902
+      ],
+      [
+       -3.32359,
+       47.756879
+      ],
+      [
+       -3.323247,
+       47.756875
+      ],
+      [
+       -3.322651,
+       47.756863
+      ],
+      [
+       -3.322532,
+       47.756864
+      ],
+      [
+       -3.32247,
+       47.756885
+      ],
+      [
+       -3.322433,
+       47.756912
+      ],
+      [
+       -3.322395,
+       47.756972
+      ],
+      [
+       -3.322367,
+       47.757084
+      ],
+      [
+       -3.322344,
+       47.757201
+      ],
+      [
+       -3.322324,
+       47.757252
+      ],
+      [
+       -3.322336,
+       47.757329
+      ],
+      [
+       -3.322426,
+       47.757423
+      ],
+      [
+       -3.322652,
+       47.757588
+      ],
+      [
+       -3.322917,
+       47.757785
+      ],
+      [
+       -3.323832,
+       47.758462
+      ],
+      [
+       -3.324157,
+       47.758697
+      ],
+      [
+       -3.324394,
+       47.758889
+      ],
+      [
+       -3.324513,
+       47.758999
+      ],
+      [
+       -3.324671,
+       47.759174
+      ],
+      [
+       -3.325355,
+       47.758921
+      ],
+      [
+       -3.325693,
+       47.759387
+      ],
+      [
+       -3.325848,
+       47.759353
+      ],
+      [
+       -3.325985,
+       47.759325
+      ],
+      [
+       -3.326124,
+       47.759304
+      ],
+      [
+       -3.326123,
+       47.759303
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Gâvres",
+    "lieu": "Kersabu",
+    "zone": null,
+    "nom": "Kersabu",
+    "public": "tous",
+    "capacite_unites": 15,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 48700,
+    "gid_ddtm56": 118,
+    "insee": "56062",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.320762,
+       47.700303
+      ],
+      [
+       -3.32097,
+       47.700186
+      ],
+      [
+       -3.321225,
+       47.700166
+      ],
+      [
+       -3.321495,
+       47.700203
+      ],
+      [
+       -3.321731,
+       47.700287
+      ],
+      [
+       -3.32189,
+       47.700346
+      ],
+      [
+       -3.322057,
+       47.700417
+      ],
+      [
+       -3.322124,
+       47.700457
+      ],
+      [
+       -3.322226,
+       47.700497
+      ],
+      [
+       -3.322401,
+       47.700587
+      ],
+      [
+       -3.322577,
+       47.700687
+      ],
+      [
+       -3.322752,
+       47.700794
+      ],
+      [
+       -3.322928,
+       47.700909
+      ],
+      [
+       -3.3231,
+       47.701031
+      ],
+      [
+       -3.32327,
+       47.701157
+      ],
+      [
+       -3.323434,
+       47.701289
+      ],
+      [
+       -3.32374,
+       47.70156
+      ],
+      [
+       -3.32388,
+       47.701697
+      ],
+      [
+       -3.324009,
+       47.701835
+      ],
+      [
+       -3.324127,
+       47.701971
+      ],
+      [
+       -3.324233,
+       47.702105
+      ],
+      [
+       -3.324255,
+       47.702138
+      ],
+      [
+       -3.324325,
+       47.702235
+      ],
+      [
+       -3.324467,
+       47.702481
+      ],
+      [
+       -3.324516,
+       47.702594
+      ],
+      [
+       -3.324549,
+       47.7027
+      ],
+      [
+       -3.324565,
+       47.702797
+      ],
+      [
+       -3.324551,
+       47.702963
+      ],
+      [
+       -3.32452,
+       47.703031
+      ],
+      [
+       -3.324472,
+       47.703088
+      ],
+      [
+       -3.324411,
+       47.703132
+      ],
+      [
+       -3.324334,
+       47.703165
+      ],
+      [
+       -3.324244,
+       47.703186
+      ],
+      [
+       -3.324023,
+       47.70319
+      ],
+      [
+       -3.323756,
+       47.703143
+      ],
+      [
+       -3.323608,
+       47.703101
+      ],
+      [
+       -3.323289,
+       47.702984
+      ],
+      [
+       -3.32312,
+       47.702908
+      ],
+      [
+       -3.322772,
+       47.702728
+      ],
+      [
+       -3.322596,
+       47.702625
+      ],
+      [
+       -3.32242,
+       47.702513
+      ],
+      [
+       -3.32238,
+       47.702478
+      ],
+      [
+       -3.322246,
+       47.702395
+      ],
+      [
+       -3.322076,
+       47.70227
+      ],
+      [
+       -3.321962,
+       47.702166
+      ],
+      [
+       -3.321909,
+       47.702142
+      ],
+      [
+       -3.321748,
+       47.702008
+      ],
+      [
+       -3.321748,
+       47.702008
+      ],
+      [
+       -3.321595,
+       47.701873
+      ],
+      [
+       -3.321507,
+       47.701801
+      ],
+      [
+       -3.321451,
+       47.701735
+      ],
+      [
+       -3.321315,
+       47.701598
+      ],
+      [
+       -3.321192,
+       47.701461
+      ],
+      [
+       -3.32108,
+       47.701326
+      ],
+      [
+       -3.320981,
+       47.701194
+      ],
+      [
+       -3.320824,
+       47.700942
+      ],
+      [
+       -3.320727,
+       47.700716
+      ],
+      [
+       -3.320702,
+       47.700614
+      ],
+      [
+       -3.320694,
+       47.700521
+      ],
+      [
+       -3.3207,
+       47.700438
+      ],
+      [
+       -3.320762,
+       47.700303
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Riantec",
+    "lieu": "Les Salles",
+    "zone": null,
+    "nom": "Les Salles",
+    "public": "tous",
+    "capacite_unites": 35,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 46900,
+    "gid_ddtm56": 116,
+    "insee": "56193",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03",
+    "remarques": "Taille maximum des navires de plaisance 10 m (sauf professionnels)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.320878,
+       47.704659
+      ],
+      [
+       -3.320995,
+       47.704614
+      ],
+      [
+       -3.321025,
+       47.704478
+      ],
+      [
+       -3.320871,
+       47.70427
+      ],
+      [
+       -3.320587,
+       47.704112
+      ],
+      [
+       -3.320342,
+       47.704087
+      ],
+      [
+       -3.320003,
+       47.704103
+      ],
+      [
+       -3.319764,
+       47.704167
+      ],
+      [
+       -3.319507,
+       47.704239
+      ],
+      [
+       -3.319094,
+       47.704656
+      ],
+      [
+       -3.318858,
+       47.704824
+      ],
+      [
+       -3.318474,
+       47.705034
+      ],
+      [
+       -3.317833,
+       47.705381
+      ],
+      [
+       -3.316893,
+       47.705791
+      ],
+      [
+       -3.316354,
+       47.705984
+      ],
+      [
+       -3.315766,
+       47.706187
+      ],
+      [
+       -3.31563,
+       47.706347
+      ],
+      [
+       -3.315589,
+       47.706626
+      ],
+      [
+       -3.315651,
+       47.706912
+      ],
+      [
+       -3.315765,
+       47.707013
+      ],
+      [
+       -3.316883,
+       47.706972
+      ],
+      [
+       -3.317015,
+       47.70688
+      ],
+      [
+       -3.317186,
+       47.706815
+      ],
+      [
+       -3.317338,
+       47.706818
+      ],
+      [
+       -3.317473,
+       47.706767
+      ],
+      [
+       -3.317834,
+       47.706653
+      ],
+      [
+       -3.318097,
+       47.706591
+      ],
+      [
+       -3.318622,
+       47.706473
+      ],
+      [
+       -3.318976,
+       47.706366
+      ],
+      [
+       -3.319241,
+       47.706263
+      ],
+      [
+       -3.319419,
+       47.706182
+      ],
+      [
+       -3.319611,
+       47.706073
+      ],
+      [
+       -3.319932,
+       47.705816
+      ],
+      [
+       -3.319108,
+       47.705206
+      ],
+      [
+       -3.320412,
+       47.704343
+      ],
+      [
+       -3.320412,
+       47.704343
+      ],
+      [
+       -3.320412,
+       47.704343
+      ],
+      [
+       -3.320878,
+       47.704659
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Riantec",
+    "lieu": "Kerner",
+    "zone": null,
+    "nom": "Kerner",
+    "public": "tous",
+    "capacite_unites": 20,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 50500,
+    "gid_ddtm56": 115,
+    "insee": "56193",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2013-03-22",
+    "date_maj_ddtm": "2015-02-03",
+    "remarques": "Taille maximum des navires de plaisance 10 m (sauf professionnels)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.31235,
+       47.70854
+      ],
+      [
+       -3.311983,
+       47.708614
+      ],
+      [
+       -3.31163,
+       47.708783
+      ],
+      [
+       -3.311049,
+       47.709083
+      ],
+      [
+       -3.310574,
+       47.709454
+      ],
+      [
+       -3.310243,
+       47.709596
+      ],
+      [
+       -3.310037,
+       47.7096
+      ],
+      [
+       -3.309837,
+       47.709553
+      ],
+      [
+       -3.309582,
+       47.709143
+      ],
+      [
+       -3.309597,
+       47.708988
+      ],
+      [
+       -3.309731,
+       47.708923
+      ],
+      [
+       -3.310175,
+       47.708657
+      ],
+      [
+       -3.311215,
+       47.707927
+      ],
+      [
+       -3.311349,
+       47.70778
+      ],
+      [
+       -3.311391,
+       47.707677
+      ],
+      [
+       -3.311357,
+       47.707386
+      ],
+      [
+       -3.311347,
+       47.707147
+      ],
+      [
+       -3.31139,
+       47.706999
+      ],
+      [
+       -3.311483,
+       47.706809
+      ],
+      [
+       -3.311685,
+       47.70668
+      ],
+      [
+       -3.313818,
+       47.705936
+      ],
+      [
+       -3.314267,
+       47.706716
+      ],
+      [
+       -3.313637,
+       47.706962
+      ],
+      [
+       -3.313288,
+       47.707216
+      ],
+      [
+       -3.31307,
+       47.707571
+      ],
+      [
+       -3.31301,
+       47.707981
+      ],
+      [
+       -3.312771,
+       47.708246
+      ],
+      [
+       -3.31235,
+       47.70854
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Sauzon",
+    "lieu": "Ster Ouen",
+    "zone": null,
+    "nom": "Ster Ouen",
+    "public": "tous",
+    "capacite_unites": 4,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 1300,
+    "gid_ddtm56": 233,
+    "insee": "56241",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2021-09-14",
+    "date_cdnps": "2021-10-22",
+    "date_maj_ddtm": "2021-09-21"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.254632,
+       47.370535
+      ],
+      [
+       -3.254196,
+       47.370542
+      ],
+      [
+       -3.254281,
+       47.370207
+      ],
+      [
+       -3.254804,
+       47.37021
+      ],
+      [
+       -3.254632,
+       47.370535
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Le Palais",
+    "lieu": "Port Jean",
+    "zone": null,
+    "nom": "Port Jean",
+    "public": "tous",
+    "capacite_unites": 15,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 4200,
+    "gid_ddtm56": 235,
+    "insee": "56152",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2021-09-14",
+    "date_cdnps": "2021-10-22",
+    "date_maj_ddtm": "2021-09-21",
+    "remarques": "Mouillage à l'embossage (avant arriere) pour ne pas porter atteinte à la liaison Enedis"
+   },
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        -3.189174,
+        47.364822
+       ],
+       [
+        -3.188866,
+        47.364748
+       ],
+       [
+        -3.189243,
+        47.364363
+       ],
+       [
+        -3.189573,
+        47.364439
+       ],
+       [
+        -3.189174,
+        47.364822
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        -3.19059,
+        47.364004
+       ],
+       [
+        -3.190236,
+        47.364393
+       ],
+       [
+        -3.189449,
+        47.364937
+       ],
+       [
+        -3.189294,
+        47.364875
+       ],
+       [
+        -3.189866,
+        47.364328
+       ],
+       [
+        -3.190293,
+        47.363916
+       ],
+       [
+        -3.19059,
+        47.364004
+       ]
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Le Palais",
+    "lieu": "Port Fouquet",
+    "zone": null,
+    "nom": "Port Fouquet",
+    "public": "tous",
+    "capacite_unites": 16,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 4600,
+    "gid_ddtm56": 239,
+    "insee": "56152",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2021-09-14",
+    "date_cdnps": "2021-10-22",
+    "date_maj_ddtm": "2021-09-21",
+    "remarques": "Mouillage à l'embossage (avant arriere) pour ne pas porter atteinte à la liaison Enedis"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.171558,
+       47.361835
+      ],
+      [
+       -3.171386,
+       47.361794
+      ],
+      [
+       -3.172524,
+       47.360136
+      ],
+      [
+       -3.172764,
+       47.360174
+      ],
+      [
+       -3.172511,
+       47.360559
+      ],
+      [
+       -3.171844,
+       47.361739
+      ],
+      [
+       -3.171558,
+       47.361835
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Ria d'Étel (commune à confirmer)",
+    "lieu": "Zone sans nom",
+    "zone": null,
+    "nom": "Zone sans nom",
+    "public": "tous",
+    "capacite_unites": null,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 15500,
+    "gid_ddtm56": 241,
+    "date_maj_ddtm": "2022-05-20",
+    "remarques": "Entité transmise sans aucun attribut (ni commune, ni lieu-dit, ni capacité, ni date de commission nautique). Située dans la ria d'Étel, entre les ZMEL de Sainte-Hélène et de Locoal-Mendon : commune à confirmer avec la DDTM 56."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.163993,
+       47.706273
+      ],
+      [
+       -3.163061,
+       47.706917
+      ],
+      [
+       -3.161583,
+       47.705941
+      ],
+      [
+       -3.162514,
+       47.705298
+      ],
+      [
+       -3.163993,
+       47.706273
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Le Palais",
+    "lieu": "Port Guen",
+    "zone": null,
+    "nom": "Port Guen",
+    "public": "tous",
+    "capacite_unites": 38,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 33500,
+    "gid_ddtm56": 238,
+    "insee": "56152",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2021-09-14",
+    "date_cdnps": "2021-10-22",
+    "date_maj_ddtm": "2021-09-21"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.146457,
+       47.334163
+      ],
+      [
+       -3.145017,
+       47.336073
+      ],
+      [
+       -3.142891,
+       47.33464
+      ],
+      [
+       -3.145711,
+       47.333741
+      ],
+      [
+       -3.146457,
+       47.334163
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Le Palais",
+    "lieu": "Port Yorc'h",
+    "zone": null,
+    "nom": "Port Yorc'h",
+    "public": "tous",
+    "capacite_unites": 30,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 40600,
+    "gid_ddtm56": 237,
+    "insee": "56152",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2021-09-14",
+    "date_cdnps": "2021-10-22",
+    "date_maj_ddtm": "2021-09-21"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -3.122924,
+       47.324997
+      ],
+      [
+       -3.120566,
+       47.326305
+      ],
+      [
+       -3.119115,
+       47.325041
+      ],
+      [
+       -3.120938,
+       47.32376
+      ],
+      [
+       -3.122924,
+       47.324997
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ddtm": "56",
+    "departement": "Morbihan",
+    "commune": "Hœdic",
+    "lieu": "Port La Croix",
+    "zone": null,
+    "nom": "Port La Croix",
+    "public": "tous",
+    "capacite_unites": 50,
+    "source": "DDTM du Morbihan, couche SIG N_ZONE_MOUILLAGE_INDIVID_S_056 (MapInfo, Lambert 93), transmise le 13 novembre 2026",
+    "saisie": "import SIG, reprojeté de Lambert 93 (EPSG:2154) en WGS 84, coordonnées arrondies à 6 décimales",
+    "surface_m2_approx": 39800,
+    "gid_ddtm56": 157,
+    "insee": "56085",
+    "unite_gestion": "Lorient-Littoral",
+    "date_commission_nautique_locale": "2014-01-24",
+    "date_maj_ddtm": "2015-09-10"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -2.874702,
+       47.334893
+      ],
+      [
+       -2.872881,
+       47.335345
+      ],
+      [
+       -2.871648,
+       47.334925
+      ],
+      [
+       -2.871755,
+       47.33306
+      ],
+      [
+       -2.872824,
+       47.332944
+      ],
+      [
+       -2.873801,
+       47.334079
+      ],
+      [
+       -2.874548,
+       47.334304
+      ],
+      [
+       -2.874702,
+       47.334893
       ]
      ]
     ]
