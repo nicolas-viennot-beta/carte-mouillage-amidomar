@@ -13,13 +13,14 @@
 ## 🧭 Périmètre
 
 Ce dépôt contient **uniquement la carte** : site statique publié sur
-https://nicolas-viennot-beta.github.io/Amidomar/ — pas de build, pas de
+https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/ — pas de build, pas de
 serveur. On n'y travaille que sur la carte. Tout ce qui concerne la base de
 données, les démarches en ligne ou les scripts de synchronisation se traite
 dans l'autre dépôt (privé) : le signaler à Nicolas et ne rien faire ici.
 
 ```
 ├── CLAUDE.md                        ← ce fichier
+├── MEMOIRE.md                       mémoire du projet : contexte, arbitrages, apprentissages
 ├── index.html                       carte complète (HTML + CSS + JS, ~4 200 lignes)
 ├── DOCUMENTATION_FONCTIONNELLE.md   doc de référence (fait foi = spécifications)
 ├── TESTS_FONCTIONNELS.md            tests à rejouer avant toute livraison
@@ -32,6 +33,27 @@ dans l'autre dépôt (privé) : le signaler à Nicolas et ne rien faire ici.
 
 Lancer la carte en local : `python3 -m http.server 8000` à la racine du dépôt,
 puis http://localhost:8000.
+
+---
+
+## 🧠 Mémoire du projet (`MEMOIRE.md`)
+
+- **En début de session : lire `MEMOIRE.md`** (contexte, règles
+  territoriales, vocabulaire, façon de travailler avec Nicolas).
+- **Enregistrer les apprentissages clés au fil de l'eau**, dans la session
+  où ils apparaissent, sans attendre qu'on le demande : arbitrage ou
+  préférence exprimés par Nicolas, piège rencontré, fait nouveau sur
+  l'organisation du projet. Une entrée datée dans le « Journal des
+  apprentissages » ; si l'apprentissage modifie une règle des sections 1 à 5,
+  mettre aussi la section à jour.
+- Ne pas dupliquer : ce qui décrit le fonctionnement de la carte va dans
+  `DOCUMENTATION_FONCTIONNELLE.md`, ce qui concerne une source de données
+  dans `data/SOURCES.md`. `MEMOIRE.md` garde le reste.
+- **Dépôt public** : rien de sensible dans `MEMOIRE.md` (pas d'adresse de
+  service, de clé, d'identifiant, de compte, ni de nom ou coordonnées d'une
+  personne).
+- Si `MEMOIRE.md` et `CLAUDE.md` se contredisent, `CLAUDE.md` fait foi :
+  le signaler à Nicolas.
 
 ---
 
