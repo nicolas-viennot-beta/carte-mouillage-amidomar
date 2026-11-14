@@ -14,8 +14,8 @@ Ce fichier est complété au fil des évolutions (voir le skill
 `amidomar-doc-sync`) : les tests existants ne sont retirés que si la
 fonctionnalité correspondante a réellement disparu.
 
-**Les harnais sont rangés dans `scripts/tests-carte/`** du dossier
-`Claude/Amidomar`, hors dépôt Git *(depuis le 02/11/2026)* :
+**Les harnais sont rangés dans `tests/`**, dans le dépôt de la carte *(depuis le
+14/11/2026 ; auparavant `scripts/tests-carte/` hors dépôt)* :
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
 `test_donnees_aot.py` (§16), `test_regles_locales.js` et
@@ -1945,10 +1945,10 @@ toute côte) → aucun bloc, aucune erreur.*
 `GpsGeocoder` placé avant `GeopfGeocoder`. Les tests 1 à 4bis s'exécutent dans le
 harnais Node.js ; les tests 5 à 9bis en Chromium headless sur le serveur local.*
 
-> **Harnais : `scripts/tests-carte/` du dossier `Claude/Amidomar`** *(rangés le
-> 02/11/2026)* — `test_recherche_gps.js` (tests 1 à 4bis, Node),
+> **Harnais : `tests/` du dépôt** *(rangés le 02/11/2026, entrés dans le dépôt
+> le 14/11/2026)* — `test_recherche_gps.js` (tests 1 à 4bis, Node),
 > `test_interface_chromium.js` (tests 5 à 9bis, Playwright) et le stub partagé
-> `stub.js`. Ils résolvent `projet/index.html` par un chemin relatif et tournent
+> `stub.js`. Ils résolvent `index.html` par un chemin relatif et tournent
 > sans configuration. Ils étaient auparavant dans le dossier de travail de
 > Claude, donc **perdus et réécrits à chaque session** — et les trois pièges
 > ci-dessous redécouverts à chaque réécriture. Voir le `README.md` du dossier.
@@ -2754,7 +2754,7 @@ le reste est à voir en navigateur.
 
 ### 15 bis. Place revue en v2.34 — avant « Contexte environnemental »
 
-**Exécution : 2 nov. 2026 — `scripts/tests-carte/test_mouillages_voisins_chromium.js`, 11/11.**
+**Exécution : 2 nov. 2026 — `tests/test_mouillages_voisins_chromium.js`, 11/11.**
 Remplace l'attendu « entre les deux groupes » du point 3 ci-dessus, qui
 décrit la v2.30 (les constats de ce point restent valables pour la survie de la
 saisie et le point à terre).
@@ -2951,7 +2951,7 @@ Avec le 83 forcé en `brouillon: false` (`f83pub`) :
 
 ## 18. Champ de recherche façon cartes.gouv.fr, picto et fond de carte dans la colonne *(v2.36)*
 
-Harnais : `scripts/tests-carte/test_fond_recherche_chromium.js` (Playwright,
+Harnais : `tests/test_fond_recherche_chromium.js` (Playwright,
 1440 × 900, serveur statique local). Variable `CHROME` pour désigner un
 exécutable Chrome si Playwright n'a pas le sien.
 

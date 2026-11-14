@@ -1,0 +1,16 @@
+{
+  "name": "amidomar-carte-tests",
+  "version": "1.0.0",
+  "description": "Harnais de test de la carte AMIDOMAR (voir README.md)",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  },
+  "private": true
+}
