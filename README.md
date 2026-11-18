@@ -168,17 +168,17 @@ simulées ; elles proviendront d'un fichier Grist.
 
 Vérifiées comme fonctionnelles : Natura 2000 (SIC et ZPS), parcs naturels marins,
 ZNIEFF marines, réserves naturelles nationales, aires marines protégées,
-informations portuaires du SHOM, ZMEL (couche nationale Cerema/CACEM, 647 zones)
-et cultures marines (cadastres conchylicoles des DDTM).
+informations portuaires du SHOM, ZMEL (couche nationale Cerema/CACEM, 647 zones),
+cultures marines (cadastres conchylicoles des DDTM) et, depuis la v2.39, les
+habitats sensibles de l'OFB : herbiers de zostères et de posidonie, bancs de
+maërl, coralligène (inventaires indicatifs, non opposables).
 
 Deux réserves :
 
-- **Herbiers de posidonie et de zostère** — la source appelée aujourd'hui ne
-  couvre que Palavas et les Albères. Elle n'affiche rien sur le Var, les
-  Bouches-du-Rhône et la Corse, là où l'enjeu est le plus fort. Une source
-  nationale a été trouvée le 14/10/2026 — les couches OFB issues du Life
-  intégré Marha, posidonie et zostères réunies, interrogeables au point en
-  moins de 100 ms — mais **elle n'est pas encore branchée**. Voir
+- **Herbiers, maërl, coralligène** — branchés en v2.39 sur les inventaires
+  nationaux de l'OFB (Life intégré Marha), à la place de la couche Ifremer
+  limitée à l'Occitanie. Ce sont des inventaires **indicatifs** : la carte
+  signale « Zone fragile : vigilance mouillage » sans jamais bloquer. Voir
   `data/SOURCES.md` §4.
 - **Cultures marines** — il n'existe pas de flux national interrogeable. Le
   cadastre aquacole national du Cerema est bien la version harmonisée des
@@ -243,16 +243,14 @@ Savoir **si un point tombe dans une zone** — et non seulement l'afficher —
 demande d'interroger les polygones et non des images. C'est fait : au clic, la
 carte interroge le trait terre-mer et les natures de fond du Shom, Natura 2000
 et les ZNIEFF via l'API Carto de l'IGN, les arrêtés de protection de biotope via
-la Géoplateforme, et le cadastre conchylicole des DDTM.
+la Géoplateforme, le cadastre conchylicole des DDTM et, depuis la v2.39, les
+herbiers, le maërl et le coralligène de l'OFB.
 
 Restent hors de cette vérification, faute de source interrogeable :
 
 - **Zones de baignade et zones réglementaires** — aucune source publique
   identifiée à ce jour. L'entrée figure dans la légende, grisée, pour que le
   sujet reste visible.
-- **Herbiers de posidonie et de zostère** — la couche affichée ne couvre que
-  Palavas et les Albères, et rien là où l'enjeu est le plus fort (Var,
-  Bouches-du-Rhône, Corse). Elle n'est pas interrogée au clic.
 - **Parcs naturels marins et aires marines protégées** — affichables, mais
   aucune API d'identification au point n'a été trouvée.
 - **Cultures marines hors des trois départements branchés** — voir plus haut.

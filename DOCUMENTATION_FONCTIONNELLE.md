@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.38 (novembre 2026)  
-**Dernière mise à jour:** 13 novembre 2026  
+**Version:** 2.39 (novembre 2026)  
+**Dernière mise à jour:** 18 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -155,7 +155,7 @@ Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil 
 
 **Partie 1 — « Contexte environnemental ».** Une carte par information, **toutes repliées au départ** (décision de Nicolas, 13/10/2026). Chaque carte montre un titre, une ligne de conséquence et un bouton qui déplie le détail. La ligne repliée porte déjà l'essentiel : c'est ce qui rend le repli acceptable, un bandeau replié qui ne dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
 
-**Deux groupes, les faits d'abord** *(v2.28)*. Les cartes qui **constatent** quelque chose restent sous « Contexte environnemental ». Celles qui disent que la vérification **n'a pas pu avoir lieu** — point hors couverture de la source, ou service injoignable — passent sous un second intitulé, « Ce que la carte n'a pas pu vérifier », en retrait et plus discret, et sont rendues en **gris neutre avec un filet gauche pointillé** (`env-carte--incertain`). Ce traitement les sort du registre du constat sans les effacer : les supprimer ferait croire qu'il n'y a rien là où on ne sait pas. **Le tri se fait sur la classe posée par `carteEnv`, pas sur le libellé** — un titre se reformule, une classe est contractuelle. Si un groupe est vide, son intitulé ne s'affiche pas. Quatre cartes sont concernées à ce jour : nature du fond non cartographiée, cultures marines non vérifiées, cultures marines injoignables, zonages de protection injoignables. Elles restent des `.env-carte` : le compte « N points à vérifier » de la barre réduite les inclut, ce qui est exactement ce que ce libellé promet.
+**Deux groupes, les faits d'abord** *(v2.28)*. Les cartes qui **constatent** quelque chose restent sous « Contexte environnemental ». Celles qui disent que la vérification **n'a pas pu avoir lieu** — point hors couverture de la source, ou service injoignable — passent sous un second intitulé, « Ce que la carte n'a pas pu vérifier », en retrait et plus discret, et sont rendues en **gris neutre avec un filet gauche pointillé** (`env-carte--incertain`). Ce traitement les sort du registre du constat sans les effacer : les supprimer ferait croire qu'il n'y a rien là où on ne sait pas. **Le tri se fait sur la classe posée par `carteEnv`, pas sur le libellé** — un titre se reformule, une classe est contractuelle. Si un groupe est vide, son intitulé ne s'affiche pas. Cinq cartes sont concernées à ce jour : nature du fond non cartographiée, cultures marines non vérifiées, cultures marines injoignables, zonages de protection injoignables, habitats sensibles injoignables *(v2.39)*. Elles restent des `.env-carte` : le compte « N points à vérifier » de la barre réduite les inclut, ce qui est exactement ce que ce libellé promet.
 
 Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. **Gris-bleu** pour les usages de la mer *(v2.18)*. Le rouge est réservé aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc. Plus de vert depuis la v2.19 : « rien de détecté » ne s'affiche plus du tout.
 
@@ -165,6 +165,9 @@ Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de
 | ZNIEFF | bleu | « **ZNIEFF** — zone naturelle sensible » / « rien à reporter dans le formulaire » | « Ce que ça implique » | « Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. » |
 | Aucun zonage | — | **rien n'est affiché** *(v2.19)* : l'absence de carte dit déjà qu'il n'y a rien. Si aucune carte n'a lieu d'être, le bloc entier disparaît, titre compris | — | — |
 | Vérification impossible | bleu | « **Zonages de protection : vérification impossible** » / « service distant momentanément injoignable » | aucun | — |
+| Herbier *(v2.39)* | bleu | « **Zone fragile : vigilance mouillage** — herbier de posidonie / de zostère marine / de zostère naine » / « évitez les zones sombres, ancrez dans le sable » | « Comment mouiller ici » | le message de l'OFB **tel quel** (champ `subtitle` de la couche Nav&Co, ex. « Posidonie : espèce protégée. Pour mouiller j'évite les zones sombres, j'ancre dans les zones sableuses. »), le lien vers le texte de référence (`url` : arrêté du préfet maritime n°123/2019, Légifrance ou brochure OFB), puis l'avertissement « inventaire indicatif » — voir §4.3quater |
+| Banc de maërl, coralligène *(v2.39)* | bleu | « **Zone fragile : vigilance mouillage** — banc de maërl » (ou « — coralligène ») / « évitez ce fond, ancrez dans le sable » | « Comment mouiller ici » | texte écrit pour la carte (les inventaires n'en portent pas), même construction que le message OFB, puis l'avertissement « inventaire indicatif » — voir §4.3quater |
+| Habitats sensibles injoignables *(v2.39)* | gris (incertaine) | « **Herbiers et habitats fragiles : vérification impossible** » / « inventaire de l'OFB momentanément injoignable » | « Que faire ici » | renvoi vers les couches « Habitats sensibles » de la légende et rappel « les taches sombres sont de l'herbier » |
 | Cultures marines non vérifiées ou injoignables | gris-bleu | voir §4.3ter | « Que faire ici » | voir §4.3ter |
 | Nature du fond | sable | voir §4.4bis | « Comment mouiller ici » ou « Que faire ici » | voir §4.4bis |
 
@@ -177,6 +180,8 @@ Pendant l'interrogation, le bloc affiche « *Vérification des zonages environne
 - « Coordonnées GPS en degrés décimaux (DD) » → `{lat}, {lng}` à 6 décimales. Seul le couple de valeurs est copié, pas le libellé.
 
 > **Retiré en v2.16** : la mention « D'autres zonages (Herbiers de posidonie et de zostère, Parcs naturels marins, Aires marines protégées, zones de baignade ou réglementaires) […] vérifiez-les visuellement » (décision de Nicolas, 13/10/2026, pour alléger). Ces zonages restent affichables dans la légende, et leur absence de vérification automatique reste documentée au §4.1.d et au §5. Le seul rappel conservé dans le popup est celui sur les herbiers, porté par la carte « nature du fond ».
+>
+> **v2.39** : les herbiers, le maërl et le coralligène sont désormais **vérifiés au clic** (inventaires de l'OFB, §4.3quater) et annoncés par leur propre carte « Zone fragile : vigilance mouillage ». Restent non vérifiés au clic : parcs naturels marins, aires marines protégées, zones de baignade et zones réglementaires.
 
 #### C6 — Proximité d'une AOT existante (< 100 m)
 Détection silencieuse (indépendante de la case « AOT de mouillage existantes »). Tout se passe dans la modale centrale : le popup de C5, puis le bloc de proximité, qui se réduit au résultat une fois le calcul fait (v2.7). Mécanisme et formule : §4.2.
@@ -212,10 +217,10 @@ Contrairement aux cultures marines, aucune couche APB n'est chargée localement 
 #### d. Tous les autres clics sur l'eau (hors APB)
 1. Un marqueur est posé et les coordonnées GPS calculées
 2. Une requête est envoyée à l'**API Carto de l'IGN** (module *nature*, couches `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) pour identifier si le point se trouve dans une zone Natura 2000 (habitats/oiseaux) ou ZNIEFF, avec repli sur le WFS de la Géoplateforme en cas d'échec ou de réponse vide en mer (ZNIEFF) — voir §4.3 pour le détail technique
-3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, annonçant qu'une étude d'incidence sera réalisée suite à la demande et que le nom de la zone est à reporter dans le formulaire de demande — texte exact au §4.0, C5.1) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, herbiers de posidonie et de zostère, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
+3. Le résultat est affiché dans un **popup non bloquant** (teinte verte si aucune zone identifiée, teinte neutre/orange sinon), avec **deux messages distincts possibles** : un message Natura 2000 (habitats et oiseaux réunis, listant le ou les noms de site, annonçant qu'une étude d'incidence sera réalisée suite à la demande et que le nom de la zone est à reporter dans le formulaire de demande — texte exact au §4.0, C5.1) et/ou un message ZNIEFF générique (sans nom ni type de zone, invitant à des pratiques de mouillage durables) — les deux peuvent s'afficher ensemble. Le tout est accompagné d'une mention rappelant que certaines couches (parcs naturels marins, aires marines protégées, zones de baignade, zones réglementaires) ne sont pas couvertes par cette vérification automatique et restent à la charge de l'usager/instructeur
 4. Si le point est à moins de 100 m d'une AOT existante (vérification silencieuse), le bloc environnement est réduit à une ligne et un bloc de proximité avec le formulaire de calcul et le résultat s'affiche dans le même popup (voir §4.0 C6 et §4.2)
 
-Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte.
+Les couches Natura 2000, ZNIEFF, Parcs naturels marins, Aires marines protégées et les quatre couches « Habitats sensibles » *(v2.39)* restent par ailleurs **affichables/masquables normalement** dans le panneau « Couches affichées » (voir §5) : leur éventuelle non-détectabilité au clic ne change rien à leur affichage sur la carte. Les habitats sensibles sont interrogés au clic **que leur case soit cochée ou non** (§4.3quater).
 
 ### 4.2 Rayon d'évitage (message, formulaire et résultat dans la modale centrale)
 
@@ -302,7 +307,7 @@ Pour identifier automatiquement les zones Natura 2000 et ZNIEFF au point cliqué
 - **Accès:** API publique, sans clé
 - **Robustesse:** chaque appel est borné par un délai de **8 secondes** (`AbortController`, porté de 4 à 8 secondes en v1.7) ; en cas de dépassement ou d'échec réseau, l'affichage bascule sur un état de secours (« interrogation indisponible ») sans jamais bloquer l'affichage des coordonnées GPS — la vérification des zones protégées est une information complémentaire, jamais un préalable au parcours principal
 - **Messages:** un bloc Natura 2000 (habitats et oiseaux réunis) et un bloc ZNIEFF (générique, sans nom ni type de zone) s'affichent indépendamment l'un de l'autre selon le résultat — voir §4.1.d
-- **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les Herbiers de posidonie et de zostère, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d). L'APB, elle, est vérifiée (voir §4.3bis)
+- **Limite connue:** aucun endpoint équivalent n'existe à ce jour pour les Parcs naturels marins, les Aires marines protégées, les zones de baignade ou les zones réglementaires — ces zones ne sont donc **pas** vérifiées automatiquement au clic (mention rappelée à l'usager dans le popup, voir §4.1.d). L'APB, elle, est vérifiée (voir §4.3bis)
 - **Délai d'attente (constaté le 21 septembre 2026):** les réponses Natura 2000 sont volumineuses (200 à 360 ko, géométrie complète du site) et mettent parfois 3 à 4,5 secondes : avec l'ancien délai de 4 secondes, une des deux requêtes Natura 2000 pouvait être coupée sur certains points (Golfe du Morbihan, Lavezzi) et `echec` passait à `true` alors que l'autre avait répondu. Le délai a été porté à 8 secondes en v1.7 (décision de Nicolas). Piste d'amélioration non retenue : alléger la requête
 - **Repli sur le WFS de la Géoplateforme (v1.9):** si l'API Carto **échoue** (erreur ou délai de 8 s dépassé), la même question est posée au WFS de la Géoplateforme (`https://data.geopf.fr/wfs/ows`, `GetFeature`, filtre `INTERSECTS(geom,SRID=4326;POINT(lon lat))`, nom lu dans `nom_site`) sur les couches `patrinat_sic:sic`, `patrinat_zps:zps`, `patrinat_znieff1:znieff1` + `patrinat_znieff1_mer:znieff1_mer`, `patrinat_znieff2:znieff2` + `patrinat_znieff2_mer:znieff2_mer`, avec un délai de 6 s. Si l'API Carto **répond mais ne renvoie rien**, seules les couches ZNIEFF **marines** sont interrogées en WFS (délai 4 s) : l'API Carto ne les renvoie pas en mer, alors que les couches terrestres et Natura 2000 y sont bien couvertes, et redemander celles-ci au WFS ferait attendre l'usager pour rien (une réponse à 10 s a été observée sur `znieff2`). Le WFS n'est jamais interrogé en premier. `echec` ne passe à `true` que si l'API Carto **et** tout le repli ont échoué ; un résultat partiel du repli (terre ou mer seule) est conservé
 - **CORS vérifié le 21 septembre 2026 :** le WFS répond aux requêtes émises depuis `https://nicolas-viennot-beta.github.io` (la réponse est lisible par la page). La CSP `connect-src 'self' https:` l'autorise déjà
@@ -382,6 +387,30 @@ Un `ExceptionReport` est traité comme une **panne**, jamais comme une absence d
 
 **Affichage.** Les mêmes quatre flux sont affichés en WMS sous l'unique case « Cultures marines » de la légende (`GetMap`, `EPSG:3857`, `image/png`, en-têtes CORS vérifiés le 13/10/2026). Le tableau `COUCHES` accepte depuis la v2.18 une **liste** de flux dans `tiles` : une source et une couche sont créées par flux, la case de légende les bascule ensemble.
 
+### 4.3quater Habitats sensibles — herbiers, maërl, coralligène (OFB) *(v2.39)*
+
+Demande de Nicolas (18/11/2026) : compléter la donnée environnement avec les inventaires nationaux de l'OFB (Life intégré Marha). **Signaler, jamais bloquer** (décision de Nicolas, 18/11/2026) : un inventaire n'est pas opposable, son absence ne vaut pas absence d'habitat.
+
+**Affichage — quatre cases dans « Habitats sensibles »**, décochées au chargement (§5). Elles remplacent la couche Ifremer, qui ne couvrait que l'Occitanie.
+
+**Au clic** — `interrogerHabitatsSensibles`, dans le même peloton que les zonages (`Promise.all`, elle n'allonge pas l'attente), délai `CONFIG.delaiHabitats` (4 000 ms ; 80 à 310 ms observés le 18/11/2026). Trois couches du WFS `https://wxs.ofb.fr/geoserver/habitat/wfs`, filtre `INTERSECTS(geom, SRID=4326;POINT(lon lat))` :
+
+| Couche interrogée | Champs lus | Carte |
+|---|---|---|
+| `eco_met_herbiers_emprise_simple_ofb_pol_3857` (couche Nav&Co : posidonie + zostères, 3 527 secteurs, métropole) | `herbier`, `subtitle`, `url` | « Zone fragile : vigilance mouillage — herbier de … » |
+| `eco_met_banc_maerl_2024_ofb_pol_3857` | `legende` | « … — banc de maërl » |
+| `eco_med_coralligene_ofb_pol_3857` | `biocenose` | « … — coralligène » |
+
+- **Pourquoi la couche Nav&Co pour les herbiers, et pas les couches affichées** : c'est elle qui porte le **message usager de l'OFB** (`title` « Zone fragile : vigilance mouillage », `subtitle`) et le texte de référence (`url`). Décision de Nicolas (18/11/2026) : **reprendre ce message tel quel**, pour que deux services de l'État ne tiennent pas deux discours. Ses polygones sont des **secteurs**, plus larges que les herbiers dessinés : un clic peut afficher la carte herbier à un endroit où la couche affichée ne montre pas d'herbier. C'est voulu : la vigilance porte sur le secteur.
+- **Maërl et coralligène** : les inventaires ne portent pas de message ; le texte est écrit pour la carte, sur le modèle de l'OFB (« j'évite ces fonds, j'ancre dans les zones sableuses »). **À relire par Nicolas.**
+- **Un message par type d'herbier** : plusieurs polygones identiques au point ne donnent qu'une carte.
+- **Champs limités** (`propertyName`) : les inventaires portent aussi des noms d'auteurs et de validateurs, qui n'ont rien à faire dans la carte (dépôt public) — ils ne sont jamais demandés.
+- **Avertissement affiché dans chaque détail** : « Inventaire de l'OFB, indicatif : il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ; sur place, c'est ce que vous voyez qui compte. »
+- **Trois issues** : habitat trouvé → carte(s) bleue(s) dans « Contexte environnemental » ; rien → **rien n'est affiché** (comme Natura 2000 depuis v2.19) ; au moins une des trois couches injoignable → carte grise « Herbiers et habitats fragiles : vérification impossible », sous « Ce que la carte n'a pas pu vérifier ».
+- **Ordre** : après Natura 2000 et ZNIEFF, avant la profondeur et la nature du fond.
+- Licence Ouverte / Etalab 2.0, sans clé ; CORS ouvert (`*`). Détail des couches, mesures et limites : `data/SOURCES.md` §4.
+- Voir `TESTS_FONCTIONNELS.md` §20 et le harnais `tests/test_habitats_chromium.js`.
+
 ### 4.4 Détection terre/eau
 
 Depuis la v2.14, la détection se fait en **deux instances** : une détection locale instantanée (§4.4.1), puis, et seulement lorsque celle-ci annonce « à terre », un arbitrage par le **trait terre-mer du Shom** (§4.4.2). Motif : la détection locale classe les plages, dunes et marais comme de la terre, alors que l'**estran** — le haut de plage qui découvre à marée basse — relève du domaine public maritime et peut légitimement porter un mouillage. Les faux « vous êtes à terre » signalés par la DDTM des Côtes-d'Armor venaient de là.
@@ -451,7 +480,7 @@ Affichée dans le bloc environnement **uniquement quand le mouillage n'est pas i
 - **Du code au libellé:** l'attribut `typelem` porte un code (`NFS`, `NFRoche`…). Les 24 libellés de la table `NATURES_FOND` **n'ont pas été devinés** : la légende officielle du service a été extraite (`GetLegendGraphic`, 33 entrées), puis, pour chaque code, la couleur réellement rendue par le WMS au point a été comparée à celle de la pastille de légende. **23 codes sur 24 correspondent à l'identique.** Seul `NFSFC`, un unique polygone dans toute la France, est déduit du schéma de nommage.
 - **Quatre familles** (`sable`, `vase`, `graviers`, `dur`) regroupent ces 24 codes pour choisir le conseil affiché. Le libellé montré à l'usager reste celui du Shom, pas la famille.
 - **Conseil associé:** chaque famille porte un texte et un libellé de lien vers la page [Bien mouiller pour préserver les fonds marins](https://amidomar.beta.gouv.fr/bien-mouiller--pr%C3%A9server-les-fonds-marins/), le libellé nommant le type de fond (« Voir les bonnes pratiques d'ancrage sur fond sableux », « …sur sol dur »). **Les textes des familles `sable` et `dur` ont été rédigés par Nicolas le 12/10/2026 : ne pas les reformuler sans lui** ; `vase` et `graviers` suivent la même construction. **Le conseil est volontairement environnemental, jamais une appréciation de tenue d'ancre** : le produit porte la mention « ne pas utiliser pour la navigation », et un conseil de tenue serait du conseil nautique sur une donnée non certifiée pour cet usage.
-- **Rappel systématique:** « Cette carte ne représente pas les herbiers : sur place, les taches sombres sont de l'herbier, à éviter. » C'est une carte **sédimentaire** — un fond de sable n'exclut pas un herbier, et les herbiers ne sont toujours pas couverts par une source nationale (§5).
+- **Rappel systématique:** « La nature du fond ne dit rien des herbiers : sur place, les taches sombres sont de l'herbier, à éviter. » *(reformulé en v2.39 ; avant : « Cette carte ne représente pas les herbiers… », devenu faux depuis que la carte affiche les herbiers de l'OFB)*. C'est une carte **sédimentaire** — un fond de sable n'exclut pas un herbier. Les herbiers ont leur propre carte au clic depuis la v2.39 (§4.3quater).
 - **Trois cas distincts, trois comportements** (présentation en carte repliable depuis la v2.16, voir C5) :
 
 | Réponse du service | Ligne repliée | Bouton | Détail déplié |
@@ -736,8 +765,14 @@ La **carte fantôme** de détection terre/mer (§4.4) n'est pas concernée : ell
 
 - 🟧 **Zones de mouillage autorisées (AOT)** *(v2.23, étendue en v2.33 et v2.38)* — fichier local `data/zones-aot.geojson`, cochée par défaut. Zones où une AOT de mouillage individuel reste délivrable. **Var — couverture quasi complète, à valider** : 57 zones sur 16 communes, de Bandol à Saint-Raphaël, relevées à la main sur les cartes PDF n°1 à 26 et 31 à 52 de la DDTM 83 (octobre 2022 – mai 2023) et à faire confirmer par elle ; cartes n°23 à 25 et 27 à 30 non transmises. **Morbihan (v2.38) — couverture complète** : 15 zones sur 8 communes, importées de la couche SIG de la DDTM 56 (10 zones à usage particulier écartées, voir §4.4ter). Propriété `public` : les zones réservées uniquement aux professionnels sont dessinées en **gris** `#6a6a6a` (aucune à ce jour). Un clic dans une zone **ne court-circuite pas** le parcours, contrairement aux ports et aux ZMEL : être dans une zone est une bonne nouvelle, le choix d'emplacement se poursuit normalement. Orange `#b34000`, le même que la carte « Règles locales » du popup. Depuis la **v2.32**, 50 des AOT simulées sont posées dans les 5 zones tropéziennes d'alors (dont 13 dans la zone 5 des Canebiers, retirée du référentiel en v2.33 — elles y restent, sans nom de zone : des AOT existantes dans une zone que la DDTM ferme) : zoomé sur Saint-Tropez, l'usager voit donc une zone autorisée déjà occupée, ce qui est le cas de figure que le parcours doit savoir montrer
 
-### Habitats sensibles
-- 🟣 **Herbiers de posidonie et de zostère** — couche WMS (couverture partielle : presque uniquement l'Occitanie, Palavas et Albères ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère annoncée mais absente), affichable/masquable normalement — non identifiable au clic (aucune API disponible)
+### Habitats sensibles *(refait en v2.39)*
+Quatre inventaires nationaux de l'**OFB** (Life intégré Marha), une case par habitat comme les fiches de l'OFB, toutes **décochées au chargement**, statut `verifie`. Couleurs de légende = celles du style du serveur (`GetLegendGraphic`, 18/11/2026), la plus fréquente quand il y en a plusieurs. **Indicatifs, non opposables.** Identifiables au clic, voir §4.3quater.
+- 🟩 **Herbiers de zostères (2024)** — tuiles du cache OFB (WMTS), `eco_met_herbier_zostere_2024_ofb_pol_3857`, Manche et Atlantique. Légende `#82ce36` (zostère naine ; zostère marine en `#33d8a6`). Le test de joignabilité utilise une tuile du golfe du Morbihan (`tuileTest`) : la tuile par défaut, en Méditerranée, est hors couverture et le serveur y répond par une erreur
+- 🟩 **Herbiers de posidonie (2022)** — WMS classique (pas de cache côté OFB, affichage un peu plus lent au zoom), `eco_med_herbier_posidonia_oceanica_2022_pol_3857`, Méditerranée et Corse. Légende `#33a02c` ; la matte morte est en jaune
+- 🟥 **Bancs de maërl (2024)** — WMTS, `eco_met_banc_maerl_2024_ofb_pol_3857`. Légende `#ff258e` (fonds à rhodolithes, les plus nombreux) ; bancs de maërl en bordeaux, mosaïques en rose pâle, fonds à Peyssonnelia en orange
+- ⬜ **Coralligène** — WMTS, `eco_med_coralligene_ofb_pol_3857`, Méditerranée. Légende `#aaaaaa`
+
+Non affiché : le flux combiné « posidonie + zostères 2022 » (`eco_met_herbiers_2022_ofb_pol_3857`) — ses zostères sont plus anciennes que l'inventaire 2024, il ferait doublon. La couche Ifremer (`BIOMED_POSI_PALAVAS_P`, `BIOMED_POSI_ALBERES_P`), qui ne couvrait que l'Occitanie, est retirée.
 
 ### À venir
 - ⬜ **Zone de baignade / zone réglementaire** — entrée unique, grisée et non sélectionnable, mention « À venir » : regroupe deux types de zones pour lesquelles aucune source interrogeable n'a été identifiée à ce jour. Cette entrée matérialise le sujet dans la légende sans (encore) charger de donnée. Les APB, qui y figuraient jusqu'en v1.7, ont désormais leur propre couche (voir « Protection de la nature »).
@@ -753,7 +788,7 @@ Ces sources n'apparaissent pas dans le panneau « Couches affichées » : elles 
 - **Natura 2000 / ZNIEFF (API Carto IGN)** — voir §4.3.
 
 ### État des sources problématiques
-- **Herbiers de posidonie et de zostère:** Couverture insuffisante — presque uniquement l'Occitanie ; rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon ; zostère absente ; reste affichable mais non identifiable au clic
+- **Habitats sensibles (OFB)** *(v2.39)* : inventaires indicatifs, non opposables ; la posidonie n'est pas mise en cache par l'OFB (WMS plus lent). Remplacent la couche Ifremer, limitée à l'Occitanie
 - **Parcs naturels marins, Aires marines protégées:** Aucune API d'identification de zone au clic identifiée à ce jour (contrairement à Natura 2000 et ZNIEFF, couverts par l'API Carto IGN — module *nature*, endpoints `natura-habitat`, `natura-oiseaux`, `znieff1`, `znieff2`) — restent affichées/masquables normalement, simplement absentes de la vérification automatique au clic
 - **APB:** couche WMTS `Patrinat_APB` ajoutée en v1.8, tuiles confirmées ; pas d'identification au clic
 - **Zones de baignade, zones réglementaires:** Aucune source publique interrogeable identifiée — regroupées dans l'entrée « À venir » du panneau (voir ci-dessus)
@@ -779,6 +814,7 @@ const CONFIG = {
   delaiNatureFond: 3000,    // délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (ms, v2.15)
   delaiDepartement: 4000,   // délai max du rattachement départemental, interrogé en parallèle des zonages (ms, v2.22) — voir §4.4ter
   rayonsDepartement: [1, 2, 5, 10], // rayons essayés dans l'ordre pour trouver la côte la plus proche (km, v2.22) — voir §4.4ter
+  delaiHabitats: 4000,        // délai max des inventaires d'habitats de l'OFB (ms, v2.39) — voir §4.3quater
   delaiCulturesMarines: 4000, // délai max du cadastre conchylicole des DDTM (ms, v2.18) — voir §4.3ter
   proximiteCulturesMarines: 40, // en deçà, une parcelle voisine est signalée sans bloquer (m, v2.21)
   zonesProches: 3,          // zones autorisées proposées en tête de liste, triées par distance au point (v2.37) — voir §4.4ter
@@ -800,6 +836,7 @@ const GRIST = {
 #### `COUCHES`
 Tableau des sources cartographiques affichées — chaque entrée peut être:
 - **Couche WMTS/WMS:** `tiles: WMTS(couche, format)` — `tiles` accepte depuis la v2.18 une **liste** d'URL : une source et une couche sont créées par flux (`id`, `id-1`, `id-2`…), et la case de légende les bascule ensemble. Utilisé pour les quatre flux du cadastre conchylicole (§4.3ter)
+- **Tuiles du cache OFB** *(v2.39)* : `tiles: WMTS_OFB(couche)` (GeoWebCache de l'espace `habitat`, grille `EPSG:900913`). Champ optionnel `tuileTest: [z, x, y]` : tuile demandée par le test de joignabilité ✓/✗ quand la tuile par défaut (Méditerranée) est hors de la couverture de la couche (zostères)
 - **Fichier GeoJSON local:** `geojson: 'data/fichier.geojson'`
 - **Couche de mouillages:** `aot: true` + `geojson`
 - **Couche « à venir » (non chargée, case grisée):** `aVenir: true` — aucune source, aucun écouteur, aucune requête ; utilisé uniquement pour l'entrée combinée « Zone de baignade / zone réglementaire » (créée en v1.2 sous le nom « APB / zone de baignade / zone réglementaire », scindée en v1.8). Les couches Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère, qui portaient temporairement ce marquage en cours d'itération, ont été **repassées en affichage normal** : seule leur absence de vérification automatique au clic est documentée (§4.1.d, §5), pas leur affichage.
@@ -1065,7 +1102,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Recocher → réapparaît
 - [ ] Décoche des AOT → l'analyse de conflit se poursuit à l'identique (vérification silencieuse) ; seul le rappel « Activez le filtre AOT » apparaît en plus dans le message de détection
 - [ ] Recocher AOT → analyse reprend
-- [ ] Les couches Parcs naturels marins, Aires marines protégées et Herbiers de posidonie et de zostère restent **cochables/décochables normalement** (elles ne sont plus grisées, seule leur non-détectabilité au clic est documentée)
+- [ ] Les couches Parcs naturels marins, Aires marines protégées et les quatre couches « Habitats sensibles » restent **cochables/décochables normalement** (elles ne sont plus grisées, seule leur non-détectabilité au clic est documentée)
 - [ ] L'entrée « Zone de baignade / zone réglementaire » apparaît grisée avec la case décochée et désactivée, et la mention « À VENIR »
 - [ ] La couche « Arrêtés de protection de biotope (APB) » apparaît dans « Protection de la nature », **cochée par défaut** ; la décocher la masque, la recocher la réaffiche
 - [ ] *(v2.4)* Les deux couches « Natura 2000 — habitats (SIC/ZSC) » et « Natura 2000 — oiseaux (ZPS) » restent deux entrées distinctes de la légende, **toutes deux cochées par défaut**
@@ -1351,6 +1388,17 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.39 — 18 novembre 2026
+**Habitats sensibles : herbiers, maërl et coralligène de l'OFB**
+- Demande de Nicolas : compléter la donnée environnement avec les inventaires de l'OFB — zostères 2024, posidonies 2022, zostères + posidonies 2022, maërl 2024, coralligène. Proposition validée le 18/11/2026, avec deux arbitrages : **reprendre le message Nav&Co de l'OFB tel quel**, et **ne pas bloquer** le clic sur un herbier.
+- **Légende** : la couche Ifremer « Herbiers de posidonie et de zostère » (Occitanie seulement) est remplacée par quatre cases — zostères (2024), posidonie (2022), maërl (2024), coralligène —, décochées au chargement. Le flux combiné 2022 n'est pas affiché (doublon, zostères plus anciennes). Voir §5.
+- **Au clic** : nouvelle carte « Zone fragile : vigilance mouillage » (herbier, maërl, coralligène), et carte grise si l'OFB est injoignable. Interrogation en parallèle des zonages. Voir §4.3quater.
+- **Clos le point ajourné du 15/10/2026** (`data/SOURCES.md` §4) : couche affichée (inventaires détaillés) et couche interrogée (Nav&Co) distinctes, message OFB repris, pas de blocage.
+- Rappel de la carte « Nature du fond » reformulé : « La nature du fond ne dit rien des herbiers… » (l'ancien « Cette carte ne représente pas les herbiers » devenait faux).
+- `testerSource` accepte une tuile de test propre à une couche (`tuileTest`) : la tuile par défaut, en Méditerranée, faisait afficher ✗ à tort aux zostères.
+- Textes des cartes maërl et coralligène écrits par Claude, **à relire par Nicolas**.
+- Tests : harnais d'intégrité OK, §10 Node 59/59, §17 + §19 Node 59/59, données AOT OK ; Chromium : nouveau `test_habitats_chromium.js` (§20) 22/22, §17.5 17/17 (inventaires OFB simulés vides dans ce harnais), §15 11/11, §18 27/27, §19.2 9/9. `test_interface_chromium.js` s'arrête au §10.7 (bouton « Réduire » qui intercepte le clic sur le champ de recherche) **à l'identique sur la v2.38** : point ouvert de `tests/README.md`, pas une régression. Vérifié en réel (Chromium, réseau ouvert) : 4 cases ✓, carte posidonie en rade d'Hyères, zostère marine dans le golfe du Morbihan, maërl en rade de Brest.
 
 ### v2.38 — 13 novembre 2026
 **Zones de mouillage autorisées du Morbihan**

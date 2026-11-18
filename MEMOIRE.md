@@ -113,6 +113,21 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **18/11/2026** — Herbiers, maërl, coralligène de l'OFB branchés (v2.39).
+  Deux arbitrages de Nicolas : **reprendre le message de l'OFB tel quel**
+  (application Nav&Co) pour que deux services de l'État ne tiennent pas deux
+  discours, et **un habitat sensible ne bloque jamais le clic** (inventaire
+  non opposable). Règle qui en découle : quand une source publique porte
+  déjà un message usager, le reprendre plutôt que d'en écrire un autre.
+- **18/11/2026** — Piège : les inventaires de l'OFB contiennent des **noms de
+  personnes** (auteurs, validateurs). Ne jamais lire ces champs depuis la
+  carte (dépôt et site publics) : limiter `propertyName` aux champs utiles.
+- **18/11/2026** — Sur le Mac de Nicolas, les harnais Chromium d'un worktree
+  tournent avec le Playwright du dossier principal :
+  `NODE_PATH=<projet>/tests/node_modules node test_….js`. Avec le réseau
+  ouvert, `test_interface_chromium.js` s'arrête au §10.7 (le panneau monte
+  jusqu'au champ de recherche) — déjà le cas avant la v2.39.
+
 - **14/11/2026** — Passage de Cowork à Claude Code. La carte a son propre
   `CLAUDE.md` et cette mémoire. Les harnais de test sont entrés dans le dépôt
   (`tests/`, auparavant `scripts/tests-carte/` hors dépôt).

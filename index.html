@@ -735,6 +735,7 @@
       delaiNatureFond: 3000,    // ms — délai max de la couche Natures de fond du Shom, interrogée en parallèle des zonages (v2.15)
       delaiDepartement: 4000,   // ms — délai max du rattachement départemental, interrogé en parallèle des zonages (v2.22)
       rayonsDepartement: [1, 2, 5, 10], // km — rayons essayés dans l'ordre pour trouver la côte la plus proche (v2.22 ; voir interrogerDepartement)
+      delaiHabitats: 4000,      // ms — délai max des inventaires d'habitats de l'OFB (herbiers, maërl, coralligène), interrogés en parallèle des zonages (v2.39 ; 80 à 310 ms observés le 18/11/2026)
       delaiCulturesMarines: 4000, // ms — délai max du cadastre conchylicole des DDTM (v2.18 ; 150 à 740 ms observés le 13/10/2026)
       proximiteCulturesMarines: 40, // m — en deçà, une parcelle voisine est signalée sans bloquer (v2.20, décision de Nicolas du 14/10/2026 : un rayon d'évitage ordinaire dépasse cette distance)
       zonesProches: 3,          // nombre de zones autorisées proposées en tête de liste, triées par distance au point cliqué (v2.37)
@@ -906,6 +907,14 @@
       `&STYLES=&FORMAT=image/png&TRANSPARENT=true&SRS=EPSG:3857` +
       `&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256`;
 
+    // v2.39 : tuiles du cache (GeoWebCache) de l'OFB, espace « habitat ».
+    // Grille EPSG:900913 = web mercator standard, donc {z}/{x}/{y} de MapLibre.
+    // Testé le 18/11/2026 : HTTP 200, PNG, CORS ouvert (*).
+    const WMTS_OFB = (couche) =>
+      'https://wxs.ofb.fr/geoserver/habitat/gwc/service/wmts?SERVICE=WMTS&REQUEST=GetTile' +
+      `&VERSION=1.0.0&LAYER=habitat:${couche}&STYLE=&TILEMATRIXSET=EPSG:900913` +
+      '&TILEMATRIX=EPSG:900913:{z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png';
+
     /* Les couleurs des couches distantes ne sont pas choisies ici : elles sont
        décidées par le serveur qui produit les tuiles. Celles indiquées ci-dessous
        ont été relevées sur les tuiles réelles (couleur dominante, échantillonnée
@@ -947,12 +956,42 @@
         tiles: WMTS('Patrinat_APB','image/png'), visible:true,
         attribution:'© IGN / INPN' },
 
+      /* v2.39 : les quatre inventaires nationaux de l'OFB (Life intégré Marha)
+         remplacent la couche Ifremer, qui ne couvrait que l'Occitanie. Une case
+         par habitat, comme les fiches de l'OFB : chacune garde son millésime.
+         Couleurs = celles du style du serveur (GetLegendGraphic, 18/11/2026),
+         la plus fréquente quand le style en a plusieurs. Le flux combiné
+         « posidonie + zostères 2022 » n'est pas affiché : ses zostères sont
+         plus anciennes que l'inventaire 2024, il ferait doublon.
+         Au clic : voir interrogerHabitatsSensibles(). */
       { groupe:'Habitats sensibles',
-        id:'posidonie', label:'Herbiers de posidonie et de zostère', couleur:'#6a1b9a',
-        picto:'aplat', statut:'a_tester',
-        tiles: WMS('https://sextant.ifremer.fr/services/wms/biologie','BIOMED_POSI_PALAVAS_P,BIOMED_POSI_ALBERES_P'),
-        visible:false, attribution:'© IFREMER',
-        note:"Couverture partielle : presque uniquement l'Occitanie (Palavas, Albères). Rien à Hyères, en Corse, à Quiberon, à Brest ni à Arcachon. La zostère est annoncée mais absente." },
+        id:'zosteres', label:'Herbiers de zostères (2024)', couleur:'#82ce36',
+        picto:'aplat', statut:'verifie',
+        tiles: WMTS_OFB('eco_met_herbier_zostere_2024_ofb_pol_3857'),
+        tuileTest: [12, 2016, 1431],   // golfe du Morbihan : la tuile par défaut (Méditerranée) est hors couverture
+        visible:false, attribution:'© OFB — Life intégré Marha',
+        note:"Inventaire national de l'OFB, Manche et Atlantique (mise à jour 2024). Compilation de cartographies d'origines et de dates diverses : indicatif, non opposable. Un herbier peut exister hors des zones dessinées." },
+
+      { groupe:'Habitats sensibles',
+        id:'posidonie', label:'Herbiers de posidonie (2022)', couleur:'#33a02c',
+        picto:'aplat', statut:'verifie',
+        tiles: WMS('https://wxs.ofb.fr/geoserver/habitat/wms','habitat:eco_med_herbier_posidonia_oceanica_2022_pol_3857'),
+        visible:false, attribution:'© OFB — Life intégré Marha',
+        note:"Inventaire national de l'OFB, Méditerranée et Corse (mise à jour 2022). En jaune : la matte morte, ancien herbier. Indicatif, non opposable. Affichage un peu plus lent au zoom : le serveur ne met pas cette couche en cache." },
+
+      { groupe:'Habitats sensibles',
+        id:'maerl', label:'Bancs de maërl (2024)', couleur:'#ff258e',
+        picto:'aplat', statut:'verifie',
+        tiles: WMTS_OFB('eco_met_banc_maerl_2024_ofb_pol_3857'),
+        visible:false, attribution:'© OFB — Life intégré Marha',
+        note:"Inventaire national de l'OFB (mise à jour 2024) : bancs de maërl (bordeaux), fonds à rhodolithes (rose), mosaïques avec le maërl (rose pâle), fonds à Peyssonnelia (orange). Indicatif, non opposable." },
+
+      { groupe:'Habitats sensibles',
+        id:'coralligene', label:'Coralligène', couleur:'#aaaaaa',
+        picto:'aplat', statut:'verifie',
+        tiles: WMTS_OFB('eco_med_coralligene_ofb_pol_3857'),
+        visible:false, attribution:'© OFB — Life intégré Marha',
+        note:"Inventaire de l'OFB, Méditerranée. Récif construit sur des siècles par des algues calcaires et des animaux fixés. Indicatif, non opposable." },
 
       { groupe:'Usages de la mer',
         id:'ports', label:'Informations portuaires', couleur:'#006700',
@@ -1929,11 +1968,15 @@
     }
 
     /* ---------- Chargement des couches ---------- */
-    function testerSource(url) {
+    // v2.39 : `tuile` = [z, x, y] propre à une couche, quand la tuile par défaut
+    // (Méditerranée) est hors de sa couverture : le cache de l'OFB y répond par
+    // une erreur (HTTP 400), et la case s'afficherait ✗ à tort (zostères).
+    function testerSource(url, tuile) {
+      const [z, x, y] = tuile || [12, 2118, 1505];
       return new Promise(res => {
         const u = url
           .replace('{bbox-epsg-3857}', '300000,5250000,800000,5500000')
-          .replace('{z}','12').replace('{x}','2118').replace('{y}','1505');
+          .replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y));
         const img = new Image(); let fini = false;
         const t = setTimeout(() => { if(!fini){fini=true; res(false);} }, 15000);
         img.onload  = () => { if(!fini){fini=true; clearTimeout(t); res(true);} };
@@ -2130,7 +2173,7 @@
               layout:{ visibility: c.visible ? 'visible':'none' },
               paint:{ 'raster-opacity':0.7 } });
           });
-          testerSource(flux[0]).then(ok => {
+          testerSource(flux[0], c.tuileTest).then(ok => {
             st.textContent = ok ? '✓' : '✗';
             st.className = 'layer-status ' + (ok ? 'st-ok' : 'st-ko');
             st.title = ok ? 'Source joignable' : 'Source injoignable depuis ce navigateur';
@@ -3342,7 +3385,9 @@
       if (!fond) return '';                       // service muet : on ne dit rien
       const lien = (texte) =>
         `<a href="${PAGE_BONNES_PRATIQUES}" target="_blank" rel="noopener">${texte}</a>.`;
-      const herbiers = `<p class="env-caveat">Cette carte ne représente pas les herbiers :
+      // v2.39 : la carte des fonds est sédimentaire, mais la carte affiche
+      // désormais les herbiers de l'OFB — le rappel renvoie vers eux.
+      const herbiers = `<p class="env-caveat">La nature du fond ne dit rien des herbiers :
         sur place, les taches sombres sont de l'herbier, à éviter.</p>`;
       if (fond.absent) {
         return carteEnv({
@@ -3538,6 +3583,131 @@
           publient aujourd'hui leur cadastre conchylicole sous une forme
           interrogeable automatiquement.</p>` + commun
       });
+    }
+
+    /* ---------- v2.39 : habitats sensibles (inventaires OFB) au point cliqué ----------
+       Trois couches du WFS « habitat » de l'OFB, en parallèle :
+         - herbiers : la couche Nav&Co (`…_emprise_simple…`), posidonie et
+           zostères réunies, parce qu'elle PORTE LE MESSAGE USAGER de l'OFB
+           (`subtitle`) et le texte de référence (`url`). Reprise telle quelle
+           (décision de Nicolas, 18/11/2026) : deux services de l'État qui disent
+           la même chose avec des mots différents, c'est une incohérence visible.
+           Ses polygones sont des « secteurs », plus larges que les herbiers
+           dessinés par les couches affichées : c'est voulu, la vigilance porte
+           sur le secteur ;
+         - maërl et coralligène : leurs inventaires ne portent pas de message,
+           le texte est écrit ici.
+       Signaler, ne jamais bloquer (décision de Nicolas, 18/11/2026) : un
+       inventaire n'est pas opposable, son absence ne vaut pas absence d'habitat.
+       Ne lire QUE les champs utiles : les inventaires portent aussi des noms
+       d'auteurs et de validateurs, qui n'ont rien à faire dans la carte.
+       Attribut géométrique `geom`, préfixe `SRID=4326;` obligatoire. */
+    const WFS_OFB_HABITAT = 'https://wxs.ofb.fr/geoserver/habitat/wfs?service=WFS&version=2.0.0' +
+      '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&count=5&typeNames=habitat:';
+    const HABITATS_OFB = {
+      herbiers:    { couche:'eco_met_herbiers_emprise_simple_ofb_pol_3857', champs:'herbier,subtitle,url' },
+      maerl:       { couche:'eco_met_banc_maerl_2024_ofb_pol_3857',       champs:'legende' },
+      coralligene: { couche:'eco_med_coralligene_ofb_pol_3857',           champs:'biocenose' }
+    };
+
+    // Renvoie la liste des propriétés des objets au point, ou undefined en cas d'échec.
+    async function interrogerUnHabitat(h, lngLat, signal) {
+      const filtre = `INTERSECTS(geom, SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+      const rep = await fetch(WFS_OFB_HABITAT + h.couche + '&propertyName=' + h.champs +
+                              '&CQL_FILTER=' + encodeURIComponent(filtre), { signal });
+      if (!rep.ok) throw new Error('http ' + rep.status);
+      const j = await rep.json();
+      if (!Array.isArray(j.features)) throw new Error('réponse inattendue');
+      return j.features.map(f => f.properties || {});
+    }
+
+    /* { herbiers:[{ herbier, subtitle, url }…], maerl:bool, coralligene:bool, echec:bool }
+       `echec` : au moins une des trois couches n'a pas répondu — on ne sait pas. */
+    async function interrogerHabitatsSensibles(lngLat) {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiHabitats);
+      try {
+        const [herb, maerl, cora] = await Promise.all(
+          ['herbiers', 'maerl', 'coralligene'].map(k =>
+            interrogerUnHabitat(HABITATS_OFB[k], lngLat, ctrl.signal).catch(() => undefined)));
+        // Un même type d'herbier peut revenir en plusieurs polygones : un seul message par type.
+        const vus = new Set();
+        const herbiers = (herb || []).filter(p => {
+          const cle = (p.herbier || '') + '|' + (p.subtitle || '');
+          if (vus.has(cle)) return false;
+          vus.add(cle); return true;
+        });
+        return { herbiers, maerl: !!(maerl && maerl.length), coralligene: !!(cora && cora.length),
+                 echec: [herb, maerl, cora].some(r => r === undefined) };
+      } finally { clearTimeout(t); }
+    }
+
+    // Libellé du lien vers le texte de référence de la couche Nav&Co.
+    function libelleTexteHerbier(url) {
+      if (/premar-mediterranee/.test(url)) return 'Arrêté du préfet maritime de la Méditerranée n°123/2019';
+      if (/legifrance/.test(url)) return 'Texte de protection (Légifrance)';
+      return "Brochure de l'OFB sur les herbiers";
+    }
+
+    const AVERTISSEMENT_INVENTAIRE = `<p class="env-caveat">Inventaire de l'OFB, indicatif :
+      il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ;
+      sur place, c'est ce que vous voyez qui compte.</p>`;
+
+    // Cartes repliables. Rien quand l'inventaire ne trouve rien (comme Natura 2000 depuis v2.19).
+    function cartesHabitatsSensibles(hab) {
+      if (!hab) return [];
+      const cartes = [];
+      if (hab.herbiers.length) {
+        const especes = [...new Set(hab.herbiers.map(p => (p.herbier || 'herbier').toLowerCase()))];
+        const nom = (e) => e === 'posidonie' ? 'herbier de posidonie'
+                         : e === 'herbier'   ? 'herbier marin' : 'herbier de ' + e;
+        const textes = hab.herbiers.map(p => {
+          const lien = (p.url && /^https:\/\//.test(p.url))
+            ? ` <a href="${echapper(p.url)}" target="_blank" rel="noopener">${echapper(libelleTexteHerbier(p.url))}</a>.` : '';
+          return `<p>${echapper(p.subtitle || '')}${lien}</p>`;
+        });
+        cartes.push(carteEnv({
+          type: 'protection',
+          titre: 'Zone fragile : vigilance mouillage',
+          complement: especes.map(nom).join(', '),
+          consequence: 'évitez les zones sombres, ancrez dans le sable',
+          bouton: 'Comment mouiller ici',
+          detail: [...new Set(textes)].join('') + AVERTISSEMENT_INVENTAIRE
+        }));
+      }
+      if (hab.maerl) cartes.push(carteEnv({
+        type: 'protection',
+        titre: 'Zone fragile : vigilance mouillage',
+        complement: 'banc de maërl',
+        consequence: 'évitez ce fond, ancrez dans le sable',
+        bouton: 'Comment mouiller ici',
+        detail: `<p>Le maërl est formé d'algues calcaires qui grandissent de moins d'un
+                 millimètre par an : une ancre ou une chaîne qui racle le fond le détruit
+                 pour des décennies. Pour mouiller, j'évite ces fonds, j'ancre dans les
+                 zones sableuses.</p>` + AVERTISSEMENT_INVENTAIRE
+      }));
+      if (hab.coralligene) cartes.push(carteEnv({
+        type: 'protection',
+        titre: 'Zone fragile : vigilance mouillage',
+        complement: 'coralligène',
+        consequence: 'évitez ce fond, ancrez dans le sable',
+        bouton: 'Comment mouiller ici',
+        detail: `<p>Le coralligène est un récif construit en plusieurs siècles par des algues
+                 calcaires et des animaux fixés : l'ancre et la chaîne le brisent. Pour
+                 mouiller, j'évite ces fonds rocheux, j'ancre dans les zones sableuses.</p>` +
+                AVERTISSEMENT_INVENTAIRE
+      }));
+      if (hab.echec) cartes.push(carteEnv({
+        type: 'protection',
+        incertain: true,
+        titre: 'Herbiers et habitats fragiles : vérification impossible',
+        consequence: "inventaire de l'OFB momentanément injoignable",
+        bouton: 'Que faire ici',
+        detail: `<p>Activez les couches « Habitats sensibles » dans la légende pour les voir
+                 sur la carte. Sur place, les taches sombres sont de l'herbier, à éviter :
+                 ancrez dans les zones sableuses.</p>`
+      }));
+      return cartes;
     }
 
     async function interrogerZonesProtegees(lngLat) {
@@ -3886,13 +4056,15 @@
       // v2.22 : le rattachement départemental part dans le même peloton. Il ne
       // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
       // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
-      const [{ natura, znieff, echec }, fond, dep, fiches, zones, prof] = await Promise.all([
+      // v2.39 : les habitats sensibles de l'OFB rejoignent le même peloton.
+      const [{ natura, znieff, echec }, fond, dep, fiches, zones, prof, habitats] = await Promise.all([
         interrogerZonesProtegees(lngLat),
         interrogerNatureFond(lngLat),
         interrogerDepartement(lngLat),
         chargerMessagesDDTM(),
         chargerZonesAOT(),
-        promesseProfondeur
+        promesseProfondeur,
+        interrogerHabitatsSensibles(lngLat)
       ]);
       if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
 
@@ -3932,6 +4104,9 @@
         titre: 'Zonages de protection : vérification impossible',
         consequence: 'service distant momentanément injoignable'
       }));
+      // v2.39 : herbiers, maërl, coralligène — après les zonages, avant la
+      // profondeur et la nature du fond (ce sont des habitats, pas le fond).
+      cartes.push(...cartesHabitatsSensibles(habitats));
       // v2.29 : la profondeur passe DEVANT la nature du fond — elles décrivent le
       // même point, et c'est la profondeur qui dimensionne la chaîne.
       cartes.push(carteProfondeur(prof));

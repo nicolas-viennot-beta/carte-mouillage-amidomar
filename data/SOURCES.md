@@ -8,7 +8,7 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
+*Dernière consolidation : 18 novembre 2026 — §4 : herbiers, maërl et coralligène de l'OFB branchés (v2.39), intégration ajournée le 15/10 close ; état du cache de tuiles, couleurs de style, champs nominatifs à ne pas lire. Consolidation précédente : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
 n°1 à 26). Consolidation précédente : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
 ajoutées (§9), nouveaux champs de `ddtm-messages.json` et propriété `public` des zones
 (§10), coordonnées retenues par une règle locale. Consolidations précédentes : 30 octobre
@@ -34,8 +34,11 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | ZNIEFF marines type 1 — IGN/INPN | ✅ | ✅ apicarto | en service |
 | Arrêtés de protection de biotope — IGN/INPN | ✅ | ✅ WFS | en service, **bloquant** |
 | Aires marines protégées — OFB | ✅ | — | en service |
-| **Herbiers posidonie + zostères — OFB** | ❌ | ❌ | **source qualifiée, intégration ajournée** (décision du 15/10, §4) |
-| Herbiers — Ifremer (couche actuelle) | ⚠️ | — | **à remplacer** : Occitanie seulement |
+| Herbiers de zostères 2024 — OFB | ✅ WMTS | ✅ WFS (Nav&Co) | en service (v2.39), indicatif, **non bloquant** |
+| Herbiers de posidonie 2022 — OFB | ✅ WMS | ✅ WFS (Nav&Co) | en service (v2.39), **pas de cache** : WMS plus lent |
+| Bancs de maërl 2024 — OFB | ✅ WMTS | ✅ WFS | en service (v2.39), indicatif, **non bloquant** |
+| Coralligène — OFB | ✅ WMTS | ✅ WFS | en service (v2.39), indicatif, **non bloquant** |
+| ~~Herbiers — Ifremer~~ | — | — | **retirée en v2.39** (Occitanie seulement) |
 | Trait terre-mer (DPM) — Shom | — | ✅ WFS | en service |
 | Natures de fond — Shom | — | ✅ WFS | en service, **couverture très inégale** |
 | Informations portuaires — Shom | ✅ | — | en service |
@@ -248,8 +251,17 @@ comme fournisseur du `SearchControl` après `GpsGeocoder`.
 
 ## 4. Herbiers — posidonie et zostères (OFB, vérifié le 14 octobre 2026)
 
+> **Branchée en v2.39 (18/11/2026), à la demande de Nicolas** : l'encadré
+> ci-dessous, qui ajournait l'intégration le 15/10, est **clos**. Les trois
+> points y sont tranchés : (1) on **affiche** les inventaires détaillés et on
+> **interroge** la couche Nav&Co au clic ; (2) le message Nav&Co est **repris
+> tel quel** (décision de Nicolas) ; (3) un herbier **ne bloque pas** le clic
+> (décision de Nicolas). Le maërl et le coralligène ont été ajoutés dans le
+> même geste. Ce qui a été vérifié le 18/11 est consigné en fin de section,
+> « Vérifications du 18 novembre 2026 ». L'encadré est gardé pour l'historique.
+
 **La source nationale existe et elle est qualifiée. Son intégration est
-ajournée — décision du 15/10/2026.**
+ajournée — décision du 15/10/2026.** *(close le 18/11/2026, voir ci-dessus)*
 
 > **Ce qui est fait** : la source est identifiée, testée, et tout ce qu'il faut
 > pour la brancher est écrit ci-dessous — endpoints, identifiants de couches,
@@ -394,6 +406,82 @@ Un corollaire moins confortable : cette donnée est de fait ce que
 l'administration a de mieux. Si la carte l'affiche, un usager pourra reprocher à
 l'État de lui avoir montré une zone sableuse là où un procès-verbal constatera
 un herbier. La formulation du message au clic n'est pas un détail rédactionnel.
+
+### Vérifications du 18 novembre 2026 (v2.39)
+
+**Les cinq fiches transmises par Nicolas** (catalogue `data.ofb.fr`), avec la
+couche que chacune décrit, lue dans la fiche elle-même par l'API du catalogue
+(`/catalogue/srv/api/records/<uuid>`) :
+
+| Fiche | Couche | Branchée |
+|---|---|---|
+| Zostères 2024 — `c6f8ddbc-a9d2-4563-8bba-cf45a6281400` | `eco_met_herbier_zostere_2024_ofb_pol_3857` | affichage |
+| Posidonies 2022 — `83c4eedb-311c-4a90-b394-4a40a69bc60a` | `eco_med_herbier_posidonia_oceanica_2022_pol_3857` | affichage |
+| Zostères + posidonies 2022 — `7e6bdd96-bfe3-44a5-b773-da973df95193` | `eco_met_herbiers_2022_ofb_pol_3857` | **non** : doublon, zostères plus anciennes que 2024 |
+| Maërl 2024 — `df0af1ff-a6a8-43b3-b15e-598fac6447d7` | `eco_met_banc_maerl_2024_ofb_pol_3857` | affichage + clic |
+| Coralligène — `531abf35-dc8c-4434-88a8-24ef50aa75e4` | `eco_med_coralligene_ofb_pol_3857` | affichage + clic |
+
+Les herbiers sont interrogés au clic sur la couche Nav&Co
+(`eco_met_herbiers_emprise_simple_ofb_pol_3857`), qui n'a pas de fiche dans
+cette liste mais porte le message usager.
+
+**Cache de tuiles (GeoWebCache, `…/habitat/gwc/service/wmts`)** —
+GetCapabilities relu le 18/11 :
+
+| Couche | En cache | Tuile test |
+|---|---|---|
+| zostères 2024 | oui | HTTP 200 PNG (golfe du Morbihan) ; **HTTP 400 XML hors couverture** (Méditerranée) |
+| herbiers 2022 (combiné) | oui | — |
+| maërl 2024 | oui | HTTP 200 PNG |
+| coralligène | oui | HTTP 200 PNG |
+| posidonie 2022 | **non** | HTTP 400 → affichée en WMS `GetMap` (`/habitat/wms`, EPSG:3857, HTTP 200 PNG, 150 ms) |
+| Nav&Co (emprise simple) | **non** | toujours pas en cache (§12) |
+
+Piège : hors de l'emprise d'une couche, le cache répond **HTTP 400 en XML**.
+Le navigateur bloque la réponse (`ERR_BLOCKED_BY_ORB`) : sans effet sur la
+carte, mais le test de joignabilité ✓/✗ de la légende, qui demande une tuile en
+Méditerranée, affichait ✗ aux zostères. D'où le champ `tuileTest` (tuile
+z12/2016/1431, golfe du Morbihan).
+
+**CORS** : `access-control-allow-origin: *` sur le WFS et sur les tuiles
+(vérifié le 18/11 avec l'origine `https://nicolas-viennot-beta.github.io`).
+
+**Interrogation au point** (WFS 2.0.0, `INTERSECTS(geom, SRID=4326;POINT(lon lat))`) :
+80 à 310 ms. Rade d'Hyères (6.2, 43.05) → Posidonie ; golfe du Morbihan
+(-2.77289, 47.56049) → zostère marine ; rade de Brest (-4.42, 48.30) → « Bancs de
+maërl ». **Les secteurs Nav&Co ne recouvrent pas exactement les herbiers
+détaillés** : à 6.6228 / 43.2678 un secteur Posidonie répond, à 6.622611 /
+43.26771 (20 m plus loin) plus rien. Un clic peut donc dire « herbier » là où la
+couche affichée n'en dessine pas, et inversement.
+
+**Message Nav&Co** (relu le 18/11, 3 527 secteurs) : titre unique « Zone
+fragile : vigilance mouillage » ; `subtitle` en quatre variantes (posidonie ;
+zostère marine ou naine « en évolution », avec ou sans « espèce protégée ») ;
+`url` vers l'arrêté PREMAR n°123/2019, Légifrance (arrêtés de protection) ou
+une brochure OFB (Calaméo). **13 secteurs de zostère naine ont le texte du
+`subtitle` dans `url`** : la carte n'affiche un lien que si `url` commence par
+`https://`.
+
+**Contenu des couches maërl et coralligène** :
+- maërl 2024 : 10 745 polygones — 6 247 « Association à rhodolithes », 2 531
+  « Bancs de maërl », 1 063 « Mosaïque d'habitats avec le maërl », 887
+  « Association à Peyssonnelia spp. », 17 sans légende. Toutes ces valeurs sont
+  traitées comme « banc de maërl » au clic (fonds d'algues calcaires libres) ;
+- coralligène : 77 565 polygones, Méditerranée, `biocenose` aux libellés
+  hétérogènes (« Biocénose du coralligène », « Coralligène », « Récifs (1170) -
+  Coralligène »… 11 810 sans libellé). Aucun message usager dans l'une ou l'autre.
+
+**Couleurs du style serveur** (`GetLegendGraphic`, `FORMAT=application/json`) :
+zostères — Zostera noltei `#82CE36`, Zostera marina `#33D8A6`, présence probable
+`#6574EA`, magnoliophytes `#E6FFB1` ; posidonie — herbier `#33A02C`, matte morte
+`#DABD07` ; maërl — bancs `#850507`, rhodolithes `#FF258E`, mosaïque `#FFA6B8`,
+Peyssonnelia `#FF5E31` ; coralligène — `#AAAAAA`. La légende de la carte retient
+la plus fréquente.
+
+**Champs nominatifs** : les inventaires portent `auteur` et `validateur` (noms
+de personnes) et `org_aut` / `org_val`. **La carte ne les demande jamais**
+(`propertyName` limité à `herbier,subtitle,url`, `legende`, `biocenose`) : le
+dépôt est public.
 
 Fiches : [posidonie](https://www.data.gouv.fr/datasets/inventaire-des-donnees-disponibles-spatialisant-les-herbiers-de-posidonie-en-france-metropolitaine-polygone) ·
 [zostères](https://www.data.gouv.fr/datasets/inventaire-2024-dherbiers-de-zosteres-en-france-metropolitaine-polygone-1) ·
@@ -1367,7 +1455,8 @@ quelques sites avant de bouger.
 | Manque | Qui | Demande |
 |---|---|---|
 | Zones AOT du Var : limite entre secteurs Ouest et Est, et cartes n°23 à 25 et 27 à 30 | DDTM 83 / SML-BLO | le découpage Ouest (cartes 1–26) / Est (31–52) est repris de la numérotation des cartes (v2.37) ; confirmer que c'est bien le découpage de la DDTM et dans quel secteur tombent les cartes non transmises |
-| **Herbiers : mise en cache WMTS de la couche Nav&Co** | OFB, `sig@ofb.gouv.fr` | c'est la seule des trois couches à ne pas être tuilée, et c'est celle qui porte le message usager |
+| **Herbiers : mise en cache WMTS de la posidonie 2022 et de la couche Nav&Co** | OFB, `sig@ofb.gouv.fr` | ce sont les deux seules couches d'herbiers à ne pas être tuilées. Depuis la v2.39, la posidonie est affichée en WMS classique (plus lent au zoom) et la Nav&Co n'est qu'interrogée au clic |
+| **Maërl et coralligène : message usager** | OFB | la couche Nav&Co porte un message pour les herbiers seulement ; les textes maërl et coralligène de la carte sont écrits par nous (v2.39). Un message OFB les remplacerait |
 | Herbiers : tuiles vectorielles | OFB | y a-t-il un projet d'activer le plugin ? Rejoint la question PING posée à Fredy Thomas côté Shom |
 | Herbiers : qui reprend l'actualisation ? | OFB | le Life Marha s'achève au 31/12/2025 |
 | Herbiers : reprise des libellés `title`/`subtitle` | OFB | pour que les deux services de l'État tiennent le même discours |

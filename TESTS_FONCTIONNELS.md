@@ -19,11 +19,17 @@ fonctionnalité correspondante a réellement disparu.
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
 `test_donnees_aot.py` (§16), `test_regles_locales.js` et
-`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `stub.js` et `tirage_aot.js`. Leur `README.md`
+`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `test_habitats_chromium.js` (§20, v2.39), `stub.js` et `tirage_aot.js`. Leur `README.md`
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 13 nov. 2026 (v2.38) — zones de mouillage autorisées du Morbihan.**
+**Dernière exécution : 18 nov. 2026 (v2.39) — habitats sensibles de l'OFB.**
+- Exécuté sur le Mac de Nicolas (Playwright du dossier principal `projet/tests/`, réseau **ouvert** pour les harnais qui ne le coupent pas).
+- §6 : **OK**. §10 : **59/59** Node. §16 : **OK**. §17 + §19 : **59/59** Node, §17.5 **17/17** rendu (inventaires OFB simulés vides : coupés, ils ajoutaient la carte « vérification impossible » et le panneau recouvrait le champ de recherche). §15 : **11/11**. §18 : **27/27**. §19.2 : **9/9**. §20 (nouveau) : **22/22**.
+- §10 Chromium (`test_interface_chromium.js`) : **s'arrête au §10.7** — le bouton « Réduire » du panneau intercepte le clic sur le champ de recherche. **Même arrêt sur la v2.38 non modifiée**, rejoué deux fois de suite : c'est le point ouvert de `tests/README.md`, révélé par le réseau ouvert (le panneau, plein de cartes, monte jusqu'au champ), pas une régression de la v2.39.
+- **Vérifié en réel** (Chromium, réseau ouvert, carte servie en local) : les 4 cases « Habitats sensibles » en ✓ ; clic en rade d'Hyères (43.05, 6.2) → « Zone fragile : vigilance mouillage — herbier de posidonie » ; golfe du Morbihan (47.56049, -2.77289) → « … — herbier de zostère marine », détail = message OFB + « Brochure de l'OFB » + avertissement ; rade de Brest (48.30, -4.42) → « … — banc de maërl » ; tuiles visibles aux trois endroits ; 0 `pageerror`. Reste à vérifier sur la version publiée.
+
+**Exécution précédente : 13 nov. 2026 (v2.38) — zones de mouillage autorisées du Morbihan.**
 - §6 (syntaxe, exécution réelle, 0 focus, `rayonEvitage`) : **OK**. §10 : **59/59** Node, **22/22** Chromium (premier passage 20/22 sur §10.7 « 6.622611, 43.267710 », puis 22/22 deux fois de suite — le même aléa de harnais déjà noté le 6 nov., sans lien avec la v2.38 qui ne touche que deux chaînes de texte). §15 : **11/11**. §16 : **OK** (test adapté : le bloc Saint-Tropez ne lit plus que les zones `ddtm = 83`). §17 + §19 : **59/59** Node (dont 11 nouveaux tests 56, §17.7), §17.5 **17/17** rendu (Morbihan hors zone et en zone ajoutés). §18 : **27/27**. §19.2 : **9/9**.
 - Chromium exécuté dans le conteneur cloud de Claude (Playwright), réseau externe coupé, Shom simulé : le rattachement réel au 56 reste à voir sur la version publiée (§17.6).
 - **Vérifié en réel sur la version publiée** (13 nov. 2026, commit `45f699c`, navigateur intégré de l'app Claude, rattachement Shom réel) : fichiers servis à jour (72 zones dont 15 du 56, fiches 22/56/83) ; point 47.50, -3.05 → « Morbihan (56) », carte orange, bloc « À reporter » masqué et paragraphe « Le Morbihan ne délivre plus… » ; point 47.70703, -3.32736 → carte verte « (Riantec — Stervins) », coordonnées affichées. Console : aucune erreur JavaScript, seulement des 404 sur des tuiles WMTS `data.geopf.fr` (tuiles hors emprise des couches, sans effet). Les deux premiers points du §17.6 sont levés.
@@ -710,10 +716,11 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
      un statut ✗ ou une carte vide sur ces sites signale un problème de
      service.
 
-5. **Parcs naturels marins, Aires marines protégées, Herbiers de posidonie
-   et de zostère : affichage normal rétabli (non-régression v1.2)**
-   - Action : lire les entrées `pnm`, `amp`, `posidonie` dans `COUCHES`.
-   - Attendu : **aucune** des trois n'a `aVenir: true` ; elles sont
+5. **Parcs naturels marins, Aires marines protégées, Habitats sensibles :
+   affichage normal rétabli (non-régression v1.2)**
+   - Action : lire les entrées `pnm`, `amp`, `zosteres`, `posidonie`,
+     `maerl`, `coralligene` dans `COUCHES` *(les quatre dernières depuis v2.39)*.
+   - Attendu : **aucune** n'a `aVenir: true` ; elles sont
      chargées, cochables/décochables comme n'importe quelle autre couche.
    - Vérification : lecture du code — test de non-régression prioritaire,
      ce comportement a été introduit puis délibérément annulé le
@@ -721,10 +728,10 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
 
 6. **Test visuel : PNM/AMP/posidonie cochables**
    - Action : ouvrir le panneau « Couches affichées », cocher/décocher
-     Parcs naturels marins, Aires marines protégées, Herbiers de posidonie
-     et de zostère.
+     Parcs naturels marins, Aires marines protégées et les quatre couches
+     « Habitats sensibles » *(v2.39)*.
    - Attendu : chaque couche apparaît/disparaît normalement sur la carte,
-     aucune case n'est grisée ni désactivée pour ces trois lignes.
+     aucune case n'est grisée ni désactivée pour ces lignes.
    - Vérification : visuelle.
 
 ---
@@ -748,10 +755,12 @@ la v2.17 (inversion de la charge de la preuve et garde-fou de couverture).*
      `encours` (puce 3) et `#et-1` à l'état neutre (puce 4).
    - Vérification : lecture du code + Chromium headless.
 
-2. **Légende posidonie**
-   - Action : rechercher le `label` de l'entrée `posidonie` dans `COUCHES`.
-   - Attendu : « Herbiers de posidonie et de zostère ».
-   - Vérification : lecture du code.
+2. **Légende des habitats sensibles** *(revu en v2.39)*
+   - Action : lire les `label` du groupe « Habitats sensibles » dans `COUCHES`.
+   - Attendu : « Herbiers de zostères (2024) », « Herbiers de posidonie (2022) »,
+     « Bancs de maërl (2024) », « Coralligène », dans cet ordre ; plus aucune
+     mention de « Herbiers de posidonie et de zostère » ni de `sextant.ifremer.fr`.
+   - Vérification : `test_habitats_chromium.js` (§20.1).
 
 3. **Libellés du formulaire navire (bloc de proximité de la modale centrale depuis v2.5 ; colonne de droite en v2.3–v2.4 ; popup de coordonnées de v1.5 à v2.2)**
    - Action : rechercher les `<label>` du formulaire navire.
@@ -3019,3 +3028,40 @@ donc sur la partie qui suit le titre « Toutes les zones », pas sur tout le HTM
 ### 19.3 Non couvert par les harnais — à vérifier sur la version publiée
 - Rendu à 390 px de large (téléphone).
 - Recadrage réel de la carte sur la zone cliquée avec le fond IGN (fond injoignable dans le conteneur).
+
+## 20. Habitats sensibles de l'OFB — herbiers, maërl, coralligène *(v2.39)*
+
+*Harnais : `test_habitats_chromium.js` (Playwright). Point 43.2678, 6.6228 (Var),
+Shom LIMTM simulé (83), WFS « habitat » de l'OFB simulé selon le cas, reste du
+réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
+
+### 20.1 Légende
+1. Le groupe « Habitats sensibles » contient exactement, dans l'ordre : « Herbiers de zostères (2024) », « Herbiers de posidonie (2022) », « Bancs de maërl (2024) », « Coralligène ».
+2. Les quatre cases sont **décochées** au chargement.
+3. `index.html` n'appelle plus `sextant.ifremer.fr`.
+4. 0 `pageerror`.
+
+### 20.2 Posidonie au point (couche Nav&Co simulée : deux polygones « Posidonie » identiques)
+1. **Une seule** carte d'habitat : deux polygones identiques donnent un message.
+2. Ligne repliée : « Zone fragile : vigilance mouillage — herbier de posidonie » / « évitez les zones sombres, ancrez dans le sable ».
+3. Détail : le message de l'OFB tel quel (« Posidonie : espèce protégée. Pour mouiller j'évite les zones sombres… »), le lien vers l'arrêté du préfet maritime n°123/2019, l'avertissement « il ne fait pas foi ».
+4. **Pas de blocage** : bloc non rouge, bloc « À reporter » affiché.
+5. Carte rangée sous « Contexte environnemental » (pas incertaine).
+6. Trois requêtes OFB au point, `propertyName` limité à `herbier,subtitle,url` / `legende` / `biocenose` ; aucun champ `auteur` ni `validateur` demandé.
+7. 0 `pageerror`.
+
+### 20.3 Maërl et coralligène au point
+1. Deux cartes, dans l'ordre : « … — banc de maërl », puis « … — coralligène ».
+2. Pas de blocage. 0 `pageerror`.
+
+### 20.4 Rien au point
+1. Aucune carte d'habitat (rien n'est dit, comme pour Natura 2000 depuis v2.19).
+
+### 20.5 OFB en panne (HTTP 500)
+1. Une carte grise « Herbiers et habitats fragiles : vérification impossible », sous « Ce que la carte n'a pas pu vérifier ».
+2. Pas de blocage, coordonnées affichées. 0 `pageerror`.
+
+### 20.6 Non couvert par le harnais — à vérifier en réel
+- Tuiles réellement affichées par le serveur de l'OFB et statut ✓ des quatre cases (la case zostères teste une tuile du golfe du Morbihan, `tuileTest`).
+- Clic réel : rade d'Hyères (43.05, 6.2) → posidonie ; golfe du Morbihan (47.56049, -2.77289) → zostère marine ; rade de Brest (48.30, -4.42) → maërl. *(Vérifié en local le 18/11/2026, à refaire sur la version publiée.)*
+- Rendu téléphone (390 px) avec la carte d'habitat en plus.
