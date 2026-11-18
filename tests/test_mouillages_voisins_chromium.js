@@ -2,7 +2,7 @@
 //   node test_mouillages_voisins_chromium.js   — Playwright requis
 // Point : 43.2678, 6.6228 (Var, zone 1 La Bouillabaisse, AOT simulée à ~70 m).
 // Réseau coupé sauf : LIMTM simulé (département 83) et, dans le cas « avec contexte »,
-// nature du fond simulée (Sables) pour faire apparaître « Contexte environnemental ».
+// nature du fond simulée (Sables) pour faire apparaître « Précision sur la zone » (v2.40 ; « Contexte environnemental » avant).
 // Captures : /tmp/amidomar_voisins_*.png
 const { chromium } = require('playwright');
 const http=require('http'), fs=require('fs'), path=require('path');
@@ -39,8 +39,11 @@ async function cas(b, avecFond, nom){
   const i=t=>ordre.findIndex(x=>x.startsWith(t));
   chk(nom+' : « Mouillages voisins » visible', i('Mouillages voisins')>=0);
   chk(nom+' : après « Règles locales »', i('Règles locales')>=0 && i('Règles locales')<i('Mouillages voisins'));
-  if (avecFond) chk(nom+' : avant « Contexte environnemental »', i('Contexte environnemental')>i('Mouillages voisins'), ordre.join(' | '));
-  chk(nom+' : avant « Ce que la carte n’a pas pu vérifier »', i('Ce que la carte')>i('Mouillages voisins'));
+  if (avecFond) chk(nom+' : avant « Précision sur la zone »', i('Précision sur la zone')>i('Mouillages voisins'), ordre.join(' | '));
+  // v2.40 : « Ce que la carte n'a pas pu vérifier » est devenu la ligne repliée .env-nonverif.
+  chk(nom+' : avant « Non vérifié ici »', await page.evaluate(()=>{const b=document.getElementById('boat-block'), n=document.querySelector('#env-block .env-nonverif');
+      return !!n && !!(b.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING);}));
+  chk(nom+' : badge « À compléter » visible tant que la longueur est vide', await page.evaluate(()=>!document.getElementById('voisins-badge').hidden));
   const cls = await page.evaluate(()=>document.getElementById('proximite-block').className);
   chk(nom+' : bloc orange (jaune-box) tant que la longueur est vide', cls==='jaune-box', cls);
   await page.screenshot({path:'/tmp/amidomar_voisins_'+(avecFond?'contexte':'sans_contexte')+'.png'});

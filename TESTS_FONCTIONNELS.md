@@ -23,7 +23,13 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 18 nov. 2026 (v2.39) — habitats sensibles de l'OFB.**
+**Dernière exécution : 18 nov. 2026 (v2.40) — repasse UX du panneau.**
+- Mac de Nicolas, Playwright du dossier principal, réseau ouvert pour les harnais qui ne le coupent pas.
+- §6 : **OK**. §10 : **59/59** Node. §16 : **OK**. §17 + §19 + §21.1 : **70/70** Node (11 nouveaux : bandeau de verdict). §17.5 **17/17**. §15 : **13/13** (adapté : « Précision sur la zone », « Non vérifié ici », badge « À compléter »). §18 : **27/27**. §19.2 : **9/9**. §20 : **23/23** (adapté aux points de vigilance).
+- §10 Chromium : toujours arrêté au §10.7 (même cause qu'en v2.38 et v2.39, point ouvert de `tests/README.md`).
+- **Vérifié en réel en local** (Chromium, réseau ouvert) : Hyères → bandeau rouge « Pas de nouvelle autorisation… dans cette zone » + « Information provisoire », 3 points de vigilance (Natura 2000, Herbier de posidonie, ZNIEFF) ; Saint-Tropez zone 1 → bandeau vert, « Mouillages voisins » avec badge « À compléter » ; golfe du Morbihan → bandeau rouge sans « provisoire », coordonnées retenues ; rade de Brest → bandeau neutre « Règles locales non renseignées ici », Banc de maërl ; barre réduite « Pas de nouvelle autorisation ici » / « 1 point de vigilance » ; bloc déplié et « Non vérifié ici » ouvert ; 390 px sans défilement horizontal ; 0 `pageerror`.
+
+**Exécution précédente : 18 nov. 2026 (v2.39) — habitats sensibles de l'OFB.**
 - Exécuté sur le Mac de Nicolas (Playwright du dossier principal `projet/tests/`, réseau **ouvert** pour les harnais qui ne le coupent pas).
 - §6 : **OK**. §10 : **59/59** Node. §16 : **OK**. §17 + §19 : **59/59** Node, §17.5 **17/17** rendu (inventaires OFB simulés vides : coupés, ils ajoutaient la carte « vérification impossible » et le panneau recouvrait le champ de recherche). §15 : **11/11**. §18 : **27/27**. §19.2 : **9/9**. §20 (nouveau) : **22/22**.
 - §10 Chromium (`test_interface_chromium.js`) : **s'arrête au §10.7** — le bouton « Réduire » du panneau intercepte le clic sur le champ de recherche. **Même arrêt sur la v2.38 non modifiée**, rejoué deux fois de suite : c'est le point ouvert de `tests/README.md`, révélé par le réseau ouvert (le panneau, plein de cartes, monte jusqu'au champ), pas une régression de la v2.39.
@@ -3042,26 +3048,52 @@ réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
 4. 0 `pageerror`.
 
 ### 20.2 Posidonie au point (couche Nav&Co simulée : deux polygones « Posidonie » identiques)
-1. **Une seule** carte d'habitat : deux polygones identiques donnent un message.
-2. Ligne repliée : « Zone fragile : vigilance mouillage — herbier de posidonie » / « évitez les zones sombres, ancrez dans le sable ».
-3. Détail : le message de l'OFB tel quel (« Posidonie : espèce protégée. Pour mouiller j'évite les zones sombres… »), le lien vers l'arrêté du préfet maritime n°123/2019, l'avertissement « il ne fait pas foi ».
-4. **Pas de blocage** : bloc non rouge, bloc « À reporter » affiché.
-5. Carte rangée sous « Contexte environnemental » (pas incertaine).
+*(revu en v2.40 : les habitats sont des points de vigilance)*
+1. **Un seul** point d'habitat : deux polygones identiques donnent un message.
+2. Point « Herbier de posidonie », étiquette « Espèce protégée ».
+3. Bloc replié : détail caché, **un seul** bouton, compte de l'intitulé = nombre de points.
+4. Détail : le message de l'OFB tel quel (« Posidonie : espèce protégée. Pour mouiller j'évite les zones sombres… »), le lien vers l'arrêté du préfet maritime n°123/2019, l'avertissement « il ne fait pas foi » **une seule fois**.
+5. **Pas de blocage** : bloc non rouge, bloc « À reporter » affiché.
 6. Trois requêtes OFB au point, `propertyName` limité à `herbier,subtitle,url` / `legende` / `biocenose` ; aucun champ `auteur` ni `validateur` demandé.
 7. 0 `pageerror`.
 
 ### 20.3 Maërl et coralligène au point
-1. Deux cartes, dans l'ordre : « … — banc de maërl », puis « … — coralligène ».
+1. Deux points, dans l'ordre : « Banc de maërl », puis « Coralligène », étiquette « Habitat fragile » ; un seul avertissement « indicatif » *(v2.40)*.
 2. Pas de blocage. 0 `pageerror`.
 
 ### 20.4 Rien au point
 1. Aucune carte d'habitat (rien n'est dit, comme pour Natura 2000 depuis v2.19).
 
 ### 20.5 OFB en panne (HTTP 500)
-1. Une carte grise « Herbiers et habitats fragiles : vérification impossible », sous « Ce que la carte n'a pas pu vérifier ».
+1. Aucun point d'habitat ; carte grise « Herbiers et habitats fragiles : vérification impossible » dans la ligne repliée « Non vérifié ici » *(v2.40 ; avant : sous « Ce que la carte n'a pas pu vérifier »)*.
 2. Pas de blocage, coordonnées affichées. 0 `pageerror`.
 
 ### 20.6 Non couvert par le harnais — à vérifier en réel
 - Tuiles réellement affichées par le serveur de l'OFB et statut ✓ des quatre cases (la case zostères teste une tuile du golfe du Morbihan, `tuileTest`).
 - Clic réel : rade d'Hyères (43.05, 6.2) → posidonie ; golfe du Morbihan (47.56049, -2.77289) → zostère marine ; rade de Brest (48.30, -4.42) → maërl. *(Vérifié en local le 18/11/2026, à refaire sur la version publiée.)*
 - Rendu téléphone (390 px) avec la carte d'habitat en plus.
+
+## 21. Panneau du point : bandeau de verdict et sections *(v2.40)*
+
+*Harnais : `test_regles_locales.js` (§21.1, Node), `test_habitats_chromium.js` (§20),
+`test_mouillages_voisins_chromium.js` (§15). Dernière exécution : 18 nov. 2026 — 11/11 (§21.1).*
+
+### 21.1 Bandeau de verdict (Node, `bandeauVerdict` appelé directement)
+1. 83 dans une zone « tous » → `env-verdict--ok`, « Demande d'autorisation possible dans cette zone », « Sous réserve de places disponibles ».
+2. 83 hors zone → `env-verdict--non`, « Pas de nouvelle autorisation de mouillage dans cette zone ».
+3. 83 dans une zone « professionnels » → `env-verdict--pro`, « Zone réservée aux professionnels ».
+4. 22 (aucune zone) → `env-verdict--non`, « … dans ce département ».
+5. 29 (pas de fiche) → `env-verdict--neutre`, « Règles locales non renseignées ici ».
+6. Deux départements → neutre. Département inconnu → chaîne vide (pas de bandeau).
+7. 83 en brouillon (fichier tel quel) → « Information provisoire » ; 83 publié → pas de mention.
+8. 56 hors zone → rouge ; dans Port Guen → vert ; dans une zone du 83 → rouge.
+
+### 21.2 Rendu (Chromium) — couvert par §15 et §20
+1. Intitulés dans l'ordre : Règles locales → Mouillages voisins (s'il y en a) → Points de vigilance → Précision sur la zone → À reporter ; la ligne « Non vérifié ici » après le bloc des voisins.
+2. Badge « À compléter » visible tant que la longueur du navire est vide.
+3. Points de vigilance : un seul bouton, détail caché au départ, avertissement « indicatif » unique.
+
+### 21.3 Non couvert par les harnais — à vérifier en réel
+- Bandeau et couleurs sur la version publiée (Var, Morbihan, Côtes-d'Armor, Finistère).
+- Barre réduite : « N points de vigilance », « Pas de nouvelle autorisation ici ».
+- Rendu à 390 px.

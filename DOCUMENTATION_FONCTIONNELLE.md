@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.39 (novembre 2026)  
+**Version:** 2.40 (novembre 2026)  
 **Dernière mise à jour:** 18 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -149,7 +149,46 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 - Pendant la vérification réseau : « *Vérification de la zone…* » (teinte neutre).
 - Si le point est dans un APB, popup rouge : « **Vous êtes dans un arrêté de protection de biotope — {noms des arrêtés}.** » puis « Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement. » Mécanisme : §4.3bis.
 
-#### C5 — Autre point sur l'eau : contexte environnemental et valeurs à reporter *(réorganisé en v2.16)*
+#### C5 — Autre point sur l'eau : contexte environnemental et valeurs à reporter *(réorganisé en v2.16, repassé en v2.40)*
+
+> **v2.40 — repasse UX du panneau** (validée par Nicolas le 18/11/2026, maquettes dans l'artefact « Panneau du point AMIDOMAR », version 3). Le panneau se lit dans cet ordre, chaque partie sous un intitulé de 14 px en gras avec pictogramme, séparée de la précédente par un filet :
+>
+> 1. **Bandeau de verdict** (`bandeauVerdict`) — la réponse à « puis-je demander ici ? », en aplat de couleur :
+>
+>    | Cas | Bandeau | Couleur |
+>    |---|---|---|
+>    | Fiche DDTM avec `coordonnees_hors_zone: false`, point dans une zone ouverte à tous | « **Demande d'autorisation possible dans cette zone** » / « Sous réserve de places disponibles. » | vert `#18753c` |
+>    | Même fiche, point hors de ses zones | « **Pas de nouvelle autorisation de mouillage dans cette zone** » / « La DDTM n'en délivre que dans ses zones autorisées. » | rouge `#ce0500` |
+>    | Même fiche, DDTM sans aucune zone (Côtes-d'Armor) | « **Pas de nouvelle autorisation de mouillage dans ce département** » / « La DDTM ne délivre plus de nouvelles AOT de mouillage individuel. » | rouge |
+>    | Point dans une zone réservée aux professionnels | « **Zone réservée aux professionnels** » / « Pas de demande possible pour un plaisancier. » | gris `#3a3a3a` |
+>    | Pas de fiche (Finistère et autres) | « **Règles locales non renseignées ici** » / « Renseignez-vous auprès de la DDTM avant de faire une demande. » | neutre, contour gris |
+>    | Fiche sans `coordonnees_hors_zone: false` | « **Règles locales à lire ci-dessous** » | neutre |
+>    | Deux départements | « **Règles locales à vérifier** » / « Ce point est à la limite de deux départements : voir ci-dessous. » | neutre |
+>    | Département inconnu (service injoignable) | pas de bandeau | — |
+>
+>    Fiche en `brouillon` (Var) : mention « Information provisoire » dans le bandeau. « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
+> 2. **Règles locales** — inchangées dans leur texte ; carte en **Bleu France** `#000091` pour ses trois états (la couleur du verdict est passée au bandeau). Voir §4.4ter.
+> 3. **Mouillages voisins** — s'il y en a. Carte **neutre** (bordure grise) au lieu de l'orange ; badge « À compléter » dans l'intitulé tant que le calcul n'est pas fait, puis résultat vert ou rouge (§4.2).
+> 4. **Points de vigilance** — un seul bloc orange avertissement (`#b34000` sur `#fff4f3`, filet gauche épais), compte dans l'intitulé. **Replié**, il ne montre qu'une liste : le nom du point en noir gras (et, pour Natura 2000, le nom du site en seconde ligne), et une étiquette de ce que ça implique. **Un seul bouton** « Ce que ça implique » déplie le détail de chaque point, puis l'avertissement « inventaire indicatif » **une seule fois**. Ordre fixe :
+>
+>    | Rang | Point | Étiquette | Détail |
+>    |---|---|---|---|
+>    | 1 | « Site Natura 2000 » + noms des sites | Étude d'incidence | texte Natura 2000 ci-dessous |
+>    | 2 | « Herbier de posidonie », « Herbier de zostère … » quand le message OFB dit « espèce protégée » | Espèce protégée | message OFB tel quel + lien (§4.3quater) |
+>    | 3 | Autres herbiers, « Banc de maërl », « Coralligène » | Habitat fragile | message OFB, ou texte de la carte (maërl, coralligène) |
+>    | 4 | « ZNIEFF » | Zone sensible | texte ZNIEFF ci-dessous |
+>    | 5 | « Parcelle de cultures marines à {n} m » | Rayon d'évitage | « Votre rayon d'évitage peut l'atteindre : il serait préférable d'envisager un autre emplacement. » + parcelle (§4.3ter) |
+>
+>    Le titre nomme l'habitat (« Herbier de posidonie ») : « Zone fragile : vigilance mouillage » n'est plus affiché.
+> 5. **Précision sur la zone** (ex « Contexte environnemental » pour les faits) — profondeur puis nature du fond, cartes **neutres** (fond blanc, filets gris) dans un même cadre ; mêmes textes et boutons qu'avant (§4.4bis, §4.4quinquies).
+> 6. **« Non vérifié ici (n) · {sources} »** — ex « Ce que la carte n'a pas pu vérifier » : une **ligne repliée** (`<details>`, pointillés gris) qui contient les cartes incertaines (fond non cartographié, cultures marines non vérifiées ou injoignables, zonages ou habitats injoignables).
+> 7. **À reporter dans le formulaire** — inchangé.
+>
+> **Barre réduite** : le compte porte sur les **points de vigilance** (« 3 points de vigilance »). Un bandeau rouge ou gris passe devant : « Pas de nouvelle autorisation ici ».
+>
+> **Un sens par couleur** : vert / rouge = la réponse (le rouge garde un seul sens, « vous ne pouvez pas demander ici », bandeau ou interdiction au point en bloc entier) ; Bleu France = la parole de l'État ; orange = attention ; gris neutre = un fait ou une saisie ; gris pointillé = on ne sait pas.
+>
+> Le texte qui suit décrit la présentation **v2.16 à v2.39** ; ses textes de détail restent valables, ses couleurs et ses intitulés sont remplacés par ce qui précède.
 
 Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil ce qui est une information de ce qui est une action.
 
@@ -497,6 +536,8 @@ Affichée dans le bloc environnement **uniquement quand le mouillage n'est pas i
 - Voir `TESTS_FONCTIONNELS.md` §1, tests 16 à 23.
 
 ### 4.4ter Rattachement départemental et règles locales de la DDTM *(v2.22)*
+
+> **v2.40** : les trois états de la carte de règle locale (orange hors zone, vert en zone, gris en zone réservée aux professionnels) sont désormais **tous en Bleu France** ; c'est le **bandeau de verdict** placé au-dessus qui porte la couleur de la réponse (§4.0 C5). Les classes `env-carte--ddtm`, `--ddtm-ok`, `--ddtm-pro` et les textes sont inchangés. Les mentions de couleur de cette section décrivent la présentation antérieure.
 
 **Pourquoi.** Les plaisanciers interrogés ne savent pas à quel service s'adresser, et les règles changent d'un département à l'autre — parfois radicalement. Les Côtes-d'Armor ne délivrent plus d'AOT de mouillage individuel ; le Var ne les délivre que sur certaines zones dédiées. Afficher ce que la zone *contient* sans dire ce que l'administration *autorise* laissait l'usager engager une démarche qui n'existe plus.
 
@@ -1389,6 +1430,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 
 ## 11. Historique des corrections
 
+### v2.40 — 18 novembre 2026
+**Repasse UX du panneau du point**
+- Demande de Nicolas : distinguer clairement les contenus de la colonne de gauche et faciliter la lecture. Recommandations DSFR et maquettes avant/après en artefact, trois itérations ; version 3 validée le 18/11/2026 (règle locale en Bleu France, Natura 2000 et ZNIEFF dans les points de vigilance, bandeau de verdict, vigilance regroupée, « Précision sur la zone »).
+- **Bandeau de verdict** en tête (`bandeauVerdict`, sept cas) ; **intitulés de section** 14 px gras avec pictogramme et filet ; **règle locale** en Bleu France ; **mouillages voisins** en carte neutre avec badge « À compléter » ; **points de vigilance** en un bloc orange replié (nom + étiquette, un bouton, avertissement unique) ; **précision sur la zone** en cartes neutres ; **« Non vérifié ici »** en ligne repliée. Voir §4.0 C5.
+- Code : `cartesHabitatsSensibles` devient `pointsVigilanceHabitats` + `blocVigilance` ; la parcelle de cultures marines voisine devient un point de vigilance (`pointVigilanceCulturesMarines`) ; `majResumeReduit` compte les points de vigilance ; `placerBlocEvitage` s'ancre sur les nouveaux intitulés. Aucun texte DDTM ni message OFB modifié, aucune règle de blocage ni de masquage changée.
+- Tests : `test_regles_locales.js` 70/70 (11 nouveaux, §21.1 bandeau), `test_habitats_chromium.js` 23/23 (adapté aux points de vigilance), `test_mouillages_voisins_chromium.js` 13/13 (nouveaux intitulés, badge), §17.5 17/17, §18 27/27, §19.2 9/9, intégrité OK, §10 Node 59/59, données OK. `test_interface_chromium.js` toujours arrêté au §10.7 (point ouvert, déjà le cas en v2.38 et v2.39). Rendu vérifié en local (Chromium, réseau ouvert) à Hyères, Saint-Tropez, golfe du Morbihan, rade de Brest, et à 390 px.
+
 ### v2.39 — 18 novembre 2026
 **Habitats sensibles : herbiers, maërl et coralligène de l'OFB**
 - Demande de Nicolas : compléter la donnée environnement avec les inventaires de l'OFB — zostères 2024, posidonies 2022, zostères + posidonies 2022, maërl 2024, coralligène. Proposition validée le 18/11/2026, avec deux arbitrages : **reprendre le message Nav&Co de l'OFB tel quel**, et **ne pas bloquer** le clic sur un herbier.
@@ -1501,7 +1549,7 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 **Réduire le popup de coordonnées, en plus de l'effacer**
 - Demande de Nicolas (UX) : le popup n'avait qu'une seule issue, « Fermer » — et fermer **désélectionne le point**. L'usager qui veut simplement regarder la carte sous le panneau devait donc perdre son emplacement et tout refaire.
 - « Réduire ▾ » sépare les deux intentions : masquer l'affichage sans toucher à l'état (marqueur, coordonnées, cercle d'évitage, saisies), contre effacer, qui continue de tout remettre à zéro.
-- **La barre réduite n'est pas muette**, et c'est ce qui la rend utile : « 3 points à vérifier » au-dessus des coordonnées, avec les libellés dédiés des états sans carte (« Mouillage interdit ici », « Vous êtes à terre », « Recoupement possible », « Vérification en cours… », « Emplacement sélectionné »).
+- **La barre réduite n'est pas muette**, et c'est ce qui la rend utile : « 3 points à vérifier » (« 3 points de vigilance » depuis la v2.40) au-dessus des coordonnées, avec les libellés dédiés des états sans carte (« Mouillage interdit ici », « Vous êtes à terre », « Recoupement possible », « Vérification en cours… », « Emplacement sélectionné »).
 - Un nouveau clic sur l'eau **laisse le panneau réduit** et met la barre à jour ; seuls un point à terre ou interdit le redéploient.
 
 **Relecture UX / DSFR le même jour, et reprise de l'écriture initiale.** Une relecture indépendante (profil UX service public, DSFR v1.14 et RGAA vérifiés à la source) a validé le parti pris et relevé cinq défauts réels, tous corrigés avant commit :

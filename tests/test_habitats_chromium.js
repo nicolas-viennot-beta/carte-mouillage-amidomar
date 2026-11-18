@@ -1,4 +1,4 @@
-// Carte AMIDOMAR — habitats sensibles de l'OFB au clic (TESTS_FONCTIONNELS.md §20, v2.39)
+// Carte AMIDOMAR — habitats sensibles de l'OFB au clic (TESTS_FONCTIONNELS.md §20, v2.39 ; points de vigilance v2.40)
 //   node test_habitats_chromium.js   — Playwright requis
 // Point : 43.2678, 6.6228 (Var). Réseau coupé sauf : LIMTM simulé (département 83)
 // et WFS « habitat » de l'OFB simulé selon le cas :
@@ -60,15 +60,23 @@ async function cliquer(page){
   await page.waitForTimeout(1200); await page.click(SEL_R); await page.waitForTimeout(9000);
   return page.evaluate(()=>{
     const env=document.getElementById('env-block');
+    const vig = env.querySelector('.env-vigilance');
     return { classe: env.className,
-             cartes: [...env.querySelectorAll('.env-carte')].map(c=>({
-               txt: c.querySelector('.env-carte-resume').innerText.replace(/\s+/g,' ').trim(),
-               incertain: c.classList.contains('env-carte--incertain'),
-               detail: (c.querySelector('.env-detail-bloc')||{}).innerHTML || '' })),
+             // v2.40 : les habitats sont des points de vigilance (nom + étiquette), un seul détail.
+             points: [...env.querySelectorAll('.env-vig-item')].map(li=>({
+               nom: li.querySelector('.env-vig-nom').childNodes[0].textContent.trim(),
+               etiquette: li.querySelector('.env-vig-etiquette').textContent.trim() })),
+             detail: vig ? vig.querySelector('.env-detail-bloc').innerHTML : '',
+             detailCache: vig ? vig.querySelector('.env-detail-bloc').hidden : null,
+             boutons: vig ? vig.querySelectorAll('button').length : 0,
+             compte: (env.querySelector('h2.popup-section--vigilance .popup-compte')||{}).textContent || '',
+             incertaines: [...env.querySelectorAll('.env-nonverif .env-carte')].map(c=>
+               c.querySelector('.env-carte-resume').textContent.replace(/\s+/g,' ').trim()),   // textContent : la ligne est repliée
+             nonverif: (env.querySelector('.env-nonverif > summary')||{}).textContent || '',
              coords: document.getElementById('report-block').style.display !== 'none' };
   });
 }
-const habitat = e => e.cartes.filter(c => /Zone fragile|habitats fragiles/.test(c.txt));
+const habitat = e => e.points.filter(p => /Herbier|maërl|Coralligène/.test(p.nom));
 
 (async()=>{
   await new Promise(r=>srv.listen(8745,r));
@@ -95,15 +103,14 @@ const habitat = e => e.cartes.filter(c => /Zone fragile|habitats fragiles/.test(
   { const { page, pe, requetesOFB } = await ouvrir(b,'posidonie');
     const e = await cliquer(page);
     const h = habitat(e);
-    console.log('   cartes :', e.cartes.map(c=>c.txt).join(' | '));
-    chk('une seule carte d\'habitat (deux polygones identiques → un message)', h.length===1, h.map(c=>c.txt).join(' | '));
-    chk('titre et consigne reprennent l\'OFB', h[0] && /Zone fragile : vigilance mouillage — herbier de posidonie/.test(h[0].txt)
-        && /évitez les zones sombres, ancrez dans le sable/.test(h[0].txt), h[0]&&h[0].txt);
-    chk('le détail cite le message OFB tel quel', h[0] && h[0].detail.includes('Posidonie : espèce protégée. Pour mouiller j’évite les zones sombres'));
-    chk("le détail renvoie à l'arrêté du préfet maritime", h[0] && h[0].detail.includes(URL_POSI) && h[0].detail.includes('n°123/2019'));
-    chk("l'avertissement « indicatif » est présent", h[0] && h[0].detail.includes('il ne fait pas foi'));
+    console.log('   points :', e.points.map(p=>p.nom+' ['+p.etiquette+']').join(' | '));
+    chk('un seul point d\'habitat (deux polygones identiques → un message)', h.length===1, h.map(p=>p.nom).join(' | '));
+    chk('le point nomme l\'habitat : « Herbier de posidonie » [Espèce protégée]', h[0] && h[0].nom==='Herbier de posidonie' && h[0].etiquette==='Espèce protégée', h[0]&&JSON.stringify(h[0]));
+    chk('replié : détail caché, un seul bouton, compte dans l\'intitulé', e.detailCache===true && e.boutons===1 && e.compte===String(e.points.length), JSON.stringify([e.detailCache,e.boutons,e.compte]));
+    chk('le détail cite le message OFB tel quel', e.detail.includes('Posidonie : espèce protégée. Pour mouiller j’évite les zones sombres'));
+    chk("le détail renvoie à l'arrêté du préfet maritime", e.detail.includes(URL_POSI) && e.detail.includes('n°123/2019'));
+    chk("l'avertissement « indicatif » est présent une seule fois", (e.detail.match(/il ne fait pas foi/g)||[]).length===1);
     chk('pas de blocage : bloc non rouge, coordonnées affichées', e.classe!=='env-rouge' && e.coords, e.classe);
-    chk('carte rangée dans « Contexte environnemental » (pas incertaine)', h[0] && !h[0].incertain);
     chk('3 couches OFB interrogées au point, champs limités',
         requetesOFB.length===3 && requetesOFB.every(u=>/propertyName=(herbier,subtitle,url|legende|biocenose)&/.test(u)), requetesOFB.length+' requêtes');
     chk('aucun nom d\'auteur demandé', requetesOFB.every(u=>!/auteur|validateur/.test(u)));
@@ -114,7 +121,9 @@ const habitat = e => e.cartes.filter(c => /Zone fragile|habitats fragiles/.test(
   console.log('--- Maërl et coralligène au point ---');
   { const { page, pe } = await ouvrir(b,'maerl_cora');
     const e = await cliquer(page); const h = habitat(e);
-    chk('deux cartes : maërl puis coralligène', h.length===2 && /banc de maërl/.test(h[0].txt) && /coralligène/.test(h[1].txt), h.map(c=>c.txt).join(' | '));
+    chk('deux points : Banc de maërl puis Coralligène, « Habitat fragile »', h.length===2 && h[0].nom==='Banc de maërl' && h[1].nom==='Coralligène'
+        && h.every(p=>p.etiquette==='Habitat fragile'), h.map(p=>p.nom).join(' | '));
+    chk('un seul avertissement « indicatif » pour les deux', (e.detail.match(/il ne fait pas foi/g)||[]).length===1);
     chk('pas de blocage', e.classe!=='env-rouge' && e.coords);
     chk('aucune pageerror', pe.length===0, pe.slice(0,2).join(' / '));
     await page.close(); }
@@ -122,14 +131,15 @@ const habitat = e => e.cartes.filter(c => /Zone fragile|habitats fragiles/.test(
   console.log('--- Rien au point ---');
   { const { page, pe } = await ouvrir(b,'rien');
     const e = await cliquer(page);
-    chk("aucune carte d'habitat", habitat(e).length===0, e.cartes.map(c=>c.txt).join(' | '));
+    chk("aucun point d'habitat", habitat(e).length===0, e.points.map(p=>p.nom).join(' | '));
     chk('aucune pageerror', pe.length===0, pe.slice(0,2).join(' / '));
     await page.close(); }
 
   console.log('--- OFB en panne ---');
   { const { page, pe } = await ouvrir(b,'panne');
     const e = await cliquer(page); const h = habitat(e);
-    chk('une carte grise « vérification impossible »', h.length===1 && h[0].incertain && /vérification impossible/.test(h[0].txt), h.map(c=>c.txt).join(' | '));
+    chk('aucun point d\'habitat ; carte grise dans « Non vérifié ici »', h.length===0
+        && e.incertaines.some(t=>/Herbiers et habitats fragiles : vérification impossible/.test(t)) && /Non vérifié ici/.test(e.nonverif), e.incertaines.join(' | '));
     chk('pas de blocage, coordonnées affichées', e.classe!=='env-rouge' && e.coords);
     await page.screenshot({path:'/tmp/amidomar_habitats_panne.png'});
     chk('aucune pageerror', pe.length===0, pe.slice(0,2).join(' / '));

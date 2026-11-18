@@ -30,10 +30,10 @@ Claude, sans rien configurer.
 | `test_recherche_gps.js` | §10.1 à §10.4bis — parseur de coordonnées, virgule, inversion, contrat du provider | `node test_recherche_gps.js` |
 | `test_donnees_aot.py` | Intégrité de `data/aot-existantes.geojson` et du jeu `SECOURS` (§16) | `python3 test_donnees_aot.py` |
 | `test_interface_chromium.js` | §10.5 à §10.9bis — déroulant, sélection, équivalence clic rejoué / vrai clic | `node test_interface_chromium.js` — **Playwright requis** |
-| `test_regles_locales.js` | §17 — `decisionCoordonnees`, `zoneReserveePro`, trois états de la carte de règle locale, données `ddtm-messages.json` / `zones-aot.geojson` | `node test_regles_locales.js` |
+| `test_regles_locales.js` | §17 et §21.1 (bandeau de verdict, v2.40) — `decisionCoordonnees`, `zoneReserveePro`, trois états de la carte de règle locale, données `ddtm-messages.json` / `zones-aot.geojson` | `node test_regles_locales.js` |
 | `test_regles_locales_chromium.js` | §17.5 — rendu réel des cas hors zone 83, en zone 83, hors zone 56, en zone 56 (v2.38), 22, Shom simulé par `page.route`, hauteur rendue du paragraphe de masquage | `node test_regles_locales_chromium.js` — **Playwright requis** |
 | `test_mouillages_voisins_chromium.js` | §15 bis — place du bloc « Mouillages voisins » (avant « Contexte environnemental », avec et sans contexte), orange tant que la longueur est vide | `node test_mouillages_voisins_chromium.js` — **Playwright requis** |
-| `test_habitats_chromium.js` | §20 — légende « Habitats sensibles » (4 cases, Ifremer retiré), cartes « Zone fragile » au clic (posidonie, maërl, coralligène), rien au point, OFB en panne ; aucun champ nominatif demandé (v2.39) | `node test_habitats_chromium.js` — **Playwright requis** |
+| `test_habitats_chromium.js` | §20 — légende « Habitats sensibles » (4 cases, Ifremer retiré), points de vigilance au clic (v2.40) (posidonie, maërl, coralligène), rien au point, OFB en panne ; aucun champ nominatif demandé (v2.39) | `node test_habitats_chromium.js` — **Playwright requis** |
 | `test_zones_secteurs_chromium.js` | §19.2 — liste des zones rangée Secteur → Commune → Zone, zones proches, rendu et clics (v2.37) | `node test_zones_secteurs_chromium.js` — **Playwright requis** |
 | `stub.js` | Le stub DOM partagé par les deux harnais Node | — |
 | `tirage_aot.js` | Régénérer les 248 positions simulées d'AOT | à coller dans la console de la carte **publiée** |

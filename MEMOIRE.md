@@ -113,6 +113,16 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **18/11/2026** — Repasse UX du panneau du point (v2.40), menée en trois
+  itérations d'un artefact de maquettes avant / après. Arbitrages de
+  Nicolas : la **réponse d'abord** (bandeau « Demande d'autorisation possible
+  dans cette zone » / « Pas de nouvelle autorisation de mouillage dans cette
+  zone ») ; **un sens par couleur** (vert/rouge la réponse, Bleu France la
+  règle de l'État, orange l'attention, gris les faits) ; points de vigilance
+  **regroupés**, un seul bouton « Ce que ça implique » ; « Précision sur la
+  zone ». Façon de travailler qui a marché : maquettes DSFR sur les vrais
+  contenus, à côté de captures de la version publiée, avant de coder.
+
 - **18/11/2026** — Herbiers, maërl, coralligène de l'OFB branchés (v2.39).
   Deux arbitrages de Nicolas : **reprendre le message de l'OFB tel quel**
   (application Nav&Co) pour que deux services de l'État ne tiennent pas deux

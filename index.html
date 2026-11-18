@@ -313,7 +313,6 @@
       /* Le second intitulé est en retrait et plus discret que « Contexte
          environnemental » : c'est une annexe de la section, pas une section de
          même rang. */
-      #env-block .popup-section--incertain { margin-top:10px; color:#666; font-weight:700; }
       #env-block .env-carte-entete { display:flex; align-items:center; gap:8px; padding:8px 10px; }
       #env-block .env-carte-resume { flex:1; font-size:13px; line-height:1.35; }
       #env-block .env-carte--protection .env-carte-resume { color:#003189; }
@@ -326,6 +325,100 @@
       #env-block .env-detail-bloc[hidden] { display:none; }
       #env-block .env-detail-bloc p { margin:0 0 4px; }
       #env-block .env-detail-bloc p:last-child { margin-bottom:0; }
+      /* ---------- v2.40 : repasse UX du panneau (validée par Nicolas le 18/11/2026) ----------
+         Un sens par couleur, sur les couleurs système du DSFR :
+           - bandeau de verdict : vert succès / rouge erreur / gris — la réponse
+             à « puis-je demander ici ? », en tête ;
+           - règle locale : Bleu France, la parole de l'État (les trois états
+             -ok / -pro / défaut gardent leur classe, le verdict est dans le
+             bandeau) ;
+           - mouillages voisins : carte neutre, c'est une saisie ;
+           - points de vigilance : orange avertissement + pictogramme, un bloc ;
+           - précision sur la zone : faits, sans couleur ;
+           - non vérifié : gris pointillé, replié.
+         Le rouge garde un seul sens : « vous ne pouvez pas demander ici »
+         (bandeau négatif, ou interdiction au point en bloc entier). */
+      .popup-section { display:flex; align-items:center; gap:8px; margin:14px 0 8px; padding-top:12px;
+                       border-top:1px solid #e5e5e5; font-size:14px; font-weight:700;
+                       text-transform:none; letter-spacing:0; color:#161616; }
+      .popup-section::before { content:''; width:16px; height:16px; flex-shrink:0;
+                               background:var(--ico-couleur, #3a3a3a);
+                               -webkit-mask:var(--ico) center / contain no-repeat;
+                               mask:var(--ico) center / contain no-repeat; }
+      .popup-section--regles   { --ico-couleur:#000091; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3 6v2h18V6l-9-4ZM5 10v7h3v-7H5Zm5.5 0v7h3v-7h-3ZM16 10v7h3v-7h-3ZM3 19v2h18v-2H3Z'/%3E%3C/svg%3E"); }
+      .popup-section--voisins  { --ico-couleur:#0063cb; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 18h18v2H3v-2Zm2-3 4-9 3 6 2-3 5 6H5Z'/%3E%3C/svg%3E"); }
+      .popup-section--vigilance { --ico-couleur:#b34000; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.87 2.5 22.4 19a1 1 0 0 1-.87 1.5H2.47A1 1 0 0 1 1.6 19L11.13 2.5a1 1 0 0 1 1.74 0ZM11 16v2h2v-2h-2Zm0-7v5h2V9h-2Z'/%3E%3C/svg%3E"); }
+      .popup-section--precision { --ico-couleur:#3a3a3a; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm-1-11v6h2v-6h-2Zm0-4v2h2V7h-2Z'/%3E%3C/svg%3E"); }
+      .popup-section--report   { --ico-couleur:#000091; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 3h10l4 4v14H5V3Zm2 2v14h10V8h-3V5H7Zm2 6h6v2H9v-2Zm0 4h6v2H9v-2Z'/%3E%3C/svg%3E"); }
+      .popup-section .popup-compte { margin-left:auto; }
+      .popup-badge { display:inline-flex; align-items:center; font-size:11px; font-weight:700;
+                     text-transform:uppercase; letter-spacing:.03em; border-radius:4px; padding:2px 7px; }
+      .popup-badge--info { background:#e8edff; color:#0063cb; }
+      .popup-badge--warn { background:#ffe9e6; color:#b34000; }
+      .popup-badge[hidden] { display:none; }
+      /* La règle locale garde son titre et son rattachement sur une ligne : le
+         filet de section passe sur le conteneur. */
+      .popup-entete-section { margin:14px 0 8px; padding-top:12px; border-top:1px solid #e5e5e5; }
+      .popup-entete-section .popup-section { margin:0; padding:0; border:none; }
+      #env-block > :first-child, #env-block > .env-verdict + .popup-entete-section,
+      #env-block > .env-verdict + h2.popup-section { border-top:none; padding-top:0; margin-top:10px; }
+      #env-block > :first-child { margin-top:0; }
+      /* Bandeau de verdict */
+      #env-block .env-verdict { display:flex; gap:10px; align-items:flex-start; padding:10px 12px;
+                                border-radius:4px; color:#fff; }
+      #env-block .env-verdict::before { content:''; width:22px; height:22px; flex-shrink:0; margin-top:1px;
+                                        background:currentColor; -webkit-mask:var(--ico) center / contain no-repeat;
+                                        mask:var(--ico) center / contain no-repeat; }
+      #env-block .env-verdict-titre { display:block; font-size:15px; font-weight:700; line-height:1.25; }
+      #env-block .env-verdict-texte { display:block; font-size:12.5px; margin-top:2px; }
+      #env-block .env-verdict-provisoire { display:inline-block; margin-top:6px; font-size:11px; font-weight:700;
+                                           text-transform:uppercase; letter-spacing:.03em;
+                                           background:rgba(255,255,255,.2); border-radius:3px; padding:1px 6px; }
+      #env-block .env-verdict--ok  { background:#18753c; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm-1-6.4 6.4-6.4-1.4-1.4-5 5-2.6-2.6-1.4 1.4 4 4Z'/%3E%3C/svg%3E"); }
+      #env-block .env-verdict--non, #env-block .env-verdict--pro {
+        --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm0-11.4L9.2 7.8 7.8 9.2l2.8 2.8-2.8 2.8 1.4 1.4 2.8-2.8 2.8 2.8 1.4-1.4-2.8-2.8 2.8-2.8-1.4-1.4L12 10.6Z'/%3E%3C/svg%3E"); }
+      #env-block .env-verdict--non { background:#ce0500; }
+      #env-block .env-verdict--pro { background:#3a3a3a; }
+      #env-block .env-verdict--neutre { background:#f6f6f6; color:#161616; border:1px solid #929292;
+        --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm-1-11v6h2v-6h-2Zm0-4v2h2V7h-2Z'/%3E%3C/svg%3E"); }
+      #env-block .env-verdict--neutre .env-verdict-provisoire { background:#e5e5e5; }
+      /* Règle locale : Bleu France pour les trois états */
+      #env-block .env-carte--ddtm, #env-block .env-carte--ddtm-ok, #env-block .env-carte--ddtm-pro {
+        background:#f5f5fe; border:2px solid #000091; border-radius:4px; }
+      #env-block .env-carte--ddtm .env-carte-resume, #env-block .env-carte--ddtm-ok .env-carte-resume,
+      #env-block .env-carte--ddtm-pro .env-carte-resume { color:#000091; }
+      #env-block .env-carte--ddtm .env-toggle-bloc, #env-block .env-carte--ddtm-ok .env-toggle-bloc,
+      #env-block .env-carte--ddtm-pro .env-toggle-bloc { color:#000091; }
+      #env-block .env-commune .env-liste { border-left-color:#000091; }
+      /* Points de vigilance : un bloc, une liste, un bouton */
+      #env-block .env-vigilance { background:#fff4f3; border-left:4px solid #b34000; border-radius:0 4px 4px 0;
+                                  padding:2px 12px 10px; }
+      #env-block .env-vig-liste { list-style:none; margin:0 0 8px; padding:0; }
+      #env-block .env-vig-item { display:flex; align-items:center; gap:10px; padding:7px 0;
+                                 border-bottom:1px solid #f3d6cf; margin:0; }
+      #env-block .env-vig-item:last-child { border-bottom:none; }
+      #env-block .env-vig-nom { flex:1; min-width:0; font-size:13px; font-weight:700; color:#161616; }
+      #env-block .env-vig-sous { display:block; font-weight:400; font-size:12px; color:#3a3a3a; }
+      #env-block .env-vig-etiquette { flex-shrink:0; font-size:11.5px; color:#8a2e00; background:#fff;
+                                      border:1px solid #f3c7bd; border-radius:12px; padding:1px 9px; white-space:nowrap; }
+      #env-block .env-vigilance .env-toggle-bloc { color:#8a2e00; border-color:#b34000; }
+      #env-block .env-vigilance .env-detail-bloc { padding:9px 0 2px; border-top:1px solid #f3c7bd; margin-top:8px; }
+      #env-block .env-vig-detail { margin:0 0 9px; }
+      #env-block .env-vig-detail-nom { display:block; font-weight:700; color:#8a2e00; margin-bottom:2px; }
+      /* Précision sur la zone : des faits, sans couleur d'alerte */
+      #env-block .env-precisions { border:1px solid #e5e5e5; border-radius:4px; }
+      #env-block .env-precisions .env-carte { background:#fff; border:none; border-bottom:1px solid #e5e5e5;
+                                              border-radius:0; margin:0; }
+      #env-block .env-precisions .env-carte:last-child { border-bottom:none; }
+      #env-block .env-precisions .env-carte-resume { color:#161616; }
+      #env-block .env-precisions .env-carte-consequence { color:#3a3a3a; }
+      #env-block .env-precisions .env-toggle-bloc { color:#000091; border-color:#000091; }
+      /* Non vérifié : une ligne repliée */
+      #env-block .env-nonverif { margin-top:10px; border:1px dashed #929292; border-radius:4px; background:#f6f6f6; }
+      #env-block .env-nonverif > summary { cursor:pointer; padding:7px 10px; font-size:12.5px; color:#3a3a3a; }
+      #env-block .env-nonverif > summary b { font-weight:700; }
+      #env-block .env-nonverif-corps { padding:0 8px 8px; }
+      #env-block .env-nonverif-corps .env-carte { margin-bottom:6px; background:#fff; }
       /* ---------- Bloc « navire », affiché seulement à proximité d'une AOT ---------- */
       #boat-block { display:none; text-align:left; margin-bottom:8px; }
       /* ---------- v2.16 : popup en deux parties ----------
@@ -333,16 +426,16 @@
          faut recopier dans le formulaire. Les deux portent un titre de section
          identique, pour qu'on voie d'un coup d'œil ce qui est une information
          et ce qui est une action. */
-      .popup-section { margin:0 0 6px; font-size:10px; font-weight:800; text-transform:uppercase;
-                       letter-spacing:.06em; color:#666; text-align:left; }
+      /* v2.40 : style des intitulés déplacé plus haut (repasse UX) — ils
+         passent de 10 px gris en capitales à 14 px gras avec pictogramme. */
+      .popup-section { text-align:left; }
       /* v2.22 : titre de section et rattachement départemental sur la même
          ligne. Le rattachement est une étiquette, pas une phrase : le mettre
          au-dessus des cartes lui donnerait le poids d'un avertissement, alors
          qu'il sert seulement à situer. À droite du titre, il se lit si on le
          cherche et s'efface sinon. */
-      .popup-entete-section { display:flex; align-items:baseline; justify-content:space-between;
-                              gap:10px; margin:0 0 6px; }
-      .popup-entete-section .popup-section { margin:0; }
+      .popup-entete-section { display:flex; align-items:center; justify-content:space-between;
+                              gap:10px; }
       .popup-entete-section .popup-rattachement { flex-shrink:0; text-align:right; font-size:11px;
                                                   font-style:italic; color:#666; }
       #report-block { text-align:left; }
@@ -453,8 +546,10 @@
       .ok-box   { background:#e8f5ec; border-left:3px solid #18753c; padding:8px 10px; margin-top:8px;
                   font-size:12px; line-height:1.45; }
       /* Détection d'AOT à proximité (DOCUMENTATION_FONCTIONNELLE.md §4.0, C6) : orange DSFR. */
-      .jaune-box { background:#fff4ed; border-left:3px solid #b34000; padding:8px 10px; margin-bottom:8px;
-                   font-size:12px; line-height:1.45; color:#6b2600; }
+      /* v2.40 : carte neutre — c'est une saisie à faire, ni une règle ni une
+         alerte. Elle portait l'orange de la règle locale, d'où la confusion. */
+      .jaune-box { background:#fff; border:1px solid #cecece; border-radius:4px; padding:8px 10px; margin-bottom:8px;
+                   font-size:12px; line-height:1.45; color:#161616; }
       /* Bloc fusionné rayon d'évitage + résultat de chevauchement (v2.2) : remplace les
          anciens .result-box + .warn-box/.ok-box séparés par un seul message, rouge ou vert. */
       .evitage-resultat { padding:8px 10px; margin-top:8px; font-size:13px; line-height:1.5;
@@ -477,11 +572,11 @@
       #boat-block .champ-ligne { display:flex; align-items:center; justify-content:space-between;
                                  gap:8px; margin-top:6px; }
       #boat-block .champ-ligne:first-child { margin-top:0; }
-      #boat-block .champ-ligne label { font-size:12.5px; font-weight:700; color:#6b2600; }
+      #boat-block .champ-ligne label { font-size:12.5px; font-weight:700; color:#161616; }
       #boat-block .champ-ligne input { width:92px; flex-shrink:0; box-sizing:border-box;
                                        padding:4px 6px; font-size:13px; border:1px solid #ccc;
                                        border-radius:4px; font-family:inherit; }
-      #boat-block .note-colonne { margin:3px 0 0; font-size:11px; font-style:italic; color:#6b2600;
+      #boat-block .note-colonne { margin:3px 0 0; font-size:11px; font-style:italic; color:#3a3a3a;
                                   opacity:.9; line-height:1.35; }
       #boat-block .note-colonne:empty { display:none; }
       /* v2.5 : bloc environnement réduit à une ligne quand un mouillage est proche —
@@ -686,7 +781,7 @@
       <!-- v2.16 : ce qu'il faut recopier dans le formulaire est séparé du contexte
            environnemental, et chaque valeur a son propre bouton « Copier ». -->
       <div id="report-block">
-        <h2 class="popup-section">À reporter dans le formulaire de demande</h2>
+        <h2 class="popup-section popup-section--report">À reporter dans le formulaire de demande</h2>
         <div class="report-cadre">
           <div id="zone-row" class="report-ligne">
             <div class="report-valeur">
@@ -1487,7 +1582,7 @@
     // (v2.3) est supprimé. La colonne d'eau reste saisie à la main tant qu'une
     // source SHOM interrogeable au clic n'a pas été validée.
     boatBlock.innerHTML = `
-      <h2 class="popup-section">Mouillages voisins</h2>
+      <h2 class="popup-section popup-section--voisins">Mouillages voisins<span class="popup-badge popup-badge--info popup-compte" id="voisins-badge">À compléter</span></h2>
       <div class="jaune-box" id="proximite-block">
         <div class="proximite-header">
           <span class="proximite-msg" id="proximite-msg">
@@ -2401,8 +2496,13 @@
        réglementaire. « À vérifier » reste vrai dans les trois cas.
        Les états sans carte ont chacun leur libellé : « 0 point à vérifier » se
        lirait « rien à signaler », ce qui est faux sur une interdiction. */
+    /* v2.40 : le compte ne porte plus que sur les POINTS DE VIGILANCE
+       (Natura 2000, ZNIEFF, habitats, cultures marines voisines) : c'est ce qui
+       demande l'attention de l'usager. Un verdict négatif du bandeau (« pas de
+       nouvelle autorisation ») passe devant, comme une interdiction. */
     function majResumeReduit() {
-      const nb = envBlock.querySelectorAll('.env-carte').length;
+      const nb = envBlock.querySelectorAll('.env-vig-item').length;
+      const verdictNon = !!envBlock.querySelector('.env-verdict--non, .env-verdict--pro');
       let texte, classe = '';
       if (popup.classList.contains('terre')) {
         texte = 'Vous êtes à terre'; classe = 'interdit';
@@ -2416,8 +2516,10 @@
         texte = 'Recoupement possible'; classe = 'interdit';
       } else if (verifEnCours) {
         texte = 'Vérification en cours…'; classe = 'rien';
+      } else if (verdictNon) {
+        texte = 'Pas de nouvelle autorisation ici'; classe = 'interdit';
       } else if (nb > 0) {
-        texte = nb + (nb > 1 ? ' points à vérifier' : ' point à vérifier');
+        texte = nb + (nb > 1 ? ' points de vigilance' : ' point de vigilance');
       } else {
         texte = 'Emplacement sélectionné'; classe = 'rien';
       }
@@ -2487,8 +2589,12 @@
        écouteurs attachés aux deux champs survivent au déplacement. */
     function placerBlocEvitage(dansLesCartes) {
       if (dansLesCartes) {
-        const ancre = envBlock.querySelector('h2.popup-section--contexte')
-                   || envBlock.querySelector('h2.popup-section--incertain');
+        // v2.40 : « Contexte environnemental » devient « Points de vigilance »
+        // puis « Précision sur la zone » ; « Ce que la carte n'a pas pu
+        // vérifier » devient une ligne repliée (.env-nonverif).
+        const ancre = envBlock.querySelector('h2.popup-section--vigilance')
+                   || envBlock.querySelector('h2.popup-section--precision')
+                   || envBlock.querySelector('.env-nonverif');
         if (ancre) envBlock.insertBefore(boatBlock, ancre);
         else envBlock.appendChild(boatBlock);
       } else if (boatBlock.parentNode !== contenuPopup) {
@@ -3084,7 +3190,7 @@
       // Deux départements : c'est une phrase, et elle porte une conséquence
       // (les règles diffèrent) — elle passe donc sous le titre, en pleine
       // largeur, où elle sera lue.
-      const titre = '<h2 class="popup-section">Règles locales</h2>';
+      const titre = '<h2 class="popup-section popup-section--regles">Règles locales</h2>';
       let entete;
       if (dep.departements.length > 1) {
         entete = `<div class="popup-entete-section">${titre}</div>
@@ -3191,6 +3297,50 @@
       // information est portée par la carte de la DDTM elle-même, passée au
       // vert — voir plus haut.
       return entete + cartes.join('');
+    }
+
+    /* v2.40 : bandeau de verdict, en tête du panneau. Il répond à « puis-je
+       demander une autorisation ici ? » avec ce que la carte sait déjà — aucune
+       donnée ajoutée, aucun champ de fiche : les phrases sont communes à tous
+       les départements (décision de Nicolas, 18/11/2026).
+         - fiche avec `coordonnees_hors_zone: false` (la DDTM ne délivre plus
+           hors de ses zones) : dans une zone ouverte à tous → vert ; dans une
+           zone réservée aux professionnels → gris ; ailleurs → rouge, « dans ce
+           département » si la DDTM n'a aucune zone (Côtes-d'Armor) ;
+         - fiche sans cette règle, ou sans fiche (Finistère…) → neutre ;
+         - deux départements → neutre (les règles diffèrent) ;
+         - département inconnu (service injoignable) → pas de bandeau.
+       « Nouvelle » autorisation et non « autorisation » : un titulaire installé
+       hors zone peut toujours demander la poursuite de son occupation.
+       Fiche en brouillon → mention « Information provisoire ». */
+    function bandeauVerdict(dep, messages, zones, lngLat) {
+      if (!dep || !dep.departements || !dep.departements.length) return '';
+      const rendu = (classe, titre, texte, provisoire) =>
+        `<div class="env-verdict env-verdict--${classe}" role="status"><div>
+           <span class="env-verdict-titre">${echapper(titre)}</span>` +
+           (texte ? `<span class="env-verdict-texte">${echapper(texte)}</span>` : '') +
+           (provisoire ? '<span class="env-verdict-provisoire">Information provisoire</span>' : '') +
+        `</div></div>`;
+      if (dep.departements.length > 1) return rendu('neutre',
+        'Règles locales à vérifier', 'Ce point est à la limite de deux départements : voir ci-dessous.');
+      const f = (messages || []).find(m => String(m.ddtm) === String(dep.departements[0]));
+      if (!f || !f.message_titre) return rendu('neutre',
+        'Règles locales non renseignées ici', 'Renseignez-vous auprès de la DDTM avant de faire une demande.');
+      if (f.coordonnees_hors_zone !== false) return rendu('neutre',
+        'Règles locales à lire ci-dessous', '', f.brouillon);
+      const sesZones = (zones || []).filter(z => String((z.properties||{}).ddtm) === String(f.ddtm));
+      const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
+      const deCetteDDTM = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
+      if (deCetteDDTM && zoneReserveePro(zoneIci)) return rendu('pro',
+        'Zone réservée aux professionnels', 'Pas de demande possible pour un plaisancier.', f.brouillon);
+      if (deCetteDDTM) return rendu('ok',
+        "Demande d'autorisation possible dans cette zone", 'Sous réserve de places disponibles.', f.brouillon);
+      if (!sesZones.length) return rendu('non',
+        'Pas de nouvelle autorisation de mouillage dans ce département',
+        'La DDTM ne délivre plus de nouvelles AOT de mouillage individuel.', f.brouillon);
+      return rendu('non',
+        'Pas de nouvelle autorisation de mouillage dans cette zone',
+        "La DDTM n'en délivre que dans ses zones autorisées.", f.brouillon);
     }
 
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
@@ -3547,25 +3697,28 @@
        pas de parcelle (cas général : le silence vaut mieux qu'une ligne de plus),
        ni quand une parcelle a été trouvée — ce cas-là est une interdiction, et
        s'affiche en rouge sur tout le bloc, pas en carte. */
+    /* v2.20 : parcelle voisine. Elle ne bloque pas — rien n'interdit de mouiller
+       à côté d'une concession — mais à cette distance le rayon d'évitage et la
+       chaîne peuvent l'atteindre. Texte écrit par Nicolas le 14/10/2026.
+       v2.40 : c'est un point de vigilance (voir blocVigilance), plus une carte. */
+    function pointVigilanceCulturesMarines(cm) {
+      if (!cm || cm.etat !== 'proximite') return null;
+      const precisions = [cm.parcelle && 'parcelle ' + cm.parcelle, cm.commune, cm.espece]
+        .filter(Boolean).join(', ');
+      return {
+        ordre: 5,
+        nom: `Parcelle de cultures marines à ${Math.round(cm.distance)} m`,
+        etiquette: "Rayon d'évitage",
+        detail: `<p>Votre rayon d'évitage peut l'atteindre : il serait préférable d'envisager
+                 un autre emplacement.</p>` +
+                (precisions ? `<p class="env-caveat">${echapper(precisions)} — cadastre
+                   conchylicole de la DDTM ${echapper(cm.departement)}
+                   (${echapper(cm.millesime)}).</p>` : '')
+      };
+    }
+
     function carteCulturesMarines(cm) {
-      if (!cm || cm.etat === 'aucune' || cm.etat === 'parcelle') return '';
-      // v2.20 : parcelle voisine. Elle ne bloque pas — rien n'interdit de mouiller
-      // à côté d'une concession — mais à cette distance le rayon d'évitage et la
-      // chaîne peuvent l'atteindre. Texte écrit par Nicolas le 14/10/2026.
-      if (cm.etat === 'proximite') {
-        const precisions = [cm.parcelle && 'parcelle ' + cm.parcelle, cm.commune, cm.espece]
-          .filter(Boolean).join(', ');
-        return carteEnv({
-          type: 'usage',
-          titre: `Parcelle de cultures marines à ${Math.round(cm.distance)} m`,
-          consequence: "votre rayon d'évitage peut l'atteindre",
-          bouton: 'Que faire ici',
-          detail: `<p>Il serait préférable d'envisager un autre emplacement.</p>` +
-                  (precisions ? `<p class="env-caveat">${echapper(precisions)} — cadastre
-                     conchylicole de la DDTM ${echapper(cm.departement)}
-                     (${echapper(cm.millesime)}).</p>` : '')
-        });
-      }
+      if (!cm || cm.etat === 'aucune' || cm.etat === 'parcelle' || cm.etat === 'proximite') return '';
       const commun = `<p>Les parcelles de cultures marines sont des parcelles du domaine
         public maritime déjà concédées : un mouillage individuel n'y est pas autorisable.
         Repérez-les sur la carte en activant « Cultures marines » dans la légende, et
@@ -3653,51 +3806,56 @@
       il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ;
       sur place, c'est ce que vous voyez qui compte.</p>`;
 
-    // Cartes repliables. Rien quand l'inventaire ne trouve rien (comme Natura 2000 depuis v2.19).
-    function cartesHabitatsSensibles(hab) {
-      if (!hab) return [];
-      const cartes = [];
-      if (hab.herbiers.length) {
-        const especes = [...new Set(hab.herbiers.map(p => (p.herbier || 'herbier').toLowerCase()))];
-        const nom = (e) => e === 'posidonie' ? 'herbier de posidonie'
-                         : e === 'herbier'   ? 'herbier marin' : 'herbier de ' + e;
-        const textes = hab.herbiers.map(p => {
+    /* v2.40 : les habitats ne sont plus des cartes mais des POINTS DE
+       VIGILANCE, rendus ensemble par blocVigilance(). Chaque point porte :
+         ordre     — rang fixe dans le bloc (1 Natura 2000, 2 habitat protégé,
+                     3 habitat fragile, 4 ZNIEFF, 5 cultures marines voisines) ;
+         nom, sous — ce qu'on lit dans la liste repliée ;
+         etiquette — ce que ça implique, en un ou deux mots ;
+         detail    — HTML du détail, affiché au clic sur « Ce que ça implique » ;
+         inventaire — vrai pour un habitat de l'OFB (avertissement commun).
+       Rien quand l'inventaire ne trouve rien (comme Natura 2000 depuis v2.19).
+       Renvoie aussi la carte grise si l'OFB n'a pas répondu. */
+    function pointsVigilanceHabitats(hab) {
+      const res = { points: [], incertaines: [] };
+      if (!hab) return res;
+      // Un point par espèce d'herbier ; les messages OFB de la même espèce
+      // sont réunis dans son détail.
+      const parEspece = new Map();
+      hab.herbiers.forEach(p => {
+        const e = (p.herbier || 'herbier').toLowerCase();
+        if (!parEspece.has(e)) parEspece.set(e, []);
+        parEspece.get(e).push(p);
+      });
+      parEspece.forEach((ps, e) => {
+        const protegee = ps.some(p => /espèce protégée/i.test(p.subtitle || ''));
+        const textes = [...new Set(ps.map(p => {
           const lien = (p.url && /^https:\/\//.test(p.url))
             ? ` <a href="${echapper(p.url)}" target="_blank" rel="noopener">${echapper(libelleTexteHerbier(p.url))}</a>.` : '';
           return `<p>${echapper(p.subtitle || '')}${lien}</p>`;
+        }))];
+        res.points.push({
+          ordre: protegee ? 2 : 3,
+          nom: e === 'herbier' ? 'Herbier marin' : 'Herbier de ' + e,
+          etiquette: protegee ? 'Espèce protégée' : 'Habitat fragile',
+          detail: textes.join(''),
+          inventaire: true
         });
-        cartes.push(carteEnv({
-          type: 'protection',
-          titre: 'Zone fragile : vigilance mouillage',
-          complement: especes.map(nom).join(', '),
-          consequence: 'évitez les zones sombres, ancrez dans le sable',
-          bouton: 'Comment mouiller ici',
-          detail: [...new Set(textes)].join('') + AVERTISSEMENT_INVENTAIRE
-        }));
-      }
-      if (hab.maerl) cartes.push(carteEnv({
-        type: 'protection',
-        titre: 'Zone fragile : vigilance mouillage',
-        complement: 'banc de maërl',
-        consequence: 'évitez ce fond, ancrez dans le sable',
-        bouton: 'Comment mouiller ici',
+      });
+      if (hab.maerl) res.points.push({
+        ordre: 3, nom: 'Banc de maërl', etiquette: 'Habitat fragile', inventaire: true,
         detail: `<p>Le maërl est formé d'algues calcaires qui grandissent de moins d'un
                  millimètre par an : une ancre ou une chaîne qui racle le fond le détruit
                  pour des décennies. Pour mouiller, j'évite ces fonds, j'ancre dans les
-                 zones sableuses.</p>` + AVERTISSEMENT_INVENTAIRE
-      }));
-      if (hab.coralligene) cartes.push(carteEnv({
-        type: 'protection',
-        titre: 'Zone fragile : vigilance mouillage',
-        complement: 'coralligène',
-        consequence: 'évitez ce fond, ancrez dans le sable',
-        bouton: 'Comment mouiller ici',
+                 zones sableuses.</p>`
+      });
+      if (hab.coralligene) res.points.push({
+        ordre: 3, nom: 'Coralligène', etiquette: 'Habitat fragile', inventaire: true,
         detail: `<p>Le coralligène est un récif construit en plusieurs siècles par des algues
                  calcaires et des animaux fixés : l'ancre et la chaîne le brisent. Pour
-                 mouiller, j'évite ces fonds rocheux, j'ancre dans les zones sableuses.</p>` +
-                AVERTISSEMENT_INVENTAIRE
-      }));
-      if (hab.echec) cartes.push(carteEnv({
+                 mouiller, j'évite ces fonds rocheux, j'ancre dans les zones sableuses.</p>`
+      });
+      if (hab.echec) res.incertaines.push(carteEnv({
         type: 'protection',
         incertain: true,
         titre: 'Herbiers et habitats fragiles : vérification impossible',
@@ -3707,7 +3865,30 @@
                  sur la carte. Sur place, les taches sombres sont de l'herbier, à éviter :
                  ancrez dans les zones sableuses.</p>`
       }));
-      return cartes;
+      return res;
+    }
+
+    /* v2.40 : le bloc « Points de vigilance ». Replié, il ne montre que la
+       liste (nom + étiquette) et un seul bouton ; déplié, le détail de chaque
+       point, puis l'avertissement « inventaire indicatif » une seule fois.
+       C'est une .env-carte : l'écouteur de repli existant le gère tel quel. */
+    function blocVigilance(points) {
+      if (!points.length) return '';
+      const tries = points.slice().sort((a, b) => a.ordre - b.ordre);
+      const liste = tries.map(p => `<li class="env-vig-item"><span class="env-vig-nom">${echapper(p.nom)}${
+          p.sous ? `<span class="env-vig-sous">${echapper(p.sous)}</span>` : ''}</span>
+          <span class="env-vig-etiquette">${echapper(p.etiquette)}</span></li>`).join('');
+      const details = tries.map(p => `<div class="env-vig-detail"><span class="env-vig-detail-nom">${
+          echapper(p.nom + (p.sous ? ' — ' + p.sous : ''))}</span>${p.detail}</div>`).join('');
+      const avert = tries.some(p => p.inventaire) ? AVERTISSEMENT_INVENTAIRE : '';
+      return `<h2 class="popup-section popup-section--vigilance">Points de vigilance` +
+               `<span class="popup-badge popup-badge--warn popup-compte">${tries.length}</span></h2>
+             <div class="env-carte env-vigilance">
+               <ul class="env-vig-liste">${liste}</ul>
+               <button type="button" class="env-toggle-bloc" aria-expanded="false"
+                       data-libelle="Ce que ça implique">Ce que ça implique</button>
+               <div class="env-detail-bloc" hidden>${details}${avert}</div>
+             </div>`;
     }
 
     async function interrogerZonesProtegees(lngLat) {
@@ -4072,92 +4253,78 @@
       // copiable du bloc « à reporter ».
       majLigneZone(natura);
 
-      const cartes = [];
-      if (natura.length) cartes.push(carteEnv({
-        type: 'protection',
-        titre: 'Site Natura 2000',
-        complement: natura.join(', '),
-        consequence: 'étude d’incidence à prévoir',
-        bouton: 'Ce que ça implique',
+      /* v2.40 : repasse UX (validée par Nicolas le 18/11/2026). Le panneau se lit
+         dans cet ordre : bandeau de verdict, règles locales, mouillages voisins
+         (placés par placerBlocEvitage), points de vigilance, précision sur la
+         zone, ligne repliée « Non vérifié ici », puis « À reporter ».
+         Toujours trois issues distinctes par source : trouvé (point ou carte),
+         vérifié et vide (rien, v2.19), injoignable (« Non vérifié ici »). */
+      const points = [];
+      if (natura.length) points.push({
+        ordre: 1,
+        nom: 'Site Natura 2000',
+        sous: natura.join(', '),
+        etiquette: 'Étude d’incidence',
         detail: `<p>Une étude d'incidence sera réalisée suite à votre demande. Le nom de
                  la zone est à reporter dans le formulaire : il est repris ci-dessous,
                  avec un bouton pour le copier.</p>`
-      }));
-      if (znieff.length) cartes.push(carteEnv({
-        type: 'protection',
-        titre: 'ZNIEFF',
-        complement: 'zone naturelle sensible',
-        consequence: 'rien à reporter dans le formulaire',
-        bouton: 'Ce que ça implique',
+      });
+      if (znieff.length) points.push({
+        ordre: 4,
+        nom: 'ZNIEFF',
+        etiquette: 'Zone sensible',
         detail: `<p>Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette
-                 zone est sensible, merci d'adopter des pratiques de mouillage durables.</p>`
-      }));
-      // Trois issues distinctes, à ne pas confondre : service en panne, zone
-      // vérifiée et vide, ou zonages trouvés (cartes ci-dessus).
-      // v2.19 : une zone vérifiée et vide n'affiche PLUS rien (décision de
-      // Nicolas, 14/10/2026). Une bonne nouvelle n'a pas besoin d'une ligne :
-      // l'absence de carte dit déjà qu'il n'y a rien. La panne, elle, reste
-      // annoncée — « on ne sait pas » n'est pas « il n'y a rien ».
-      if (echec) cartes.push(carteEnv({
+                 zone est sensible, merci d'adopter des pratiques de mouillage durables.
+                 Rien à reporter dans le formulaire.</p>`
+      });
+      const hab = pointsVigilanceHabitats(habitats);
+      points.push(...hab.points);
+      const pcm = pointVigilanceCulturesMarines(cm);
+      if (pcm) points.push(pcm);
+
+      const incertaines = [];
+      if (echec) incertaines.push(carteEnv({
         type: 'protection',
         incertain: true,
         titre: 'Zonages de protection : vérification impossible',
         consequence: 'service distant momentanément injoignable'
       }));
-      // v2.39 : herbiers, maërl, coralligène — après les zonages, avant la
-      // profondeur et la nature du fond (ce sont des habitats, pas le fond).
-      cartes.push(...cartesHabitatsSensibles(habitats));
-      // v2.29 : la profondeur passe DEVANT la nature du fond — elles décrivent le
-      // même point, et c'est la profondeur qui dimensionne la chaîne.
-      cartes.push(carteProfondeur(prof));
-      cartes.push(carteNatureFond(fond));
-      // v2.18 : en dernier. Une parcelle AU POINT est une interdiction (rouge,
-      // plus haut) et une absence confirmée ne mérite pas une ligne : cette carte
-      // ne sert donc qu'aux trois autres cas — parcelle voisine (v2.20), secteur
-      // sans cadastre publié, flux injoignable.
-      cartes.push(carteCulturesMarines(cm));
-      // v2.5 : si un mouillage est proche, le bloc environnement (vert, ou neutre
-      // Natura 2000 / ZNIEFF) est réduit à une ligne de titre, avec un bouton pour
-      // déplier le détail (replié par défaut) — la modale reste concise.
-      // v2.19 : plus aucune carte à montrer → pas de bloc du tout, pas même le
-      // titre « Contexte environnemental », qui annoncerait un vide.
-      const aMontrer = cartes.filter(Boolean);
-      /* v2.28 : les cartes se rangent en deux groupes, les faits d'abord.
-         Le tri se fait sur la classe posée par carteEnv (`incertain`) et non sur
-         le libellé : un titre se reformule, une classe est contractuelle.
-         L'ordre interne de chaque groupe est conservé — il a été arbitré
-         (Natura 2000, ZNIEFF, nature du fond, cultures marines en dernier). */
+      incertaines.push(...hab.incertaines);
+
+      // Précision sur la zone : profondeur puis nature du fond (v2.29). Une
+      // carte « à vérifier » (fond non cartographié, profondeur injoignable)
+      // rejoint « Non vérifié ici » : c'est un trou, pas un fait.
       const estIncertaine = (c) => c.includes('env-carte--incertain');
-      const etablies   = aMontrer.filter(c => !estIncertaine(c));
-      const incertaines = aMontrer.filter(estIncertaine);
+      const precisions = [];
+      [carteProfondeur(prof), carteNatureFond(fond), carteCulturesMarines(cm)].filter(Boolean)
+        .forEach(c => (estIncertaine(c) ? incertaines : precisions).push(c));
+
       // v2.22 : les règles locales passent DEVANT le contexte environnemental.
-      // Une règle départementale peut réorienter toute la démarche (les
-      // Côtes-d'Armor ne délivrent plus d'AOT du tout) : la lire après la nature
-      // du fond n'aurait pas de sens. Les deux blocs sont indépendants — l'un
-      // peut s'afficher sans l'autre.
       const reglesLocales = blocReglesLocales(dep, fiches, zones, lngLat);
-      // v2.33 : la même règle locale peut retenir les coordonnées. Décidé ici,
-      // une fois le département connu, jamais avant : pendant l'attente le bloc
-      // « à reporter » est déjà visible avec le point, et c'est voulu — une
-      // panne ne doit pas le faire disparaître.
+      const verdict = bandeauVerdict(dep, fiches, zones, lngLat);
+      // v2.33 : la même règle locale peut retenir les coordonnées.
       masquerCoordonnees(decisionCoordonnees(dep, fiches, zones, lngLat));
-      /* Deux intitulés plutôt qu'un : « Contexte environnemental » ne coiffe plus
-         que ce qui a été réellement trouvé. Ce que la carte n'a pas pu vérifier
-         est dit, mais à part et en retrait — ni confondu avec un constat, ni
-         masqué, parce qu'un silence se lirait « il n'y a rien » là où la
-         réponse est « on ne sait pas ». Si un groupe est vide, son intitulé ne
-         s'affiche pas : annoncer une section vide est pire que l'omettre. */
+
+      // « Non vérifié ici (n) · cultures marines, nature du fond » : le nom de
+      // chaque source est la partie du titre avant les deux-points.
+      const nomsIncertains = incertaines.map(c => {
+        const m = /<strong>([^<]*)<\/strong>/.exec(c);
+        return m ? m[1].split(' :')[0].trim() : '';
+      }).filter(Boolean);
       const contexte =
-        (etablies.length
-          ? '<h2 class="popup-section popup-section--contexte">Contexte environnemental</h2>' + etablies.join('')
+        blocVigilance(points) +
+        (precisions.length
+          ? '<h2 class="popup-section popup-section--precision">Précision sur la zone</h2>' +
+            `<div class="env-precisions">${precisions.join('')}</div>`
           : '') +
         (incertaines.length
-          ? '<h2 class="popup-section popup-section--incertain">' +
-            'Ce que la carte n’a pas pu vérifier</h2>' + incertaines.join('')
+          ? `<details class="env-nonverif"><summary><b>Non vérifié ici (${incertaines.length})</b>` +
+            (nomsIncertains.length ? ` · ${echapper(nomsIncertains.join(', ').toLowerCase())}` : '') +
+            `</summary><div class="env-nonverif-corps">${incertaines.join('')}</div></details>`
           : '');
       verifEnCours = false;
-      afficherEnvironnement(reglesLocales + contexte,
-                            (reglesLocales || contexte) ? 'cartes' : '');
+      afficherEnvironnement(verdict + reglesLocales + contexte,
+                            (verdict || reglesLocales || contexte) ? 'cartes' : '');
 
       // v2.22 : second contrôle. Le popup vient de grandir en recevant les
       // cartes ; comme il est ancré en bas, il s'étend vers le haut et peut
@@ -4242,6 +4409,8 @@
       // champs directement, pas de bouton « Détails » — rien à replier.
       if (!saisie) {
         bloc.className = 'jaune-box';
+        // v2.40 : badge « À compléter » dans l'intitulé tant que la saisie manque.
+        document.getElementById('voisins-badge').hidden = false;
         msgEl.innerHTML = `<strong>D'autres mouillages sont enregistrés à proximité.</strong><br>
           Vérifier que votre rayon d'évitage ne soit pas en collision avec un autre navire.`;
         toggle.hidden = true;
@@ -4273,6 +4442,7 @@
       const sousTitre = `<span class="evitage-sous-titre">Estimation indicative qui ne
         remplace pas une vérification sur place.</span>`;
       bloc.className = n ? 'evitage-resultat chevauche' : 'evitage-resultat libre';
+      document.getElementById('voisins-badge').hidden = true;   // v2.40 : le résultat a pris le relais
       msgEl.innerHTML = n
         ? `Le rayon d'évitage de votre navire est estimé à <strong>${rArrondi} m</strong> avec un
            risque de collision. Modifier l'emplacement ou vérifier sur place.${sousTitre}`
