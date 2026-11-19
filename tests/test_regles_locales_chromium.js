@@ -35,7 +35,8 @@ let numdep='83', ok=0,ko=0; const chk=(l,c,d)=>{c?ok++:ko++;console.log((c?'OK  
    // v2.39 : inventaires d'habitats de l'OFB simulés VIDES (rien au point). Coupés,
    // ils ajoutaient la carte « vérification impossible », qui allonge le panneau
    // au point de recouvrir le champ de recherche — ce n'est pas l'objet de ce harnais.
-   if (u.includes('wxs.ofb.fr/geoserver/habitat/wfs'))
+   // v2.43 : même chose pour les sites oiseaux / phoques (WFS « usage »).
+   if (u.includes('wxs.ofb.fr/geoserver/habitat/wfs') || u.includes('wxs.ofb.fr/geoserver/usage/wfs'))
      return route.fulfill({ status:200, contentType:'application/json', body: JSON.stringify({ type:'FeatureCollection', features:[] }) });
    return route.abort();
  });

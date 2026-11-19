@@ -19,11 +19,15 @@ fonctionnalité correspondante a réellement disparu.
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
 `test_donnees_aot.py` (§16), `test_regles_locales.js` et
-`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `test_habitats_chromium.js` (§20, v2.39), `stub.js` et `tirage_aot.js`. Leur `README.md`
+`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `test_habitats_chromium.js` (§20, v2.39), `test_faune_chromium.js` (§20 bis, v2.43), `stub.js` et `tirage_aot.js`. Leur `README.md`
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 19 nov. 2026 (v2.42) — textes des règles locales, panneau sous la recherche.**
+**Dernière exécution : 19 nov. 2026 (v2.43) — sites sensibles pour les oiseaux et les phoques.**
+- §6 **OK**, §10 **59/59** Node et **22/22 Chromium**, §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §20 bis (nouveau) **19/19**.
+- Rendu vérifié en local, vrai service de l'OFB : Kersabu (47.70175, -3.32268) → « Site sensible pour les oiseaux — PETITE MER DE GAVRE, période sensible : hiver », message OFB complet, verdict vert ; Var (43.2678, 6.6228) → aucun site ; requête 110 ms. Aucune erreur de console liée à l'OFB (seules erreurs : tuiles IGN hors couverture, préexistantes).
+
+**Exécution précédente : 19 nov. 2026 (v2.42) — textes des règles locales, panneau sous la recherche.**
 - §6 **OK**, §10 **59/59** Node et **22/22 Chromium** (de nouveau complet : le panneau ne recouvre plus le champ de recherche et la liste de résultats passe au-dessus), §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17** (textes de masquage adaptés), §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**.
 - Rendu vérifié en local (réseau ouvert) : Var zone 1 → « … dans cette zone (Saint-Tropez — La Bouillabaisse, zone 1) » + « Voir les autres zones » ; Morbihan hors zone → « … uniquement dans certaines zones autorisées » + nouveau paragraphe de masquage ; Côtes-d'Armor → « Voir la liste d'attente ». Haut du panneau sous le champ de recherche dans les trois cas. Une première tentative dans la baie de Quiberon est revenue sans département (réponse lente du Shom), réussie au second passage.
 
@@ -3080,6 +3084,31 @@ réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
 - Tuiles réellement affichées par le serveur de l'OFB et statut ✓ des quatre cases (la case zostères teste une tuile du golfe du Morbihan, `tuileTest`).
 - Clic réel : rade d'Hyères (43.05, 6.2) → posidonie ; golfe du Morbihan (47.56049, -2.77289) → zostère marine ; rade de Brest (48.30, -4.42) → maërl. *(Vérifié en local le 18/11/2026, à refaire sur la version publiée.)*
 - Rendu téléphone (390 px) avec la carte d'habitat en plus.
+
+## 20 bis. Sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) *(v2.43)*
+
+Harnais : `cd tests && node test_faune_chromium.js` (Playwright). Point 43.2678, 6.6228 ; WFS « usage » de l'OFB simulé, WFS « habitat » vide, Shom simulé (83).
+
+### 20 bis.1 Oiseaux au point (deux polygones identiques, message sur deux lignes avec lien au format réel de l'OFB)
+1. Un seul point « Site sensible pour les oiseaux », étiquette « Période sensible », sous-titre « PETITE MER DE GAVRE, période sensible : hiver ».
+2. Le détail reprend le message tel quel, un paragraphe par ligne, et cite « application Nav&Co ».
+3. Le lien est reconstruit : adresse https exacte, `target="_blank"`, `rel="noopener"`, texte « ici. », aucune balise `<u>` conservée.
+4. Pas de blocage (bloc non rouge, coordonnées affichées). Une seule requête « usage », `propertyName=nom_site,saison,messa_sens,gr_pho`, filtre `INTERSECTS`. 0 `pageerror`.
+
+### 20 bis.2 Phoques au point (`gr_pho` = « 1 », cible collée à l'adresse, `<script>` dans le message)
+1. « Site sensible pour les phoques », « période sensible : été ».
+2. Adresse réparée : `https://parc-marin-iroise.fr/editorial/la-reglementation` (sans « _blank »).
+3. Aucune balise du message injectée (ni `script` ni `u`), aucun dialogue ouvert. 0 `pageerror`.
+
+### 20 bis.3 Rien au point
+Aucun point « Site sensible », aucune carte grise « oiseaux et phoques ». 0 `pageerror`.
+
+### 20 bis.4 OFB en panne (HTTP 500)
+Aucun point ; carte grise « Sites sensibles pour les oiseaux et les phoques : vérification impossible » dans « Non vérifié ici ». Pas de blocage, coordonnées affichées. 0 `pageerror`.
+
+### 20 bis.5 Non couvert par le harnais — à vérifier en réel
+- Clic réel : Kersabu (47.70175, -3.32268) → oiseaux, hiver *(vérifié en local le 19/11/2026, à refaire sur la version publiée)* ; un site à phoques du Finistère (chaussée de Sein) ; un point du Var → rien.
+- Rendu téléphone (390 px) avec le point en plus.
 
 ## 21. Panneau du point : bandeau de verdict et sections *(v2.40)*
 

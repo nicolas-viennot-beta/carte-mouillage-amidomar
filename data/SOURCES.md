@@ -8,7 +8,7 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 18 novembre 2026 — §4 : herbiers, maërl et coralligène de l'OFB branchés (v2.39), intégration ajournée le 15/10 close ; état du cache de tuiles, couleurs de style, champs nominatifs à ne pas lire. Consolidation précédente : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
+*Dernière consolidation : 19 novembre 2026 — §3 : inventaire exploratoire des services OFB, croisement avec les zones autorisées, sites sensibles oiseaux et phoques branchés (v2.43). Consolidation précédente : 18 novembre 2026 — §4 : herbiers, maërl et coralligène de l'OFB branchés (v2.39), intégration ajournée le 15/10 close ; état du cache de tuiles, couleurs de style, champs nominatifs à ne pas lire. Consolidation précédente : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
 n°1 à 26). Consolidation précédente : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
 ajoutées (§9), nouveaux champs de `ddtm-messages.json` et propriété `public` des zones
 (§10), coordonnées retenues par une règle locale. Consolidations précédentes : 30 octobre
@@ -38,6 +38,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | Herbiers de posidonie 2022 — OFB | ✅ WMS | ✅ WFS (Nav&Co) | en service (v2.39), **pas de cache** : WMS plus lent |
 | Bancs de maërl 2024 — OFB | ✅ WMTS | ✅ WFS | en service (v2.39), indicatif, **non bloquant** |
 | Coralligène — OFB | ✅ WMTS | ✅ WFS | en service (v2.39), indicatif, **non bloquant** |
+| Sites sensibles oiseaux et phoques — OFB (Nav&Co) | — (pas de cache) | ✅ WFS | en service (v2.43), Bretagne / Normandie / Pays de la Loire, **non bloquant** |
 | ~~Herbiers — Ifremer~~ | — | — | **retirée en v2.39** (Occitanie seulement) |
 | Trait terre-mer (DPM) — Shom | — | ✅ WFS | en service |
 | Natures de fond — Shom | — | ✅ WFS | en service, **couverture très inégale** |
@@ -266,7 +267,7 @@ Candidats pour la carte, vérifiés par requête :
   > 24 m…), **7 en Bretagne** — couverture très inégale, **non exhaustive**
   selon l'OFB elle-même. Champ `agent_date_maj` ; le WFS porte aussi un
   identifiant d'agent de saisie (`reg_agentnum`) : **ne pas le lire ni le recopier**.
-- **Zones à enjeux oiseaux et phoques (Nav&Co)** —
+- **Zones à enjeux oiseaux et phoques (Nav&Co)** — **branchée au clic en v2.43** (point de vigilance, message repris tel quel ; spec §4.3quinquies). Champs lus : `nom_site`, `saison`, `messa_sens`, `gr_pho` (texte « 1 » / « 0 » / vide : 109 sites à phoques). **Piège** : 23 messages contiennent du HTML (`<u>`, liens `<a href=https://… target=_blank>` aux attributs sans guillemets, dont un `…la-reglementation_blank` à cible collée) — ne jamais l'injecter tel quel. 413 messages sur 822 ont des retours à la ligne. ~110 ms au point (19/11/2026). Pas de cache de tuiles (absente des GetCapabilities GeoWebCache). —
   `usage:us_met_cmonspot_secteur_sensibilite_ofb_pol_3857_vue`, 822 polygones
   (Bretagne 593, Normandie 150, Pays de la Loire 79). Porte un **message usager
   rédigé** (`messa_sens`, ex. « Du 15 avril au 31 juillet, des oiseaux nichent… »),

@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.42 (novembre 2026)  
+**Version:** 2.43 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -176,6 +176,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 >    | 1 | « Site Natura 2000 » + noms des sites | Étude d'incidence | « Une étude d'incidence sera réalisée pour toute demande d'autorisation de mouillage sur une zone Natura 2000. » (v2.42) |
 >    | 2 | « Herbier de posidonie », « Herbier de zostère … » quand le message OFB dit « espèce protégée » | Espèce protégée | message OFB tel quel + lien (§4.3quater) |
 >    | 3 | Autres herbiers, « Banc de maërl », « Coralligène » | Habitat fragile | message OFB, ou texte de la carte (maërl, coralligène) |
+>    | 3,5 | « Site sensible pour les oiseaux » ou « … pour les phoques » + nom du site et période (« période sensible : hiver ») | Période sensible | message OFB (Nav&Co) tel quel + source (§4.3quinquies, v2.43) |
 >    | 4 | « ZNIEFF » | Zone sensible | texte ZNIEFF ci-dessous |
 >    | 5 | « Parcelle de cultures marines à {n} m » | Rayon d'évitage | « Votre rayon d'évitage peut l'atteindre : il serait préférable d'envisager un autre emplacement. » + parcelle (§4.3ter) |
 >
@@ -194,7 +195,7 @@ Le popup se lit en deux parties titrées, pour qu'on distingue d'un coup d'œil 
 
 **Partie 1 — « Contexte environnemental ».** Une carte par information, **toutes repliées au départ** (décision de Nicolas, 13/10/2026). Chaque carte montre un titre, une ligne de conséquence et un bouton qui déplie le détail. La ligne repliée porte déjà l'essentiel : c'est ce qui rend le repli acceptable, un bandeau replié qui ne dirait rien obligerait l'usager à cliquer pour savoir s'il doit cliquer.
 
-**Deux groupes, les faits d'abord** *(v2.28)*. Les cartes qui **constatent** quelque chose restent sous « Contexte environnemental ». Celles qui disent que la vérification **n'a pas pu avoir lieu** — point hors couverture de la source, ou service injoignable — passent sous un second intitulé, « Ce que la carte n'a pas pu vérifier », en retrait et plus discret, et sont rendues en **gris neutre avec un filet gauche pointillé** (`env-carte--incertain`). Ce traitement les sort du registre du constat sans les effacer : les supprimer ferait croire qu'il n'y a rien là où on ne sait pas. **Le tri se fait sur la classe posée par `carteEnv`, pas sur le libellé** — un titre se reformule, une classe est contractuelle. Si un groupe est vide, son intitulé ne s'affiche pas. Cinq cartes sont concernées à ce jour : nature du fond non cartographiée, cultures marines non vérifiées, cultures marines injoignables, zonages de protection injoignables, habitats sensibles injoignables *(v2.39)*. Elles restent des `.env-carte` : le compte « N points à vérifier » de la barre réduite les inclut, ce qui est exactement ce que ce libellé promet.
+**Deux groupes, les faits d'abord** *(v2.28)*. Les cartes qui **constatent** quelque chose restent sous « Contexte environnemental ». Celles qui disent que la vérification **n'a pas pu avoir lieu** — point hors couverture de la source, ou service injoignable — passent sous un second intitulé, « Ce que la carte n'a pas pu vérifier », en retrait et plus discret, et sont rendues en **gris neutre avec un filet gauche pointillé** (`env-carte--incertain`). Ce traitement les sort du registre du constat sans les effacer : les supprimer ferait croire qu'il n'y a rien là où on ne sait pas. **Le tri se fait sur la classe posée par `carteEnv`, pas sur le libellé** — un titre se reformule, une classe est contractuelle. Si un groupe est vide, son intitulé ne s'affiche pas. Six cartes sont concernées à ce jour : nature du fond non cartographiée, cultures marines non vérifiées, cultures marines injoignables, zonages de protection injoignables, habitats sensibles injoignables *(v2.39)*, sites sensibles pour les oiseaux et les phoques injoignables *(v2.43)*. Elles restent des `.env-carte` : le compte « N points à vérifier » de la barre réduite les inclut, ce qui est exactement ce que ce libellé promet.
 
 Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de protection — quel que soit leur nombre, Natura 2000 et ZNIEFF étant de même nature —, **sable** pour la nature du fond, qui est un conseil et non une contrainte. **Gris-bleu** pour les usages de la mer *(v2.18)*. Le rouge est réservé aux interdictions (C3, C4, C4 bis), qui ne sont pas des cartes mais colorent tout le bloc. Plus de vert depuis la v2.19 : « rien de détecté » ne s'affiche plus du tout.
 
@@ -449,6 +450,23 @@ Demande de Nicolas (18/11/2026) : compléter la donnée environnement avec les i
 - **Ordre** : après Natura 2000 et ZNIEFF, avant la profondeur et la nature du fond.
 - Licence Ouverte / Etalab 2.0, sans clé ; CORS ouvert (`*`). Détail des couches, mesures et limites : `data/SOURCES.md` §4.
 - Voir `TESTS_FONCTIONNELS.md` §20 et le harnais `tests/test_habitats_chromium.js`.
+
+### 4.3quinquies Sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) *(v2.43)*
+
+Demande de Nicolas (19/11/2026), après l'exploration des services de l'OFB : signaler au point les sites où des oiseaux hivernent ou nichent, ou où des phoques se reposent. **Signaler, jamais bloquer** : c'est de la sensibilisation, pas une règle.
+
+**Pourquoi cette couche et pas les règles de mouillage de l'OFB.** Arbitrage de Nicolas (19/11/2026) : pas de détail sur les interdictions là où la DDTM n'autorise déjà pas le mouillage. Croisées avec les 72 zones autorisées (`data/zones-aot.geojson`), les règles Nav&Co n'apportent aucune interdiction de mouillage utile, et les réserves, cœurs de parc et arrêtés d'habitat naturel aucune zone. Les sites oiseaux et phoques recoupent 4 zones autorisées du Morbihan (Kersabu, Les Salles, Le Plessis, Port La Croix) et couvrent le Finistère, sans règle locale. Détail : `data/SOURCES.md`.
+
+**Au clic** — `interrogerSitesFaune`, dans le même peloton que les zonages et les habitats (`Promise.all`), délai `CONFIG.delaiHabitats` (environ 110 ms mesurés le 19/11/2026). Une couche du WFS `https://wxs.ofb.fr/geoserver/usage/wfs` : `us_met_cmonspot_secteur_sensibilite_ofb_pol_3857_vue` (822 sites, Bretagne, Normandie, Pays de la Loire ; **rien en Méditerranée**), filtre `INTERSECTS(geom, SRID=4326;POINT(lon lat))`, champs lus `nom_site`, `saison`, `messa_sens`, `gr_pho`.
+
+- **Point de vigilance**, rang 3,5 (après les habitats, avant les ZNIEFF) : « **Site sensible pour les oiseaux** » (ou « **… pour les phoques** » quand `gr_pho` vaut 1), sous-titre « {nom du site}, période sensible : hiver » (ou « été »), étiquette « **Période sensible** ».
+- **Détail : le message de l'OFB tel quel** (`messa_sens`, celui de l'application Nav&Co), un paragraphe par ligne, suivi de « Message de l'Office français de la biodiversité (application Nav&Co). » Décision de Nicolas (19/11/2026), même règle que les herbiers : deux services de l'État ne tiennent pas deux discours. Ces messages s'adressent aux pratiquants de loisirs nautiques, souvent à la première personne (« je cantonne ma pratique… ») : écart de ton connu et accepté.
+- **HTML du message jamais injecté** : 23 sites y glissent `<u>` et des liens `<a href=https://… target=_blank>` (attributs sans guillemets, et une cible collée à l'adresse, `…la-reglementation_blank`). Le texte est échappé, les balises retirées, les liens https reconstruits (`target="_blank" rel="noopener"`, cible collée retirée de l'adresse) — `messageOFBEnHTML`.
+- **Un point par site** : plusieurs polygones identiques (même nom, saison, message) n'en donnent qu'un.
+- **Pas de couche affichable** : l'OFB ne met pas cette couche en cache de tuiles ; le point au clic suffit.
+- **Trois issues** : site trouvé → point de vigilance ; rien → rien n'est affiché ; OFB injoignable → carte grise « Sites sensibles pour les oiseaux et les phoques : vérification impossible » dans « Non vérifié ici ».
+- Données surtout de 2015 à 2020 (`d_donnee`), Licence Ouverte / Etalab 2.0, sans clé ; CORS ouvert (`*`).
+- Voir `TESTS_FONCTIONNELS.md` §20 bis et le harnais `tests/test_faune_chromium.js`.
 
 ### 4.4 Détection terre/eau
 
@@ -1429,6 +1447,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.43 — 19 novembre 2026
+**Sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) au clic**
+- Demande de Nicolas, après exploration des services de l'OFB (`amp.milieumarinfrance.fr/accueil-fr/donnees`) et croisement avec les zones autorisées. Nouveau point de vigilance « Site sensible pour les oiseaux / pour les phoques », étiquette « Période sensible », message de l'OFB repris tel quel (décision de Nicolas, 19/11/2026). Jamais bloquant. Voir §4.3quinquies.
+- Écartés après croisement (arbitrage de Nicolas : pas de détail d'interdiction là où la DDTM n'autorise déjà pas le mouillage) : les règles de mouillage Nav&Co (aucune interdiction de mouillage dans une zone autorisée) et le signalement des réserves, cœurs de parc et arrêtés d'habitat naturel (aucune zone autorisée concernée).
+- Code : `interrogerSitesFaune`, `messageOFBEnHTML`, `pointsVigilanceFaune` ; une requête de plus dans le peloton du clic, sans allonger l'attente.
+- Tests : nouveau harnais `test_faune_chromium.js` 19/19 (oiseaux, phoques, rien, panne, HTML du message neutralisé) ; `test_habitats_chromium.js` 23/23 (répond vide à la nouvelle requête) ; §10 Chromium 22/22, §17.5 17/17, §15 13/13, §18 27/27, §19.2 9/9, §17 + §19 + §21.1 72/72, intégrité OK, §10 Node 59/59, données OK. Test réel en local avec le vrai service de l'OFB : Kersabu (56) affiche « Site sensible pour les oiseaux — PETITE MER DE GAVRE, période sensible : hiver », verdict vert inchangé ; Var, aucun point.
 
 ### v2.42 — 19 novembre 2026
 **Textes des règles locales raccourcis ; lien « Voir les règles locales » pour toutes les DDTM ; texte Natura 2000 ; panneau sous la recherche**

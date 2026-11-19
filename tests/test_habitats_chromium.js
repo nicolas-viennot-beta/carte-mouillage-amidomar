@@ -44,6 +44,9 @@ async function ouvrir(b, cas){
       const r = reponseOFB(cas, u);
       return route.fulfill({status:r.status,contentType:'application/json',body:r.body});
     }
+    // v2.43 : sites oiseaux / phoques de l'OFB — vides ici (testés par test_faune_chromium.js).
+    if (u.includes('wxs.ofb.fr/geoserver/usage/wfs'))
+      return route.fulfill({status:200,contentType:'application/json',body:FC([])});
     if (u.includes('services.data.shom.fr') && u.includes('LIMTM'))
       return route.fulfill({status:200,contentType:'application/json',
         body: /DWITHIN/.test(decodeURIComponent(u)) ? FC([{type:'Feature',properties:{numdep:'83'}}]) : FC([])});

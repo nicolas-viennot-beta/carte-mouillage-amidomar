@@ -3855,7 +3855,8 @@
     /* v2.40 : les habitats ne sont plus des cartes mais des POINTS DE
        VIGILANCE, rendus ensemble par blocVigilance(). Chaque point porte :
          ordre     — rang fixe dans le bloc (1 Natura 2000, 2 habitat protégé,
-                     3 habitat fragile, 4 ZNIEFF, 5 cultures marines voisines) ;
+                     3 habitat fragile, 3,5 site sensible oiseaux / phoques (v2.43),
+                     4 ZNIEFF, 5 cultures marines voisines) ;
          nom, sous — ce qu'on lit dans la liste repliée ;
          etiquette — ce que ça implique, en un ou deux mots ;
          detail    — HTML du détail, affiché au clic sur « Ce que ça implique » ;
@@ -3911,6 +3912,91 @@
                  sur la carte. Sur place, les taches sombres sont de l'herbier, à éviter :
                  ancrez dans les zones sableuses.</p>`
       }));
+      return res;
+    }
+
+    /* ---------- v2.43 : sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) ----------
+       Couche `us_met_cmonspot_secteur_sensibilite_ofb_pol_3857_vue` du WFS
+       « usage » de l'OFB : 822 sites en Bretagne, Normandie et Pays de la
+       Loire (rien en Méditerranée). Chaque site porte le MESSAGE USAGER de
+       l'application Nav&Co (`messa_sens`), repris TEL QUEL (décision de
+       Nicolas, 19/11/2026, même règle que les herbiers), la saison (`saison` :
+       « été » ou « hiver ») et un drapeau phoques (`gr_pho`, texte « 1 »).
+       Signaler, ne jamais bloquer : c'est de la sensibilisation.
+       Le message est du texte avec retours à la ligne, mais 23 sites y glissent
+       du HTML : `<u>` et des liens `<a href=https://… target=_blank>` aux
+       attributs SANS guillemets (et un `href=…la-reglementation_blank`, cible
+       collée à l'adresse). On n'injecte jamais ce HTML : texte échappé, balises
+       retirées, liens reconstruits s'ils sont en https. Ne lire QUE ces champs. */
+    const WFS_OFB_SITES_FAUNE = 'https://wxs.ofb.fr/geoserver/usage/wfs?service=WFS&version=2.0.0' +
+      '&request=GetFeature&outputFormat=application/json&srsName=EPSG:4326&count=10' +
+      '&typeNames=usage:us_met_cmonspot_secteur_sensibilite_ofb_pol_3857_vue' +
+      '&propertyName=nom_site,saison,messa_sens,gr_pho';
+
+    // Liste des sites au point (propriétés), ou undefined si l'OFB n'a pas répondu.
+    async function interrogerSitesFaune(lngLat) {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), CONFIG.delaiHabitats);
+      try {
+        const filtre = `INTERSECTS(geom, SRID=4326;POINT(${lngLat.lng} ${lngLat.lat}))`;
+        const rep = await fetch(WFS_OFB_SITES_FAUNE + '&CQL_FILTER=' + encodeURIComponent(filtre),
+                                { signal: ctrl.signal });
+        if (!rep.ok) return undefined;
+        const j = await rep.json();
+        return Array.isArray(j.features) ? j.features.map(f => f.properties || {}) : undefined;
+      } catch (e) { return undefined;
+      } finally { clearTimeout(t); }
+    }
+
+    // Message Nav&Co → HTML sûr : un paragraphe par ligne, liens https reconstruits.
+    function messageOFBEnHTML(texte) {
+      const sansBalises = s => s.replace(/<[^>]*>/g, '');
+      const lien = /<a\s+href=["']?(https:\/\/[^\s"'>]+?)(?:_blank)?["']?(?:\s[^>]*)?>([\s\S]*?)<\/a>/gi;
+      const ligneHTML = ligne => {
+        let html = '', dernier = 0, m;
+        lien.lastIndex = 0;
+        while ((m = lien.exec(ligne))) {
+          html += echapper(sansBalises(ligne.slice(dernier, m.index)));
+          html += `<a href="${echapper(m[1])}" target="_blank" rel="noopener">${
+                    echapper(sansBalises(m[2]).trim() || 'en savoir plus')}</a>`;
+          dernier = lien.lastIndex;
+        }
+        return html + echapper(sansBalises(ligne.slice(dernier)));
+      };
+      return String(texte || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+        .map(l => `<p>${ligneHTML(l)}</p>`).join('');
+    }
+
+    /* Un point de vigilance par site (un même site peut revenir en plusieurs
+       polygones : dédoublonné sur nom + saison + message). Rang 3,5 : après les
+       habitats, avant les ZNIEFF. Carte grise si l'OFB n'a pas répondu. */
+    function pointsVigilanceFaune(sites) {
+      const res = { points: [], incertaines: [] };
+      if (sites === undefined) {
+        res.incertaines.push(carteEnv({
+          type: 'protection',
+          incertain: true,
+          titre: 'Sites sensibles pour les oiseaux et les phoques : vérification impossible',
+          consequence: "service de l'OFB momentanément injoignable"
+        }));
+        return res;
+      }
+      const vus = new Set();
+      sites.forEach(p => {
+        const cle = [p.nom_site, p.saison, p.messa_sens].join('|');
+        if (vus.has(cle)) return;
+        vus.add(cle);
+        const saison = /hiver/i.test(p.saison || '') ? 'hiver' : (/été/i.test(p.saison || '') ? 'été' : '');
+        res.points.push({
+          ordre: 3.5,
+          nom: String(p.gr_pho) === '1' ? 'Site sensible pour les phoques' : 'Site sensible pour les oiseaux',
+          sous: [p.nom_site, saison && 'période sensible : ' + saison].filter(Boolean).join(', '),
+          etiquette: 'Période sensible',
+          detail: messageOFBEnHTML(p.messa_sens) +
+            `<p class="env-caveat">Message de l'Office français de la biodiversité
+             (application Nav&amp;Co).</p>`
+        });
+      });
       return res;
     }
 
@@ -4284,14 +4370,16 @@
       // rallonge donc pas l'attente — et il ne la raccourcit pas non plus : le
       // bloc entier s'affiche d'un coup, sans faire sautiller le popup.
       // v2.39 : les habitats sensibles de l'OFB rejoignent le même peloton.
-      const [{ natura, znieff, echec }, fond, dep, fiches, zones, prof, habitats] = await Promise.all([
+      // v2.43 : les sites sensibles pour les oiseaux et les phoques (OFB) aussi.
+      const [{ natura, znieff, echec }, fond, dep, fiches, zones, prof, habitats, faune] = await Promise.all([
         interrogerZonesProtegees(lngLat),
         interrogerNatureFond(lngLat),
         interrogerDepartement(lngLat),
         chargerMessagesDDTM(),
         chargerZonesAOT(),
         promesseProfondeur,
-        interrogerHabitatsSensibles(lngLat)
+        interrogerHabitatsSensibles(lngLat),
+        interrogerSitesFaune(lngLat)
       ]);
       if (jeton !== jetonClic) return;            // clic remplacé pendant l'attente
 
@@ -4325,6 +4413,8 @@
       });
       const hab = pointsVigilanceHabitats(habitats);
       points.push(...hab.points);
+      const fau = pointsVigilanceFaune(faune);
+      points.push(...fau.points);
       const pcm = pointVigilanceCulturesMarines(cm);
       if (pcm) points.push(pcm);
 
@@ -4336,6 +4426,7 @@
         consequence: 'service distant momentanément injoignable'
       }));
       incertaines.push(...hab.incertaines);
+      incertaines.push(...fau.incertaines);
 
       // Précision sur la zone : profondeur puis nature du fond (v2.29). Une
       // carte « à vérifier » (fond non cartographié, profondeur injoignable)
