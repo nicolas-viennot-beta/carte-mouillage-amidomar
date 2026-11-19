@@ -113,6 +113,13 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Arbitrage de Nicolas : le bandeau de verdict montre le
+  **fonctionnement final**, comme si la donnée était exhaustive, même quand
+  la fiche DDTM est en brouillon (Var). Pas de mention « provisoire » dans
+  le bandeau, seulement un lien « Voir les règles locales » ; la réserve
+  reste dans le détail de la règle. Règle qui en découle : ne pas affaiblir
+  un message de premier niveau par une réserve, la porter au niveau détail.
+
 - **18/11/2026** — Repasse UX du panneau du point (v2.40), menée en trois
   itérations d'un artefact de maquettes avant / après. Arbitrages de
   Nicolas : la **réponse d'abord** (bandeau « Demande d'autorisation possible

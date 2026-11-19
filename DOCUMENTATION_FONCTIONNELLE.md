@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.40 (novembre 2026)  
-**Dernière mise à jour:** 18 novembre 2026  
+**Version:** 2.41 (novembre 2026)  
+**Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -166,7 +166,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 >    | Deux départements | « **Règles locales à vérifier** » / « Ce point est à la limite de deux départements : voir ci-dessous. » | neutre |
 >    | Département inconnu (service injoignable) | pas de bandeau | — |
 >
->    Fiche en `brouillon` (Var) : mention « Information provisoire » dans le bandeau. « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
+>    Fiche en `brouillon` (Var) : le bandeau donne **le verdict final, comme si la liste des zones était exhaustive** (décision de Nicolas, 19/11/2026), suivi d'un lien « **Voir les règles locales** » qui ouvre le détail de la carte de la DDTM — où reste la mention « Information provisoire, en cours de validation avec la DDTM ». *(En v2.40, le bandeau portait un badge « Information provisoire » ; retiré en v2.41.)* « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
 > 2. **Règles locales** — inchangées dans leur texte ; carte en **Bleu France** `#000091` pour ses trois états (la couleur du verdict est passée au bandeau). Voir §4.4ter.
 > 3. **Mouillages voisins** — s'il y en a. Carte **neutre** (bordure grise) au lieu de l'orange ; badge « À compléter » dans l'intitulé tant que le calcul n'est pas fait, puis résultat vert ou rouge (§4.2).
 > 4. **Points de vigilance** — un seul bloc orange avertissement (`#b34000` sur `#fff4f3`, filet gauche épais), compte dans l'intitulé. **Replié**, il ne montre qu'une liste : le nom du point en noir gras (et, pour Natura 2000, le nom du site en seconde ligne), et une étiquette de ce que ça implique. **Un seul bouton** « Ce que ça implique » déplie le détail de chaque point, puis l'avertissement « inventaire indicatif » **une seule fois**. Ordre fixe :
@@ -1429,6 +1429,12 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.41 — 19 novembre 2026
+**Bandeau de verdict : « Voir les règles locales » au lieu de « Information provisoire »**
+- Remarque de Nicolas sur le Var : un bandeau rouge suivi de « Information provisoire » se contredit. Décision : le bandeau affiche le fonctionnement final, comme si la liste des zones était exhaustive.
+- `bandeauVerdict` : pour une fiche en brouillon, le badge « Information provisoire » est remplacé par un lien « Voir les règles locales » (`.env-verdict-lien`), qui déplie le détail de la carte de la DDTM et l'amène à l'écran. La mention provisoire reste dans ce détail. Masquage des coordonnées inchangé (toujours inactif tant que la fiche est en brouillon).
+- Tests : `test_regles_locales.js` 70/70 (§21.1.7 adapté), Chromium §15 13/13, §17.5 17/17, §18 27/27, §19.2 9/9, §20 23/23, intégrité OK, §10 Node 59/59, données OK. Clic du lien vérifié en local (détail ouvert, focus sur son bouton, 0 `pageerror`).
 
 ### v2.40 — 18 novembre 2026
 **Repasse UX du panneau du point**

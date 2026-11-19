@@ -371,9 +371,11 @@
                                         mask:var(--ico) center / contain no-repeat; }
       #env-block .env-verdict-titre { display:block; font-size:15px; font-weight:700; line-height:1.25; }
       #env-block .env-verdict-texte { display:block; font-size:12.5px; margin-top:2px; }
-      #env-block .env-verdict-provisoire { display:inline-block; margin-top:6px; font-size:11px; font-weight:700;
-                                           text-transform:uppercase; letter-spacing:.03em;
-                                           background:rgba(255,255,255,.2); border-radius:3px; padding:1px 6px; }
+      /* v2.41 : lien vers le détail de la règle locale (fiche en brouillon). */
+      #env-block .env-verdict-lien { display:inline-block; margin-top:6px; padding:0; border:none; background:none;
+                                     font:inherit; font-size:12.5px; font-weight:700; color:inherit;
+                                     text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+      #env-block .env-verdict-lien:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
       #env-block .env-verdict--ok  { background:#18753c; --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm-1-6.4 6.4-6.4-1.4-1.4-5 5-2.6-2.6-1.4 1.4 4 4Z'/%3E%3C/svg%3E"); }
       #env-block .env-verdict--non, #env-block .env-verdict--pro {
         --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm0-11.4L9.2 7.8 7.8 9.2l2.8 2.8-2.8 2.8 1.4 1.4 2.8-2.8 2.8 2.8 1.4-1.4-2.8-2.8 2.8-2.8-1.4-1.4L12 10.6Z'/%3E%3C/svg%3E"); }
@@ -381,7 +383,6 @@
       #env-block .env-verdict--pro { background:#3a3a3a; }
       #env-block .env-verdict--neutre { background:#f6f6f6; color:#161616; border:1px solid #929292;
         --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm-1-11v6h2v-6h-2Zm0-4v2h2V7h-2Z'/%3E%3C/svg%3E"); }
-      #env-block .env-verdict--neutre .env-verdict-provisoire { background:#e5e5e5; }
       /* Règle locale : Bleu France pour les trois états */
       #env-block .env-carte--ddtm, #env-block .env-carte--ddtm-ok, #env-block .env-carte--ddtm-pro {
         background:#f5f5fe; border:2px solid #000091; border-radius:4px; }
@@ -2644,6 +2645,18 @@
       // v2.23 : nom de zone → recadrage de la carte. Traité avant le repli des
       // cartes, et sans le refermer : l'usager regarde la zone tout en gardant
       // la liste ouverte pour passer à la suivante.
+      // v2.41 : « Voir les règles locales » du bandeau ouvre le détail de la
+      // carte de la DDTM (là où est dit le caractère provisoire) et l'amène à l'écran.
+      const versRegle = e.target.closest('.env-verdict-lien');
+      if (versRegle && envBlock.contains(versRegle)) {
+        const carte = envBlock.querySelector('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro');
+        if (!carte) return;
+        const b = carte.querySelector('.env-toggle-bloc'), d = carte.querySelector('.env-detail-bloc');
+        if (b && d && d.hidden) b.click();
+        carte.scrollIntoView({ block:'nearest', behavior: reduireAnimations() ? 'auto' : 'smooth' });
+        if (b) b.focus({ preventScroll:true });
+        return;
+      }
       const lien = e.target.closest('.env-zone-lien');
       if (lien && envBlock.contains(lien)) {
         cadrerSurZone(Number(lien.dataset.zone));
@@ -3312,14 +3325,19 @@
          - département inconnu (service injoignable) → pas de bandeau.
        « Nouvelle » autorisation et non « autorisation » : un titulaire installé
        hors zone peut toujours demander la poursuite de son occupation.
-       Fiche en brouillon → mention « Information provisoire ». */
+       Fiche en brouillon → lien « Voir les règles locales » (v2.41 ; « Information
+       provisoire » en v2.40). */
     function bandeauVerdict(dep, messages, zones, lngLat) {
       if (!dep || !dep.departements || !dep.departements.length) return '';
       const rendu = (classe, titre, texte, provisoire) =>
         `<div class="env-verdict env-verdict--${classe}" role="status"><div>
            <span class="env-verdict-titre">${echapper(titre)}</span>` +
            (texte ? `<span class="env-verdict-texte">${echapper(texte)}</span>` : '') +
-           (provisoire ? '<span class="env-verdict-provisoire">Information provisoire</span>' : '') +
+           // v2.41 : plus de mention « Information provisoire » — le bandeau donne
+           // le verdict comme si la liste des zones était exhaustive (décision de
+           // Nicolas, 19/11/2026). Le caractère provisoire reste dit dans le
+           // détail de la règle locale, que ce lien ouvre.
+           (provisoire ? '<button type="button" class="env-verdict-lien">Voir les règles locales</button>' : '') +
         `</div></div>`;
       if (dep.departements.length > 1) return rendu('neutre',
         'Règles locales à vérifier', 'Ce point est à la limite de deux départements : voir ci-dessous.');
