@@ -113,6 +113,13 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Arbitrage de Nicolas : les textes **écrits par nous**
+  sont au **vouvoiement** (« Pour mouiller, évitez ces fonds rocheux.
+  Ancrez-vous dans les zones sableuses. »), comme le reste de la carte. Les
+  messages repris **tels quels** d'une source publique (OFB, Nav&Co) gardent
+  leur « je ». Et des avertissements courts : une réserve qui n'ajoute rien
+  à « sur place, c'est ce que vous voyez qui compte » est retirée.
+
 - **19/11/2026** — Bouton « Commencer une première demande pour cet
   emplacement » (v2.45), validé par Nicolas : lien de préremplissage DN,
   sans serveur. Arbitrages : commune et lieu-dit **seulement dans les zones

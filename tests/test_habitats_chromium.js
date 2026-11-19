@@ -127,6 +127,12 @@ const habitat = e => e.points.filter(p => /Herbier|maërl|Coralligène/.test(p.n
     chk('deux points : Banc de maërl puis Coralligène, « Habitat fragile »', h.length===2 && h[0].nom==='Banc de maërl' && h[1].nom==='Coralligène'
         && h.every(p=>p.etiquette==='Habitat fragile'), h.map(p=>p.nom).join(' | '));
     chk('un seul avertissement « indicatif » pour les deux', (e.detail.match(/il ne fait pas foi/g)||[]).length===1);
+    // v2.47 : vouvoiement (texte de Nicolas) et avertissement raccourci.
+    chk('maërl et coralligène au vouvoiement, sans « j\'évite »',
+        e.detail.includes('Pour mouiller, évitez ces fonds. Ancrez-vous dans') && e.detail.includes('évitez ces fonds rocheux. Ancrez-vous dans les zones sableuses')
+        && !/j'évite|j'ancre/.test(e.detail.replace(/\s+/g,' ')));
+    chk("avertissement raccourci (plus de « hors des zones cartographiées »)",
+        /il ne fait pas foi\. Sur place, c'est ce que vous voyez qui compte/.test(e.detail.replace(/\s+/g,' ')) && !/hors des zones cartographiées/.test(e.detail));
     chk('pas de blocage', e.classe!=='env-rouge' && e.coords);
     chk('aucune pageerror', pe.length===0, pe.slice(0,2).join(' / '));
     await page.close(); }

@@ -3080,7 +3080,8 @@ réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
 
 ### 20.3 Maërl et coralligène au point
 1. Deux points, dans l'ordre : « Banc de maërl », puis « Coralligène », étiquette « Habitat fragile » ; un seul avertissement « indicatif » *(v2.40)*.
-2. Pas de blocage. 0 `pageerror`.
+2. *(v2.47)* Textes au vouvoiement : « Pour mouiller, évitez ces fonds. Ancrez-vous dans les zones sableuses. » (maërl) et « … évitez ces fonds rocheux. Ancrez-vous dans les zones sableuses. » (coralligène), aucun « j'évite » ni « j'ancre ». Avertissement raccourci : « … il ne fait pas foi. Sur place, c'est ce que vous voyez qui compte. », sans « hors des zones cartographiées ».
+3. Pas de blocage. 0 `pageerror`.
 
 ### 20.4 Rien au point
 1. Aucune carte d'habitat (rien n'est dit, comme pour Natura 2000 depuis v2.19).

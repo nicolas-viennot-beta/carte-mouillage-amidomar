@@ -4056,9 +4056,9 @@
       return "Brochure de l'OFB sur les herbiers";
     }
 
+    // v2.47 : raccourci à la demande de Nicolas (19/11/2026).
     const AVERTISSEMENT_INVENTAIRE = `<p class="env-caveat">Inventaire de l'OFB, indicatif :
-      il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ;
-      sur place, c'est ce que vous voyez qui compte.</p>`;
+      il ne fait pas foi. Sur place, c'est ce que vous voyez qui compte.</p>`;
 
     /* v2.40 : les habitats ne sont plus des cartes mais des POINTS DE
        VIGILANCE, rendus ensemble par blocVigilance(). Chaque point porte :
@@ -4101,14 +4101,15 @@
         ordre: 3, nom: 'Banc de maërl', etiquette: 'Habitat fragile', inventaire: true,
         detail: `<p>Le maërl est formé d'algues calcaires qui grandissent de moins d'un
                  millimètre par an : une ancre ou une chaîne qui racle le fond le détruit
-                 pour des décennies. Pour mouiller, j'évite ces fonds, j'ancre dans les
-                 zones sableuses.</p>`
+                 pour des décennies. Pour mouiller, évitez ces fonds. Ancrez-vous dans
+                 les zones sableuses.</p>`
       });
       if (hab.coralligene) res.points.push({
         ordre: 3, nom: 'Coralligène', etiquette: 'Habitat fragile', inventaire: true,
+        // v2.47 : vouvoiement (texte de Nicolas, 19/11/2026), comme le reste de la carte.
         detail: `<p>Le coralligène est un récif construit en plusieurs siècles par des algues
                  calcaires et des animaux fixés : l'ancre et la chaîne le brisent. Pour
-                 mouiller, j'évite ces fonds rocheux, j'ancre dans les zones sableuses.</p>`
+                 mouiller, évitez ces fonds rocheux. Ancrez-vous dans les zones sableuses.</p>`
       });
       if (hab.echec) res.incertaines.push(carteEnv({
         type: 'protection',

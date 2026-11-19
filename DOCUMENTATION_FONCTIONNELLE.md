@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.46 (novembre 2026)  
+**Version:** 2.47 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -446,10 +446,14 @@ Demande de Nicolas (18/11/2026) : compléter la donnée environnement avec les i
 | `eco_med_coralligene_ofb_pol_3857` | `biocenose` | « … — coralligène » |
 
 - **Pourquoi la couche Nav&Co pour les herbiers, et pas les couches affichées** : c'est elle qui porte le **message usager de l'OFB** (`title` « Zone fragile : vigilance mouillage », `subtitle`) et le texte de référence (`url`). Décision de Nicolas (18/11/2026) : **reprendre ce message tel quel**, pour que deux services de l'État ne tiennent pas deux discours. Ses polygones sont des **secteurs**, plus larges que les herbiers dessinés : un clic peut afficher la carte herbier à un endroit où la couche affichée ne montre pas d'herbier. C'est voulu : la vigilance porte sur le secteur.
-- **Maërl et coralligène** : les inventaires ne portent pas de message ; le texte est écrit pour la carte, sur le modèle de l'OFB (« j'évite ces fonds, j'ancre dans les zones sableuses »). **À relire par Nicolas.**
+- **Maërl et coralligène** : les inventaires ne portent pas de message ; le texte est écrit pour la carte. **Relu et validé par Nicolas le 19/11/2026**, au **vouvoiement** comme le reste de la carte (v2.47 ; avant : « j'évite ces fonds, j'ancre dans les zones sableuses », sur le modèle de l'OFB) :
+  - maërl : « Le maërl est formé d'algues calcaires qui grandissent de moins d'un millimètre par an : une ancre ou une chaîne qui racle le fond le détruit pour des décennies. Pour mouiller, évitez ces fonds. Ancrez-vous dans les zones sableuses. »
+  - coralligène : « Le coralligène est un récif construit en plusieurs siècles par des algues calcaires et des animaux fixés : l'ancre et la chaîne le brisent. Pour mouiller, évitez ces fonds rocheux. Ancrez-vous dans les zones sableuses. »
+  - Les messages de l'OFB (herbiers, sites oiseaux et phoques) restent **tels quels**, à la première personne : règle du 18/11/2026 inchangée.
+  - Chiffres (« moins d'un millimètre par an », « plusieurs siècles ») **non vérifiés** dans une source.
 - **Un message par type d'herbier** : plusieurs polygones identiques au point ne donnent qu'une carte.
 - **Champs limités** (`propertyName`) : les inventaires portent aussi des noms d'auteurs et de validateurs, qui n'ont rien à faire dans la carte (dépôt public) — ils ne sont jamais demandés.
-- **Avertissement affiché dans chaque détail** : « Inventaire de l'OFB, indicatif : il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ; sur place, c'est ce que vous voyez qui compte. »
+- **Avertissement affiché une seule fois sous les habitats** : « Inventaire de l'OFB, indicatif : il ne fait pas foi. Sur place, c'est ce que vous voyez qui compte. » *(v2.47, raccourci à la demande de Nicolas ; avant : « … il ne fait pas foi. Un habitat peut exister hors des zones cartographiées ; sur place, c'est ce que vous voyez qui compte. »)*
 - **Trois issues** : habitat trouvé → carte(s) bleue(s) dans « Contexte environnemental » ; rien → **rien n'est affiché** (comme Natura 2000 depuis v2.19) ; au moins une des trois couches injoignable → carte grise « Herbiers et habitats fragiles : vérification impossible », sous « Ce que la carte n'a pas pu vérifier ».
 - **Ordre** : après Natura 2000 et ZNIEFF, avant la profondeur et la nature du fond.
 - Licence Ouverte / Etalab 2.0, sans clé ; CORS ouvert (`*`). Détail des couches, mesures et limites : `data/SOURCES.md` §4.
@@ -1490,6 +1494,12 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.47 — 19 novembre 2026
+**Textes du maërl et du coralligène au vouvoiement ; avertissement « inventaire » raccourci**
+- Relecture de Nicolas (19/11/2026) : maërl « … Pour mouiller, évitez ces fonds. Ancrez-vous dans les zones sableuses. » ; coralligène « … Pour mouiller, évitez ces fonds rocheux. Ancrez-vous dans les zones sableuses. » (avant : « j'évite …, j'ancre … »). Les messages de l'OFB repris tels quels ne changent pas.
+- Avertissement sous les habitats : la phrase « Un habitat peut exister hors des zones cartographiées » est retirée. Reste : « Inventaire de l'OFB, indicatif : il ne fait pas foi. Sur place, c'est ce que vous voyez qui compte. »
+- Voir §4.3quater. Tests : `test_habitats_chromium.js` (§20.3, deux contrôles ajoutés).
 
 ### v2.46 — 19 novembre 2026
 **« Emplacement » au lieu de « point » dans les textes**
