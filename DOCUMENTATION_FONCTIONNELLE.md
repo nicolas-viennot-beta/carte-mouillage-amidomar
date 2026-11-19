@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.41 (novembre 2026)  
+**Version:** 2.42 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -166,14 +166,14 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 >    | Deux départements | « **Règles locales à vérifier** » / « Ce point est à la limite de deux départements : voir ci-dessous. » | neutre |
 >    | Département inconnu (service injoignable) | pas de bandeau | — |
 >
->    Fiche en `brouillon` (Var) : le bandeau donne **le verdict final, comme si la liste des zones était exhaustive** (décision de Nicolas, 19/11/2026), suivi d'un lien « **Voir les règles locales** » qui ouvre le détail de la carte de la DDTM — où reste la mention « Information provisoire, en cours de validation avec la DDTM ». *(En v2.40, le bandeau portait un badge « Information provisoire » ; retiré en v2.41.)* « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
+>    Le bandeau donne **le verdict final, comme si la liste des zones était exhaustive**, y compris pour une fiche en `brouillon` (Var) (décision de Nicolas, 19/11/2026). Il est suivi, **pour toutes les DDTM** dès qu'une carte de règle locale existe, d'un lien « **Voir les règles locales** » qui ouvre le détail de cette carte — où reste, pour le Var, la mention « Information provisoire, en cours de validation avec la DDTM ». Sans fiche (Finistère…), pas de carte à ouvrir : pas de lien. *(v2.40 : badge « Information provisoire » ; v2.41 : lien pour les seules fiches en brouillon ; v2.42 : lien pour toutes.)* « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
 > 2. **Règles locales** — inchangées dans leur texte ; carte en **Bleu France** `#000091` pour ses trois états (la couleur du verdict est passée au bandeau). Voir §4.4ter.
 > 3. **Mouillages voisins** — s'il y en a. Carte **neutre** (bordure grise) au lieu de l'orange ; badge « À compléter » dans l'intitulé tant que le calcul n'est pas fait, puis résultat vert ou rouge (§4.2).
 > 4. **Points de vigilance** — un seul bloc orange avertissement (`#b34000` sur `#fff4f3`, filet gauche épais), compte dans l'intitulé. **Replié**, il ne montre qu'une liste : le nom du point en noir gras (et, pour Natura 2000, le nom du site en seconde ligne), et une étiquette de ce que ça implique. **Un seul bouton** « Ce que ça implique » déplie le détail de chaque point, puis l'avertissement « inventaire indicatif » **une seule fois**. Ordre fixe :
 >
 >    | Rang | Point | Étiquette | Détail |
 >    |---|---|---|---|
->    | 1 | « Site Natura 2000 » + noms des sites | Étude d'incidence | texte Natura 2000 ci-dessous |
+>    | 1 | « Site Natura 2000 » + noms des sites | Étude d'incidence | « Une étude d'incidence sera réalisée pour toute demande d'autorisation de mouillage sur une zone Natura 2000. » (v2.42) |
 >    | 2 | « Herbier de posidonie », « Herbier de zostère … » quand le message OFB dit « espèce protégée » | Espèce protégée | message OFB tel quel + lien (§4.3quater) |
 >    | 3 | Autres herbiers, « Banc de maërl », « Coralligène » | Habitat fragile | message OFB, ou texte de la carte (maërl, coralligène) |
 >    | 4 | « ZNIEFF » | Zone sensible | texte ZNIEFF ci-dessous |
@@ -200,7 +200,7 @@ Deux couleurs seulement, et elles portent un sens : **bleu** pour les zonages de
 
 | Carte | Couleur | Ligne repliée | Bouton | Détail déplié |
 |---|---|---|---|---|
-| Natura 2000 | bleu | « **Site Natura 2000** — {noms des sites} » / « étude d'incidence à prévoir » | « Ce que ça implique » | « Une étude d'incidence sera réalisée suite à votre demande. Le nom de la zone est à reporter dans le formulaire : il est repris ci-dessous, avec un bouton pour le copier. » |
+| Natura 2000 | bleu | « **Site Natura 2000** — {noms des sites} » / « étude d'incidence à prévoir » | « Ce que ça implique » | « Une étude d'incidence sera réalisée pour toute demande d'autorisation de mouillage sur une zone Natura 2000. » *(texte de Nicolas, v2.42 ; avant : « … suite à votre demande. Le nom de la zone est à reporter dans le formulaire : il est repris ci-dessous, avec un bouton pour le copier. »)* |
 | ZNIEFF | bleu | « **ZNIEFF** — zone naturelle sensible » / « rien à reporter dans le formulaire » | « Ce que ça implique » | « Zone Naturelle d'Intérêt Écologique, Faunistique et Floristique. Cette zone est sensible, merci d'adopter des pratiques de mouillage durables. » |
 | Aucun zonage | — | **rien n'est affiché** *(v2.19)* : l'absence de carte dit déjà qu'il n'y a rien. Si aucune carte n'a lieu d'être, le bloc entier disparaît, titre compris | — | — |
 | Vérification impossible | bleu | « **Zonages de protection : vérification impossible** » / « service distant momentanément injoignable » | aucun | — |
@@ -1429,6 +1429,23 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.42 — 19 novembre 2026
+**Textes des règles locales raccourcis ; lien « Voir les règles locales » pour toutes les DDTM ; texte Natura 2000 ; panneau sous la recherche**
+- Demande de Nicolas : appliquer le lien du bandeau à l'ensemble des DDTM. `bandeauVerdict` l'affiche dès qu'une carte de règle locale existe (Var, Morbihan, Côtes-d'Armor ; cas « deux départements » si l'un a une fiche). Pas de lien sans fiche.
+- Détail du point de vigilance Natura 2000, texte de Nicolas : « Une étude d'incidence sera réalisée pour toute demande d'autorisation de mouillage sur une zone Natura 2000. » Le nom de la zone reste proposé dans « À reporter ».
+- **Textes des règles locales** (`data/ddtm-messages.json`, millésime 2026-11-19), raccourcis et homogènes à la demande de Nicolas — une phrase sur le modèle « La DDTM du … », plus de seconde ligne (le bouton dit l'action, le bandeau porte la réserve), bouton nommant l'action :
+
+  | Cas | Titre | Bouton |
+  |---|---|---|
+  | 56, 83 hors zone | « La DDTM du Morbihan / du Var délivre de nouvelles AOT de mouillage individuel uniquement dans certaines zones autorisées » | Voir les zones |
+  | 56, 83 en zone | « La DDTM … délivre de nouvelles AOT de mouillage individuel dans cette zone (nom de la zone) » | Voir les autres zones |
+  | 83 zone réservée | « La DDTM du Var réserve cette zone aux professionnels (nom de la zone) » | Voir les zones ouvertes à tous |
+  | 22 | « La DDTM des Côtes-d'Armor ne délivre plus de nouvelles AOT de mouillage individuel » (inchangé) | Voir la liste d'attente |
+
+  Paragraphe affiché à la place des coordonnées : 56 et 83 « Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus). » ; 22 « Coordonnées GPS non proposées : la DDTM ne délivre plus de nouvelles AOT ici. Pour un port ou une ZMEL, cliquez dessus sur la carte. » Textes de détail inchangés. Code : le nom de la zone passe en `suffixe` de la carte (plus de tiret devant la parenthèse).
+- **Panneau sous la recherche** : `limiterHauteurPanneau` borne la hauteur du panneau du point à la place libre sous le champ de recherche (mesurée au chargement et au redimensionnement, plancher 240 px) ; au-delà, le contenu défile. La **liste des résultats de recherche** passe au-dessus du panneau (`z-index` 1001 ; elle est posée par carte-facile dans `#map`, hors du contrôle). Ferme le point ouvert des tests depuis la v2.38 : l'usager devait réduire le panneau pour chercher un autre lieu ou choisir un résultat.
+- Tests : `test_regles_locales.js` 72/72 (§21.1.7 adapté, 2 nouveaux), `test_regles_locales_chromium.js` 17/17 (textes de masquage adaptés), **`test_interface_chromium.js` 22/22** (de nouveau complet, arrêté au §10.7 depuis la v2.38), §15 13/13, §18 27/27, §19.2 9/9, §20 23/23, intégrité OK, §10 Node 59/59, données OK. Rendu vérifié en local : Var en zone, Morbihan hors zone, Côtes-d'Armor ; panneau sous le champ de recherche dans les trois cas.
 
 ### v2.41 — 19 novembre 2026
 **Bandeau de verdict : « Voir les règles locales » au lieu de « Information provisoire »**

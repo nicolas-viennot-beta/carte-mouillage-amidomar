@@ -54,7 +54,7 @@ let numdep='83', ok=0,ko=0; const chk=(l,c,d)=>{c?ok++:ko++;console.log((c?'OK  
  console.log('--- Var, hors zone (43.20, 6.70) ---');
  let e = await aller('43.20, 6.70');
  chk('bloc « à reporter » masqué', e.report==='none', e.report);
- chk('paragraphe de masquage visible, texte du 83', !e.masque && /Var ne délivre plus/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
+ chk('paragraphe de masquage visible, texte du 83 (v2.42 : texte court commun)', !e.masque && /hors des zones autorisées par la DDTM/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
  chk('carte orange des règles locales présente', /env-carte--ddtm[" ]/.test(e.env) && !/ddtm-ok/.test(e.env));
  chk('barre réduite : pas de coordonnées', e.resume==='', e.resume);
  const rc = await page.evaluate(()=>{const r=document.getElementById('report-masque').getBoundingClientRect();return {h:r.height,bottom:r.bottom,win:innerHeight};});
@@ -71,7 +71,7 @@ let numdep='83', ok=0,ko=0; const chk=(l,c,d)=>{c?ok++:ko++;console.log((c?'OK  
  console.log('--- Morbihan, hors zone, baie de Quiberon (47.50, -3.05) — v2.38 ---');
  e = await aller('47.50, -3.05');
  chk('56 : bloc « à reporter » masqué', e.report==='none', e.report);
- chk('56 : paragraphe de masquage, texte du 56', !e.masque && /Morbihan ne délivre plus/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
+ chk('56 : paragraphe de masquage, texte du 56', !e.masque && /hors des zones autorisées par la DDTM/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
  chk('56 : carte orange, liste des zones du Morbihan', /env-carte--ddtm[" ]/.test(e.env) && /Toutes les zones du Morbihan/.test(e.env));
  await page.screenshot({path:'/tmp/amidomar_shot_56_hors_zone.png'});
  console.log('--- Morbihan, dans Riantec — Stervins (hors ZMEL ; les 4 zones du Palais sont dans une ZMEL) ---');
@@ -84,7 +84,7 @@ let numdep='83', ok=0,ko=0; const chk=(l,c,d)=>{c?ok++:ko++;console.log((c?'OK  
  console.log('--- Côtes-d\'Armor, en mer (48.80, -3.00) ---');
  e = await aller('48.80, -3.00');
  chk('bloc « à reporter » masqué', e.report==='none', e.report);
- chk('paragraphe de masquage, texte du 22', !e.masque && /Côtes-d'Armor/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
+ chk('paragraphe de masquage, texte du 22', !e.masque && /ne délivre plus de nouvelles AOT ici/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
  await page.screenshot({path:'/tmp/amidomar_shot_22.png'});
  console.log('pageerror :', pe.length, pe.slice(0,3));
  console.log('RESULTAT visu : '+ok+' OK, '+ko+' ECHEC');

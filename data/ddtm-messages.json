@@ -1,14 +1,14 @@
 {
   "_lisez_moi": "Messages affichés sur la carte selon la DDTM dont relève l'emplacement cliqué. Fichier provisoire : il sera régénéré depuis la table DDTM de Grist quand l'interface instructeur existera, d'où les noms de champs ci-dessous, alignés sur ceux prévus pour cette table. TOUS LES CHAMPS SONT DU TEXTE BRUT, jamais du HTML : la carte échappe les valeurs et construit elle-même la mise en forme. N'y mettre aucune balise. Champ coordonnees_hors_zone (v2.33) : false = la DDTM ne délivre pas d'AOT en dehors des zones de data/zones-aot.geojson ouvertes à tous, la carte n'affiche alors les coordonnées GPS que dans ces zones (jamais dans une zone réservée uniquement aux professionnels) ; absent ou true = coordonnées affichées partout. Ce masquage n'est actif que si brouillon est à false : tant que la liste des zones est en cours de constitution, la carte dit la règle mais ne retient pas les coordonnées. Il ne s'applique pas à l'entrée ?vue=existant (titulaire d'une AOT en cours).",
-  "millesime": "2026-11-13",
+  "millesime": "2026-11-19",
   "ddtm": [
     {
       "ddtm": "22",
       "nom_departement": "Côtes-d'Armor",
       "brouillon": false,
       "message_titre": "La DDTM des Côtes-d'Armor ne délivre plus de nouvelles AOT de mouillage individuel",
-      "message_consequence": "inscription sur la liste d'attente départementale",
-      "libelle_bouton": "Ce que ça implique",
+      "message_consequence": "",
+      "libelle_bouton": "Voir la liste d'attente",
       "message_detail": [
         "Pour utiliser un mouillage individuel en dehors des ports ou d'une zone de mouillages et d'équipements légers (ZMEL) dans les Côtes-d'Armor, vous devez vous enregistrer sur la liste d'attente départementale, au moyen d'un formulaire dédié."
       ],
@@ -16,14 +16,14 @@
       "lien": "https://demarche.numerique.gouv.fr/commencer/inscription-sur-liste-d-attente-mouillage",
       "libelle_lien": "S'inscrire sur la liste d'attente",
       "coordonnees_hors_zone": false,
-      "message_hors_zone": "Les Côtes-d'Armor ne délivrent plus de nouvelles AOT de mouillage individuel : les coordonnées GPS de cet emplacement ne sont donc pas proposées. Pour un mouillage dans un port ou une ZMEL, cliquez directement dessus sur la carte."
+      "message_hors_zone": "Coordonnées GPS non proposées : la DDTM ne délivre plus de nouvelles AOT ici. Pour un port ou une ZMEL, cliquez dessus sur la carte."
     },
     {
       "ddtm": "56",
       "nom_departement": "Morbihan",
       "brouillon": false,
-      "message_titre": "La DDTM du Morbihan délivre de nouvelles AOT de mouillage individuel uniquement dans les zones autorisées listées ci-dessous, et après vérification des disponibilités",
-      "message_consequence": "identifier ces zones pour faire une demande",
+      "message_titre": "La DDTM du Morbihan délivre de nouvelles AOT de mouillage individuel uniquement dans certaines zones autorisées",
+      "message_consequence": "",
       "libelle_bouton": "Voir les zones",
       "message_detail": [
         "Si aucune de ces zones ne convient à votre projet, orientez-vous vers une zone de mouillages et d'équipements légers (ZMEL) ou vers une zone portuaire."
@@ -33,21 +33,22 @@
       "libelle_lien": "",
       "_note_zones": "Comme pour le Var, les zones vivent dans data/zones-aot.geojson (propriété ddtm = 56), pas ici. Pas de champ secteurs : les zones sont listées par commune. Textes rédigés par Claude sur le modèle du 83 (13 nov. 2026), à faire relire par la DDTM 56.",
       "libelle_toutes_zones": "Toutes les zones du Morbihan",
-      "message_titre_zone": "La DDTM du Morbihan autorise les nouvelles AOT de mouillage individuel dans cette zone",
-      "message_complement_zone": "sous réserve de places disponibles",
+      "message_titre_zone": "La DDTM du Morbihan délivre de nouvelles AOT de mouillage individuel dans cette zone",
+      "message_complement_zone": "",
       "message_detail_zone": [
         "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres. Certaines zones ont aussi leurs propres conditions (longueur maximale des navires, mouillage avant-arrière) : rapprochez-vous de la DDTM du Morbihan pour connaître la disponibilité réelle et les conditions de la zone."
       ],
-      "message_consequence_zone": "identifier les autres zones autorisées",
+      "message_consequence_zone": "",
       "coordonnees_hors_zone": false,
-      "message_hors_zone": "Le Morbihan ne délivre plus de nouvelles AOT de mouillage individuel en dehors des zones dédiées : les coordonnées GPS de cet emplacement ne sont donc pas proposées. Choisissez un point dans l'une des zones autorisées (bouton « Voir les zones » ci-dessus)."
+      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus).",
+      "libelle_bouton_zone": "Voir les autres zones"
     },
     {
       "ddtm": "83",
       "nom_departement": "Var",
       "brouillon": true,
-      "message_titre": "La DDTM du Var délivre de nouvelles AOT de mouillage individuel uniquement dans les zones autorisées listées ci-dessous, et après vérification des disponibilités",
-      "message_consequence": "identifier ces zones pour faire une demande",
+      "message_titre": "La DDTM du Var délivre de nouvelles AOT de mouillage individuel uniquement dans certaines zones autorisées",
+      "message_consequence": "",
       "libelle_bouton": "Voir les zones",
       "message_detail": [
         "Si aucune de ces zones ne convient à votre projet, orientez-vous vers une zone de mouillages et d'équipements légers (ZMEL) ou vers une zone portuaire."
@@ -76,23 +77,25 @@
         }
       ],
       "_note_secteurs": "v2.37 : la liste des zones est rangée par secteur. Le secteur d'une zone se lit dans le numéro de carte DDTM de son champ source (« carte n°6 ») : cartes 1 à 26 pour l'ouest (27 à 30 non transmises, rangées à l'ouest par défaut — à confirmer avec la DDTM), 31 à 52 pour l'est. Une zone sans numéro de carte, ou hors de ces plages, apparaît sous « Autres zones ». Sans champ secteurs, les communes sont listées directement.",
-      "message_titre_zone": "La DDTM du Var autorise les nouvelles AOT de mouillage individuel dans cette zone",
-      "message_complement_zone": "sous réserve de places disponibles",
+      "message_titre_zone": "La DDTM du Var délivre de nouvelles AOT de mouillage individuel dans cette zone",
+      "message_complement_zone": "",
       "message_detail_zone": [
         "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres : rapprochez-vous de la DDTM du Var pour connaître la disponibilité réelle."
       ],
       "_note_variante_zone": "Les champs *_zone sont utilisés quand l'emplacement cliqué tombe DANS une zone de data/zones-aot.geojson : la carte de règle locale passe alors au vert et affiche ces textes à la place des textes par défaut. Le nom de la zone est ajouté automatiquement entre parenthèses après message_complement_zone — ne pas l'écrire ici. Sans libelle_bouton_zone, le bouton par défaut est conservé.",
-      "message_consequence_zone": "identifier les autres zones autorisées",
+      "message_consequence_zone": "",
       "coordonnees_hors_zone": false,
-      "message_hors_zone": "Le Var ne délivre plus de nouvelles AOT de mouillage individuel en dehors des zones dédiées : les coordonnées GPS de cet emplacement ne sont donc pas proposées. Choisissez un point dans l'une des zones autorisées (bouton « Voir les zones » ci-dessus).",
-      "message_titre_zone_pro": "Cet emplacement est dans une zone réservée uniquement aux professionnels",
-      "message_complement_zone_pro": "aucune AOT de mouillage individuel n'y est délivrée aux plaisanciers",
-      "message_consequence_zone_pro": "identifier les zones autorisées à tous",
+      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus).",
+      "message_titre_zone_pro": "La DDTM du Var réserve cette zone aux professionnels",
+      "message_complement_zone_pro": "",
+      "message_consequence_zone_pro": "",
       "message_detail_zone_pro": [
         "La DDTM du Var réserve cette zone aux professionnels (zone dite « tampon ») : un plaisancier ne peut pas y obtenir d'AOT de mouillage individuel, et les coordonnées GPS n'y sont pas proposées.",
         "Les zones ouvertes à tous les plaisanciers sont listées ci-dessous."
       ],
-      "_note_zone_pro": "Les champs *_zone_pro sont utilisés quand l'emplacement cliqué tombe dans une zone de data/zones-aot.geojson dont la propriété public vaut 'professionnels'. La carte de règle locale reste orange, sans coordonnées. Aucune zone de ce type n'est encore saisie pour le Var (v2.33) : les champs sont prêts pour la première."
+      "_note_zone_pro": "Les champs *_zone_pro sont utilisés quand l'emplacement cliqué tombe dans une zone de data/zones-aot.geojson dont la propriété public vaut 'professionnels'. La carte de règle locale reste orange, sans coordonnées. Aucune zone de ce type n'est encore saisie pour le Var (v2.33) : les champs sont prêts pour la première.",
+      "libelle_bouton_zone": "Voir les autres zones",
+      "libelle_bouton_zone_pro": "Voir les zones ouvertes à tous"
     }
   ]
 }

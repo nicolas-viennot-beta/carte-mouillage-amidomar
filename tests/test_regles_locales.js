@@ -167,7 +167,10 @@ t('deux départements → neutre', classeV(V(dep2, msgs, zones, dehors)) === 'ne
 t('département inconnu → pas de bandeau', V(null, msgs, zones, dehors) === '');
 t('83 en brouillon (fichier tel quel) → verdict final + lien « Voir les règles locales », plus de « Information provisoire » (v2.41)',
   (h => classeV(h) === 'non' && h.includes('Voir les règles locales') && !h.includes('Information provisoire'))(V(dep83, messages, zones, dehors)));
-t('83 publié → pas de lien « Voir les règles locales »', !V(dep83, msgs, zones, dehors).includes('Voir les règles locales'));
+t('83 publié → lien « Voir les règles locales » aussi (v2.42 : toutes les DDTM)', V(dep83, msgs, zones, dehors).includes('Voir les règles locales'));
+t('22, 56 hors zone, 56 en zone → lien présent', [V(dep22, msgs, zones, dehors), V(dep56, messages, zones, dehors56), V(dep56, messages, zones, dansGuen)]
+  .every(h => h.includes('Voir les règles locales')));
+t('29 (pas de fiche, rien à ouvrir) → pas de lien', !V(dep29, msgs, zones, dehors).includes('Voir les règles locales'));
 t('56 hors zone → rouge ; dans Port Guen → vert',
   classeV(V(dep56, messages, zones, dehors56)) === 'non' && classeV(V(dep56, messages, zones, dansGuen)) === 'ok');
 t('56 dans une zone du 83 → rouge (zone d\'une autre DDTM)', classeV(V(dep56, messages, zones, dedans)) === 'non');

@@ -42,10 +42,10 @@ Les harnais `*_chromium.js` ont besoin de Playwright (version figée dans
 `package.json`, installé sur le Mac de Nicolas le 14/11/2026). Les autres
 n'ont besoin que de Node et de Python.
 
-**Point ouvert (14/11/2026)** : `test_interface_chromium.js` s'arrête au §10.7 —
-après sélection d'un point GPS, le bouton « Réduire » du popup de coordonnées
-recouvre le champ de recherche et intercepte le clic. Chevauchement réel ou
-harnais non adapté à la mise en page v2.36 : à trancher.
+**Point clos le 19/11/2026 (v2.42)** : `test_interface_chromium.js` s'arrêtait au
+§10.7 depuis la v2.38 — c'était un chevauchement réel : le panneau du point
+recouvrait le champ de recherche, et la liste des résultats passait dessous.
+Corrigé dans la carte (hauteur bornée, liste au premier plan) : 22/22.
 
 ## Ce que ces harnais ne vérifient pas
 

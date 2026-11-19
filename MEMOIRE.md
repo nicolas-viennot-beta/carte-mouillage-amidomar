@@ -113,6 +113,14 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Textes des règles locales : Nicolas veut des textes
+  **courts et homogènes** — une phrase « La DDTM du … », pas de seconde
+  ligne, un bouton qui nomme l'action. Le détail garde les explications.
+- **19/11/2026** — Un harnais qui « échoue à cause du harnais » peut cacher
+  un vrai défaut : l'arrêt du §10.7 traîné depuis la v2.38 était un
+  chevauchement réel (panneau sur la recherche, liste de résultats dessous).
+  Avant de conclure « limite du harnais », reproduire le geste de l'usager.
+
 - **19/11/2026** — Arbitrage de Nicolas : le bandeau de verdict montre le
   **fonctionnement final**, comme si la donnée était exhaustive, même quand
   la fiche DDTM est en brouillon (Var). Pas de mention « provisoire » dans

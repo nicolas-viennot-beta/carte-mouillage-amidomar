@@ -85,7 +85,7 @@
       #coords-popup { position:fixed; bottom:40px; left:16px; background:#fff;
                       border-radius:8px; padding:8px 16px 10px; box-shadow:0 2px 12px rgba(0,0,0,.25);
                       font-size:14px; z-index:1000; width:min(420px, calc(100% - 32px));
-                      max-height:calc(100% - 80px); overflow-y:auto;
+                      max-height:var(--panneau-hauteur-max, calc(100% - 80px)); overflow-y:auto;
                       opacity:0; transition:opacity .2s; pointer-events:none; box-sizing:border-box; }
       @media (max-width:700px) {
         #coords-popup { left:16px; right:16px; width:auto; }
@@ -589,6 +589,11 @@
          surligné d'un trait bleu France de 2 px, texte 16 px, bouton carré
          bleu France #000091 portant la loupe. Largeur 545 px comme là-bas,
          réduite pour ne jamais passer sous la colonne de droite. */
+      /* v2.42 : la liste des résultats de recherche s'ouvre AU-DESSUS du panneau
+         du point (z-index 1000) — elle passait dessous, et l'usager ne pouvait
+         pas choisir un résultat sans réduire le panneau. La liste est posée par
+         carte-facile directement dans #map (z-index 10), hors du contrôle. */
+      #map-wrap [id^="cartefacile-search-results"] { z-index:1001; }
       #map-wrap .maplibregl-ctrl-group.cartefacile-ctrl-search {
         width:min(545px, max(240px, calc(100vw - 312px))); max-width:none;
         background:#eee; border-radius:4px 4px 0 0; box-shadow:inset 0 -2px 0 0 #000091; }
@@ -2031,9 +2036,25 @@
       const haut = wrap.getBoundingClientRect().top;
       rouvrir.style.top = (ctl ? ctl.getBoundingClientRect().bottom - haut + 8 : 10) + 'px';
     }
-    window.addEventListener('resize', () => { placerRouvrir(); redimensionnerTerrain(); });
-    setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 400);
-    setTimeout(() => { placerRouvrir(); redimensionnerTerrain(); }, 1500);
+    /* v2.42 : le panneau du point s'arrête sous le champ de recherche. Ancré
+       en bas et grandissant vers le haut, il finissait par recouvrir le champ
+       (point ouvert des tests depuis la v2.38) : l'usager devait le réduire
+       pour chercher un autre lieu. Sa hauteur est désormais bornée par la
+       place réellement libre, mesurée ; au-delà, son contenu défile. Plancher
+       de 240 px : sur un écran très bas, mieux vaut un recouvrement qu'un
+       panneau illisible. */
+    function limiterHauteurPanneau() {
+      const p = document.getElementById('coords-popup');
+      const r = wrap.querySelector('.cartefacile-ctrl-search');
+      if (!p || !r || !p.style || typeof p.style.setProperty !== 'function') return;
+      const bas = r.getBoundingClientRect().bottom;
+      const libre = window.innerHeight - 40 - bas - 12;   // 40 px : ancrage bas du panneau
+      p.style.setProperty('--panneau-hauteur-max', Math.max(240, Math.round(libre)) + 'px');
+    }
+    const auRedimensionnement = () => { placerRouvrir(); redimensionnerTerrain(); limiterHauteurPanneau(); };
+    window.addEventListener('resize', auRedimensionnement);
+    setTimeout(auRedimensionnement, 400);
+    setTimeout(auRedimensionnement, 1500);
 
     ouvrirGuide({ sansFocus: true });   // la carte s'ouvre sur ses explications, sans voler le focus
 
@@ -3243,16 +3264,18 @@
         const source = enZonePro
           ? { titre: f.message_titre_zone_pro
                   || 'Cet emplacement est dans une zone réservée uniquement aux professionnels',
-              complement: [f.message_complement_zone_pro, nomZone && `(${nomZone})`]
-                            .filter(Boolean).join(' '),
+              // v2.42 : le nom de la zone suit le titre, sans tiret, quand le
+              // complément est vide (textes raccourcis).
+              complement: f.message_complement_zone_pro || '',
+              suffixe: nomZone ? `(${nomZone})` : '',
               consequence: f.message_consequence_zone_pro || 'identifier les zones autorisées à tous',
               bouton: f.libelle_bouton_zone_pro || f.libelle_bouton || 'Voir les zones',
               detail: f.message_detail_zone_pro || f.message_detail || [] }
           : enZone
           ? { titre: f.message_titre_zone
                   || "Cet emplacement est dans une zone où l'AOT reste délivrable",
-              complement: [f.message_complement_zone, nomZone && `(${nomZone})`]
-                            .filter(Boolean).join(' '),
+              complement: f.message_complement_zone || '',
+              suffixe: nomZone ? `(${nomZone})` : '',
               consequence: f.message_consequence_zone || '',
               // Même libellé de bouton que l'état par défaut : l'action est la
               // même (ouvrir la liste des zones), seule la réponse change.
@@ -3299,6 +3322,7 @@
         return carteEnv({
           type: enZonePro ? 'ddtm-pro' : enZone ? 'ddtm-ok' : 'ddtm',
           titre: source.titre,
+          suffixe: source.suffixe,
           complement: source.complement,
           consequence: source.consequence,
           bouton: source.bouton,
@@ -3325,40 +3349,44 @@
          - département inconnu (service injoignable) → pas de bandeau.
        « Nouvelle » autorisation et non « autorisation » : un titulaire installé
        hors zone peut toujours demander la poursuite de son occupation.
-       Fiche en brouillon → lien « Voir les règles locales » (v2.41 ; « Information
-       provisoire » en v2.40). */
+       Lien « Voir les règles locales » sous le verdict dès qu'une carte de règle
+       locale existe à ouvrir, pour toutes les DDTM (v2.42, décision de Nicolas
+       du 19/11/2026 ; en v2.41 pour les seules fiches en brouillon, en v2.40
+       badge « Information provisoire »). Sans fiche, pas de carte : pas de lien. */
     function bandeauVerdict(dep, messages, zones, lngLat) {
       if (!dep || !dep.departements || !dep.departements.length) return '';
-      const rendu = (classe, titre, texte, provisoire) =>
+      const rendu = (classe, titre, texte, lien) =>
         `<div class="env-verdict env-verdict--${classe}" role="status"><div>
            <span class="env-verdict-titre">${echapper(titre)}</span>` +
            (texte ? `<span class="env-verdict-texte">${echapper(texte)}</span>` : '') +
            // v2.41 : plus de mention « Information provisoire » — le bandeau donne
            // le verdict comme si la liste des zones était exhaustive (décision de
            // Nicolas, 19/11/2026). Le caractère provisoire reste dit dans le
-           // détail de la règle locale, que ce lien ouvre.
-           (provisoire ? '<button type="button" class="env-verdict-lien">Voir les règles locales</button>' : '') +
+           // détail de la règle locale, que ce lien ouvre. v2.42 : toutes les DDTM.
+           (lien ? '<button type="button" class="env-verdict-lien">Voir les règles locales</button>' : '') +
         `</div></div>`;
+      const avecCarte = (code) => (messages || []).some(m => String(m.ddtm) === String(code) && m.message_titre);
       if (dep.departements.length > 1) return rendu('neutre',
-        'Règles locales à vérifier', 'Ce point est à la limite de deux départements : voir ci-dessous.');
+        'Règles locales à vérifier', 'Ce point est à la limite de deux départements : voir ci-dessous.',
+        dep.departements.some(avecCarte));
       const f = (messages || []).find(m => String(m.ddtm) === String(dep.departements[0]));
       if (!f || !f.message_titre) return rendu('neutre',
         'Règles locales non renseignées ici', 'Renseignez-vous auprès de la DDTM avant de faire une demande.');
       if (f.coordonnees_hors_zone !== false) return rendu('neutre',
-        'Règles locales à lire ci-dessous', '', f.brouillon);
+        'Règles locales à lire ci-dessous', '', true);
       const sesZones = (zones || []).filter(z => String((z.properties||{}).ddtm) === String(f.ddtm));
       const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
       const deCetteDDTM = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
       if (deCetteDDTM && zoneReserveePro(zoneIci)) return rendu('pro',
-        'Zone réservée aux professionnels', 'Pas de demande possible pour un plaisancier.', f.brouillon);
+        'Zone réservée aux professionnels', 'Pas de demande possible pour un plaisancier.', true);
       if (deCetteDDTM) return rendu('ok',
-        "Demande d'autorisation possible dans cette zone", 'Sous réserve de places disponibles.', f.brouillon);
+        "Demande d'autorisation possible dans cette zone", 'Sous réserve de places disponibles.', true);
       if (!sesZones.length) return rendu('non',
         'Pas de nouvelle autorisation de mouillage dans ce département',
-        'La DDTM ne délivre plus de nouvelles AOT de mouillage individuel.', f.brouillon);
+        'La DDTM ne délivre plus de nouvelles AOT de mouillage individuel.', true);
       return rendu('non',
         'Pas de nouvelle autorisation de mouillage dans cette zone',
-        "La DDTM n'en délivre que dans ses zones autorisées.", f.brouillon);
+        "La DDTM n'en délivre que dans ses zones autorisées.", true);
     }
 
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
@@ -4283,9 +4311,9 @@
         nom: 'Site Natura 2000',
         sous: natura.join(', '),
         etiquette: 'Étude d’incidence',
-        detail: `<p>Une étude d'incidence sera réalisée suite à votre demande. Le nom de
-                 la zone est à reporter dans le formulaire : il est repris ci-dessous,
-                 avec un bouton pour le copier.</p>`
+        // v2.42 : texte de Nicolas (19/11/2026).
+        detail: `<p>Une étude d'incidence sera réalisée pour toute demande d'autorisation
+                 de mouillage sur une zone Natura 2000.</p>`
       });
       if (znieff.length) points.push({
         ordre: 4,

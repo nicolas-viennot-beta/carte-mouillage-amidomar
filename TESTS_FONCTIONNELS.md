@@ -23,7 +23,11 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 19 nov. 2026 (v2.41) — lien « Voir les règles locales » dans le bandeau.**
+**Dernière exécution : 19 nov. 2026 (v2.42) — textes des règles locales, panneau sous la recherche.**
+- §6 **OK**, §10 **59/59** Node et **22/22 Chromium** (de nouveau complet : le panneau ne recouvre plus le champ de recherche et la liste de résultats passe au-dessus), §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17** (textes de masquage adaptés), §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**.
+- Rendu vérifié en local (réseau ouvert) : Var zone 1 → « … dans cette zone (Saint-Tropez — La Bouillabaisse, zone 1) » + « Voir les autres zones » ; Morbihan hors zone → « … uniquement dans certaines zones autorisées » + nouveau paragraphe de masquage ; Côtes-d'Armor → « Voir la liste d'attente ». Haut du panneau sous le champ de recherche dans les trois cas. Une première tentative dans la baie de Quiberon est revenue sans département (réponse lente du Shom), réussie au second passage.
+
+**Exécution précédente : 19 nov. 2026 (v2.41) — lien « Voir les règles locales » dans le bandeau.**
 - §6 **OK**, §10 **59/59** Node, §16 **OK**, §17 + §19 + §21.1 **70/70**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**. §10 Chromium : arrêt au §10.7 inchangé (point ouvert).
 - Rendu vérifié en local à Hyères : « Voir les règles locales » sous le verdict rouge, plus de badge ; clic → détail de la règle ouvert, 0 `pageerror`.
 
@@ -3089,7 +3093,7 @@ réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
 4. 22 (aucune zone) → `env-verdict--non`, « … dans ce département ».
 5. 29 (pas de fiche) → `env-verdict--neutre`, « Règles locales non renseignées ici ».
 6. Deux départements → neutre. Département inconnu → chaîne vide (pas de bandeau).
-7. 83 en brouillon (fichier tel quel) → verdict final (rouge hors zone) + lien « Voir les règles locales », **sans** « Information provisoire » ; 83 publié → pas de lien *(v2.41)*.
+7. 83 en brouillon (fichier tel quel) → verdict final (rouge hors zone) + lien « Voir les règles locales », **sans** « Information provisoire » *(v2.41)*. 83 publié, 22, 56 hors zone et en zone → lien présent ; 29 (pas de fiche) → pas de lien *(v2.42)*.
    - Rendu (vérifié en local le 19/11/2026) : un clic sur le lien déplie le détail de la carte de la DDTM, qui contient « Information provisoire », et place le focus sur son bouton.
 8. 56 hors zone → rouge ; dans Port Guen → vert ; dans une zone du 83 → rouge.
 
