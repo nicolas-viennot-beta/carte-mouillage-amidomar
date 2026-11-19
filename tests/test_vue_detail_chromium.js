@@ -67,7 +67,7 @@ const RETOUR="← Retour à la synthèse de l'emplacement";
  await page.locator('#env-block .env-carte--ddtm .env-toggle-bloc').click(); await page.waitForTimeout(300);
  s = await etat();
  chk('vue ouverte, lien de retour au libellé choisi', s.enVue && s.retour === RETOUR, s.retour);
- chk('rappel du verdict « Votre emplacement : Pas de nouvelle autorisation… »', /^Votre emplacement : Pas de nouvelle autorisation/.test(s.rappel), s.rappel);
+ chk('rappel du verdict « Votre emplacement : Nouvelle demande d\'autorisation impossible… » (v2.48)', /^Votre emplacement : Nouvelle demande d'autorisation impossible/.test(s.rappel), s.rappel);
  chk('titre « Zones autorisées — Var (83) »', s.titre === 'Zones autorisées — Var (83)', s.titre);
  chk('la liste des zones est visible ; vigilance, verdict, « À reporter » masqués',
      s.listeZonesVisible && !s.vigilanceVisible && !s.verdictVisible && !s.reportVisible, JSON.stringify(s));

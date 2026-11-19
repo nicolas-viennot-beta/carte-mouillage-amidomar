@@ -155,12 +155,18 @@ const V = (d, m, z, p) => T.bandeauVerdict(d, m, z, p);
 const classeV = h => (/env-verdict--(\w+)/.exec(h) || [])[1];
 t('83 dans une zone « tous » → vert « Demande d\'autorisation possible… », sous réserve de places',
   (h => classeV(h) === 'ok' && h.includes("Demande d'autorisation possible dans cette zone") && h.includes('Sous réserve de places disponibles'))(V(dep83, msgs, zones, dedans)));
-t('83 hors zone → rouge « Pas de nouvelle autorisation… dans cette zone »',
-  (h => classeV(h) === 'non' && h.includes('Pas de nouvelle autorisation de mouillage dans cette zone'))(V(dep83, msgs, zones, dehors)));
-t('83 dans une zone « professionnels » → gris « Zone réservée aux professionnels »',
-  (h => classeV(h) === 'pro' && h.includes('Zone réservée aux professionnels'))(V(dep83, msgs, [zPro], dedans)));
-t('22 (aucune zone) → rouge « … dans ce département »',
-  (h => classeV(h) === 'non' && h.includes('dans ce département'))(V(dep22, msgs, zones, dehors)));
+t('83 hors zone → rouge, titre commun, « Consultez les zones autorisées par la DDTM… » (v2.48)',
+  (h => classeV(h) === 'non' && h.includes("Nouvelle demande d'autorisation impossible dans cette zone")
+    && h.includes('Consultez les zones autorisées par la DDTM, ou les ZMEL et les ports sur la carte.'))(V(dep83, msgs, zones, dehors)));
+t('83 dans une zone « professionnels » → gris, titre commun, « Cette zone est réservée aux professionnels. » (v2.48)',
+  (h => classeV(h) === 'pro' && h.includes("Nouvelle demande d'autorisation impossible dans cette zone")
+    && h.includes('Cette zone est réservée aux professionnels.'))(V(dep83, msgs, [zPro], dedans)));
+t('22 (aucune zone) → rouge, titre commun, liste d\'attente de la DDTM (v2.48)',
+  (h => classeV(h) === 'non' && h.includes("Nouvelle demande d'autorisation impossible dans cette zone")
+    && h.includes("Inscrivez-vous sur la liste d'attente de la DDTM ou consultez les ZMEL et les ports sur la carte."))(V(dep22, msgs, zones, dehors)));
+t('plus aucun ancien titre « Pas de nouvelle autorisation » ni « Zone réservée aux professionnels » (v2.48)',
+  [V(dep22, msgs, zones, dehors), V(dep83, msgs, zones, dehors), V(dep83, msgs, [zPro], dedans)]
+    .every(h => !h.includes('Pas de nouvelle autorisation') && !h.includes('Zone réservée aux professionnels')));
 t('29 (pas de fiche) → neutre « Règles locales non renseignées ici »',
   (h => classeV(h) === 'neutre' && h.includes('Règles locales non renseignées ici'))(V(dep29, msgs, zones, dehors)));
 t('deux départements → neutre', classeV(V(dep2, msgs, zones, dehors)) === 'neutre');
@@ -174,6 +180,20 @@ t('29 (pas de fiche, rien à ouvrir) → pas de lien', !V(dep29, msgs, zones, de
 t('56 hors zone → rouge ; dans Port Guen → vert',
   classeV(V(dep56, messages, zones, dehors56)) === 'non' && classeV(V(dep56, messages, zones, dansGuen)) === 'ok');
 t('56 dans une zone du 83 → rouge (zone d\'une autre DDTM)', classeV(V(dep56, messages, zones, dedans)) === 'non');
+
+console.log('--- §21.4  Interdiction au point (APB, cultures marines) — v2.48 ---');
+const I = { phrase: 'Vous êtes dans une zone protégée par arrêté de biotope.' };
+const VI = (d, m, z, p) => T.bandeauVerdict(d, m, z, p, I);
+t('règle locale qui interdit (22) → elle prime : phrase DDTM, lien « Voir les règles locales »',
+  (h => classeV(h) === 'non' && h.includes('liste d\'attente de la DDTM') && !h.includes(I.phrase)
+    && h.includes('Voir les règles locales') && !h.includes('Voir le détail de la zone'))(VI(dep22, msgs, zones, dehors)));
+t('zone professionnelle (83) → elle prime aussi, gris', classeV(VI(dep83, msgs, [zPro], dedans)) === 'pro');
+t('83 dans une zone « tous » + APB → rouge, phrase de l\'interdiction, lien « Voir le détail de la zone »',
+  (h => classeV(h) === 'non' && h.includes("Nouvelle demande d'autorisation impossible dans cette zone") && h.includes(I.phrase)
+    && h.includes('data-cible="interdit"') && h.includes('Voir le détail de la zone') && !h.includes('Voir les règles locales'))(VI(dep83, msgs, zones, dedans)));
+t('29 (pas de fiche) + APB → rouge, phrase de l\'interdiction', (h => classeV(h) === 'non' && h.includes(I.phrase))(VI(dep29, msgs, zones, dehors)));
+t('deux départements + APB → rouge, phrase de l\'interdiction', (h => classeV(h) === 'non' && h.includes(I.phrase))(VI(dep2, msgs, zones, dehors)));
+t('département inconnu + APB → bandeau quand même', (h => classeV(h) === 'non' && h.includes(I.phrase))(VI(null, msgs, zones, dehors)));
 
 console.log('\nRESULTAT §17 + §19 + §21.1 : ' + ok + ' OK, ' + ko + ' ECHEC');
 process.exit(ko ? 1 : 0);

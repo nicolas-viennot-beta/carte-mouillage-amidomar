@@ -1654,7 +1654,9 @@ secteur sans cadastre publié, flux injoignable.
 
 1. **Parcelle trouvée en Finistère — interdiction complète**
    - Action : clic sur −3,86382 / 48,63412, le cadastre renvoyant `MX01000956`.
-   - Attendu : `#env-block` en classe `env-rouge`, contenant « parcelle
+   - *(v2.48 : `#env-block` en classe `env-cartes`, bandeau commun puis carte
+     `.env-carte--interdit`, le texte ci-dessous étant dans son détail.)*
+   - Attendu (jusqu'en v2.47) : `#env-block` en classe `env-rouge`, contenant « parcelle
      MX01000956 », « TAULE », « Divers Huître/Coquillage », « déjà concédée », et
      « Source : cadastre conchylicole de la DDTM Finistère ».
 
@@ -2556,7 +2558,9 @@ sur `#coords-reduire`, `#coords-resume` et `#coords-fermer` et relever la classe
 18. **Aucune carte → libellé neutre** — « Emplacement sélectionné », classe
     `.rien`. **Jamais « 0 point à vérifier ».**
 
-19. **Bloc rouge → « Mouillage interdit ici »** (classe `.interdit`). Un APB ou
+19. **Bloc rouge → « Mouillage interdit ici »** (classe `.interdit`). *(v2.48 : l'APB et la
+    parcelle passent par le bandeau rouge, la barre dit « Nouvelle demande impossible ici » —
+    §21.4.c.)* Un APB ou
     une parcelle conchylicole n'affiche aucune `.env-carte` : sans ce cas
     particulier, l'interdiction se résumerait à « rien à signaler » — c'est la
     régression la plus coûteuse de cette fonctionnalité.
@@ -3124,13 +3128,14 @@ Aucun point ; carte grise « Sites sensibles pour les oiseaux et les phoques : v
 ## 21. Panneau du point : bandeau de verdict et sections *(v2.40)*
 
 *Harnais : `test_regles_locales.js` (§21.1, Node), `test_habitats_chromium.js` (§20),
-`test_mouillages_voisins_chromium.js` (§15). Dernière exécution : 18 nov. 2026 — 11/11 (§21.1).*
+`test_mouillages_voisins_chromium.js` (§15), `test_interdit_chromium.js` (§21.4, v2.48).
+Dernière exécution : 19 nov. 2026 — `test_regles_locales.js` 79/79, `test_interdit_chromium.js` 17/17.*
 
 ### 21.1 Bandeau de verdict (Node, `bandeauVerdict` appelé directement)
 1. 83 dans une zone « tous » → `env-verdict--ok`, « Demande d'autorisation possible dans cette zone », « Sous réserve de places disponibles ».
-2. 83 hors zone → `env-verdict--non`, « Pas de nouvelle autorisation de mouillage dans cette zone ».
-3. 83 dans une zone « professionnels » → `env-verdict--pro`, « Zone réservée aux professionnels ».
-4. 22 (aucune zone) → `env-verdict--non`, « … dans ce département ».
+2. 83 hors zone → `env-verdict--non`, « Nouvelle demande d'autorisation impossible dans cette zone », « Consultez les zones autorisées par la DDTM, ou les ZMEL et les ports sur la carte. » *(v2.48)*.
+3. 83 dans une zone « professionnels » → `env-verdict--pro` (gris), même titre, « Cette zone est réservée aux professionnels. » *(v2.48)*.
+4. 22 (aucune zone) → `env-verdict--non`, même titre, « Inscrivez-vous sur la liste d'attente de la DDTM ou consultez les ZMEL et les ports sur la carte. » *(v2.48)*. Plus aucun ancien titre (« Pas de nouvelle autorisation… », « Zone réservée aux professionnels »).
 5. 29 (pas de fiche) → `env-verdict--neutre`, « Règles locales non renseignées ici ».
 6. Deux départements → neutre. Département inconnu → chaîne vide (pas de bandeau).
 7. 83 en brouillon (fichier tel quel) → verdict final (rouge hors zone) + lien « Voir les règles locales », **sans** « Information provisoire » *(v2.41)*. 83 publié, 22, 56 hors zone et en zone → lien présent ; 29 (pas de fiche) → pas de lien *(v2.42)*.
@@ -3144,7 +3149,18 @@ Aucun point ; carte grise « Sites sensibles pour les oiseaux et les phoques : v
 
 ### 21.3 Non couvert par les harnais — à vérifier en réel
 - Bandeau et couleurs sur la version publiée (Var, Morbihan, Côtes-d'Armor, Finistère).
-- Barre réduite : « N points de vigilance », « Pas de nouvelle autorisation ici ».
+- Barre réduite : « N points de vigilance », « Nouvelle demande impossible ici » *(v2.48 ; couvert pour l'APB par §21.4.c)*.
+- Vrai APB et vraie parcelle de cultures marines sur la version publiée (§21.4 les simule ou ne les couvre pas).
+
+### 21.4 Interdiction au point sous le bandeau commun *(v2.48)*
+*Node : `test_regles_locales.js` (`bandeauVerdict(…, interdit)`). Chromium : `test_interdit_chromium.js`,
+Shom LIMTM simulé (83), WFS APB simulé (« APB de test »), reste du réseau coupé.*
+
+a. Node — la règle locale prime : 22 + APB → phrase de la DDTM, lien « Voir les règles locales » ; zone pro 83 + APB → gris.
+   À défaut (83 en zone « tous », 29, deux départements, département inconnu) → rouge, phrase « Vous êtes dans une zone protégée par arrêté de biotope. », lien « Voir le détail de la zone » (`data-cible="interdit"`).
+b. Chromium, 43.2678, 6.6228 (Var, zone 1 La Bouillabaisse) + APB : bandeau rouge, titre commun, phrase de l'APB, lien « Voir le détail de la zone » ; carte rouge « Arrêté de protection de biotope » ; pas de carte de règle locale ; ni marqueur ni coordonnées. Le lien et le bouton « Voir le détail » ouvrent la vue détail titrée « Arrêté de protection de biotope », rappel « Votre emplacement : Nouvelle demande d'autorisation impossible dans cette zone », détail nommant l'arrêté.
+c. Chromium, 43.045, 6.155 (Var, hors zone) + APB : phrase de la DDTM, lien « Voir les règles locales » (ouvre la règle locale), carte de règle locale puis carte de l'APB. Barre réduite « Nouvelle demande impossible ici ». Aucune erreur JavaScript.
+d. Non couvert : parcelle de cultures marines (même chemin de code, textes « Parcelle de cultures marines » / « Vous êtes sur une parcelle de cultures marines. »), à vérifier sur un vrai point (§ cultures marines, test 1).
 - Rendu à 390 px.
 
 ## 22. Vue détail avec retour *(v2.44)*
@@ -3159,7 +3175,7 @@ Dernière exécution : 19 nov. 2026 — 17/17.*
 
 ### 22.2 Vue « Voir les zones »
 1. Lien « ← Retour à la synthèse de l'emplacement ».
-2. Rappel « Votre emplacement : Pas de nouvelle autorisation… ».
+2. Rappel « Votre emplacement : Nouvelle demande d'autorisation impossible… » *(v2.48)*.
 3. Titre « Zones autorisées — Var (83) ».
 4. Liste des zones visible ; vigilance, bandeau et « À reporter » masqués.
 5. Focus sur le lien de retour.

@@ -113,6 +113,19 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Relecture de tous les bandeaux avec Nicolas (v2.48) :
+  **un seul titre quand la demande n'est pas possible**, « Nouvelle demande
+  d'autorisation impossible dans cette zone ». Nicolas proposait « refusée » ;
+  « impossible » retenu car la carte ne décide rien et l'usager n'a rien
+  déposé. Règle qui en découle : un libellé ne prête pas à la carte une
+  décision de l'administration. Autres arbitrages : la **règle locale prime**
+  sur l'interdiction au point, qui reste visible dessous ; les phrases suivent
+  le cas (DDTM sans zone / avec zones), pas le département ; « par la DDTM »,
+  jamais « par le département » ; ne pas promettre « les places » que la carte
+  ne connaît pas. La liste d'attente des Côtes-d'Armor est tenue par la DDTM.
+  Façon de travailler qui a marché : afficher tous les textes possibles d'un
+  composant côte à côte avant de les réécrire.
+
 - **19/11/2026** — Arbitrage de Nicolas : les textes **écrits par nous**
   sont au **vouvoiement** (« Pour mouiller, évitez ces fonds rocheux.
   Ancrez-vous dans les zones sableuses. »), comme le reste de la carte. Les

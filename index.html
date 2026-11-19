@@ -234,6 +234,11 @@
       #env-block .env-carte--protection { background:#f0f4ff; border-left:3px solid #003189; }
       #env-block .env-carte--fond       { background:#fdf8ec; border-left:3px solid #c3992a; }
       #env-block .env-carte--usage      { background:#eef6f7; border-left:3px solid #00838f; }
+      /* v2.48 : l'interdiction au point (APB, cultures marines) devient une carte
+         rouge sous le bandeau, au lieu d'un bloc rouge qui remplaçait tout. */
+      #env-block .env-carte--interdit   { background:#ffe9e9; border-left:3px solid #c9191e; margin-top:10px; }
+      #env-block .env-carte--interdit .env-carte-resume { color:#8a1215; }
+      #env-block .env-carte--interdit .env-toggle-bloc { color:#8a1215; border-color:#c9191e; }
       /* v2.22 : l'orange DSFR pour la règle locale de la DDTM. Une quatrième
          teinte se justifie parce que ce n'est PAS la même nature d'information
          que les trois autres : les cartes bleues, sable et gris-bleu décrivent
@@ -2686,7 +2691,8 @@
       if (popup.classList.contains('terre')) {
         texte = 'Vous êtes à terre'; classe = 'interdit';
       } else if (envBlock.classList.contains('env-rouge')) {
-        texte = 'Mouillage interdit ici'; classe = 'interdit';
+        // v2.48 : même libellé que le bandeau (décision de Nicolas, 19/11/2026).
+        texte = 'Nouvelle demande impossible ici'; classe = 'interdit';
       } else if (popup.classList.contains('alerte')) {
         // L'avertissement de recoupement d'évitage vit dans #coords-hint, qui
         // n'est pas une carte : sans ce cas, replier le panneau faisait
@@ -2696,7 +2702,7 @@
       } else if (verifEnCours) {
         texte = 'Vérification en cours…'; classe = 'rien';
       } else if (verdictNon) {
-        texte = 'Pas de nouvelle autorisation ici'; classe = 'interdit';
+        texte = 'Nouvelle demande impossible ici'; classe = 'interdit';
       } else if (nb > 0) {
         texte = nb + (nb > 1 ? ' points de vigilance' : ' point de vigilance');
       } else {
@@ -2832,7 +2838,10 @@
       if (e.target.closest('.env-vue-retour')) { fermerVue(); return; }
       const versRegle = e.target.closest('.env-verdict-lien');
       if (versRegle && envBlock.contains(versRegle)) {
-        ouvrirVue(envBlock.querySelector('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro'), versRegle);
+        // v2.48 : « Voir le détail de la zone » ouvre la carte de l'interdiction.
+        ouvrirVue(envBlock.querySelector(versRegle.dataset.cible === 'interdit'
+          ? '.env-carte--interdit'
+          : '.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro'), versRegle);
         return;
       }
       const lien = e.target.closest('.env-zone-lien');
@@ -2843,7 +2852,7 @@
       const btn = e.target.closest('.env-toggle-bloc');
       if (!btn || !envBlock.contains(btn)) return;
       // v2.44 : règle locale et points de vigilance s'ouvrent en vue détail.
-      const carteVue = btn.closest('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro, .env-vigilance');
+      const carteVue = btn.closest('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro, .env-vigilance, .env-carte--interdit');
       if (carteVue) { ouvrirVue(carteVue, btn); return; }
       const detail = btn.closest('.env-carte').querySelector('.env-detail-bloc');
       if (!detail) return;
@@ -2866,8 +2875,11 @@
       const estVigilance = carte.classList.contains('env-vigilance');
       const rattachement = ((envBlock.querySelector('.popup-rattachement') || {}).textContent || '')
         .split(':').slice(1).join(':').replace(/\s+/g, ' ').trim();
+      // v2.48 : la carte d'interdiction (APB, cultures marines) garde son nom.
       const titre = estVigilance
         ? `Points de vigilance (${carte.querySelectorAll('.env-vig-item').length})`
+        : carte.classList.contains('env-carte--interdit')
+          ? carte.querySelector('.env-carte-resume strong').textContent
         : (detail.querySelector('.env-zone-lien') ? 'Zones autorisées' : 'Règles locales')
           + (rattachement ? ' — ' + rattachement : '');
       const v = envBlock.querySelector('.env-verdict');
@@ -3560,9 +3572,18 @@
        Lien « Voir les règles locales » sous le verdict dès qu'une carte de règle
        locale existe à ouvrir, pour toutes les DDTM (v2.42, décision de Nicolas
        du 19/11/2026 ; en v2.41 pour les seules fiches en brouillon, en v2.40
-       badge « Information provisoire »). Sans fiche, pas de carte : pas de lien. */
-    function bandeauVerdict(dep, messages, zones, lngLat) {
-      if (!dep || !dep.departements || !dep.departements.length) return '';
+       badge « Information provisoire »). Sans fiche, pas de carte : pas de lien.
+       v2.48 : un seul titre pour tous les cas où la demande n'est pas possible,
+       « Nouvelle demande d'autorisation impossible dans cette zone » (« impossible »
+       et non « refusée » : la carte ne décide rien et l'usager n'a rien déposé),
+       décision de Nicolas du 19/11/2026. La phrase dit pourquoi et où aller :
+       règle locale d'abord (elle prime), sinon l'interdiction constatée au point
+       (`interdit` : arrêté de protection de biotope, parcelle de cultures
+       marines), avec le lien « Voir le détail de la zone ». Les phrases restent
+       communes : elles suivent le cas (DDTM sans zone / avec zones), pas le
+       département. */
+    const TITRE_IMPOSSIBLE = "Nouvelle demande d'autorisation impossible dans cette zone";
+    function bandeauVerdict(dep, messages, zones, lngLat, interdit) {
       const rendu = (classe, titre, texte, lien) =>
         `<div class="env-verdict env-verdict--${classe}" role="status"><div>
            <span class="env-verdict-titre">${echapper(titre)}</span>` +
@@ -3571,8 +3592,19 @@
            // le verdict comme si la liste des zones était exhaustive (décision de
            // Nicolas, 19/11/2026). Le caractère provisoire reste dit dans le
            // détail de la règle locale, que ce lien ouvre. v2.42 : toutes les DDTM.
-           (lien ? '<button type="button" class="env-verdict-lien">Voir les règles locales</button>' : '') +
+           // v2.48 : lien vers le détail de l'interdiction au point (data-cible).
+           (lien === 'interdit'
+             ? '<button type="button" class="env-verdict-lien" data-cible="interdit">Voir le détail de la zone</button>'
+             : lien ? '<button type="button" class="env-verdict-lien">Voir les règles locales</button>' : '') +
         `</div></div>`;
+      const local = verdictLocal(dep, messages, zones, lngLat);
+      if (interdit && (!local || (local[0] !== 'non' && local[0] !== 'pro')))
+        return rendu('non', TITRE_IMPOSSIBLE, interdit.phrase, 'interdit');
+      return local ? rendu(...local) : '';
+    }
+    function verdictLocal(dep, messages, zones, lngLat) {
+      if (!dep || !dep.departements || !dep.departements.length) return null;
+      const rendu = (...a) => a;
       const avecCarte = (code) => (messages || []).some(m => String(m.ddtm) === String(code) && m.message_titre);
       if (dep.departements.length > 1) return rendu('neutre',
         'Règles locales à vérifier', 'Cet emplacement est à la limite de deux départements : voir ci-dessous.',
@@ -3585,16 +3617,19 @@
       const sesZones = (zones || []).filter(z => String((z.properties||{}).ddtm) === String(f.ddtm));
       const zoneIci = lngLat ? zoneAOTauPoint(lngLat, zones) : null;
       const deCetteDDTM = !!zoneIci && String((zoneIci.properties||{}).ddtm) === String(f.ddtm);
+      // v2.48 : la zone professionnelle garde le gris (décision de Nicolas,
+      // 19/11/2026) mais prend le titre commun.
       if (deCetteDDTM && zoneReserveePro(zoneIci)) return rendu('pro',
-        'Zone réservée aux professionnels', 'Pas de demande possible pour un plaisancier.', true);
+        TITRE_IMPOSSIBLE, 'Cette zone est réservée aux professionnels.', true);
       if (deCetteDDTM) return rendu('ok',
         "Demande d'autorisation possible dans cette zone", 'Sous réserve de places disponibles.', true);
-      if (!sesZones.length) return rendu('non',
-        'Pas de nouvelle autorisation de mouillage dans ce département',
-        'La DDTM ne délivre plus de nouvelles AOT de mouillage individuel.', true);
-      return rendu('non',
-        'Pas de nouvelle autorisation de mouillage dans cette zone',
-        "La DDTM n'en délivre que dans ses zones autorisées.", true);
+      // v2.48 : la liste d'attente est tenue par la DDTM (Nicolas, 19/11/2026).
+      // « Les ZMEL et les ports sur la carte » et non « les places » : la carte
+      // ne connaît pas les places disponibles.
+      if (!sesZones.length) return rendu('non', TITRE_IMPOSSIBLE,
+        'Inscrivez-vous sur la liste d\'attente de la DDTM ou consultez les ZMEL et les ports sur la carte.', true);
+      return rendu('non', TITRE_IMPOSSIBLE,
+        'Consultez les zones autorisées par la DDTM, ou les ZMEL et les ports sur la carte.', true);
     }
 
     /* ---------- Nature du fond (Shom, Natures de fond au 1/50 000) — v2.15 ----------
@@ -4508,29 +4543,55 @@
         interrogerCulturesMarines(lngLat)
       ]);
       if (jeton !== jetonClic) return;            // v2.14 : clic remplacé pendant l'attente
+      /* v2.48 : l'interdiction au point ne court-circuite plus le bandeau. Elle
+         devient une carte rouge (le texte d'avant, en détail) et le bandeau
+         commun « Nouvelle demande d'autorisation impossible dans cette zone ».
+         La règle locale, si elle interdit aussi, prime pour la phrase du bandeau
+         et l'interdiction reste visible dessous : en Côtes-d'Armor, sans ça,
+         l'usager ne saurait jamais qu'il est dans un APB (décision de Nicolas,
+         19/11/2026). D'où l'attente, ici aussi, du rattachement départemental. */
+      let interdit = null;
       if (apb.length) {
-        verifEnCours = false;
-        afficherEnvironnement(
-          `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.join(', ')}.</strong></p>
-           <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>`,
-          'rouge');
-        deplierSiReduit();   // interdiction : verdict, pas détail
-        return;
-      }
-      if (cm.etat === 'parcelle') {
+        interdit = {
+          phrase: 'Vous êtes dans une zone protégée par arrêté de biotope.',
+          carte: carteEnv({ type:'interdit', titre:'Arrêté de protection de biotope',
+            consequence:'Mouillage interdit', bouton:'Voir le détail',
+            detail: `<p><strong>Vous êtes dans un arrêté de protection de biotope — ${apb.map(echapper).join(', ')}.</strong></p>
+                     <p>Cette zone est interdite au mouillage. Veuillez sélectionner un autre emplacement.</p>` })
+        };
+      } else if (cm.etat === 'parcelle') {
         // Le détail vient du cadastre : numéro de parcelle toujours présent,
         // commune et espèce selon le département (la Charente-Maritime ne
         // publie que le numéro et l'espèce).
         const precisions = [cm.commune, cm.espece].filter(Boolean).join(', ');
+        interdit = {
+          phrase: 'Vous êtes sur une parcelle de cultures marines.',
+          carte: carteEnv({ type:'interdit', titre:'Parcelle de cultures marines',
+            consequence:'Mouillage interdit', bouton:'Voir le détail',
+            detail: `<p><strong>Vous êtes sur une parcelle de cultures marines${cm.parcelle ? ' — parcelle ' + echapper(cm.parcelle) : ''}.</strong></p>` +
+              (precisions ? `<p>${echapper(precisions)}.</p>` : '') +
+              `<p>Cette parcelle du domaine public maritime est déjà concédée : aucun mouillage
+                 individuel n'y est autorisable. Veuillez sélectionner un autre emplacement.</p>
+               <p class="env-caveat">Source : cadastre conchylicole de la DDTM
+                 ${echapper(cm.departement)} (${echapper(cm.millesime)}).</p>` })
+        };
+      }
+      if (interdit) {
+        const [depI, fichesI, zonesI] = await Promise.all([
+          interrogerDepartement(lngLat), chargerMessagesDDTM(), chargerZonesAOT()
+        ]);
+        if (jeton !== jetonClic) return;
+        const local = verdictLocal(depI, fichesI, zonesI, lngLat);
+        const regleBloque = !!local && (local[0] === 'non' || local[0] === 'pro');
         verifEnCours = false;
+        // La carte de la règle locale n'accompagne que le cas où elle interdit
+        // (le lien du bandeau l'ouvre) : une carte « la DDTM délivre dans cette
+        // zone » sous un bandeau rouge se contredirait en apparence.
         afficherEnvironnement(
-          `<p><strong>Vous êtes sur une parcelle de cultures marines${cm.parcelle ? ' — parcelle ' + echapper(cm.parcelle) : ''}.</strong></p>` +
-          (precisions ? `<p>${echapper(precisions)}.</p>` : '') +
-          `<p>Cette parcelle du domaine public maritime est déjà concédée : aucun mouillage
-             individuel n'y est autorisable. Veuillez sélectionner un autre emplacement.</p>
-           <p class="env-caveat">Source : cadastre conchylicole de la DDTM
-             ${echapper(cm.departement)} (${echapper(cm.millesime)}).</p>`,
-          'rouge');
+          bandeauVerdict(depI, fichesI, zonesI, lngLat, interdit) +
+          (regleBloque ? blocReglesLocales(depI, fichesI, zonesI, lngLat) : '') +
+          interdit.carte,
+          'cartes');
         deplierSiReduit();   // interdiction : verdict, pas détail
         return;
       }
