@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.43 (novembre 2026)  
+**Version:** 2.44 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -184,6 +184,8 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 > 5. **Précision sur la zone** (ex « Contexte environnemental » pour les faits) — profondeur puis nature du fond, cartes **neutres** (fond blanc, filets gris) dans un même cadre ; mêmes textes et boutons qu'avant (§4.4bis, §4.4quinquies).
 > 6. **« Non vérifié ici (n) · {sources} »** — ex « Ce que la carte n'a pas pu vérifier » : une **ligne repliée** (`<details>`, pointillés gris) qui contient les cartes incertaines (fond non cartographié, cultures marines non vérifiées ou injoignables, zonages ou habitats injoignables).
 > 7. **À reporter dans le formulaire** — inchangé.
+>
+> **Vue détail avec retour** *(v2.44, option A validée par Nicolas le 19/11/2026)* : « Voir les zones » (ou tout bouton de la carte de règle locale, par ex. « Voir la liste d'attente »), « Voir les règles locales » du bandeau et « Ce que ça implique » des points de vigilance **n'allongent plus le panneau** : ils en changent la vue. Tout le reste est masqué ; en tête, « **← Retour à la synthèse de l'emplacement** » (libellé choisi par Nicolas), le rappel du verdict sur une ligne colorée (« Votre emplacement : {titre du bandeau} »), puis un titre — « Zones autorisées — Var (83) », « Règles locales — Côtes-d'Armor (22) » quand le détail ne contient pas de zones, « Points de vigilance (n) ». Dans la vue vigilance, chaque point est encadré avec son étiquette ; l'avertissement « inventaire indicatif » reste unique. Un clic sur une zone recadre la carte sans quitter la vue. Le retour (lien ou **Échap**) rend le panneau tel qu'il a été quitté (défilement, saisie du navire) et remet le focus sur le bouton qui a ouvert la vue ; Échap n'efface plus le point tant qu'une vue est ouverte. Un nouvel emplacement ferme la vue. Ces boutons portent un chevron « › » ; les détails courts (profondeur, nature du fond, « Non vérifié ici ») restent en accordéon sur place. Mise en œuvre : `ouvrirVue` / `fermerVue`, classe `en-vue` sur `#coords-popup` ; le contenu reste dans `#env-block`, d'où des styles et des écouteurs inchangés. Aucune donnée ni texte ajouté hormis le lien de retour et les titres de vue.
 >
 > **Barre réduite** : le compte porte sur les **points de vigilance** (« 3 points de vigilance »). Un bandeau rouge ou gris passe devant : « Pas de nouvelle autorisation ici ».
 >
@@ -1447,6 +1449,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.44 — 19 novembre 2026
+**Vue détail avec retour**
+- Demande de Nicolas : limiter la hauteur du panneau quand on ouvre un détail. Quatre options comparées (vue détail, deuxième colonne, fenêtre modale, accordéon unique) ; option A maquettée dans l'artefact « Panneau du point AMIDOMAR » (version 4) et validée, libellé du retour choisi par Nicolas : « ← Retour à la synthèse de l'emplacement ». Deuxième colonne écartée : environ 1 100 px de panneaux sur un portable, impossible sur téléphone.
+- `ouvrirVue` / `fermerVue` (voir §4.0 C5). Échap revient à la synthèse avant d'effacer le point. Détail des points de vigilance : étiquette reprise à côté de chaque nom.
+- Publiée après la v2.43 d'une autre session (sites sensibles pour les oiseaux et les phoques), d'où le numéro v2.44 ; les deux évolutions coexistent (les sites faune sont des points de vigilance, donc visibles dans la vue « Points de vigilance »).
+- Tests (sur la version fusionnée) : nouveau `test_vue_detail_chromium.js` (§22) 17/17 ; `test_faune_chromium.js` 19/19 ; §10 Chromium 22/22 (un premier passage à 20/22 sur l'aléa connu du déroulant), §15 13/13, §17.5 17/17, §18 27/27, §19.2 9/9 (le clic sur « Voir les zones » ouvre désormais la vue), §20 23/23, Node 72/72 et 59/59, intégrité et données OK.
 
 ### v2.43 — 19 novembre 2026
 **Sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) au clic**

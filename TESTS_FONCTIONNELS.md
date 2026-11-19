@@ -19,11 +19,17 @@ fonctionnalité correspondante a réellement disparu.
 `harness_integrite.js` (§6), `test_recherche_gps.js` (§10.1 à 4bis),
 `test_interface_chromium.js` (§10.5 à 9bis, Playwright requis),
 `test_donnees_aot.py` (§16), `test_regles_locales.js` et
-`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `test_habitats_chromium.js` (§20, v2.39), `test_faune_chromium.js` (§20 bis, v2.43), `stub.js` et `tirage_aot.js`. Leur `README.md`
+`test_regles_locales_chromium.js` (§17), `test_fond_recherche_chromium.js` (§2 et §18, v2.36), `test_habitats_chromium.js` (§20, v2.39), `test_faune_chromium.js` (§20 bis, v2.43), `test_vue_detail_chromium.js` (§22, v2.44), `stub.js` et `tirage_aot.js`. Leur `README.md`
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 19 nov. 2026 (v2.43) — sites sensibles pour les oiseaux et les phoques.**
+**Dernière exécution : 19 nov. 2026 (v2.44) — vue détail avec retour.**
+- Sur la version fusionnée avec la v2.43 (sites faune) : §20 bis **19/19**.
+- §6 **OK**, §10 **59/59** Node et **22/22** Chromium (premier passage 20/22 puis 21/22 sur l'aléa connu du déroulant en retard d'un cran, 22/22 au troisième), §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §22 (nouveau) **17/17**.
+- Captures vérifiées : vue « Zones autorisées — Var (83) » et vue « Points de vigilance (1) », conformes à la maquette.
+- Au point du harnais §22, le panneau tient sans défiler (défilement vérifié à 0). Contrôle complémentaire en local à Saint-Tropez zone 1 (mouillages voisins, fenêtre 1440 × 800) : panneau défilé à 150 px, vue vigilance ouverte (0), retour → 150 px ; longueur du navire saisie (9) conservée.
+
+**Exécution précédente : 19 nov. 2026 (v2.43) — sites sensibles pour les oiseaux et les phoques.**
 - §6 **OK**, §10 **59/59** Node et **22/22 Chromium**, §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §20 bis (nouveau) **19/19**.
 - Rendu vérifié en local, vrai service de l'OFB : Kersabu (47.70175, -3.32268) → « Site sensible pour les oiseaux — PETITE MER DE GAVRE, période sensible : hiver », message OFB complet, verdict vert ; Var (43.2678, 6.6228) → aucun site ; requête 110 ms. Aucune erreur de console liée à l'OFB (seules erreurs : tuiles IGN hors couverture, préexistantes).
 
@@ -3135,3 +3141,38 @@ Aucun point ; carte grise « Sites sensibles pour les oiseaux et les phoques : v
 - Bandeau et couleurs sur la version publiée (Var, Morbihan, Côtes-d'Armor, Finistère).
 - Barre réduite : « N points de vigilance », « Pas de nouvelle autorisation ici ».
 - Rendu à 390 px.
+
+## 22. Vue détail avec retour *(v2.44)*
+
+*Harnais : `test_vue_detail_chromium.js` (Playwright). Point 43.045, 6.155 (Var, hors zone),
+Shom LIMTM simulé (83), OFB simulé (un herbier de posidonie), reste du réseau coupé.
+Dernière exécution : 19 nov. 2026 — 17/17.*
+
+### 22.1 Synthèse
+1. Pas de vue ouverte ; bandeau, règles locales, points de vigilance et « À reporter » visibles.
+2. Le bouton « Voir les zones » porte le chevron « › ».
+
+### 22.2 Vue « Voir les zones »
+1. Lien « ← Retour à la synthèse de l'emplacement ».
+2. Rappel « Votre emplacement : Pas de nouvelle autorisation… ».
+3. Titre « Zones autorisées — Var (83) ».
+4. Liste des zones visible ; vigilance, bandeau et « À reporter » masqués.
+5. Focus sur le lien de retour.
+6. Clic sur une zone : la vue reste ouverte.
+
+### 22.3 Retour
+1. Synthèse rétablie, lien de retour disparu.
+2. Défilement rétabli, focus sur « Voir les zones ».
+
+### 22.4 Vue « Ce que ça implique » et Échap
+1. Titre « Points de vigilance (1) », détail visible, règles masquées, étiquette « Espèce protégée » dans le détail.
+2. Échap ramène à la synthèse sans effacer le point ; focus sur « Ce que ça implique ».
+
+### 22.5 Bandeau et nouvel emplacement
+1. « Voir les règles locales » ouvre la vue « Zones autorisées — Var (83) ».
+2. Un nouvel emplacement ferme la vue.
+
+### 22.6 Non couvert — à vérifier en réel
+- Restauration du défilement sur un panneau qui défile réellement *(vérifié en local le 19/11/2026, voir « Dernière exécution »)*.
+- Téléphone (390 px) : vue détail et retour.
+- Côtes-d'Armor : vue « Règles locales — Côtes-d'Armor (22) » avec le lien vers la liste d'attente.

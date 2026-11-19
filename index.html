@@ -420,6 +420,39 @@
       #env-block .env-nonverif > summary b { font-weight:700; }
       #env-block .env-nonverif-corps { padding:0 8px 8px; }
       #env-block .env-nonverif-corps .env-carte { margin-bottom:6px; background:#fff; }
+      /* ---------- v2.44 : vue détail avec retour (option A, validée le 19/11/2026) ----------
+         « Voir les zones » (règle locale) et « Ce que ça implique » (vigilance)
+         n'allongent plus le panneau : ils en changent la vue. Le reste du panneau
+         est masqué, le détail choisi prend toute la place, sous « ← Retour à la
+         synthèse de l'emplacement », un rappel du verdict et un titre. Le contenu
+         reste dans #env-block : styles et écouteurs (recadrage sur une zone)
+         inchangés. Les détails courts (profondeur, fond) restent en accordéon. */
+      #coords-popup.en-vue #coords-contenu > :not(#env-block) { display:none !important; }
+      #coords-popup.en-vue #env-block > :not(.env-vue-entete):not(.env-vue-active) { display:none !important; }
+      #coords-popup.en-vue #env-block .env-vue-active { background:none; border:none; padding:0; margin:0; }
+      #coords-popup.en-vue #env-block .env-vue-active > .env-carte-entete,
+      #coords-popup.en-vue #env-block .env-vue-active > .env-vig-liste,
+      #coords-popup.en-vue #env-block .env-vue-active > .env-toggle-bloc { display:none; }
+      #coords-popup.en-vue #env-block .env-vue-active > .env-detail-bloc { padding:0; border-top:none; margin-top:0; }
+      #env-block .env-vue-entete { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+      #env-block .env-vue-retour { align-self:flex-start; background:none; border:none; padding:2px 0 8px; font:inherit;
+                                   font-size:13px; font-weight:700; color:#000091; cursor:pointer; text-align:left;
+                                   text-decoration:underline; text-underline-offset:2px; }
+      #env-block .env-vue-retour:focus-visible { outline:2px solid #000091; outline-offset:2px; }
+      #env-block .env-vue-rappel { margin:0; font-size:12px; font-weight:700; border-radius:4px; padding:6px 10px; }
+      #env-block .env-vue-rappel--ok     { background:#18753c; color:#fff; }
+      #env-block .env-vue-rappel--non    { background:#ce0500; color:#fff; }
+      #env-block .env-vue-rappel--pro    { background:#3a3a3a; color:#fff; }
+      #env-block .env-vue-rappel--neutre { background:#f6f6f6; color:#161616; border:1px solid #929292; }
+      #env-block .env-vue-titre { margin:2px 0 0; font-size:16px; font-weight:700; color:#161616; }
+      /* Les boutons qui ouvrent une vue portent un chevron. */
+      #env-block .env-carte--ddtm .env-toggle-bloc::after, #env-block .env-carte--ddtm-ok .env-toggle-bloc::after,
+      #env-block .env-carte--ddtm-pro .env-toggle-bloc::after, #env-block .env-vigilance .env-toggle-bloc::after { content:' ›'; }
+      /* Vigilance en vue détail : un encadré par point, avec son étiquette. */
+      #coords-popup.en-vue #env-block .env-vig-detail { border-left:4px solid #b34000; background:#fff4f3;
+                                                       border-radius:0 4px 4px 0; padding:8px 10px; }
+      #env-block .env-vig-detail-entete { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:3px; }
+      #env-block .env-vig-detail-entete .env-vig-detail-nom { margin:0; color:#161616; }
       /* ---------- Bloc « navire », affiché seulement à proximité d'une AOT ---------- */
       #boat-block { display:none; text-align:left; margin-bottom:8px; }
       /* ---------- v2.16 : popup en deux parties ----------
@@ -2480,6 +2513,7 @@
     let replierAuto = true;         // v2.8 : repli automatique encore actif ; désarmé dès que l'usager
                                      //   rouvre « Détails » volontairement, pour ne plus le lui refermer.
     const popup = document.getElementById('coords-popup');
+    let vueOuverte = null;   // v2.44 : { carte, declencheur, defilement } quand une vue détail est ouverte
     const coordsText = document.getElementById('coords-text');
     const copyBtn = document.getElementById('copy-btn');
     const hint = document.getElementById('coords-hint');
@@ -2625,6 +2659,9 @@
     }
 
     function afficherEnvironnement(html, teinte) {
+      // v2.44 : le détail porte sur un emplacement — un nouveau contenu ferme la vue.
+      vueOuverte = null;
+      popup.classList.remove('en-vue');
       envBlock.className = teinte ? 'env-' + teinte : '';
       envBlock.innerHTML = html;
       placerBlocEvitage(teinte === 'cartes');
@@ -2668,14 +2705,11 @@
       // la liste ouverte pour passer à la suivante.
       // v2.41 : « Voir les règles locales » du bandeau ouvre le détail de la
       // carte de la DDTM (là où est dit le caractère provisoire) et l'amène à l'écran.
+      // v2.44 : il ouvre désormais la vue détail de la règle locale.
+      if (e.target.closest('.env-vue-retour')) { fermerVue(); return; }
       const versRegle = e.target.closest('.env-verdict-lien');
       if (versRegle && envBlock.contains(versRegle)) {
-        const carte = envBlock.querySelector('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro');
-        if (!carte) return;
-        const b = carte.querySelector('.env-toggle-bloc'), d = carte.querySelector('.env-detail-bloc');
-        if (b && d && d.hidden) b.click();
-        carte.scrollIntoView({ block:'nearest', behavior: reduireAnimations() ? 'auto' : 'smooth' });
-        if (b) b.focus({ preventScroll:true });
+        ouvrirVue(envBlock.querySelector('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro'), versRegle);
         return;
       }
       const lien = e.target.closest('.env-zone-lien');
@@ -2685,6 +2719,9 @@
       }
       const btn = e.target.closest('.env-toggle-bloc');
       if (!btn || !envBlock.contains(btn)) return;
+      // v2.44 : règle locale et points de vigilance s'ouvrent en vue détail.
+      const carteVue = btn.closest('.env-carte--ddtm, .env-carte--ddtm-ok, .env-carte--ddtm-pro, .env-vigilance');
+      if (carteVue) { ouvrirVue(carteVue, btn); return; }
       const detail = btn.closest('.env-carte').querySelector('.env-detail-bloc');
       if (!detail) return;
       const ouvrir = detail.hidden;
@@ -2692,6 +2729,54 @@
       btn.setAttribute('aria-expanded', String(ouvrir));
       btn.textContent = ouvrir ? 'Masquer' : btn.dataset.libelle;
     });
+
+    /* v2.44 : vue détail. Le panneau masque tout sauf la carte choisie, dont le
+       détail prend la place ; en tête, le lien de retour (libellé choisi par
+       Nicolas le 19/11/2026), le verdict en rappel et un titre. Le retour rend
+       le panneau tel qu'il a été quitté (défilement, saisies) et remet le focus
+       sur le bouton qui a ouvert la vue. */
+    function ouvrirVue(carte, declencheur) {
+      if (!carte) return;
+      const detail = carte.querySelector('.env-detail-bloc');
+      if (!detail) return;
+      fermerVue({ silencieux:true });
+      const estVigilance = carte.classList.contains('env-vigilance');
+      const rattachement = ((envBlock.querySelector('.popup-rattachement') || {}).textContent || '')
+        .split(':').slice(1).join(':').replace(/\s+/g, ' ').trim();
+      const titre = estVigilance
+        ? `Points de vigilance (${carte.querySelectorAll('.env-vig-item').length})`
+        : (detail.querySelector('.env-zone-lien') ? 'Zones autorisées' : 'Règles locales')
+          + (rattachement ? ' — ' + rattachement : '');
+      const v = envBlock.querySelector('.env-verdict');
+      const classeV = v ? (/env-verdict--(\w+)/.exec(v.className) || [])[1] : '';
+      const entete = document.createElement('div');
+      entete.className = 'env-vue-entete';
+      entete.innerHTML = `<button type="button" class="env-vue-retour">← Retour à la synthèse de l'emplacement</button>` +
+        (v ? `<p class="env-vue-rappel env-vue-rappel--${classeV}">Votre emplacement : ${
+               echapper(v.querySelector('.env-verdict-titre').textContent)}</p>` : '') +
+        `<h2 class="env-vue-titre">${echapper(titre)}</h2>`;
+      vueOuverte = { carte, declencheur, defilement: popup.scrollTop };
+      envBlock.insertBefore(entete, envBlock.firstChild);
+      carte.classList.add('env-vue-active');
+      detail.hidden = false;
+      popup.classList.add('en-vue');
+      popup.scrollTop = 0;
+      entete.querySelector('.env-vue-retour').focus({ preventScroll:true });
+    }
+    function fermerVue(opts) {
+      popup.classList.remove('en-vue');
+      if (!vueOuverte) return;
+      const { carte, declencheur, defilement } = vueOuverte;
+      vueOuverte = null;
+      const entete = envBlock.querySelector('.env-vue-entete');
+      if (entete) entete.remove();
+      carte.classList.remove('env-vue-active');
+      const d = carte.querySelector('.env-detail-bloc');
+      if (d) d.hidden = true;
+      if (opts && opts.silencieux) return;
+      popup.scrollTop = defilement;
+      if (declencheur && document.contains(declencheur)) declencheur.focus({ preventScroll:true });
+    }
 
     /* Ligne « Nom de la zone » du bloc à reporter. Seul un site Natura 2000
        alimente ce champ du formulaire : les ZNIEFF n'ont pas de nom dans la
@@ -4010,8 +4095,9 @@
       const liste = tries.map(p => `<li class="env-vig-item"><span class="env-vig-nom">${echapper(p.nom)}${
           p.sous ? `<span class="env-vig-sous">${echapper(p.sous)}</span>` : ''}</span>
           <span class="env-vig-etiquette">${echapper(p.etiquette)}</span></li>`).join('');
-      const details = tries.map(p => `<div class="env-vig-detail"><span class="env-vig-detail-nom">${
-          echapper(p.nom + (p.sous ? ' — ' + p.sous : ''))}</span>${p.detail}</div>`).join('');
+      const details = tries.map(p => `<div class="env-vig-detail"><div class="env-vig-detail-entete">
+          <span class="env-vig-detail-nom">${echapper(p.nom + (p.sous ? ' — ' + p.sous : ''))}</span>
+          <span class="env-vig-etiquette">${echapper(p.etiquette)}</span></div>${p.detail}</div>`).join('');
       const avert = tries.some(p => p.inventaire) ? AVERTISSEMENT_INVENTAIRE : '';
       return `<h2 class="popup-section popup-section--vigilance">Points de vigilance` +
                `<span class="popup-badge popup-badge--warn popup-compte">${tries.length}</span></h2>
@@ -4484,6 +4570,7 @@
        ports/ZMEL (avec overlay), la carte reste cliquable derrière ce popup
        et un clic ailleurs a déjà son propre sens (choisir un autre point). */
     function fermerPopupCoordonnees() {
+      fermerVue({ silencieux:true });   // v2.44
       if (marker) { marker.remove(); marker = null; }
       position = null;
       // v2.3 : les valeurs du calcul d'évitage sont conservées à la fermeture.
@@ -4511,6 +4598,8 @@
     }
     document.getElementById('coords-fermer').addEventListener('click', fermerPopupCoordonnees);
     document.addEventListener('keydown', e => {
+      // v2.44 : dans une vue détail, Échap ramène d'abord à la synthèse.
+      if (e.key === 'Escape' && popup.classList.contains('en-vue')) { fermerVue(); return; }
       if (e.key === 'Escape' && popup.classList.contains('visible')) fermerPopupCoordonnees();
     });
 

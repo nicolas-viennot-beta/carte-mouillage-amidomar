@@ -113,6 +113,13 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Panneau du point : pas de deuxième colonne (la carte
+  reste l'objet principal, et rien ne tiendrait sur téléphone). Les contenus
+  longs s'ouvrent en **vue détail** ; libellé du retour choisi par Nicolas,
+  « ← Retour à la synthèse de l'emplacement ». « Point » est un mot de la
+  carte, pas de l'usager : dire « emplacement ». Éviter « analyse », qui
+  promet une expertise que la carte indicative ne donne pas.
+
 - **19/11/2026** — Arbitrage de Nicolas : **pas de détail sur les
   interdictions là où la DDTM n'autorise déjà pas le mouillage** (règles
   locales). Une source de réglementation (ex. règles Nav&Co de l'OFB) ne
