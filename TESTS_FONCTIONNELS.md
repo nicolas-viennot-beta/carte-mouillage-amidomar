@@ -3176,3 +3176,30 @@ Dernière exécution : 19 nov. 2026 — 17/17.*
 - Restauration du défilement sur un panneau qui défile réellement *(vérifié en local le 19/11/2026, voir « Dernière exécution »)*.
 - Téléphone (390 px) : vue détail et retour.
 - Côtes-d'Armor : vue « Règles locales — Côtes-d'Armor (22) » avec le lien vers la liste d'attente.
+## 23. Bouton « Commencer une première demande pour cet emplacement » *(v2.45)*
+
+*Harnais : `test_preremplissage_dn_chromium.js` (Chromium, réseau coupé, services simulés ; la page est servie avec des clés DN fictives `champ_GPS`…). Dernière exécution : 19 nov. 2026 — 29/29.*
+
+### 23.1 Configuration vide (fichier livré)
+1. Var, zone La Bouillabaisse (43.2678, 6.6228) : bouton **caché** ; bloc « À reporter » et boutons « Copier » inchangés.
+
+### 23.2 Toutes les valeurs (clés fictives)
+1. Même point, Natura 2000 trouvé (« Site de test »), fond « Sables » : bouton visible, libellé exact, `target="_blank"` + `noopener`.
+2. Lien `https://demarche.numerique.gouv.fr/commencer/<démarche>?…` avec : GPS `43.267800, 6.622800` ; département `83` ; commune `[]=83990&[]=83119` (Saint-Tropez) ; lieu-dit « La Bouillabaisse » ; Natura `true` + nom du site ; fond « Sable ou vase ».
+3. Pas de rayon tant que le calcul n'est pas fait ; après saisie 8 m / 4 m → rayon `14`.
+4. Aucune donnée du navire (longueur, colonne, immatriculation) dans le lien.
+
+### 23.3 Hors zone (Var en brouillon : coordonnées affichées)
+1. 43.20, 6.70, Natura vérifié vide, fond « Graviers » : Natura `false` sans nom de site ; pas de nature du fond ; ni commune ni lieu-dit.
+
+### 23.4 Services muets
+1. API Carto et repli WFS en panne, Shom sans donnée : bouton visible avec le GPS ; **ni oui ni non** pour Natura ; pas de nature du fond.
+
+### 23.5 Bouton absent
+1. Côtes-d'Armor en mer (48.80, -3.00) : coordonnées retenues → bouton absent avec le bloc.
+2. `?vue=existant` : pas de bouton. « Effacer le point » : bouton caché.
+
+### 23.6 Non couvert par le harnais — à vérifier sur DN, une fois les clés relevées
+- Ouvrir un vrai lien sur 152356 (crée un brouillon = écriture DN, avec l'accord de Nicolas) et vérifier champ par champ que chaque valeur arrive : format accepté par le champ formaté « Coordonnées GPS », option « Sable ou vase » / « Roche » existante, commune reconnue, `true` qui ouvre bien le bloc conditionnel Natura.
+- **À refaire après toute retouche du formulaire DN** : une clé changée est ignorée sans message.
+- Rendu à 390 px et dans l'iframe d'amidomar.beta.gouv.fr (ouverture du nouvel onglet).

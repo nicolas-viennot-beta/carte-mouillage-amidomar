@@ -113,6 +113,15 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Bouton « Commencer une première demande pour cet
+  emplacement » (v2.45), validé par Nicolas : lien de préremplissage DN,
+  sans serveur. Arbitrages : commune et lieu-dit **seulement dans les zones
+  autorisées** de la carte (pas de nouvelle source) ; ne jamais envoyer une
+  valeur incertaine (service muet → champ vide, jamais « non »). Piège : DN
+  ignore **sans message** une clé de champ changée ou une valeur hors liste
+  — revérifier le lien après chaque retouche du formulaire DN. Le champ
+  Commune de DN exige le **code postal**. Livré caché tant que les clés ne
+  sont pas relevées côté DN (travail de l'autre dépôt).
 - **19/11/2026** — Panneau du point : pas de deuxième colonne (la carte
   reste l'objet principal, et rien ne tiendrait sur téléphone). Les contenus
   longs s'ouvrent en **vue détail** ; libellé du retour choisi par Nicolas,

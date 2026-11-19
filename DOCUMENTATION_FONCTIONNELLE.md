@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.44 (novembre 2026)  
+**Version:** 2.45 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -99,6 +99,8 @@ Un clic sur la carte déclenche désormais un **traitement unifié**, quel que s
 1. Le bas du popup porte un bloc « À reporter dans le formulaire de demande », distinct du contexte environnemental
 2. Chaque valeur y a son propre bouton « Copier » : le nom de la zone Natura 2000 (quand il y en a une) et les coordonnées GPS
 3. Les coller directement dans le formulaire Démarches Numériques
+
+4. *(v2.45)* Sous les valeurs, un bouton **« Commencer une première demande pour cet emplacement »** ouvre la Première demande (démarche DN 152356) dans un nouvel onglet, avec un brouillon déjà rempli — voir §4.8. Les boutons « Copier » restent, pour l'usager qui arrive sur DN par un autre chemin ou si un champ n'est pas rempli.
 
 > Seule la copie des **coordonnées** valide l'étape 4 de la marche à suivre : c'est d'elle que parle l'étape, et toutes les positions n'ont pas de nom de zone à reporter.
 
@@ -807,6 +809,32 @@ Visibilité, filtres et données GeoJSON du moment font partie du style sériali
 
 La **carte fantôme** de détection terre/mer (§4.4) n'est pas concernée : elle reste en permanence sur le fond Simple.
 
+### 4.8 Bouton « Commencer une première demande pour cet emplacement » *(v2.45)*
+
+**Le besoin** — l'usager recopiait à la main dans DN ce que la carte lui donne ; avec le chantier Natura 2000, cela ferait 4 à 5 valeurs. Le bouton ouvre la démarche **déjà remplie** (validé par Nicolas le 19/11/2026, étude « Carte vers DN » du 17/11/2026, option A).
+
+**Mécanisme** — fonction de préremplissage de Démarches Numériques par **lien** : `https://demarche.numerique.gouv.fr/commencer/<nom-de-la-démarche>?champ_<id>=<valeur>&…`. Ouvrir le lien crée un brouillon prérempli, que DN rattache au compte de l'usager quand il se connecte (ou crée son compte). Aucun serveur, aucune clé : l'adresse est construite dans le navigateur, **au clic** (le rayon d'évitage peut être calculé après l'ouverture du panneau). Ouverture en nouvel onglet (`target="_blank"`, `rel="noopener"`), nécessaire aussi dans l'iframe d'amidomar.beta.gouv.fr.
+
+**Valeurs envoyées** — chacune seulement si elle est sûre ; sinon le champ reste vide et l'usager le remplit :
+
+| Valeur | Quand | Format envoyé |
+|---|---|---|
+| Coordonnées GPS | toujours (le bouton est dans le bloc « À reporter », absent quand une règle locale retient les coordonnées, sur terre, port, ZMEL, cultures marines, APB) | `lat, lng`, 6 décimales, comme affiché |
+| Département | un seul département au rattachement (§4.4ter) ; deux à égalité → rien | code, ex. `83` |
+| Commune | point **dans une zone de mouillage autorisée** de la carte (Var, Morbihan) — arbitrage de Nicolas du 19/11/2026 : pas de nouvelle source | `[code postal, code INSEE]` (exigé par DN), table `DN_PREREMPLISSAGE.communes` relevée sur geo.api.gouv.fr le 19/11/2026 ; commune absente de la table → rien |
+| Lieu-dit | même condition | `lieu` de la zone, ex. « La Bouillabaisse » |
+| Natura 2000 | API Carto (ou son repli) a répondu : site trouvé → `true` + nom(s) ; vérifié vide → `false`. Service injoignable → **rien** (jamais « non » par défaut) | `true` / `false` ; noms séparés par des virgules |
+| Rayon d'évitage | calcul fait dans la carte (mouillage existant à moins de 100 m **et** longueur + colonne saisies, §4.2) | mètres entiers |
+| Nature du fond | le Shom répond : sables, vases → « Sable ou vase » ; roche, cailloutis → « Roche » ; graviers → rien. Jamais herbier, maërl ni matte morte (le Shom ne les voit pas). Même règle que la passe « contexte » de la base (arbitrage du 17/11/2026) | libellé exact de l'option DN |
+
+**Jamais dans le lien** : longueur ou immatriculation du navire, colonne d'eau saisie, ni rien qui désigne l'usager. Le lien contient la position du mouillage souhaité, comme le bouton « Copier ».
+
+**Quand le bouton est caché** — tant que `DN_PREREMPLISSAGE.demarche` ou la clé du champ GPS est vide (état livré en v2.45 : les clés DN ne sont pas encore relevées) ; pendant les vérifications du point (un lien partirait à moitié vide) ; dans la vue `?vue=existant` (pas une première demande) ; après « Effacer le point ».
+
+**Configuration** — bloc `DN_PREREMPLISSAGE` (§6). Les clés `champ_…` se relèvent sur la page `/preremplir/<nom>` de la démarche (option « opendata » activée côté DN). **Piège** : un champ DN supprimé puis recréé change de clé, et DN ignore alors la valeur **sans message** ; une valeur hors liste ou hors bornes est ignorée de même. Après toute retouche du formulaire DN, revérifier le lien (TESTS_FONCTIONNELS.md §23.6).
+
+**Limites** — l'usager peut modifier les valeurs préremplies (c'est sa déclaration) ; les brouillons d'une démarche en mode test sont supprimés à chaque retouche du formulaire DN.
+
 ---
 
 ## 5. Couches cartographiques
@@ -884,6 +912,19 @@ const CONFIG = {
   // ... autres paramètres
 };
 ```
+
+#### `DN_PREREMPLISSAGE` *(v2.45)*
+Lien vers la Première demande — voir §4.8.
+```javascript
+const DN_PREREMPLISSAGE = {
+  base: 'https://demarche.numerique.gouv.fr/commencer/',
+  demarche: '',   // nom de la démarche 152356 dans l'adresse — vide : bouton caché
+  champs: { gps:'', departement:'', commune:'', lieuDit:'', natura:'', naturaSite:'', rayon:'', natureFond:'' },
+  natureFond: { sable:'Sable ou vase', vase:'Sable ou vase', dur:'Roche' },  // famille Shom → option DN
+  communes: { 'Saint-Tropez':['83990','83119'], … }                         // [code postal, INSEE]
+};
+```
+Une clé vide n'est pas envoyée. Une commune ajoutée aux zones autorisées (`data/zones-aot.geojson`) doit être ajoutée à `communes` pour être préremplie.
 
 #### `GRIST`
 ```javascript
@@ -1450,6 +1491,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 
 ## 11. Historique des corrections
 
+### v2.45 — 19 novembre 2026
+**Bouton « Commencer une première demande pour cet emplacement » (brouillon DN prérempli)**
+- Évolution structurelle validée par Nicolas le 19/11/2026 (étude « Carte vers DN » du 17/11/2026, option A ; libellé, démarche 152356, ajout du département, de la commune et du lieu-dit, commune et lieu-dit « zones seulement »). Détail : §4.8.
+- Bloc `DN_PREREMPLISSAGE` (§6), bouton Bleu France sous les valeurs à reporter, avec une ligne « Le formulaire s'ouvre déjà rempli avec ce que la carte sait de cet emplacement. À vérifier avant de déposer. » Boutons « Copier » conservés.
+- Formats vérifiés dans le code source de DN (19/11/2026) : oui/non `true`/`false`, commune `[code postal, code INSEE]` (le code postal est obligatoire), nombre normalisé, liste = option exacte, département = code.
+- **Livré caché** : les clés des champs de 152356 ne sont pas encore relevées (option « opendata » à activer, relevé sur `/preremplir/…` — écritures DN, environnement base de données). Le bouton apparaîtra quand `demarche` et `champs.gps` seront remplis.
+- Tests : nouveau `tests/test_preremplissage_dn_chromium.js` (§23) 29/29, avec des clés fictives ; non-régression : intégrité OK, §10 Node 59/59, §17+§19+§21.1 72/72, données OK, §10 Chromium 22/22, §17.5 17/17, §15 13/13, §20 23/23, §19.2 9/9, §18 27/27.
 ### v2.44 — 19 novembre 2026
 **Vue détail avec retour**
 - Demande de Nicolas : limiter la hauteur du panneau quand on ouvre un détail. Quatre options comparées (vue détail, deuxième colonne, fenêtre modale, accordéon unique) ; option A maquettée dans l'artefact « Panneau du point AMIDOMAR » (version 4) et validée, libellé du retour choisi par Nicolas : « ← Retour à la synthèse de l'emplacement ». Deuxième colonne écartée : environ 1 100 px de panneaux sur un portable, impossible sur téléphone.

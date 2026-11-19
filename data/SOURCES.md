@@ -1697,3 +1697,11 @@ reprise dans ce fichier.
 | 3 nov. 2026 | dossier `Amidomar/var ouest` (23 PDF + `zones_var_ouest_releve.py`, le relevé des sommets) | lecture des cartes n°1 à 26 de la DDTM 83, 29 zones versées |
 | 2 nov. 2026 | conversation « Tableau des zones de mouillage » (projet Claude) | lecture des 15 cartes PDF n°31 à 52 de la DDTM 83, 24 zones relevées et versées (carte 38 : étiquettes réattribuées, confirmé), classeur `zones_mouillage_AOT_Var.xlsx` et GeoJSON de travail |
 | 15 oct. 2026 | `AMIDOMAR_Bathymetrie_flux_Shom_et_integration.md` | bathymétrie : les quatre voies Shom fermées avec preuves, prépaquets et poids mesurés, provenance et dispersion EMODnet |
+
+## 17. Codes des communes pour le préremplissage DN — geo.api.gouv.fr (v2.45, 19 novembre 2026)
+
+- **Usage** : relevé **une fois, hors ligne** — la carte n'interroge pas ce service. Le champ « Commune » de Démarches Numériques n'accepte en préremplissage que `[code postal, code INSEE]` (code source de DN, `prefill_commune_type_de_champ.rb`, lu le 19/11/2026) ; les zones autorisées du Var n'ont ni l'un ni l'autre, celles du Morbihan seulement le code INSEE. Les 23 communes des zones ont été relevées sur `https://geo.api.gouv.fr/communes?nom=…&codeDepartement=…&fields=nom,code,codesPostaux` et recopiées dans `DN_PREREMPLISSAGE.communes` (index.html). Codes INSEE du 56 identiques à ceux de la couche de la DDTM.
+- **Plusieurs codes postaux** : Fréjus (83370, 83600), Roquebrune-sur-Argens (83380, 83520), Saint-Raphaël (83530, 83700), Toulon (83000, 83100, 83200) — le code de la commune principale est retenu ; DN accepte tout code postal de la commune.
+- « Ria d'Étel (commune à confirmer) » : pas de commune, rien d'envoyé.
+- **Essai écarté** (arbitrage de Nicolas du 19/11/2026, « zones seulement ») : interroger `geo.api.gouv.fr/communes?lat=…&lon=…` au clic. Réponses en mer le 19/11/2026 : golfe du Morbihan → Île-aux-Moines, large de Port-Cros → Hyères, rade de Brest → **rien**. Couverture partielle, et un point de baie peut tomber sur la commune d'en face. Aucune source fiable de lieu-dit en mer.
+- Licence : données de l'API Géo (DINUM), Licence Ouverte 2.0.

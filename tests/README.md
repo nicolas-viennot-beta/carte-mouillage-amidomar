@@ -37,6 +37,7 @@ Claude, sans rien configurer.
 | `test_faune_chromium.js` | §20 bis — sites sensibles pour les oiseaux et les phoques de l'OFB (v2.43) : point au clic, message repris tel quel, HTML du message neutralisé (liens reconstruits, balises retirées), rien au point, OFB en panne | `node test_faune_chromium.js` — **Playwright requis** |
 | `test_vue_detail_chromium.js` | §22 — vue détail avec retour : ouverture, rappel, titre, masquage du reste, clic sur une zone, retour (lien et Échap), focus, nouvel emplacement (v2.44) | `node test_vue_detail_chromium.js` — **Playwright requis** |
 | `test_zones_secteurs_chromium.js` | §19.2 — liste des zones rangée Secteur → Commune → Zone, zones proches, rendu et clics (v2.37) | `node test_zones_secteurs_chromium.js` — **Playwright requis** |
+| `test_preremplissage_dn_chromium.js` | §23 — bouton « Commencer une première demande » (v2.45) : caché sans clés DN, lien construit avec des clés fictives (GPS, département, commune, lieu-dit, Natura, rayon, fond), services muets, bouton absent | `node test_preremplissage_dn_chromium.js` — **Playwright requis** |
 | `stub.js` | Le stub DOM partagé par les deux harnais Node | — |
 | `tirage_aot.js` | Régénérer les 248 positions simulées d'AOT | à coller dans la console de la carte **publiée** |
 

@@ -503,6 +503,15 @@
                   padding:7px 12px; cursor:pointer; font-size:13px; font-family:inherit; }
       .copy-btn:hover { background:#1558b0; }
       .copy-btn.copied { background:#2e7d32; }
+      /* v2.45 : bouton principal vers la première demande DN (Bleu France). */
+      .dn-commencer { display:block; margin:10px 0 0; padding:10px 12px; background:#000091; color:#fff;
+                      text-align:center; text-decoration:none; font-weight:700; font-size:14px;
+                      border-radius:5px; line-height:1.3; }
+      .dn-commencer:hover, .dn-commencer:focus-visible { background:#1212ff; color:#fff; }
+      .dn-commencer:focus-visible { outline:2px solid #0a76f6; outline-offset:2px; }
+      .dn-commencer::after { content:' ↗'; }
+      .dn-commencer[hidden], .dn-commencer-note[hidden] { display:none; }
+      .dn-commencer-note { margin:4px 0 0; font-size:11px; color:#595959; text-align:center; }
 
       /* ---------- Panneaux latéraux ----------
          Deux zones de sens opposé. À gauche la demande de l'usager ; à droite
@@ -837,6 +846,11 @@
             <button id="copy-btn" type="button" class="copy-btn">Copier</button>
           </div>
         </div>
+        <!-- v2.45 : brouillon DN prérempli (voir DN_PREREMPLISSAGE). Caché tant
+             que la configuration DN n'est pas remplie ou que les vérifications
+             du point sont en cours. L'adresse est construite au clic. -->
+        <a id="dn-commencer" class="dn-commencer" href="#" target="_blank" rel="noopener" hidden>Commencer une première demande pour cet emplacement<span class="sr-only"> (nouvel onglet)</span></a>
+        <p id="dn-commencer-note" class="dn-commencer-note" hidden>Le formulaire s'ouvre déjà rempli avec ce que la carte sait de cet emplacement. À vérifier avant de déposer.</p>
       </div>
       <!-- v2.33 : affiché À LA PLACE du bloc « à reporter » quand une règle
            locale retient les coordonnées (voir decisionCoordonnees). Hors du
@@ -880,6 +894,62 @@
       // La longueur du navire n'a volontairement pas de valeur par défaut :
       // c'est à l'usager de la renseigner, et le rayon d'évitage ne s'affiche
       // qu'une fois cette saisie faite.
+    };
+
+    /* --- 1 bis. LIEN VERS LA PREMIÈRE DEMANDE (v2.45) ------------------------
+       Le bouton « Commencer une première demande pour cet emplacement » ouvre
+       la démarche DN 152356 avec un brouillon prérempli, par un simple lien
+       (fonction « préremplissage » de DN : /commencer/<nom>?champ_<id>=…).
+       Rien n'est envoyé à un serveur AMIDOMAR, aucune clé n'est nécessaire.
+
+       À REMPLIR depuis la page « /preremplir/<nom> » de la démarche (option
+       « opendata » activée côté DN) :
+         - `demarche` : le nom de la démarche dans l'adresse /commencer/… ;
+         - `champs`   : la clé complète de chaque champ, « champ_… ».
+       Tant que `demarche` ou `champs.gps` est vide, le bouton reste caché.
+       Un champ laissé vide n'est simplement pas envoyé.
+
+       Attention : un champ DN supprimé puis recréé change de clé, et DN
+       ignore alors la valeur SANS message. Après toute retouche du
+       formulaire, revérifier le lien (TESTS_FONCTIONNELS.md §23).
+
+       Jamais dans le lien : longueur ou immatriculation du navire, ni rien
+       qui désigne l'usager. */
+    const DN_PREREMPLISSAGE = {
+      base: 'https://demarche.numerique.gouv.fr/commencer/',
+      demarche: '',               // ex. 'amidomar-premiere-demande' — à relever
+      champs: {
+        gps:         '',          // « Coordonnées GPS » (champ formaté) — « lat, lng », 6 décimales
+        departement: '',          // « Département » (liste des départements) — code, ex. « 83 »
+        commune:     '',          // « Commune » (communes) — [code postal, code INSEE]
+        lieuDit:     '',          // « Lieu-dit » (texte)
+        natura:      '',          // « …en zone Natura 2000 ? » (oui/non) — true / false
+        naturaSite:  '',          // nom du ou des sites Natura 2000 (texte)
+        rayon:       '',          // « Rayon d'évitage » (nombre) — mètres entiers
+        natureFond:  ''           // « Nature du fond » (liste) — libellé exact d'une option
+      },
+      // Famille Shom (voir NATURES_FOND) → option de la liste DN. Arbitrage de
+      // Nicolas du 17/11/2026, le même que la passe « contexte » de la base :
+      // graviers → rien ; jamais herbier, maërl ni matte morte (le Shom ne les
+      // voit pas).
+      natureFond: { sable: 'Sable ou vase', vase: 'Sable ou vase', dur: 'Roche' },
+      /* Commune et lieu-dit : connus seulement DANS une zone de mouillage
+         autorisée de la carte (Var, Morbihan) — arbitrage de Nicolas du
+         19/11/2026, pas de nouvelle source. DN demande le code postal (et le
+         code INSEE) : relevés une fois sur geo.api.gouv.fr le 19/11/2026.
+         Une commune absente de cette table n'est pas envoyée. */
+      communes: {
+        'Gâvres':['56680','56062'], 'Hœdic':['56170','56085'], 'Lanester':['56600','56098'],
+        'Le Palais':['56360','56152'], 'Lorient':['56100','56121'], 'Riantec':['56670','56193'],
+        'Sauzon':['56360','56241'],
+        'Bandol':['83150','83009'], 'Bormes-les-Mimosas':['83230','83019'],
+        'Cavalaire-sur-Mer':['83240','83036'], 'Fréjus':['83600','83061'], 'Gassin':['83580','83065'],
+        'Grimaud':['83310','83068'], 'Hyères':['83400','83069'], 'La Croix-Valmer':['83420','83048'],
+        'La Londe-les-Maures':['83250','83071'], 'La Seyne-sur-Mer':['83500','83126'],
+        'Le Lavandou':['83980','83070'], 'Ramatuelle':['83350','83101'],
+        'Roquebrune-sur-Argens':['83520','83107'], 'Saint-Raphaël':['83700','83118'],
+        'Saint-Tropez':['83990','83119'], 'Toulon':['83000','83137']
+      }
     };
 
     /* --- 2. SOURCE DES MOUILLAGES EXISTANTS ---------------------------------
@@ -2525,6 +2595,59 @@
     const copyZone  = document.getElementById('copy-zone');
     const reportMasque = document.getElementById('report-masque');   // v2.33
     let coordonneesMasquees = false;   // v2.33 : une règle locale retient les coordonnées
+
+    /* ---------- v2.45 : brouillon DN prérempli (voir DN_PREREMPLISSAGE) ----------
+       Le contexte du point est posé UNE fois les vérifications revenues
+       (zonages, fond, département, zones) : avant, le lien partirait à moitié
+       vide. Le rayon d'évitage est lu au moment du clic sur le bouton, parce
+       que l'usager peut faire le calcul après l'ouverture du panneau.
+       Chaque valeur n'est envoyée que si elle est SÛRE : un service muet ne
+       donne jamais « non » (Natura 2000) ni une nature de fond par défaut. */
+    const dnBouton = document.getElementById('dn-commencer');
+    const dnNote   = document.getElementById('dn-commencer-note');
+    let contexteDN = null;
+    function dnConfigure() {
+      return !!(DN_PREREMPLISSAGE.demarche && DN_PREREMPLISSAGE.champs.gps);
+    }
+    function majBoutonDN(ctx) {
+      contexteDN = ctx || null;
+      const voir = !!contexteDN && dnConfigure() && !vueExistant;
+      dnBouton.hidden = !voir;
+      dnNote.hidden = !voir;
+    }
+    /* ctx = { lat, lng, dep, natura, fond, zone } tels que reçus au clic ;
+       saisie = lireSaisieEvitage() ou null. Renvoie [[clé, valeur]…], une
+       valeur tableau étant envoyée en « clé[]=… » (champ Commune de DN). */
+    function valeursDN(ctx, saisie) {
+      const c = DN_PREREMPLISSAGE.champs, v = [];
+      const ajouter = (cle, val) => { if (cle && val != null && val !== '') v.push([cle, val]); };
+      ajouter(c.gps, `${ctx.lat.toFixed(6)}, ${ctx.lng.toFixed(6)}`);
+      const deps = (ctx.dep && ctx.dep.departements) || [];
+      if (deps.length === 1) ajouter(c.departement, String(deps[0]));   // deux à égalité : rien
+      const pz = (ctx.zone && ctx.zone.properties) || {};
+      const commune = DN_PREREMPLISSAGE.communes[pz.commune];
+      if (commune) ajouter(c.commune, commune);
+      ajouter(c.lieuDit, pz.lieu || '');
+      if (ctx.natura) {                                                  // null : service muet
+        ajouter(c.natura, ctx.natura.length ? 'true' : 'false');
+        ajouter(c.naturaSite, ctx.natura.join(', '));
+      }
+      if (saisie && isFinite(saisie.r)) ajouter(c.rayon, String(Math.round(saisie.r)));
+      if (ctx.fond && ctx.fond.famille) ajouter(c.natureFond, DN_PREREMPLISSAGE.natureFond[ctx.fond.famille] || '');
+      return v;
+    }
+    function adresseDN(ctx, saisie) {
+      const q = [];
+      valeursDN(ctx, saisie).forEach(([cle, val]) => {
+        if (Array.isArray(val)) val.forEach(x => q.push(encodeURIComponent(cle + '[]') + '=' + encodeURIComponent(x)));
+        else q.push(encodeURIComponent(cle) + '=' + encodeURIComponent(val));
+      });
+      return DN_PREREMPLISSAGE.base + encodeURIComponent(DN_PREREMPLISSAGE.demarche) + '?' + q.join('&');
+    }
+    dnBouton.addEventListener('click', e => {
+      if (!contexteDN || !dnConfigure()) { e.preventDefault(); return; }
+      dnBouton.href = adresseDN(contexteDN, formNavireRequis ? lireSaisieEvitage() : null);
+    });
 
     /* ---------- v2.27 : réduire le popup sans perdre l'emplacement ----------
        « Réduire » et « Fermer » ne font PAS la même chose, et c'est tout
@@ -4372,6 +4495,7 @@
       copieFaite = false; majEtapes();
       reportBlock.style.display = 'none';
       masquerCoordonnees(null);   // v2.33
+      majBoutonDN(null);          // v2.45
       boatBlock.style.display = 'none';
       hint.textContent = '';
       popup.classList.remove('info', 'alerte');
@@ -4410,6 +4534,7 @@
         return;
       }
 
+      majBoutonDN(null);   // v2.45 : pas de lien tant que le nouveau point n'est pas vérifié
       reportBlock.style.display = '';
       // La ligne « nom de la zone » n'apparaît qu'une fois les zonages connus
       // (plus bas) : sans ça, elle garderait le nom du point précédent.
@@ -4527,6 +4652,10 @@
       const verdict = bandeauVerdict(dep, fiches, zones, lngLat);
       // v2.33 : la même règle locale peut retenir les coordonnées.
       masquerCoordonnees(decisionCoordonnees(dep, fiches, zones, lngLat));
+      // v2.45 : le point est vérifié, le lien DN peut partir (bouton dans le
+      // bloc « à reporter », donc absent quand les coordonnées sont retenues).
+      majBoutonDN({ lat, lng, dep, fond, zone: zoneAOTauPoint(lngLat, zones),
+                    natura: (natura.length || !echec) ? natura : null });
 
       // « Non vérifié ici (n) · cultures marines, nature du fond » : le nom de
       // chaque source est la partie du titre avant les deux-points.
@@ -4583,6 +4712,7 @@
       copyZone.textContent = 'Copier'; copyZone.classList.remove('copied');
       reportBlock.style.display = 'none';
       masquerCoordonnees(null);   // v2.33
+      majBoutonDN(null);          // v2.45
       boatBlock.style.display = 'none';
       afficherEnvironnement('', '');
       popup.classList.remove('visible', 'info', 'alerte', 'terre');
