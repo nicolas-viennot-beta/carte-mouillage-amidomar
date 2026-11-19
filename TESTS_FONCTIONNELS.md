@@ -23,7 +23,10 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 19 nov. 2026 (v2.44) — vue détail avec retour.**
+**Dernière exécution : 19 nov. 2026 (v2.46) — « emplacement » au lieu de « point » (après la v2.45 « première demande » d'une autre session).**
+- §6 **OK**, §10 **59/59** Node et **22/22** Chromium, §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §20 bis **19/19**, §22 **17/17**.
+
+**Exécution précédente : 19 nov. 2026 (v2.44) — vue détail avec retour.**
 - Sur la version fusionnée avec la v2.43 (sites faune) : §20 bis **19/19**.
 - §6 **OK**, §10 **59/59** Node et **22/22** Chromium (premier passage 20/22 puis 21/22 sur l'aléa connu du déroulant en retard d'un cran, 22/22 au troisième), §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §22 (nouveau) **17/17**.
 - Captures vérifiées : vue « Zones autorisées — Var (83) » et vue « Points de vigilance (1) », conformes à la maquette.
@@ -3037,7 +3040,7 @@ donc sur la partie qui suit le titre « Toutes les zones », pas sur tout le HTM
 3. Comptes : « Bandol → Le Lavandou · 7 communes · 29 zones · 1 025 emplacements » ; « Cavalaire-sur-Mer → Saint-Raphaël · 9 communes · 28 zones · 740 emplacements » ; Hyères « 10 zones · 314 emplacements » ; aucune « Autres zones ».
 4. 16 `<details class="env-commune">`, d'ouest en est : Bandol, La Seyne-sur-Mer, Toulon, Hyères, La Londe-les-Maures, Bormes-les-Mimosas, Le Lavandou, puis Cavalaire-sur-Mer … Saint-Raphaël.
 5. « emplacements », jamais « unités » ; dans une commune, la zone est nommée sans la commune (« Madrague de Giens, zone A »).
-6. « Les plus proches de votre point » : `CONFIG.zonesProches` (3) zones, toutes à Hyères, chacune avec une distance au format « 180 m » / « 1,6 km », croissante.
+6. « Les plus proches de votre emplacement » *(« … de votre point » jusqu'en v2.44)* : `CONFIG.zonesProches` (3) zones, toutes à Hyères, chacune avec une distance au format « 180 m » / « 1,6 km », croissante.
 7. Sans point (`lngLat` null) : pas de section « proches », 57 zones dans la liste rangée.
 8. Fiche sans `secteurs` : communes listées directement (16), aucun `env-secteur-nom`.
 9. Zone dont `source` ne porte pas de numéro de carte : rangée sous « Autres zones ».

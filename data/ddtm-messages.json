@@ -40,7 +40,7 @@
       ],
       "message_consequence_zone": "",
       "coordonnees_hors_zone": false,
-      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus).",
+      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un emplacement dans l'une d'elles (« Voir les zones » ci-dessus).",
       "libelle_bouton_zone": "Voir les autres zones"
     },
     {
@@ -85,7 +85,7 @@
       "_note_variante_zone": "Les champs *_zone sont utilisés quand l'emplacement cliqué tombe DANS une zone de data/zones-aot.geojson : la carte de règle locale passe alors au vert et affiche ces textes à la place des textes par défaut. Le nom de la zone est ajouté automatiquement entre parenthèses après message_complement_zone — ne pas l'écrire ici. Sans libelle_bouton_zone, le bouton par défaut est conservé.",
       "message_consequence_zone": "",
       "coordonnees_hors_zone": false,
-      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus).",
+      "message_hors_zone": "Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un emplacement dans l'une d'elles (« Voir les zones » ci-dessus).",
       "message_titre_zone_pro": "La DDTM du Var réserve cette zone aux professionnels",
       "message_complement_zone_pro": "",
       "message_consequence_zone_pro": "",

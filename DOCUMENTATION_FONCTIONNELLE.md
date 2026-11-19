@@ -1,6 +1,6 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.45 (novembre 2026)  
+**Version:** 2.46 (novembre 2026)  
 **Dernière mise à jour:** 19 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
@@ -165,7 +165,7 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 >    | Point dans une zone réservée aux professionnels | « **Zone réservée aux professionnels** » / « Pas de demande possible pour un plaisancier. » | gris `#3a3a3a` |
 >    | Pas de fiche (Finistère et autres) | « **Règles locales non renseignées ici** » / « Renseignez-vous auprès de la DDTM avant de faire une demande. » | neutre, contour gris |
 >    | Fiche sans `coordonnees_hors_zone: false` | « **Règles locales à lire ci-dessous** » | neutre |
->    | Deux départements | « **Règles locales à vérifier** » / « Ce point est à la limite de deux départements : voir ci-dessous. » | neutre |
+>    | Deux départements | « **Règles locales à vérifier** » / « Cet emplacement est à la limite de deux départements : voir ci-dessous. » | neutre |
 >    | Département inconnu (service injoignable) | pas de bandeau | — |
 >
 >    Le bandeau donne **le verdict final, comme si la liste des zones était exhaustive**, y compris pour une fiche en `brouillon` (Var) (décision de Nicolas, 19/11/2026). Il est suivi, **pour toutes les DDTM** dès qu'une carte de règle locale existe, d'un lien « **Voir les règles locales** » qui ouvre le détail de cette carte — où reste, pour le Var, la mention « Information provisoire, en cours de validation avec la DDTM ». Sans fiche (Finistère…), pas de carte à ouvrir : pas de lien. *(v2.40 : badge « Information provisoire » ; v2.41 : lien pour les seules fiches en brouillon ; v2.42 : lien pour toutes.)* « **Nouvelle** autorisation » et non « autorisation » : un titulaire installé hors zone peut toujours demander la poursuite de son occupation. Aucune donnée ni champ de fiche ajouté : les phrases sont communes à tous les départements, le verdict reprend la règle déjà appliquée par `decisionCoordonnees`.
@@ -613,7 +613,7 @@ Trois conséquences pour l'usager :
 
   La zone occupée **sort de la liste** dépliable, dont le bouton propose « les autres zones autorisées » : y faire figurer celle où l'on se trouve déjà contredirait son libellé.
 - **La liste est rangée Secteur → Commune → Zone (v2.37).** Demande de Nicolas après une maquette validée le 10 novembre 2026 (canvas « AMIDOMAR — Zones du Var par secteur ») : 57 zones à plat se lisaient mal.
-  - **En tête, « Les plus proches de votre point »** : les `CONFIG.zonesProches` (3) zones les plus proches du point cliqué, avec leur commune et leur distance au bord du polygone (`distanceZone`, même approximation plate que le cadastre conchylicole ; « 180 m », « 1,6 km »). C'est ce que cherche l'usager qui explore sans mouillage : il clique là où il voudrait mouiller et voit d'abord ce qui est autorisé autour.
+  - **En tête, « Les plus proches de votre emplacement »** *(« … de votre point » jusqu'en v2.44)* : les `CONFIG.zonesProches` (3) zones les plus proches du point cliqué, avec leur commune et leur distance au bord du polygone (`distanceZone`, même approximation plate que le cadastre conchylicole ; « 180 m », « 1,6 km »). C'est ce que cherche l'usager qui explore sans mouillage : il clique là où il voudrait mouiller et voit d'abord ce qui est autorisé autour.
   - **Puis « Toutes les zones du Var »**, en `<details>` natifs, **tous repliés** (clavier et lecteur d'écran gérés par le navigateur) : le secteur affiche son étendue, son nombre de communes, de zones et d'emplacements (« Bandol → Le Lavandou · 7 communes · 29 zones · 1 025 emplacements ») ; chaque commune son nombre de zones et d'emplacements ; chaque zone son nom sans répéter la commune, puis « 30 emplacements, exposition ouest, profondeur 0 à 1 m ». Le total d'un groupe n'est donné que si toutes ses zones ont une capacité.
   - **Le secteur vient du numéro de carte DDTM**, lu dans le champ `source` de la zone (« carte n°6 »), comparé aux plages `secteurs` de la fiche DDTM dans `data/ddtm-messages.json` (83 : cartes 1 à 30 → « Secteur Ouest Var », 31 à 99 → « Secteur Est Var »). Rien n'est recopié dans le GeoJSON. Une zone sans numéro ou hors plage tombe sous « Autres zones » ; une fiche sans `secteurs` liste ses communes directement. Les cartes 27 à 30, non transmises, seraient rangées à l'ouest : limite à confirmer avec la DDTM 83.
   - **Communes d'ouest en est** (longitude la plus faible de leurs zones), zones dans l'ordre du GeoJSON.
@@ -1277,7 +1277,7 @@ https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/?vue=existant
 - [ ] Dans une zone, déplier « Identifier les autres zones autorisées » → **56** zones listées, celle où l'on se trouve n'y figure pas
 - [ ] Cliquer dans le Var **hors** de toute zone → la carte est **orange**, titrée « ne délivre plus… », et les **57** zones sont listées sous « Voir les zones », chacune avec sa commune
 - [ ] Déplier « Voir les zones » → les noms sont des liens soulignés
-- [ ] *(v2.37)* Cliquer en mer à l'est de la presqu'île de Giens → en tête « Les plus proches de votre point » : 3 zones d'Hyères avec leur distance, croissante ; dessous « Toutes les zones du Var » avec « Secteur Ouest Var » et « Secteur Est Var », **repliés**
+- [ ] *(v2.37)* Cliquer en mer à l'est de la presqu'île de Giens → en tête « Les plus proches de votre emplacement » : 3 zones d'Hyères avec leur distance, croissante ; dessous « Toutes les zones du Var » avec « Secteur Ouest Var » et « Secteur Est Var », **repliés**
 - [ ] *(v2.37)* Ouvrir « Secteur Ouest Var » → 7 communes de Bandol au Lavandou ; ouvrir Hyères → 10 zones, nommées sans « Hyères — », avec « emplacements » (jamais « unités »)
 - [ ] *(v2.37)* Cliquer une zone de la section « proches », puis une zone d'une commune ouverte → la carte se recadre à chaque fois, les sections restent ouvertes
 - [ ] *(v2.37)* Sur téléphone (≈ 390 px), le panneau reste lisible : secteurs et communes sur une ou deux lignes, distance à droite
@@ -1491,6 +1491,12 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 
 ## 11. Historique des corrections
 
+### v2.46 — 19 novembre 2026
+**« Emplacement » au lieu de « point » dans les textes**
+- « point » → « emplacement » dans les textes que lit l'usager, pour suivre le vocabulaire retenu (« point » est un mot de la carte, pas de l'usager) : sous-titre « Les plus proches de votre emplacement » ; bandeau et carte de règle locale « Cet emplacement est à la limite de deux départements… » / « Cet emplacement est proche de la limite entre… » ; paragraphe de masquage 56 et 83 « Choisissez un emplacement dans l'une d'elles » (`data/ddtm-messages.json`).
+- Tests : `test_regles_locales.js` adapté (§19.1.6).
+
+
 ### v2.45 — 19 novembre 2026
 **Bouton « Commencer une première demande pour cet emplacement » (brouillon DN prérempli)**
 - Évolution structurelle validée par Nicolas le 19/11/2026 (étude « Carte vers DN » du 17/11/2026, option A ; libellé, démarche 152356, ajout du département, de la commune et du lieu-dit, commune et lieu-dit « zones seulement »). Détail : §4.8.
@@ -1525,7 +1531,7 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
   | 83 zone réservée | « La DDTM du Var réserve cette zone aux professionnels (nom de la zone) » | Voir les zones ouvertes à tous |
   | 22 | « La DDTM des Côtes-d'Armor ne délivre plus de nouvelles AOT de mouillage individuel » (inchangé) | Voir la liste d'attente |
 
-  Paragraphe affiché à la place des coordonnées : 56 et 83 « Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un point dans l'une d'elles (« Voir les zones » ci-dessus). » ; 22 « Coordonnées GPS non proposées : la DDTM ne délivre plus de nouvelles AOT ici. Pour un port ou une ZMEL, cliquez dessus sur la carte. » Textes de détail inchangés. Code : le nom de la zone passe en `suffixe` de la carte (plus de tiret devant la parenthèse).
+  Paragraphe affiché à la place des coordonnées : 56 et 83 « Coordonnées GPS non proposées : cet emplacement est hors des zones autorisées par la DDTM. Choisissez un emplacement dans l'une d'elles (« Voir les zones » ci-dessus). » ; 22 « Coordonnées GPS non proposées : la DDTM ne délivre plus de nouvelles AOT ici. Pour un port ou une ZMEL, cliquez dessus sur la carte. » Textes de détail inchangés. Code : le nom de la zone passe en `suffixe` de la carte (plus de tiret devant la parenthèse).
 - **Panneau sous la recherche** : `limiterHauteurPanneau` borne la hauteur du panneau du point à la place libre sous le champ de recherche (mesurée au chargement et au redimensionnement, plancher 240 px) ; au-delà, le contenu défile. La **liste des résultats de recherche** passe au-dessus du panneau (`z-index` 1001 ; elle est posée par carte-facile dans `#map`, hors du contrôle). Ferme le point ouvert des tests depuis la v2.38 : l'usager devait réduire le panneau pour chercher un autre lieu ou choisir un résultat.
 - Tests : `test_regles_locales.js` 72/72 (§21.1.7 adapté, 2 nouveaux), `test_regles_locales_chromium.js` 17/17 (textes de masquage adaptés), **`test_interface_chromium.js` 22/22** (de nouveau complet, arrêté au §10.7 depuis la v2.38), §15 13/13, §18 27/27, §19.2 9/9, §20 23/23, intégrité OK, §10 Node 59/59, données OK. Rendu vérifié en local : Var en zone, Morbihan hors zone, Côtes-d'Armor ; panneau sous le champ de recherche dans les trois cas.
 

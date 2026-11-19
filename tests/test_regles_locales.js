@@ -116,9 +116,9 @@ t('… puis l\'est, de Cavalaire à Saint-Raphaël', ordre[7] === 'Cavalaire-sur
 t('Hyères : 10 zones · 314 emplacements', /<span>Hyères<\/span>\s*<span class="env-groupe-meta">10 zones · 314 emplacements/.test(hg));
 t('« emplacements », plus jamais « unités »', !/unités/.test(hg) && /30 emplacements, exposition ouest, profondeur 0 à 1 m/.test(hg));
 t('dans une commune, la zone est nommée sans répéter la commune', />Madrague de Giens, zone A<\/button>/.test(hg));
-const proches = (hg.split('Les plus proches de votre point')[1] || '').split('Toutes les zones')[0];
+const proches = (hg.split('Les plus proches de votre emplacement')[1] || '').split('Toutes les zones')[0];
 const nomsProches = [...proches.matchAll(/data-zone="\d+"\s*>([^<]+)<\/button>/g)].map(m => m[1]);
-t('« Les plus proches de votre point » : CONFIG.zonesProches (3) zones, toutes à Hyères', nomsProches.length === 3 && nomsProches.every(n => n.startsWith('Hyères — ')), nomsProches.join(' | '));
+t('« Les plus proches de votre emplacement » : CONFIG.zonesProches (3) zones, toutes à Hyères', nomsProches.length === 3 && nomsProches.every(n => n.startsWith('Hyères — ')), nomsProches.join(' | '));
 const dists = [...proches.matchAll(/env-zone-distance">([^<]+)</g)].map(m => m[1]);
 t('… chacune avec sa distance, croissante', dists.length === 3 && dists.every(d => /^\d+(,\d)? (m|km)$/.test(d)), dists.join(' | '));
 t('les boutons de la section « proches » recadrent bien la carte (data-zone valide)', [...hg.matchAll(/data-zone="(\d+)"/g)].length === 60);

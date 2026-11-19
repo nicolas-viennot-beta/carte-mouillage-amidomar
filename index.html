@@ -3360,7 +3360,7 @@
       if (lngLat && CONFIG.zonesProches > 0) {
         const proches = zs.map(z => ({ z, d: distanceZone(lngLat, z) }))
           .filter(o => isFinite(o.d)).sort((a, b) => a.d - b.d).slice(0, CONFIG.zonesProches);
-        if (proches.length) html += `<h3 class="env-sous-titre">Les plus proches de votre point</h3>
+        if (proches.length) html += `<h3 class="env-sous-titre">Les plus proches de votre emplacement</h3>
           <ul class="env-liste env-liste--proches">${proches.map(o => itemZone(o.z, { complet: true, distance: o.d })).join('')}</ul>`;
       }
       const communes = (liste) => {
@@ -3436,7 +3436,7 @@
       let entete;
       if (dep.departements.length > 1) {
         entete = `<div class="popup-entete-section">${titre}</div>
-                  <p class="env-caveat">Ce point est proche de la limite entre
+                  <p class="env-caveat">Cet emplacement est proche de la limite entre
                     ${fiches.map(f => echapper(nommer(f))).join(' et ')}, qui n'appliquent
                     pas les mêmes règles.</p>`;
       } else {
@@ -3575,7 +3575,7 @@
         `</div></div>`;
       const avecCarte = (code) => (messages || []).some(m => String(m.ddtm) === String(code) && m.message_titre);
       if (dep.departements.length > 1) return rendu('neutre',
-        'Règles locales à vérifier', 'Ce point est à la limite de deux départements : voir ci-dessous.',
+        'Règles locales à vérifier', 'Cet emplacement est à la limite de deux départements : voir ci-dessous.',
         dep.departements.some(avecCarte));
       const f = (messages || []).find(m => String(m.ddtm) === String(dep.departements[0]));
       if (!f || !f.message_titre) return rendu('neutre',
