@@ -3091,8 +3091,8 @@ réseau coupé. Dernière exécution : 18 nov. 2026 — 22/22.*
 
 ### 20.6 Non couvert par le harnais — à vérifier en réel
 - Tuiles réellement affichées par le serveur de l'OFB et statut ✓ des quatre cases (la case zostères teste une tuile du golfe du Morbihan, `tuileTest`).
-- Clic réel : rade d'Hyères (43.05, 6.2) → posidonie ; golfe du Morbihan (47.56049, -2.77289) → zostère marine ; rade de Brest (48.30, -4.42) → maërl. *(Vérifié en local le 18/11/2026, à refaire sur la version publiée.)*
-- Rendu téléphone (390 px) avec la carte d'habitat en plus.
+- Clic réel : rade d'Hyères (43.05, 6.2) → posidonie ; golfe du Morbihan (47.56049, -2.77289) → zostère marine ; rade de Brest (48.30, -4.42) → maërl. *(Vérifié en local le 18/11/2026 ; **vérifié sur la version publiée le 19/11/2026** (v2.43), avec en plus 43.2678, 6.6228 → posidonie et 43.03247, 6.45464 → coralligène ; quatre cases de légende ✓.)*
+- Rendu téléphone (375 px) : **vérifié le 19/11/2026 sur la version publiée** (v2.45) — point « Coralligène » affiché, pas de défilement horizontal. Voir le défaut du champ de recherche au §20 bis.5.
 
 ## 20 bis. Sites sensibles pour les oiseaux et les phoques (OFB, Nav&Co) *(v2.43)*
 
@@ -3116,8 +3116,9 @@ Aucun point « Site sensible », aucune carte grise « oiseaux et phoques ». 0 
 Aucun point ; carte grise « Sites sensibles pour les oiseaux et les phoques : vérification impossible » dans « Non vérifié ici ». Pas de blocage, coordonnées affichées. 0 `pageerror`.
 
 ### 20 bis.5 Non couvert par le harnais — à vérifier en réel
-- Clic réel : Kersabu (47.70175, -3.32268) → oiseaux, hiver *(vérifié en local le 19/11/2026, à refaire sur la version publiée)* ; un site à phoques du Finistère (chaussée de Sein) ; un point du Var → rien.
-- Rendu téléphone (390 px) avec le point en plus.
+- Clic réel : Kersabu (47.70175, -3.32268) → oiseaux, hiver *(vérifié en local puis **sur la version publiée** le 19/11/2026)* ; chaussée de Sein (48.04587, -4.92099) → **deux** points « Site sensible pour les phoques » (été et hiver, messages différents) *(vérifié sur la version publiée le 19/11/2026)* ; un point du Var → rien *(vérifié en local)*.
+- Rendu téléphone (375 px) : **vérifié le 19/11/2026 sur la version publiée** (v2.45) — chaussée de Sein, points et messages lisibles dans le détail, pas de défilement horizontal.
+- ⚠️ **Défaut constaté sur téléphone (375 px), 19/11/2026, v2.45, sans lien avec ce point** : l'en-tête du panneau « Couches affichées » recouvre le centre et la droite du champ de recherche (`elementFromPoint` au centre du champ → `panel-header`). Toucher le champ ouvre le panneau au lieu de permettre la saisie ; seul le bord gauche du champ reste utilisable. Signalé à Nicolas, non corrigé.
 
 ## 21. Panneau du point : bandeau de verdict et sections *(v2.40)*
 
