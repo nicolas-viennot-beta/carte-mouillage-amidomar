@@ -113,6 +113,14 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **19/11/2026** — Arbitrage de Nicolas : **pas de détail sur les
+  interdictions là où la DDTM n'autorise déjà pas le mouillage** (règles
+  locales). Une source de réglementation (ex. règles Nav&Co de l'OFB) ne
+  sert donc qu'**à l'intérieur des zones autorisées** et dans les
+  départements **sans règle locale** (29 à ce jour). Règle qui en découle :
+  avant de proposer une source réglementaire, la croiser d'abord avec
+  `zones-aot.geojson` et `ddtm-messages.json` pour mesurer ce qu'elle
+  apporterait vraiment.
 - **19/11/2026** — Textes des règles locales : Nicolas veut des textes
   **courts et homogènes** — une phrase « La DDTM du … », pas de seconde
   ligne, un bouton qui nomme l'action. Le détail garde les explications.

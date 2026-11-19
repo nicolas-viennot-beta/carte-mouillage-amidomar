@@ -225,6 +225,82 @@ dézoomé.
 **Aires marines protégées** : WMS `https://wxs.ofb.fr/geoserver/gestion/ows`,
 couche `ges_omon_amp_ofb_pol_3857_vue`. Affichage seulement, masquée par défaut.
 
+> **Vérifié le 19/11/2026** (fiche `data.ofb.fr` `7bb33d95-7950-499a-9bd8-6f31d58b0b35`,
+> transmise par Nicolas) : la fiche décrit **cette même couche**, pas une
+> nouvelle donnée. Licence Ouverte Etalab 2.0, mise à jour 31/07/2026 (dernier
+> polygone modifié le 14/09/2026), échelle 1:25 000. **WFS** au même service
+> (`gestion:ges_omon_amp_ofb_pol_3857_vue`, géométrie `geom`) : CORS `*`,
+> `INTERSECTS` au point en **~70 ms**, un polygone par statut de protection
+> (champs `mpa_oriname` = nom, `des_desigfr` = catégorie, `mpa_url`).
+> 733 polygones dont 434 en métropole, 29 catégories : Natura 2000 (255),
+> OSPAR (40), APB (27), réserves naturelles nationales (22, + 10 zones de
+> protection renforcée / intégrale / périmètre), DPM du Conservatoire du
+> littoral (15), **arrêtés de protection d'habitat naturel (11)**, Ramsar (10),
+> ASPIM (7), parcs naturels marins (6), parcs nationaux (cœur, aire maritime
+> adjacente)… **Pas en cache WMTS** (absente des GetCapabilities GeoWebCache).
+> Tests au point : Port-Cros (6,39 / 43,00) → 5 statuts dont « Parc national
+> (coeur) » ; golfe du Morbihan (-2,85 / 47,58) → Ramsar, ZSC, OSPAR ;
+> Trégor-Goëlo (-3,00 / 48,85) → OSPAR, ZPS, ZSC ; Iroise (-4,90 / 48,30) →
+> PNM, réserve de biosphère, OSPAR, ZSC, ZPS. Un périmètre n'est pas la
+> réglementation : la couche dit « vous êtes dans X », pas ce qui y est permis.
+
+**Inventaire exploratoire des services OFB (19/11/2026, non branchés).** Page
+source : `amp.milieumarinfrance.fr/accueil-fr/donnees` (transmise par Nicolas).
+Sept espaces GeoServer `https://wxs.ofb.fr/geoserver/<thème>/ows` — espece
+(173 couches), habitat (414), physique (4), referentiel (36), reglementation
+(5), gestion (8), usage (128) — tous en WFS JSON, CORS `*`, ~0,1 s au point.
+Candidats pour la carte, vérifiés par requête :
+
+- **Réglementations dans les AMP (Nav&Co)** — WFS
+  `reglementation:us_omon_reglementation_amp_pol_3857` (788 polygones, géométrie
+  seule : `reg_id`) + API `https://www.amp.milieumarinfrance.fr/api/1/98/31/get_amp_regul_geojson`
+  (859 règles : titre, type, activités interdites / exceptions, période, état,
+  autorité, lien vers l'arrêté). **Jointure : `reg_id` (WFS) = `regul_id` (API)**,
+  vérifiée sur 11 tirages sur 13 (les 2 autres : centroïde hors du polygone).
+  L'API fait **120 Mo, 12 s, sans filtre** (`?regul_id=`, `?id=`, `/<id>` ignorés) :
+  pas chargeable dans la page. Types : « Zone interdite au mouillage » (89),
+  « … navire > 20 m » (37), « … saisonnier » (6), encadrement de navigation (237)…
+  579 règles citent mouillage ou ancrage ; état VALIDE 692, ABROGE 67, A VALIDER 32.
+  Règles valides citant le mouillage : **35 dans l'emprise du Var** (ZMEL
+  de Bagaud, Cavalaire, Canadel, lagune du Brusc, cœur de Port-Cros, limites
+  > 24 m…), **7 en Bretagne** — couverture très inégale, **non exhaustive**
+  selon l'OFB elle-même. Champ `agent_date_maj` ; le WFS porte aussi un
+  identifiant d'agent de saisie (`reg_agentnum`) : **ne pas le lire ni le recopier**.
+- **Zones à enjeux oiseaux et phoques (Nav&Co)** —
+  `usage:us_met_cmonspot_secteur_sensibilite_ofb_pol_3857_vue`, 822 polygones
+  (Bretagne 593, Normandie 150, Pays de la Loire 79). Porte un **message usager
+  rédigé** (`messa_sens`, ex. « Du 15 avril au 31 juillet, des oiseaux nichent… »),
+  la saison, les activités concernées et la réglementation (`reglement2`).
+- **Étude mouillages Bretagne – Pays de la Loire 2023 (i-Sea)** —
+  `usage:us_atl_bzh_pdl_mouillage_2023_*` : bateaux détectés sur images
+  satellite 2018-2022 (89 214 points : au mouillage / échoué / en navigation,
+  dans une zone autorisée ou forain, sur herbier ou non), fréquentation et
+  pression par maille sur les herbiers. Positions seules, sans identité.
+- **Mouillages permanents CARPEDIEM 2018** —
+  `usage:us_met_carpediem_mouillage_permanent_2018_ofb_pol_3857`, 4 713 entités
+  (29 : 1 665, 56 : 675, 22 : 129, 83 : 84) : lieu-dit, commune, gestionnaire,
+  type (AOT, ZMEL…), nombre de bateaux.
+- **Croisement avec les 72 zones autorisées de `zones-aot.geojson` (19/11/2026,
+  `INTERSECTS` sur chaque polygone)** — suite à l'arbitrage de Nicolas (pas de
+  détail d'interdiction là où la DDTM n'autorise déjà pas le mouillage) :
+  - règles Nav&Co **valides** : 53 zones du Var touchées, mais seulement par
+    deux familles sans effet sur un mouillage individuel — limites pour les
+    navires > 24 m (arrêté PREMAR 248/2020 et voisins) et pêche de loisir
+    réglementée dans le parc national de Port-Cros. **Aucune zone interdite
+    au mouillage** dans une zone autorisée. Aucune règle dans les zones du 56.
+    Les 7 règles bretonnes citant le mouillage sont toutes dans le Morbihan,
+    hors zones autorisées ; **aucune dans le Finistère** ;
+  - aires marines protégées : 31 zones du Var dans le parc national de
+    Port-Cros, uniquement **aire maritime adjacente** et périmètre d'ensemble
+    (+ aire d'adhésion) ; **aucune** zone autorisée dans une réserve naturelle,
+    un cœur de parc, un arrêté d'habitat naturel ou un DPM du Conservatoire ;
+  - zones à enjeux oiseaux : **4 zones du 56** (Kersabu, Les Salles — petite
+    mer de Gâvres ; Le Plessis — Blavet maritime ; Port La Croix — Hoëdic),
+    saison d'hiver.
+- Locales : herbiers à risque du golfe du Morbihan (6 secteurs, 2023), activités
+  et pressions de Groix (2023), mouillage forain baie de Lancieux, zone d'estran
+  physique (`physique:phy_met_estran_…`, 11 671 polygones).
+
 **Le fond de plan est aussi une source interrogée.** `CarteFacile.mapStyles.simple`,
 source unique `plan_ign`, lue à **chaque clic** par `queryRenderedFeatures` sur
 une carte fantôme (jamais affichée, `preserveDrawingBuffer: true` requis pour
