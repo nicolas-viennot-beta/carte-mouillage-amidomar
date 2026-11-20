@@ -31,12 +31,12 @@
       "liste": [],
       "lien": "",
       "libelle_lien": "",
-      "_note_zones": "Comme pour le Var, les zones vivent dans data/zones-aot.geojson (propriété ddtm = 56), pas ici. Pas de champ secteurs : les zones sont listées par commune. Textes rédigés par Claude sur le modèle du 83 (13 nov. 2026), à faire relire par la DDTM 56.",
+      "_note_zones": "Comme pour le Var, les zones vivent dans data/zones-aot.geojson (propriété ddtm = 56), pas ici. Pas de champ secteurs : les zones sont listées par commune. Textes rédigés par Claude sur le modèle du 83 (13 nov. 2026), à faire relire par la DDTM 56. 20 nov. 2026 (v2.50) : mention « mouillage avant-arrière » retirée du détail en zone, elle ne concernait que Port Jean et Port Fouquet (Le Palais), zones retirées.",
       "libelle_toutes_zones": "Toutes les zones du Morbihan",
       "message_titre_zone": "La DDTM du Morbihan délivre de nouvelles AOT de mouillage individuel dans cette zone",
       "message_complement_zone": "",
       "message_detail_zone": [
-        "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres. Certaines zones ont aussi leurs propres conditions (longueur maximale des navires, mouillage avant-arrière) : rapprochez-vous de la DDTM du Morbihan pour connaître la disponibilité réelle et les conditions de la zone."
+        "La capacité indiquée est le nombre d'emplacements de la zone, pas le nombre de places encore libres. Certaines zones ont aussi leurs propres conditions (longueur maximale des navires) : rapprochez-vous de la DDTM du Morbihan pour connaître la disponibilité réelle et les conditions de la zone."
       ],
       "message_consequence_zone": "",
       "coordonnees_hors_zone": false,

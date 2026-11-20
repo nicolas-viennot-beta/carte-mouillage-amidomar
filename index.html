@@ -966,9 +966,8 @@
          code INSEE) : relevés une fois sur geo.api.gouv.fr le 19/11/2026.
          Une commune absente de cette table n'est pas envoyée. */
       communes: {
-        'Gâvres':['56680','56062'], 'Hœdic':['56170','56085'], 'Lanester':['56600','56098'],
-        'Le Palais':['56360','56152'], 'Lorient':['56100','56121'], 'Riantec':['56670','56193'],
-        'Sauzon':['56360','56241'],
+        'Hœdic':['56170','56085'], 'Lanester':['56600','56098'],
+        'Lorient':['56100','56121'], 'Riantec':['56670','56193'],
         'Bandol':['83150','83009'], 'Bormes-les-Mimosas':['83230','83019'],
         'Cavalaire-sur-Mer':['83240','83036'], 'Fréjus':['83600','83061'], 'Gassin':['83580','83065'],
         'Grimaud':['83310','83068'], 'Hyères':['83400','83069'], 'La Croix-Valmer':['83420','83048'],
@@ -1253,7 +1252,7 @@
         // pas pour ce public. Les autres gardent l'orange des règles locales.
         couleurExpr:['case', ['==', ['get','public'], 'professionnels'], '#6a6a6a', '#b34000'],
         attribution:'DDTM du Var / SML-BLO, cartes n°1 à 52, octobre 2022 – mai 2023 ; DDTM du Morbihan, couche SIG des zones de mouillage individuel, 2026',
-        note:"Zones où une AOT de mouillage individuel reste délivrable. Var : 57 zones sur 16 communes, de Bandol à Saint-Raphaël (cartes n°1 à 26 et 31 à 52 de la DDTM 83, relevées à la main sur PDF, à faire confirmer par elle ; cartes n°23 à 25 et 27 à 30 non transmises). Morbihan : 15 zones sur 8 communes, importées de la couche SIG de la DDTM 56 (v2.38). Orange : zone ouverte à tous ; gris : zone réservée uniquement aux professionnels. Même teinte orange que la carte « Règles locales » du popup : c'est la même nature d'information, ce que l'administration autorise." },
+        note:"Zones où une AOT de mouillage individuel reste délivrable. Var : 57 zones sur 16 communes, de Bandol à Saint-Raphaël (cartes n°1 à 26 et 31 à 52 de la DDTM 83, relevées à la main sur PDF, à faire confirmer par elle ; cartes n°23 à 25 et 27 à 30 non transmises). Morbihan : 8 zones sur 4 communes (Lorient, Lanester, Riantec, Hœdic), importées de la couche SIG de la DDTM 56 (v2.38) et réduites le 20 nov. 2026 sur ses réponses (v2.50). Orange : zone ouverte à tous ; gris : zone réservée uniquement aux professionnels. Même teinte orange que la carte « Règles locales » du popup : c'est la même nature d'information, ce que l'administration autorise." },
 
       { groupe:'Usages de la mer',
         id:'restrictions_diverses', label:'Zone de baignade / zone réglementaire',

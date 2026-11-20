@@ -23,7 +23,12 @@ fonctionnalité correspondante a réellement disparu.
 dit ce qu'ils ne couvrent pas. **Les réécrire de zéro n'est plus nécessaire** :
 les compléter l'est.
 
-**Dernière exécution : 19 nov. 2026 (v2.46) — « emplacement » au lieu de « point » (après la v2.45 « première demande » d'une autre session).**
+**Dernière exécution : 20 nov. 2026 (v2.50) — Morbihan réduit à 8 zones sur réponses de la DDTM 56.**
+- §6 **OK**, §10 **59/59** Node et **22/22** Chromium, §16 **OK**, §17 + §19 + §21.1 **84/84** (12 tests ajoutés ou revus pour le Morbihan), §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **25/25**, §20 bis **19/19**, §21.4 **17/17**, §22 **24/24**, §23 **29/29**, §24 **13/13**. Aucun échec, aucun aléa au premier passage.
+- **Vérifié en réel en local** (navigateur intégré, réseau ouvert) : fichier servi à 65 zones dont 8 du 56 ; en rade de Lorient, 7 polygones dessinés (Lorient, Lanester ×2, Riantec ×4), plus de Kersabu ; aucun polygone du 56 à Belle-Île ; aucune erreur JavaScript (sept réponses 404 de ressources distantes, sans lien avec les zones).
+- Non vérifié en local : le rattachement réel au 56 par le Shom (voir §17.6), à contrôler sur la version publiée.
+
+**Exécution précédente : 19 nov. 2026 (v2.46) — « emplacement » au lieu de « point » (après la v2.45 « première demande » d'une autre session).**
 - §6 **OK**, §10 **59/59** Node et **22/22** Chromium, §16 **OK**, §17 + §19 + §21.1 **72/72**, §17.5 **17/17**, §15 **13/13**, §18 **27/27**, §19.2 **9/9**, §20 **23/23**, §20 bis **19/19**, §22 **17/17**.
 
 **Exécution précédente : 19 nov. 2026 (v2.44) — vue détail avec retour.**
@@ -2930,7 +2935,7 @@ requis — tourne dans le conteneur Claude, captures dans `/tmp/amidomar_shot_*.
 ### 17.0 Données
 1. `data/ddtm-messages.json` : fiche 22 avec `coordonnees_hors_zone === false` et `brouillon === false` ; fiche 83 avec `coordonnees_hors_zone === false`, `message_hors_zone` et `message_titre_zone_pro`.
 2. `data/zones-aot.geojson` : toutes les entités portent `ddtm` et `public ∈ {tous, professionnels}` ; 57 zones `ddtm = 83` sur 16 communes *(v2.35)* ; anneaux fermés, ≥ 3 sommets distincts (deux triangles : Lazaret M1, Madrague de Giens D) — *(v2.38)* chaque anneau extérieur d'un `MultiPolygon` compris.
-3. *(v2.38)* Fiche 56 : `brouillon === false`, `coordonnees_hors_zone === false`, `message_hors_zone` et `message_titre_zone` présents, pas de `secteurs`. 15 zones `ddtm = 56` sur 8 communes, toutes `public: tous`, exactement un `MultiPolygon` (Le Palais — Port Jean), aucun `gid_ddtm56` parmi les 10 zones écartées (156, 167, 181, 182, 183, 184, 186, 189, 190, 193).
+3. *(v2.38, v2.50)* Fiche 56 : `brouillon === false`, `coordonnees_hors_zone === false`, `message_hors_zone` et `message_titre_zone` présents, pas de `secteurs`. **8** zones `ddtm = 56` sur **4** communes (Hœdic, Lanester, Lorient, Riantec), toutes `public: tous`, **290** emplacements au total, aucun `gid_ddtm56` parmi les 10 zones écartées (156, 167, 181, 182, 183, 184, 186, 189, 190, 193) ni parmi les 7 retirées le 20/11/2026 (118, 233, 235, 237, 238, 239, 241).
    - Vérification : lecture des fichiers.
 
 ### 17.1 `zoneAOTauPoint` et `zoneReserveePro`
@@ -2969,7 +2974,7 @@ Avec le 83 forcé en `brouillon: false` (`f83pub`) :
 4. Point `48.80, -3.00` avec `numdep = 22` → `#report-block` masqué, texte du 22.
 5. `pageerror` cumulées : 0.
 6. *(v2.38)* Point `47.50, -3.05` (baie de Quiberon) avec `numdep = 56`, fiche telle qu'en fichier → `#report-block` masqué, texte « Le Morbihan ne délivre plus… », carte orange contenant « Toutes les zones du Morbihan ».
-7. *(v2.38)* Point `47.70703, -3.32736` (Riantec — Stervins) → `#report-block` visible, carte `ddtm-ok` nommant « Riantec — Stervins », coordonnées « 47.707030, -3.327360 ». **Ne pas prendre un point des zones du Palais** : elles sont dans la ZMEL « Anse de Le Palais et La Coulisse », dont la modale s'ouvre et intercepte les clics suivants du harnais.
+7. *(v2.38)* Point `47.70703, -3.32736` (Riantec — Stervins) → `#report-block` visible, carte `ddtm-ok` nommant « Riantec — Stervins », coordonnées « 47.707030, -3.327360 ». **Ne pas prendre un point au Palais** : c'est la ZMEL « Anse de Le Palais et La Coulisse », dont la modale s'ouvre et intercepte les clics suivants du harnais (et il n'y a plus de zone autorisée à Belle-Île depuis la v2.50).
    - Vérification : Playwright, 1440 × 900, serveur statique local, `page.route` sur `services.data.shom.fr` (DWITHIN → une entité `{numdep}`, sinon vide) et sur `data/ddtm-messages.json`.
 
 ### 17.6 Non couvert par les harnais
@@ -2977,13 +2982,14 @@ Avec le 83 forcé en `brouillon: false` (`f83pub`) :
 - Le rendu gris d'une zone `professionnels` sur la carte (expression `couleurExpr`) : aucune zone de ce type dans les données. Vérifier à la première transmise, ou en mutant localement `public` sur une zone.
 - La barre réduite après masquage en conditions réelles (vérifiée seulement par lecture de `#coords-resume-coords`).
 - *(v2.38)* Le rattachement réel « Morbihan (56) » par le Shom, et donc le masquage dans le Morbihan — **à vérifier sur la version publiée** : clic en baie de Quiberon (≈ 47.50, -3.05), attendre « Emplacement rattaché à : Morbihan (56) », constater le paragraphe « Le Morbihan ne délivre plus… » ; puis clic dans Riantec — Stervins → carte verte, coordonnées affichées.
-- *(v2.38)* Le dessin des 15 polygones du 56 sur le fond réel (recherche « Riantec », « Le Palais », « Hœdic »), et la zone de la ria d'Étel (« Ria d'Étel (commune à confirmer) »).
+- *(v2.38, v2.50)* Le dessin des 8 polygones du 56 sur le fond réel (recherche « Riantec », « Lanester », « Hœdic »), et l'absence de polygone orange au Palais, à Sauzon, à Gâvres et dans la ria d'Étel.
 
-### 17.7 Morbihan *(v2.38)* — Node, `test_regles_locales.js`
-1. `{lng: -3.14476, lat: 47.33536}` → zone « Port Guen », `ddtm = 56` ; `{lng: -3.18921, lat: 47.36459}` → « Port Jean » (MultiPolygon).
-2. `decisionCoordonnees` avec la fiche 56 **telle qu'en fichier** : hors zone (`-3.05, 47.50`) → `masquer: true`, raison = `message_hors_zone` du 56 ; dans Port Guen → `masquer: false` ; dans une zone du **83** avec `dep = 56` → `masquer: true` (une zone d'une autre DDTM n'autorise rien).
-3. `blocReglesLocales`, 56 hors zone → carte orange, **15** liens sous « Toutes les zones », **8** `env-commune`, aucun `env-secteur-nom`, ni « Bandol » ni « Saint-Tropez ».
-4. 56 dans Port Guen → `ddtm-ok`, **14** liens, « (Le Palais — Port Guen) ».
+### 17.7 Morbihan *(v2.38, revu en v2.50)* — Node, `test_regles_locales.js`
+1. `{lng: -3.32736, lat: 47.70703}` → zone « Stervins », `ddtm = 56`. *(v2.50)* `{lng: -3.14476, lat: 47.33536}` (Port Guen) et `{lng: -3.18921, lat: 47.36459}` (Port Jean) → **aucune zone**. Un point dans le second morceau d'un `MultiPolygon` **fabriqué** trouve la zone (plus aucun MultiPolygon dans le fichier).
+2. `decisionCoordonnees` avec la fiche 56 **telle qu'en fichier** : hors zone (`-3.05, 47.50`) → `masquer: true`, raison = `message_hors_zone` du 56 ; dans Stervins → `masquer: false` ; *(v2.50)* à Port Guen → `masquer: true` ; dans une zone du **83** avec `dep = 56` → `masquer: true` (une zone d'une autre DDTM n'autorise rien).
+3. `blocReglesLocales`, 56 hors zone → carte orange, **8** liens sous « Toutes les zones », **4** `env-commune`, aucun `env-secteur-nom`, ni « Bandol » ni « Saint-Tropez » ; *(v2.50)* ni « Le Palais », « Sauzon », « Gâvres », « Étel ».
+4. 56 dans Stervins → `ddtm-ok`, **7** liens, « (Riantec — Stervins) » ; *(v2.50)* le détail ne contient plus « avant-arrière » et garde « longueur maximale des navires ».
+4bis. *(v2.50)* `bandeauVerdict` : 56 dans Stervins → vert ; à Port Guen → rouge.
 5. 83 hors zone → toujours **57** liens, aucun « Riantec ».
    - Vérification : appel direct des fonctions dans le sandbox `vm`.
 

@@ -75,7 +75,7 @@ let numdep='83', ok=0,ko=0; const chk=(l,c,d)=>{c?ok++:ko++;console.log((c?'OK  
  chk('56 : paragraphe de masquage, texte du 56', !e.masque && /hors des zones autorisées par la DDTM/.test(e.masqueTxt), e.masqueTxt.slice(0,80));
  chk('56 : carte orange, liste des zones du Morbihan', /env-carte--ddtm[" ]/.test(e.env) && /Toutes les zones du Morbihan/.test(e.env));
  await page.screenshot({path:'/tmp/amidomar_shot_56_hors_zone.png'});
- console.log('--- Morbihan, dans Riantec — Stervins (hors ZMEL ; les 4 zones du Palais sont dans une ZMEL) ---');
+ console.log('--- Morbihan, dans Riantec — Stervins (rade de Lorient) ---');
  e = await aller('47.70703, -3.32736');
  chk('56 : bloc « à reporter » visible', e.report!=='none', e.report);
  chk('56 : carte verte, nom de la zone', /ddtm-ok/.test(e.env) && /Riantec — Stervins/.test(e.env));

@@ -53,10 +53,13 @@
     hors ports / ZMEL ;
   - **83** : idem hors zones autorisées, avec deux listes (zones réservées
     aux professionnels, zones ouvertes à tous) ;
-  - **56** (13/11/2026) : mouillage seulement dans des zones spécifiques. Une
-    seule liste pour tout le département. Les zones à usage particulier
-    (plongeurs, vedettes à passagers, club nautique) ne sont pas intégrées ;
-    la zone transmise sans attributs (ria d'Étel) est intégrée quand même.
+  - **56** (13/11/2026, mis à jour le 20/11/2026) : mouillage seulement dans
+    des zones spécifiques. Une seule liste pour tout le département. La DDTM
+    ne délivre plus d'AOT individuelle que sur les secteurs de **Lorient,
+    Lanester, Riantec et Hœdic** (8 zones) : plus rien à Belle-Île, à Gâvres,
+    dans le golfe, en baie de Quiberon ni entre Quiberon et Carnac. Les zones
+    à usage particulier (plongeurs, vedettes à passagers, club nautique) ne
+    sont pas intégrées (confirmé par la DDTM).
 - Libellé usager des « zones tampon » du 83 : **« zone réservée uniquement
   aux professionnels »**. « Zone tampon » reste un terme interne DDTM.
 - **Masquage des coordonnées GPS** (v2.33, arbitré le 02/11/2026) :
@@ -113,6 +116,13 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **20/11/2026** — Réponses de la DDTM 56 sur les zones du Morbihan (v2.50) :
+  7 des 15 zones importées de sa couche SIG n'étaient plus délivrées (Belle-Île,
+  Gâvres, ria d'Étel). Piège : une couche SIG transmise par une DDTM n'est pas
+  forcément à jour, la faire relire avant de la dire complète. Arbitrages de
+  Nicolas : on **retire** une zone fermée (pas d'état « fermée » en grisé) ;
+  une zone qui ferme à une date proche est retirée tout de suite ; la limite
+  de 10 m à Riantec reste dans le message générique, pas affichée par zone.
 - **20/11/2026** — Retour UX de Nicolas : un panneau qui change de taille
   quand on ouvre un détail fait perdre l'œil. Règle qui en découle : **un
   changement de vue ne déplace pas le cadre**, seul le contenu change (modèle

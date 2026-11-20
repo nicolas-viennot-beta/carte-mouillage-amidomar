@@ -35,16 +35,19 @@ t('zones : toutes portent ddtm et public ∈ {tous, professionnels}',
 const z83 = zones.filter(z => z.properties.ddtm === '83'), z56 = zones.filter(z => z.properties.ddtm === '56');
 t('zones : 57 zones du Var, 16 communes', z83.length === 57
   && new Set(z83.map(z => z.properties.commune)).size === 16, String(z83.length));
-// v2.38 : le Morbihan apporte un MultiPolygon (Le Palais, Port Jean) — on vérifie chaque anneau extérieur.
+// v2.38 : le Morbihan apportait un MultiPolygon (Le Palais, Port Jean), retiré en v2.50 — le contrôle par anneau extérieur est gardé.
 const anneauxExt = g => g.type === 'Polygon' ? [g.coordinates[0]] : g.type === 'MultiPolygon' ? g.coordinates.map(p => p[0]) : [];
 t('zones : anneaux fermés et au moins 3 sommets distincts (deux triangles : Lazaret M1, Madrague D)', zones.every(z =>
   anneauxExt(z.geometry).length && anneauxExt(z.geometry).every(r => r.length >= 4 && r[0][0] === r[r.length-1][0] && r[0][1] === r[r.length-1][1])));
 const f56 = messages.find(m => m.ddtm === '56');
 t('56 : fiche publiée (brouillon false, coordonnees_hors_zone false), sans secteurs ni *_zone_pro',
   !!f56 && f56.brouillon === false && f56.coordonnees_hors_zone === false && !!f56.message_hors_zone && !!f56.message_titre_zone && !f56.secteurs);
-t('56 : 15 zones, 8 communes, toutes « tous », un MultiPolygon', z56.length === 15
-  && new Set(z56.map(z => z.properties.commune)).size === 8 && z56.every(z => z.properties.public === 'tous')
-  && z56.filter(z => z.geometry.type === 'MultiPolygon').length === 1, String(z56.length));
+t('56 : 8 zones, 4 communes (Lorient, Lanester, Riantec, Hœdic), toutes « tous », 290 emplacements (v2.50)', z56.length === 8
+  && [...new Set(z56.map(z => z.properties.commune))].sort().join('|') === 'Hœdic|Lanester|Lorient|Riantec'
+  && z56.every(z => z.properties.public === 'tous')
+  && z56.reduce((s, z) => s + z.properties.capacite_unites, 0) === 290, String(z56.length));
+t('56 : zones retirées le 20/11/2026 absentes (Le Palais ×4, Sauzon, Gâvres, ria d\'Étel) — v2.50',
+  z56.every(z => ![235,237,238,239,233,118,241].includes(z.properties.gid_ddtm56)));
 t('56 : aucune zone réservée (NUC, passagers, club nautique) importée', z56.every(z => ![156,167,181,182,183,184,186,189,190,193].includes(z.properties.gid_ddtm56)));
 
 const T = charger('');
@@ -133,21 +136,29 @@ t('les noms de secteur et d\'étendue sont échappés', (h => !h.includes('<b>x<
 
 console.log('--- §17.7  Morbihan (v2.38) ---');
 const dep56 = { departements: ['56'], rayonKm: 1 };
-const dansGuen = { lng: -3.14476, lat: 47.33536 };   // Le Palais — Port Guen
-const dansJean = { lng: -3.18921, lat: 47.36459 };   // Le Palais — Port Jean (MultiPolygon)
+const dansStervins = { lng: -3.32736, lat: 47.70703 };   // Riantec — Stervins
+const dansGuen = { lng: -3.14476, lat: 47.33536 };   // Le Palais — Port Guen, zone retirée en v2.50
+const dansJean = { lng: -3.18921, lat: 47.36459 };   // Le Palais — Port Jean, zone retirée en v2.50
 const dehors56 = { lng: -3.05, lat: 47.50 };         // baie de Quiberon, hors zone
-const zG = T.zoneAOTauPoint(dansGuen, zones), zJ = T.zoneAOTauPoint(dansJean, zones);
-t('un point à Port Guen trouve la zone (ddtm 56)', !!zG && zG.properties.lieu === 'Port Guen' && zG.properties.ddtm === '56');
-t('un point à Port Jean trouve la zone MultiPolygon', !!zJ && zJ.properties.lieu === 'Port Jean');
+const zS = T.zoneAOTauPoint(dansStervins, zones);
+t('un point à Stervins trouve la zone (ddtm 56)', !!zS && zS.properties.lieu === 'Stervins' && zS.properties.ddtm === '56');
+t('Port Guen et Port Jean ne sont plus des zones (v2.50)', !T.zoneAOTauPoint(dansGuen, zones) && !T.zoneAOTauPoint(dansJean, zones));
+t('56 à Port Guen → masquer, comme hors zone (v2.50)', T.decisionCoordonnees(dep56, messages, zones, dansGuen).masquer === true);
+// Plus aucun MultiPolygon dans le fichier depuis la v2.50 : zone fabriquée pour garder le cas couvert.
+const zMulti = { type: 'Feature', properties: { ddtm: '56', public: 'tous', commune: 'Test', lieu: 'Multi' }, geometry: { type: 'MultiPolygon',
+  coordinates: [[[[-3.20,47.36],[-3.19,47.36],[-3.19,47.37],[-3.20,47.37],[-3.20,47.36]]], [[[-3.10,47.30],[-3.09,47.30],[-3.09,47.31],[-3.10,47.31],[-3.10,47.30]]]] } };
+t('un point dans le second morceau d\'un MultiPolygon trouve la zone', (z => !!z && z.properties.lieu === 'Multi')(T.zoneAOTauPoint({ lng: -3.095, lat: 47.305 }, [zMulti])));
 t('56 hors zone → masquer, raison = message_hors_zone', (d => d.masquer && d.raison === f56.message_hors_zone)(T.decisionCoordonnees(dep56, messages, zones, dehors56)));
-t('56 dans une zone → afficher', T.decisionCoordonnees(dep56, messages, zones, dansGuen).masquer === false);
+t('56 dans une zone → afficher', T.decisionCoordonnees(dep56, messages, zones, dansStervins).masquer === false);
 t('56 dans une zone du 83 → masquer (zone d\'une autre DDTM)', T.decisionCoordonnees(dep56, messages, zones, dedans).masquer === true);
 const h56 = T.blocReglesLocales(dep56, messages, zones, dehors56);
-t('56 hors zone : carte orange, 15 zones listées par commune, sans niveau secteur', /env-carte--ddtm[" ]/.test(h56) && nLiens(h56) === 15
-  && !h56.includes('env-secteur-nom') && (h56.match(/class="env-commune"/g) || []).length === 8, String(nLiens(h56)));
+t('56 hors zone : carte orange, 8 zones listées par commune, sans niveau secteur', /env-carte--ddtm[" ]/.test(h56) && nLiens(h56) === 8
+  && !h56.includes('env-secteur-nom') && (h56.match(/class="env-commune"/g) || []).length === 4, String(nLiens(h56)));
+t('56 hors zone : plus de Palais, Sauzon, Gâvres ni ria d\'Étel dans la liste (v2.50)', !/Le Palais|Sauzon|Gâvres|Étel/.test(h56));
 t('56 hors zone : aucune zone du Var dans la liste', !h56.includes('Bandol') && !h56.includes('Saint-Tropez'));
-const h56ok = T.blocReglesLocales(dep56, messages, zones, dansGuen);
-t('56 dans Port Guen : carte verte, 14 autres zones, nom entre parenthèses', /env-carte--ddtm-ok/.test(h56ok) && nLiens(h56ok) === 14 && h56ok.includes('(Le Palais — Port Guen)'));
+const h56ok = T.blocReglesLocales(dep56, messages, zones, dansStervins);
+t('56 dans Stervins : carte verte, 7 autres zones, nom entre parenthèses', /env-carte--ddtm-ok/.test(h56ok) && nLiens(h56ok) === 7 && h56ok.includes('(Riantec — Stervins)'));
+t('56 en zone : plus de mention « avant-arrière » (v2.50)', !h56ok.includes('avant-arrière') && h56ok.includes('longueur maximale des navires'));
 t('83 : la liste du Var ne contient aucune zone du Morbihan', (h => nLiens(h) === 57 && !h.includes('Riantec'))(T.blocReglesLocales(dep83, msgs, zones, dehors)));
 
 console.log('--- §21.1  bandeauVerdict (v2.40) ---');
@@ -174,11 +185,12 @@ t('département inconnu → pas de bandeau', V(null, msgs, zones, dehors) === ''
 t('83 en brouillon (fichier tel quel) → verdict final + lien « Voir les règles locales », plus de « Information provisoire » (v2.41)',
   (h => classeV(h) === 'non' && h.includes('Voir les règles locales') && !h.includes('Information provisoire'))(V(dep83, messages, zones, dehors)));
 t('83 publié → lien « Voir les règles locales » aussi (v2.42 : toutes les DDTM)', V(dep83, msgs, zones, dehors).includes('Voir les règles locales'));
-t('22, 56 hors zone, 56 en zone → lien présent', [V(dep22, msgs, zones, dehors), V(dep56, messages, zones, dehors56), V(dep56, messages, zones, dansGuen)]
+t('22, 56 hors zone, 56 en zone → lien présent', [V(dep22, msgs, zones, dehors), V(dep56, messages, zones, dehors56), V(dep56, messages, zones, dansStervins)]
   .every(h => h.includes('Voir les règles locales')));
 t('29 (pas de fiche, rien à ouvrir) → pas de lien', !V(dep29, msgs, zones, dehors).includes('Voir les règles locales'));
-t('56 hors zone → rouge ; dans Port Guen → vert',
-  classeV(V(dep56, messages, zones, dehors56)) === 'non' && classeV(V(dep56, messages, zones, dansGuen)) === 'ok');
+t('56 hors zone → rouge ; dans Stervins → vert ; à Port Guen (zone retirée) → rouge (v2.50)',
+  classeV(V(dep56, messages, zones, dehors56)) === 'non' && classeV(V(dep56, messages, zones, dansStervins)) === 'ok'
+  && classeV(V(dep56, messages, zones, dansGuen)) === 'non');
 t('56 dans une zone du 83 → rouge (zone d\'une autre DDTM)', classeV(V(dep56, messages, zones, dedans)) === 'non');
 
 console.log('--- §21.4  Interdiction au point (APB, cultures marines) — v2.48 ---');

@@ -8,7 +8,7 @@ campagnes de test ; en cas de divergence, **c'est ce fichier qui fait foi**.
 Chaque section porte sa date de vérification. Tous les chiffres ont été mesurés
 sur les services eux-mêmes, pas lus dans une fiche de métadonnées.
 
-*Dernière consolidation : 19 novembre 2026 — §3 : inventaire exploratoire des services OFB, croisement avec les zones autorisées, sites sensibles oiseaux et phoques branchés (v2.43). Consolidation précédente : 18 novembre 2026 — §4 : herbiers, maërl et coralligène de l'OFB branchés (v2.39), intégration ajournée le 15/10 close ; état du cache de tuiles, couleurs de style, champs nominatifs à ne pas lire. Consolidation précédente : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
+*Dernière consolidation : 20 novembre 2026 — §9 bis : réponses de la DDTM 56, 7 zones du Morbihan retirées, 8 gardées (v2.50) ; §12 : trois questions closes. Consolidation précédente : 19 novembre 2026 — §3 : inventaire exploratoire des services OFB, croisement avec les zones autorisées, sites sensibles oiseaux et phoques branchés (v2.43). Consolidation précédente : 18 novembre 2026 — §4 : herbiers, maërl et coralligène de l'OFB branchés (v2.39), intégration ajournée le 15/10 close ; état du cache de tuiles, couleurs de style, champs nominatifs à ne pas lire. Consolidation précédente : 13 novembre 2026 — §9 bis : 15 zones de mouillage autorisées du Morbihan importées de la couche SIG de la DDTM 56 (v2.38) ; §2 piège 10 (encodage MapInfo) ; §12 questions à la DDTM 56. Consolidation précédente : 10 novembre 2026 — §9 : le champ `source` des zones porte désormais le rangement par secteur (v2.37). Consolidation précédente : 3 novembre 2026 — 29 zones de l'ouest du Var ajoutées (§9, cartes
 n°1 à 26). Consolidation précédente : 2 novembre 2026 — 23 zones de mouillage autorisées du Var
 ajoutées (§9), nouveaux champs de `ddtm-messages.json` et propriété `public` des zones
 (§10), coordonnées retenues par une règle locale. Consolidations précédentes : 30 octobre
@@ -48,7 +48,7 @@ chargé, `pixel` pour la lecture du fond de carte rendu.
 | Cultures marines — cadastres DDTM | ✅ | ✅ WFS | en service, **bloquant** |
 | ZMEL — Cerema/CACEM (fichier local) | ✅ | ✅ local | en service |
 | Zones de mouillage autorisées — DDTM 83 | ✅ | ✅ local | 57 zones sur 16 communes, cartes 23–25 et 27–30 manquantes |
-| Zones de mouillage autorisées — DDTM 56 | ✅ | ✅ local | 15 zones sur 8 communes, **liste complète**, import SIG (§9 bis) |
+| Zones de mouillage autorisées — DDTM 56 | ✅ | ✅ local | 8 zones sur 4 communes, **liste complète confirmée par la DDTM 56 le 20/11/2026**, import SIG (§9 bis) |
 | AOT existantes | ✅ | ✅ local | **données simulées** — 248 positions, bande 100–200 m du trait terre-mer (§10) |
 | Zones de baignade et zones réglementaires | ❌ | ❌ | aucune source publique |
 
@@ -297,7 +297,9 @@ Candidats pour la carte, vérifiés par requête :
     un cœur de parc, un arrêté d'habitat naturel ou un DPM du Conservatoire ;
   - zones à enjeux oiseaux : **4 zones du 56** (Kersabu, Les Salles — petite
     mer de Gâvres ; Le Plessis — Blavet maritime ; Port La Croix — Hoëdic),
-    saison d'hiver.
+    saison d'hiver. *(20/11/2026 : Kersabu retirée des zones autorisées en
+    v2.50, il en reste 3 ; le croisement n'a pas été rejoué sur les 65 zones,
+    un retrait ne pouvant qu'enlever des recoupements.)*
 - Locales : herbiers à risque du golfe du Morbihan (6 secteurs, 2023), activités
   et pressions de Groix (2023), mouillage forain baie de Lancieux, zone d'estran
   physique (`physique:phy_met_estran_…`, 11 671 polygones).
@@ -1374,7 +1376,7 @@ zones réservées aux professionnels.
   183, 184, 186, 189, 190, 193 ; Larmor-Baden, Baden, Sarzeau), 1 zone pour
   vedettes à passagers (gid 156, Hœdic, Anse du Port de l'Argol), 1 zone pour club
   nautique (gid 167, Erdeven, île de Roëlan).
-- **Retenues : 15 zones, 8 communes, 408 emplacements** (hors la zone sans
+- **Retenues à l'import du 13/11/2026 (liste réduite le 20/11/2026, voir plus bas) : 15 zones, 8 communes, 408 emplacements** (hors la zone sans
   capacité) : Riantec (Les Salles 35, Les Deux Moulins 30, Kerner 20, Stervins 60),
   Gâvres (Kersabu 15), Lanester (Le Plessis 15, Le Scorff — Pont Saint-Christophe
   30), Lorient (Le Scorff — Pont Saint-Christophe 50), Le Palais (Port Jean 15,
@@ -1395,6 +1397,29 @@ zones réservées aux professionnels.
   18/09/2026). Les 11 autres ne chevauchent aucune ZMEL. Effet sur la carte : la
   modale ZMEL est prioritaire au clic, ces 4 zones ne sont atteignables que par
   la liste. Question posée en §12.
+- **Réponses de la DDTM 56 (transmises par Nicolas le 20/11/2026) — 7 zones
+  retirées, 8 gardées (v2.50).** La couche SIG n'est pas à jour sur ces points :
+  - gid 241 (ria d'Étel) : « n'est plus d'actualité », passe en ZMEL au
+    1er janvier 2027 → **retirée** dès maintenant (confirmé par Nicolas) ;
+  - Le Palais (gid 235, 237, 238, 239) : plus de mouillage individuel au
+    Palais, secteur passé en ZMEL → **retirées** ;
+  - « idem pour tout Belle-Île » → Sauzon, Ster Ouen (gid 233) **retirée**
+    (déduction validée par Nicolas) ;
+  - plus de mouillage individuel délivré dans le golfe du Morbihan, en baie de
+    Quiberon, entre Quiberon et Carnac, ni sur les secteurs de Groix, Ploemeur,
+    Larmor-Plage, Gâvres, Port-Louis → Gâvres, Kersabu (gid 118) **retirée**
+    (déduction validée par Nicolas) ;
+  - AOT individuelles encore délivrées sur **Lorient, Lanester, Riantec et
+    Hœdic** : ce sont les 8 zones gardées (gid 99, 103, 104, 115, 116, 119, 120,
+    157), **290 emplacements** ;
+  - les 10 zones à usage particulier « ne sont pas des zones pour les
+    particuliers » : filtre confirmé ;
+  - longueur maximale de 10 m à Riantec : « toujours d'actualité » ; le
+    mouillage avant-arrière de Port Jean et Port Fouquet n'a plus d'objet.
+  Piège : **une couche SIG transmise par une DDTM peut contenir des zones qui
+  ne sont plus délivrées** — la faire relire avant de la tenir pour complète.
+  Pour réintégrer une zone : `Amidomar/Morbihan/zones_morbihan_56.geojson`
+  contient toujours les 25 entités.
 - **Propriétés versées** : celles du Var (`ddtm`, `departement`, `commune`,
   `lieu`, `zone` = null, `nom`, `public` = `tous`, `capacite_unites`, `source`,
   `saisie`, `surface_m2_approx`) et, propres au 56, `gid_ddtm56`, `insee`,
@@ -1417,7 +1442,7 @@ zones réservées aux professionnels.
 |---|---|---|
 | `data/zmel.geojson` | 647 ZMEL | Cerema/CACEM, 18/09/2026 |
 | `data/ZMEL_18_09_2026/` | shapefile source | idem |
-| `data/zones-aot.geojson` | 72 zones : 57 du Var (16 communes), 15 du Morbihan (8 communes) | DDTM 83, relevé manuel sur les cartes n°1 à 26 et 31 à 52 ; DDTM 56, import de la couche SIG (§9 bis) |
+| `data/zones-aot.geojson` | 65 zones : 57 du Var (16 communes), 8 du Morbihan (4 communes ; 15 zones jusqu'au 20/11/2026) | DDTM 83, relevé manuel sur les cartes n°1 à 26 et 31 à 52 ; DDTM 56, import de la couche SIG (§9 bis) |
 | `data/ram-ports.json` | marnage de 214 ports | Shom, voir §11 |
 | `data/ddtm-messages.json` | messages par DDTM (22, 56 et 83 renseignés) | saisie projet, **provisoire** |
 | `data/ports-plaisance.geojson` | ports de plaisance | **places et contacts fictifs** |
@@ -1547,9 +1572,7 @@ quelques sites avant de bouger.
 | **Emprise latérale d'une concession linéaire** | service Cultures marines de la DDTM/DML qui instruit les concessions — la 17 en premier, seul flux linéaire branché | quelle largeur occupe réellement une concession sur filière ou estacade, de part et d'autre du trait du cadastre ? Est-elle normée par le schéma départemental des structures, ou propre à chaque concession ? Demander le schéma des structures du département (arrêté préfectoral, en PDF). **Les trois pistes techniques sont fermées** (§7) : la largeur n'est dans aucun flux. C'est pourtant la seule réponse qui permettrait de bloquer sur l'emprise réelle au lieu d'arbitrer entre sur-bloquer et sous-bloquer |
 | CORS sur le cadastre national | Cerema, `geolittoral-data.cerema.fr` | un réglage de serveur donnerait la couverture nationale d'un coup |
 | **Zones de baignade et zones réglementaires** | — | aucune source publique ne permet de les représenter ni de les identifier au clic. Confirmé absent du Shom. Les API de prédiction de marée du Shom sont par ailleurs **payantes** |
-| **Zones AOT du Morbihan : zone sans attributs** | DDTM 56 (Lorient-Littoral) | gid 241, ria d'Étel : quelle commune, quel lieu-dit, quelle capacité ? Est-elle encore en vigueur (seule `date_maj` est renseignée) ? |
-| **Zones AOT du Morbihan : recouvrement avec la ZMEL du Palais** | DDTM 56 | les 4 zones de Belle-Île (Port Jean, Port Yorc'h, Port Guen, Port Fouquet) sont entièrement dans la ZMEL « Anse de Le Palais et La Coulisse » : sont-elles devenues la ZMEL, ou restent-elles des zones d'AOT individuelles à l'intérieur ? |
-| **Zones AOT du Morbihan : confirmations** | DDTM 56 | que les 10 zones à usage particulier (plongeurs, vedettes, club nautique) ne concernent pas les plaisanciers ; relecture des textes de la fiche 56 de `ddtm-messages.json` (rédigés sur le modèle du 83) ; transmission des PDF cités dans `lien_annexe` |
+| **Zones AOT du Morbihan : reste à obtenir** | DDTM 56 | relecture des textes de la fiche 56 de `ddtm-messages.json` (rédigés sur le modèle du 83) ; transmission des PDF cités dans `lien_annexe` ; une couche SIG à jour. *Closes le 20/11/2026 (réponses en §9 bis) : zone sans attributs de la ria d'Étel, recouvrement avec la ZMEL du Palais, zones à usage particulier.* |
 | **Zones réservées aux professionnels (« zones tampon ») du Var** | DDTM 83 | aucune transmise à ce jour ; le mécanisme d'affichage est prêt (propriété `public`) |
 | **Cartes n°23 à 25 et 27 à 30 du Var** | DDTM 83 | non transmises ; et validation de l'ensemble des 57 périmètres relevés sur PDF — tant que ce n'est pas fait, le 83 reste en `brouillon` et le masquage des coordonnées y reste inactif |
 | Messages DDTM : 3 départements sur une centaine | DDTM pilotes | `ddtm-messages.json` ne porte que les DDTM **22** (Côtes-d'Armor : plus d'AOT individuelle délivrée, redirection vers une liste d'attente), **56** (Morbihan : zones dédiées, publié depuis la v2.38) et **83** (encore en `brouillon`). C'est le fichier qui fait parler la carte au niveau local |
@@ -1694,6 +1717,7 @@ reprise dans ce fichier.
 | 14 oct. 2026 | `AMIDOMAR_Herbiers_sources_nationales.md` | couches OFB, WFS Géoplateforme |
 | 15 oct. 2026 | — | consolidation dans ce fichier, puis relecture croisée avec la spec, les tests et le code : correction de la règle de lecture du trait terre-mer, des cinq issues du cadastre, du rayon de requête à 40 m, de l'origine de test du CORS, et du statut du rattachement départemental |
 | 13 nov. 2026 | dossier `Amidomar/Morbihan` (couche MapInfo de la DDTM 56 + `conv.py`, `build.py`, `zones_morbihan_56.geojson`) | import des zones de mouillage du Morbihan, 15 zones versées (§9 bis) |
+| 20 nov. 2026 | réponses de la DDTM 56 aux questions du §12, transmises par Nicolas | 7 zones du Morbihan retirées, 8 gardées (§9 bis, v2.50) |
 | 3 nov. 2026 | dossier `Amidomar/var ouest` (23 PDF + `zones_var_ouest_releve.py`, le relevé des sommets) | lecture des cartes n°1 à 26 de la DDTM 83, 29 zones versées |
 | 2 nov. 2026 | conversation « Tableau des zones de mouillage » (projet Claude) | lecture des 15 cartes PDF n°31 à 52 de la DDTM 83, 24 zones relevées et versées (carte 38 : étiquettes réattribuées, confirmé), classeur `zones_mouillage_AOT_Var.xlsx` et GeoJSON de travail |
 | 15 oct. 2026 | `AMIDOMAR_Bathymetrie_flux_Shom_et_integration.md` | bathymétrie : les quatre voies Shom fermées avec preuves, prépaquets et poids mesurés, provenance et dispersion EMODnet |
