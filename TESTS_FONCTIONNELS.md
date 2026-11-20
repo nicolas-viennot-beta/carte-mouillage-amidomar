@@ -3163,11 +3163,11 @@ c. Chromium, 43.045, 6.155 (Var, hors zone) + APB : phrase de la DDTM, lien « V
 d. Non couvert : parcelle de cultures marines (même chemin de code, textes « Parcelle de cultures marines » / « Vous êtes sur une parcelle de cultures marines. »), à vérifier sur un vrai point (§ cultures marines, test 1).
 - Rendu à 390 px.
 
-## 22. Vue détail avec retour *(v2.44)*
+## 22. Vue détail avec retour *(v2.44 ; panneau fixe v2.49)*
 
 *Harnais : `test_vue_detail_chromium.js` (Playwright). Point 43.045, 6.155 (Var, hors zone),
 Shom LIMTM simulé (83), OFB simulé (un herbier de posidonie), reste du réseau coupé.
-Dernière exécution : 19 nov. 2026 — 17/17.*
+Dernière exécution : 20 nov. 2026 — 24/24.*
 
 ### 22.1 Synthèse
 1. Pas de vue ouverte ; bandeau, règles locales, points de vigilance et « À reporter » visibles.
@@ -3193,9 +3193,16 @@ Dernière exécution : 19 nov. 2026 — 17/17.*
 1. « Voir les règles locales » ouvre la vue « Zones autorisées — Var (83) ».
 2. Un nouvel emplacement ferme la vue.
 
-### 22.6 Non couvert — à vérifier en réel
+### 22.6 Le panneau ne bouge pas *(v2.49)*
+1. Ordinateur (1440 × 900) : à l'ouverture de « Voir les zones » puis au retour, bord haut et hauteur du panneau identiques ; le panneau commence sous la recherche.
+2. Téléphone (390 × 844) : volet d'au plus 60 % de la hauteur d'écran.
+3. Téléphone : « Ce que ça implique » fait glisser le détail depuis la droite (animation `env-glisse-entree`), le volet ne bouge pas.
+4. Téléphone : le retour fait revenir la synthèse depuis la gauche (`glisse-retour`), volet immobile.
+5. Contre-épreuve faite le 20/11/2026 : sur la v2.48, les points 1 à 4 échouent (bord haut déplacé de 72 px sur ordinateur, de 309 px sur téléphone).
+
+### 22.7 Non couvert — à vérifier en réel
 - Restauration du défilement sur un panneau qui défile réellement *(vérifié en local le 19/11/2026, voir « Dernière exécution »)*.
-- Téléphone (390 px) : vue détail et retour.
+- Téléphone réel : glissement et hauteur du volet quand le clavier est ouvert.
 - Côtes-d'Armor : vue « Règles locales — Côtes-d'Armor (22) » avec le lien vers la liste d'attente.
 ## 23. Bouton « Commencer une première demande pour cet emplacement » *(v2.45)*
 
@@ -3224,3 +3231,30 @@ Dernière exécution : 19 nov. 2026 — 17/17.*
 - Ouvrir un vrai lien sur 152356 (crée un brouillon = écriture DN, avec l'accord de Nicolas) et vérifier champ par champ que chaque valeur arrive : format accepté par le champ formaté « Coordonnées GPS », option « Sable ou vase » / « Roche » existante, commune reconnue, `true` qui ouvre bien le bloc conditionnel Natura.
 - **À refaire après toute retouche du formulaire DN** : une clé changée est ignorée sans message.
 - Rendu à 390 px et dans l'iframe d'amidomar.beta.gouv.fr (ouverture du nouvel onglet).
+
+## 24. Boutons de carte en bas à droite *(v2.49)*
+
+*Harnais : `test_outils_carte_chromium.js` (Playwright). Point 43.045, 6.155 (Var, hors zone),
+Shom LIMTM simulé (83), reste du réseau coupé. Un bouton est « libre » si c'est bien lui
+qui est dessiné en son centre (rien par-dessus). Dernière exécution : 20 nov. 2026 — 13/13.*
+
+### 24.1 Ordinateur (1440 × 900)
+1. « ? », géolocalisation et zoom sont dans le coin bas droit, dans cet ordre de haut en bas, au-dessus de l'échelle.
+2. Aucun n'est recouvert, ni avant ni après le clic sur un emplacement (panneau pleine hauteur à gauche).
+
+### 24.2 Colonne « Couches affichées »
+1. Dépliée : les boutons passent à sa gauche, aucun n'est recouvert.
+2. Repliée : ils reviennent au bord droit.
+
+### 24.3 Les boutons répondent
+1. Zoom − : l'échelle change.
+2. « ? » rouvre le guide.
+
+### 24.4 Téléphone (390 × 844)
+1. Les boutons sont en haut à gauche : zoom, géolocalisation, « ? ».
+2. Emplacement ouvert : le volet ne recouvre aucun bouton.
+3. Retour à l'écran large : ils retournent en bas à droite.
+
+### 24.5 Non couvert — à vérifier en réel
+- Téléphone réel, y compris en paysage.
+- Un écran d'ordinateur bas (moins de 700 px de haut) : la colonne dépliée et les boutons.

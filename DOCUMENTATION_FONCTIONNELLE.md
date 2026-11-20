@@ -1,7 +1,7 @@
 # Carte AMIDOMAR — Documentation Fonctionnelle
 
-**Version:** 2.48 (novembre 2026)  
-**Dernière mise à jour:** 19 novembre 2026  
+**Version:** 2.49 (novembre 2026)  
+**Dernière mise à jour:** 20 novembre 2026  
 **URL déploiement:** https://nicolas-viennot-beta.github.io/carte-mouillage-amidomar/
 
 ---
@@ -28,6 +28,8 @@ La **Carte AMIDOMAR** est un outil d'aide au choix d'un emplacement de mouillage
 ## 2. Disposition de l'interface
 
 ### Gauche — Contrôles cartographiques
+> *(v2.49)* Seule la **recherche** reste en haut à gauche sur ordinateur. Zoom, orientation, géolocalisation et aide passent **en bas à droite**, au-dessus de l'échelle, dans cet ordre de haut en bas : aide « ? », géolocalisation, zoom +/−, orientation. C'est la disposition de Google Maps et de Citymapper : les outils de carte à l'opposé du panneau du point, qui occupe désormais toute la hauteur à gauche et les recouvrait. Quand la colonne « Couches affichées » dépliée descend jusqu'à eux, ils passent à sa gauche (déplacement déclenché par le geste de l'usager). **Sur téléphone** (≤ 700 px), ils restent en haut à gauche sous la recherche, et le volet du point s'arrête sous le dernier d'entre eux. Mise en œuvre : `placerOutilsCarte` (déplace les éléments MapLibre d'un coin à l'autre, au chargement et au passage du seuil de 700 px), `decalerOutilsCarte` ; le « ? » est un groupe de contrôles MapLibre comme les autres.
+
 - 🔍 **Recherche** — un seul champ pour localiser : commune, lieu-dit ou **coordonnées GPS** (voir §4.6). Depuis la **v2.36**, présentation alignée sur celle de cartes.gouv.fr/explorer-les-cartes (barre de recherche DSFR en grande taille), placeholder « Lieu ou Coordonnées GPS » — voir §4.6, « Présentation du champ »
 - 🔍 **Zoom** — agrandissement/réduction
 - 🧭 **Orientation** — rotation de la carte
@@ -192,6 +194,8 @@ Les variables sont notées `{…}`. Les textes sont reproduits tels qu'affichés
 > 7. **À reporter dans le formulaire** — inchangé.
 >
 > **Vue détail avec retour** *(v2.44, option A validée par Nicolas le 19/11/2026)* : « Voir les zones » (ou tout bouton de la carte de règle locale, par ex. « Voir la liste d'attente »), « Voir les règles locales » du bandeau et « Ce que ça implique » des points de vigilance **n'allongent plus le panneau** : ils en changent la vue. Tout le reste est masqué ; en tête, « **← Retour à la synthèse de l'emplacement** » (libellé choisi par Nicolas), le rappel du verdict sur une ligne colorée (« Votre emplacement : {titre du bandeau} »), puis un titre — « Zones autorisées — Var (83) », « Règles locales — Côtes-d'Armor (22) » quand le détail ne contient pas de zones, « Points de vigilance (n) ». Dans la vue vigilance, chaque point est encadré avec son étiquette ; l'avertissement « inventaire indicatif » reste unique. Un clic sur une zone recadre la carte sans quitter la vue. Le retour (lien ou **Échap**) rend le panneau tel qu'il a été quitté (défilement, saisie du navire) et remet le focus sur le bouton qui a ouvert la vue ; Échap n'efface plus le point tant qu'une vue est ouverte. Un nouvel emplacement ferme la vue. Ces boutons portent un chevron « › » ; les détails courts (profondeur, nature du fond, « Non vérifié ici ») restent en accordéon sur place. Mise en œuvre : `ouvrirVue` / `fermerVue`, classe `en-vue` sur `#coords-popup` ; le contenu reste dans `#env-block`, d'où des styles et des écouteurs inchangés. Aucune donnée ni texte ajouté hormis le lien de retour et les titres de vue.
+>
+> **Panneau de hauteur fixe** *(v2.49, pistes A et D validées par Nicolas le 20/11/2026)* : ouvrir ou fermer une vue ne déplace plus le panneau. Avant, ancré en bas et à la hauteur de son contenu, il rétrécissait en vue détail (courte) et son bord haut descendait de plusieurs centaines de pixels : l'œil perdait le texte à lire. Désormais le panneau ouvert a toujours la même hauteur : **sur ordinateur**, toute la place libre entre le bas de l'écran et le dessous de la recherche (`--panneau-hauteur-max`, mesurée depuis la v2.42) ; **sur téléphone** (moins de 700 px), un volet d'au plus **60 % de la hauteur d'écran**, qui s'arrête aussi sous les boutons de carte (environ 53 % sur un écran de 844 px) et laisse voir le point au-dessus. Seul le contenu change et défile à l'intérieur. Sur téléphone, le détail **glisse depuis la droite** (0,25 s) et la synthèse revient depuis la gauche, sauf si l'usager a demandé à réduire les animations. La barre réduite garde sa taille d'une ligne. Contrepartie acceptée : un contenu court (vérification en cours, à terre) laisse du blanc en bas du panneau. Pistes écartées : dépliage sur place (défaisait la v2.44), second volet à côté (deux panneaux à maintenir, plus de carte cachée). Mise en œuvre : règle `#coords-popup:not(.reduit) { height: … }`, `glisserVue()`.
 >
 > **Barre réduite** : le compte porte sur les **points de vigilance** (« 3 points de vigilance »). Un bandeau rouge ou gris passe devant : « Nouvelle demande impossible ici » *(v2.48 ; avant : « Pas de nouvelle autorisation ici », et « Mouillage interdit ici » pour l'APB et les cultures marines)*.
 >
@@ -1498,6 +1502,13 @@ sur le fond. Pour s'en convaincre, interroger le WFS `LIMTM` sur une emprise de
 ---
 
 ## 11. Historique des corrections
+
+### v2.49 — 20 novembre 2026
+**Le panneau ne bouge plus quand on ouvre un détail ; boutons de carte en bas à droite**
+- Retour de Nicolas (20/11/2026) : en cliquant sur « Voir le détail », le panneau se réduisait et l'œil perdait ce qu'il fallait lire. Cause : panneau ancré en bas, à la hauteur de son contenu. Quatre pistes présentées avec maquettes (Google Maps, Citymapper, portails à widgets) ; pistes A (ordinateur) et D (téléphone) validées.
+- Panneau ouvert de hauteur fixe : toute la place libre sous la recherche sur ordinateur, au plus 60 % de l'écran sur téléphone. Glissement latéral du détail sur téléphone (désactivé si « réduire les animations »). Barre réduite inchangée.
+- Boutons de carte (zoom, orientation, géolocalisation, « ? ») déplacés **en bas à droite** sur ordinateur, à la demande de Nicolas (20/11/2026) : le panneau pleine hauteur les recouvrait. Ils passent à gauche de la colonne « Couches affichées » quand elle descend jusqu'à eux. Sur téléphone, ils restent en haut à gauche et le volet s'arrête sous le « ? » (sans quoi il le recouvrait : défaut trouvé par le nouveau test). Voir §2.
+- Aucune donnée ni texte modifié. Voir C5, « Panneau de hauteur fixe ». Tests : `test_vue_detail_chromium.js` §22.6 (bord haut et hauteur identiques à l'ouverture et au retour, ordinateur et 390 × 844) ; le test échoue sur la v2.48 (bord haut déplacé de 72 px à 309 px). Nouveau `test_outils_carte_chromium.js` (§24).
 
 ### v2.48 — 19 novembre 2026
 **Un seul titre de bandeau quand la demande n'est pas possible ; l'interdiction au point passe sous le bandeau**

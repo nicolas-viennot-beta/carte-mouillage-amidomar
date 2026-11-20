@@ -1,4 +1,4 @@
-// Carte AMIDOMAR — vue détail avec retour (TESTS_FONCTIONNELS.md §22, v2.44)
+// Carte AMIDOMAR — vue détail avec retour (TESTS_FONCTIONNELS.md §22, v2.44 ; §22.6 panneau fixe, v2.49)
 //   node test_vue_detail_chromium.js   — Playwright requis
 // Point : 43.045, 6.155 (Var, hors zone, à l'est de Giens). Réseau coupé sauf :
 // LIMTM simulé (83) et WFS « habitat » de l'OFB simulé (un herbier de posidonie),
@@ -50,12 +50,15 @@ const RETOUR="← Retour à la synthèse de l'emplacement";
             listeZonesVisible: vis(e.querySelector('.env-liste--proches')),
             detailVigVisible: vis(e.querySelector('.env-vigilance .env-detail-bloc')),
             focus: document.activeElement ? (document.activeElement.className + '|' + document.activeElement.textContent.trim()).slice(0,80) : '',
-            defil: p.scrollTop };
+            defil: p.scrollTop,
+            haut: Math.round(p.getBoundingClientRect().top), hauteur: Math.round(p.getBoundingClientRect().height),
+            glisse: e.className };
  });
 
  await aller('43.045, 6.155');
  console.log('--- §22.1  Synthèse ---');
  let s = await etat();
+ const cadre0 = {haut:s.haut, hauteur:s.hauteur};
  chk('synthèse : pas en vue détail, verdict, règles, vigilance et « À reporter » visibles',
      !s.enVue && s.verdictVisible && s.reglesVisible && s.vigilanceVisible && s.reportVisible, JSON.stringify(s));
  const lib = await page.evaluate(()=>getComputedStyle(document.querySelector('.env-carte--ddtm .env-toggle-bloc'),'::after').content);
@@ -72,6 +75,8 @@ const RETOUR="← Retour à la synthèse de l'emplacement";
  chk('la liste des zones est visible ; vigilance, verdict, « À reporter » masqués',
      s.listeZonesVisible && !s.vigilanceVisible && !s.verdictVisible && !s.reportVisible, JSON.stringify(s));
  chk('le focus est sur le lien de retour', s.focus.includes('env-vue-retour'), s.focus);
+ chk('§22.6 ordinateur : le panneau ne bouge pas en ouvrant la vue (bord haut et hauteur identiques)', s.haut === cadre0.haut && s.hauteur === cadre0.hauteur, JSON.stringify({avant:cadre0, apres:{haut:s.haut,hauteur:s.hauteur}}));
+ chk('§22.6 ordinateur : le panneau s\'arrête sous la recherche', await page.evaluate(()=>document.getElementById('coords-popup').getBoundingClientRect().top >= document.querySelector('.cartefacile-ctrl-search').getBoundingClientRect().bottom));
  await page.screenshot({path:'/tmp/amidomar_vue_zones.png'});
  await page.locator('#env-block .env-liste--proches .env-zone-lien').first().click(); await page.waitForTimeout(700);
  chk('clic sur une zone : on reste dans la vue (on enchaîne les zones)', (await etat()).enVue);
@@ -80,6 +85,7 @@ const RETOUR="← Retour à la synthèse de l'emplacement";
  await page.locator('#env-block .env-vue-retour').click(); await page.waitForTimeout(300);
  s = await etat();
  chk('retour : synthèse rétablie, lien de retour disparu', !s.enVue && !s.retour && s.vigilanceVisible && s.reportVisible, JSON.stringify(s));
+ chk('§22.6 ordinateur : le panneau ne bouge pas au retour', s.haut === cadre0.haut && s.hauteur === cadre0.hauteur, JSON.stringify({haut:s.haut,hauteur:s.hauteur}));
  chk('retour : défilement rétabli et focus sur « Voir les zones »', s.defil === defilAvant && /Voir les zones/.test(s.focus), s.defil+' / '+defilAvant+' / '+s.focus);
 
  console.log('--- §22.4  Vue « Ce que ça implique » et Échap ---');
@@ -101,6 +107,22 @@ const RETOUR="← Retour à la synthèse de l'emplacement";
  await aller('43.2678, 6.6228');
  s = await etat();
  chk('un nouvel emplacement ferme la vue', !s.enVue && !s.retour && s.reglesVisible, JSON.stringify(s));
+
+ console.log('--- §22.6  Téléphone : volet de hauteur fixe, détail qui glisse ---');
+ await page.setViewportSize({width:390, height:844}); await page.waitForTimeout(1600);
+ await aller('43.045, 6.155');
+ s = await etat(); const tel0 = {haut:s.haut, hauteur:s.hauteur};
+ chk('téléphone : volet à 60 % de l\'écran au plus', s.hauteur > 0 && s.hauteur <= Math.round(844*0.6)+1, s.hauteur+' px');
+ await page.locator('#env-block .env-vigilance .env-toggle-bloc').click(); await page.waitForTimeout(60);
+ s = await etat();
+ const anim = await page.evaluate(()=>getComputedStyle(document.getElementById('env-block')).animationName);
+ chk('téléphone : le détail glisse depuis la droite', /glisse-entree/.test(s.glisse) && anim === 'env-glisse-entree', s.glisse+' / '+anim);
+ chk('téléphone : le volet ne bouge pas en ouvrant le détail', s.haut === tel0.haut && s.hauteur === tel0.hauteur, JSON.stringify({avant:tel0, apres:{haut:s.haut,hauteur:s.hauteur}}));
+ await page.waitForTimeout(400);
+ await page.screenshot({path:'/tmp/amidomar_vue_telephone.png'});
+ await page.locator('#env-block .env-vue-retour').click(); await page.waitForTimeout(60);
+ s = await etat();
+ chk('téléphone : la synthèse revient depuis la gauche, volet immobile', /glisse-retour/.test(s.glisse) && s.haut === tel0.haut && s.hauteur === tel0.hauteur, s.glisse+' '+JSON.stringify({haut:s.haut,hauteur:s.hauteur}));
 
  chk('aucune pageerror', pe.length===0, pe.slice(0,2).join(' / '));
  console.log('RESULTAT §22 (Chromium) : '+ok+' OK, '+ko+' ECHEC');

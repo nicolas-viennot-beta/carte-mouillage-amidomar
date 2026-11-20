@@ -113,6 +113,14 @@
 > relève du fonctionnement de la carte va dans la spec ; ce qui relève d'une
 > source va dans `SOURCES.md` ; ici, le reste.
 
+- **20/11/2026** — Retour UX de Nicolas : un panneau qui change de taille
+  quand on ouvre un détail fait perdre l'œil. Règle qui en découle : **un
+  changement de vue ne déplace pas le cadre**, seul le contenu change (modèle
+  Google Maps). Pistes présentées en maquettes cliquables (artefact), A + D
+  retenues (v2.49). Nicolas aime choisir sur maquettes plutôt que sur
+  description. Suite logique validée le même jour : **les outils de carte
+  vont à l'opposé du panneau** (en bas à droite), comme chez Google Maps et
+  Citymapper, vérifiés en ligne.
 - **19/11/2026** — Relecture de tous les bandeaux avec Nicolas (v2.48) :
   **un seul titre quand la demande n'est pas possible**, « Nouvelle demande
   d'autorisation impossible dans cette zone ». Nicolas proposait « refusée » ;

@@ -75,7 +75,7 @@
       /* v2.21 : le popup était centré horizontalement et masquait l'emplacement
          qu'on venait de cliquer — on ne voyait plus ce dont on parlait. Il est
          désormais calé en bas à GAUCHE : la colonne de légende occupe déjà la
-         droite (.colonne, top/right 10px), et le bouton « ? » est en HAUT à
+         droite (.colonne, top/right 10px), et le bouton « ? » était en HAUT à
          gauche, donc ce coin est le seul libre. L'angle mort qui subsistait —
          un clic dans le coin bas-gauche, recouvert par le popup — est traité
          depuis la v2.22 en faisant glisser la CARTE plutôt que le popup :
@@ -91,6 +91,26 @@
         #coords-popup { left:16px; right:16px; width:auto; }
       }
       #coords-popup.visible { opacity:1; pointer-events:auto; }
+      /* v2.49 : le panneau ouvert garde une hauteur FIXE. Ancré en bas, sa
+         hauteur suivait son contenu : en ouvrant une vue détail (courte), son
+         bord haut descendait de plusieurs centaines de pixels et l'œil perdait
+         le texte à lire. Désormais : sur ordinateur, toute la place libre
+         jusque sous la recherche (piste A) ; sur téléphone, un volet à 60 % de
+         la hauteur d'écran au plus (piste D). Seul le contenu change, il défile
+         à l'intérieur. La barre réduite garde sa taille d'une ligne. */
+      #coords-popup:not(.reduit) { height:var(--panneau-hauteur-max, calc(100% - 80px)); }
+      @media (max-width:700px) {
+        #coords-popup:not(.reduit) { height:min(var(--panneau-hauteur-max, calc(100% - 80px)), 60vh); }
+      }
+      /* v2.49 (piste D) : sur téléphone, le détail glisse depuis la droite et
+         la synthèse revient depuis la gauche — on voit qu'on entre dans un
+         détail puis qu'on en ressort, sans que le volet bouge. */
+      @keyframes env-glisse-entree { from { transform:translateX(32px); opacity:0; } }
+      @keyframes env-glisse-retour { from { transform:translateX(-32px); opacity:0; } }
+      @media (max-width:700px) and (prefers-reduced-motion: no-preference) {
+        #env-block.glisse-entree { animation:env-glisse-entree .25s ease-out; }
+        #env-block.glisse-retour { animation:env-glisse-retour .25s ease-out; }
+      }
       /* Fermeture explicite du popup par l'usager : désélectionne le point. */
       /* v2.27 : les deux issues du popup sont regroupees dans un meme bandeau
          d'actions, en haut a droite. Les positionner separement en absolu
@@ -720,10 +740,12 @@
       #guide-commencer:hover { background:#1212ff; }
       /* Bouton de réouverture : sans lui, la marche à suivre serait perdue
          dès la première fermeture. */
-      #guide-rouvrir { position:absolute; left:10px; z-index:520; width:29px; height:29px;
+      /* v2.49 : le « ? » est un contrôle de carte comme le zoom (groupe
+         maplibregl-ctrl-group, qui porte le fond et l'ombre) : il suit les
+         autres boutons là où ils sont rangés (voir placerOutilsCarte). */
+      #guide-rouvrir { display:block; width:29px; height:29px;
                        border:none; border-radius:4px; background:#fff; color:#003189;
-                       font-size:16px; font-weight:700; cursor:pointer; font-family:inherit;
-                       box-shadow:0 0 0 2px rgba(0,0,0,.1); }
+                       font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; }
       #guide-rouvrir:hover { background:#f0f4ff; }
 
       /* ---------- Modale ports et ZMEL ---------- */
@@ -1552,8 +1574,14 @@
     map.addControl(new CarteFacile.SearchControl({
       providers: [GpsGeocoder, CarteFacile.GeopfGeocoder]
     }), 'top-left');
-    map.addControl(new maplibregl.NavigationControl, 'top-left');
-    map.addControl(new maplibregl.GeolocateControl, 'top-left');
+    // v2.49 : appelé quand la colonne des couches se plie ou se déplie, une
+    // fois les boutons de carte rangés (voir placerOutilsCarte). Déclaré ici,
+    // avant replier(), pour éviter tout accès anticipé (piège TDZ du 16/09).
+    let surColonneDepliee = null;
+    const ctrlNavigation = new maplibregl.NavigationControl;
+    const ctrlLocalisation = new maplibregl.GeolocateControl;
+    map.addControl(ctrlNavigation, 'top-left');
+    map.addControl(ctrlLocalisation, 'top-left');
     /* v2.36 : plus de CarteFacile.MapSelectorControl en bas à gauche. Le choix
        du fond est en bas de la colonne « Couches affichées » (voir changerFond).
        Le contrôle d'origine appelait map.setStyle() sans rien conserver :
@@ -1883,6 +1911,7 @@
       body.style.display = ouvrir ? 'block' : 'none';
       chev.textContent = ouvrir ? '▾' : '▸';
       tete.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+      if (surColonneDepliee) surColonneDepliee();   // v2.49 : boutons de carte
     }
     document.querySelectorAll('.panel-header').forEach(h => {
       const bascule = () => {
@@ -2137,13 +2166,54 @@
     rouvrir.title = 'Revoir le fonctionnement de la carte';
     rouvrir.setAttribute('aria-label', 'Revoir le fonctionnement de la carte');
     rouvrir.addEventListener('click', () => ouvrirGuide());
-    wrap.appendChild(rouvrir);
-    // Se place sous les contrôles de carte, mesurés plutôt que supposés.
-    function placerRouvrir() {
-      const ctl = wrap.querySelector('.maplibregl-ctrl-top-left');
-      const haut = wrap.getBoundingClientRect().top;
-      rouvrir.style.top = (ctl ? ctl.getBoundingClientRect().bottom - haut + 8 : 10) + 'px';
+    const ctrlRouvrir = document.createElement('div');
+    ctrlRouvrir.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+    ctrlRouvrir.appendChild(rouvrir);
+    /* v2.49 : boutons de carte (zoom, boussole, « me localiser », « ? ») EN BAS
+       À DROITE sur ordinateur, comme Google Maps et Citymapper : à l'opposé du
+       panneau du point, qui occupe désormais toute la hauteur à gauche et les
+       recouvrait. Les décaler à droite du panneau les aurait fait sauter à
+       chaque ouverture. Sur téléphone (≤ 700 px), le volet occupe le bas :
+       ils restent en haut à gauche. Les éléments sont déplacés tels quels
+       (mêmes écouteurs), d'un coin de MapLibre à l'autre.
+       Ordre de haut en bas : « ? », me localiser, zoom, puis l'échelle. */
+    const ECRAN_TELEPHONE = window.matchMedia ? window.matchMedia('(max-width:700px)') : { matches:false };
+    function placerOutilsCarte() {
+      const outils = [ctrlRouvrir, ctrlLocalisation._container, ctrlNavigation._container].filter(Boolean);
+      if (ECRAN_TELEPHONE.matches) {
+        const coin = wrap.querySelector('.maplibregl-ctrl-top-left');
+        if (!coin) return;
+        [ctrlNavigation._container, ctrlLocalisation._container, ctrlRouvrir]
+          .forEach(el => { if (el) { el.style.marginRight = ''; coin.appendChild(el); } });
+        limiterHauteurPanneau();   // le volet s'arrête sous ces boutons
+      } else {
+        const coin = wrap.querySelector('.maplibregl-ctrl-bottom-right');
+        if (!coin) return;
+        // Devant l'échelle, dans l'ordre de la liste.
+        let ref = [...coin.children].find(c => !outils.includes(c)) || null;
+        outils.slice().reverse().forEach(el => { coin.insertBefore(el, ref); ref = el; });
+        decalerOutilsCarte();
+        limiterHauteurPanneau();
+      }
     }
+    /* La colonne « Couches affichées », dépliée, descend sur le bord droit :
+       si elle atteint les boutons, ils passent à sa gauche. Ce déplacement suit
+       un geste de l'usager (déplier la colonne), il ne surprend pas. */
+    function decalerOutilsCarte() {
+      const outils = [ctrlRouvrir, ctrlLocalisation._container, ctrlNavigation._container].filter(Boolean);
+      outils.forEach(el => { el.style.marginRight = ''; });
+      if (ECRAN_TELEPHONE.matches || !outils.length) return;
+      const col = colonneD.getBoundingClientRect();
+      const haut = outils[0].getBoundingClientRect().top;
+      if (col.height && col.bottom > haut - 8) {
+        const decalage = Math.round(wrap.getBoundingClientRect().right - col.left + 10);
+        outils.forEach(el => { el.style.marginRight = decalage + 'px'; });
+      }
+    }
+    if (ECRAN_TELEPHONE.addEventListener) ECRAN_TELEPHONE.addEventListener('change', placerOutilsCarte);
+    placerOutilsCarte();
+    surColonneDepliee = decalerOutilsCarte;
+    function placerRouvrir() { decalerOutilsCarte(); }
     /* v2.42 : le panneau du point s'arrête sous le champ de recherche. Ancré
        en bas et grandissant vers le haut, il finissait par recouvrir le champ
        (point ouvert des tests depuis la v2.38) : l'usager devait le réduire
@@ -2155,7 +2225,10 @@
       const p = document.getElementById('coords-popup');
       const r = wrap.querySelector('.cartefacile-ctrl-search');
       if (!p || !r || !p.style || typeof p.style.setProperty !== 'function') return;
-      const bas = r.getBoundingClientRect().bottom;
+      // v2.49 : sur téléphone, les boutons de carte restent en haut à gauche,
+      // sous la recherche : le volet s'arrête sous le dernier (le « ? »).
+      const coinHaut = ECRAN_TELEPHONE.matches ? wrap.querySelector('.maplibregl-ctrl-top-left') : null;
+      const bas = Math.max(r.getBoundingClientRect().bottom, coinHaut ? coinHaut.getBoundingClientRect().bottom : 0);
       const libre = window.innerHeight - 40 - bas - 12;   // 40 px : ancrage bas du panneau
       p.style.setProperty('--panneau-hauteur-max', Math.max(240, Math.round(libre)) + 'px');
     }
@@ -2895,9 +2968,19 @@
       carte.classList.add('env-vue-active');
       detail.hidden = false;
       popup.classList.add('en-vue');
+      glisserVue('entree');
       popup.scrollTop = 0;
       entete.querySelector('.env-vue-retour').focus({ preventScroll:true });
     }
+    /* v2.49 (piste D) : relance l'animation de glissement du contenu. Le CSS ne
+       l'applique que sur téléphone et si l'usager n'a pas demandé à réduire les
+       animations ; ailleurs, la classe est sans effet. */
+    function glisserVue(sens) {
+      envBlock.classList.remove('glisse-entree', 'glisse-retour');
+      void envBlock.offsetWidth;   // force le navigateur à rejouer l'animation
+      envBlock.classList.add('glisse-' + sens);
+    }
+    envBlock.addEventListener('animationend', () => envBlock.classList.remove('glisse-entree', 'glisse-retour'));
     function fermerVue(opts) {
       popup.classList.remove('en-vue');
       if (!vueOuverte) return;
@@ -2910,6 +2993,7 @@
       if (d) d.hidden = true;
       if (opts && opts.silencieux) return;
       popup.scrollTop = defilement;
+      glisserVue('retour');
       if (declencheur && document.contains(declencheur)) declencheur.focus({ preventScroll:true });
     }
 
